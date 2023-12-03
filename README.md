@@ -1,2 +1,2 @@
 # turftopic
-Robust and fast topic models with sentence-transformers.
+Topic modeling with contextual representations from sentence transformers.
