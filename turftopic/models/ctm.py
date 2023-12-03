@@ -89,7 +89,7 @@ class Model(nn.Module):
         return self.decoder.beta.weight.cpu().detach().T
 
 
-class ContextualizedTopicModel(ContextualModel):
+class AutoEncodingTopicModel(ContextualModel):
     def __init__(
         self,
         n_components: int,

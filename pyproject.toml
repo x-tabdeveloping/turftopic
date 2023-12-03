@@ -19,9 +19,7 @@ scipy = "^1.10.0"
 pyro-ppl = { version = "^1.8.0", optional = true }
 
 [tool.poetry.extras]
-setfit = ["setfit", "datasets"]
-torch = ["torch"]
-openai = ["openai", "tiktoken"]
+pyro-ppl = ["pyro-ppl"]
 
 
 [build-system]
