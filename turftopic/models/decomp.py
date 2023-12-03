@@ -38,7 +38,8 @@ class ComponentTopicModel(ContextualModel):
         doc_topic = self.decomposition.fit_transform(embeddings)
         self.vectorizer.fit(raw_documents)
         self.vocab_ = self.vectorizer.get_feature_names_out()
-        vocab_topic = self.decomposition.transform(self.vocab_)
+        vocab_embeddings = self.encoder_.encode(self.vocab_)
+        vocab_topic = self.decomposition.transform(vocab_embeddings)
         self.components_ = vocab_topic.T
         return doc_topic
 

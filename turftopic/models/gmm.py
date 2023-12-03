@@ -48,7 +48,7 @@ class MixtureTopicModel(ContextualModel):
             document_topic_matrix, document_term_matrix
         )
         self.vocab_ = self.vectorizer.get_feature_names_out()
-        self.weights_ = self.gmm_.weight_concentration
+        self.weights_ = self.gmm_.weights_
         return document_topic_matrix
 
     def fit(self, raw_documents, y=None):

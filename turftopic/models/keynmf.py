@@ -7,11 +7,11 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from turftopic.base import ContextualModel, Encoder
+from turftopic.base import ContextualModel
 
 
 def extract_keywords(
-    corpus, top_n: int, trf: Encoder
+    corpus, top_n: int, trf: SentenceTransformer
 ) -> List[Dict[str, float]]:
     vectorizer = CountVectorizer()
     dtm = vectorizer.fit_transform(corpus)
@@ -22,11 +22,15 @@ def extract_keywords(
     for i, embedding in enumerate(corpus_embeddings):
         terms = dtm[i, :].todense()
         embedding = embedding.reshape(1, -1)
-        important_terms = np.squeeze(np.asarray(terms > 0))
+        nonzero = terms > 0
+        if not np.any(nonzero):
+            keywords.append(dict())
+            continue
+        important_terms = np.squeeze(np.asarray(nonzero))
         word_embeddings = vocab_embeddings[important_terms]
         sim = cosine_similarity(embedding, word_embeddings)
-        sim = np.squeeze(sim)
-        kth = min(top_n, sim.shape[0] - 1)
+        sim = np.ravel(sim)
+        kth = min(top_n, len(sim) - 1)
         top = np.argpartition(-sim, kth)[:kth]
         top_words = vocab[important_terms][top]
         top_sims = sim[top]

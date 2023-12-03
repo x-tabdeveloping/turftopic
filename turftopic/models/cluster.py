@@ -12,6 +12,16 @@ from turftopic.base import ContextualModel
 from turftopic.centroid_distance import cluster_centroid_distance
 from turftopic.soft_ctf_idf import soft_ctf_idf
 
+integer_message = """
+You tried to pass an integer to ClusteringTopicModel as its first argument.
+We assume you tried to specify the number of topics.
+Since in ClusteringTopicModel the clustering model determines the number of topics,
+and this process may be automatic, you have to pass along a clustering model
+where the number of clusters is predefined.
+
+For instance: ClusteringTopicModel(clustering=KMeans(10))
+"""
+
 
 class ClusteringTopicModel(ContextualModel, ClusterMixin):
     def __init__(
@@ -25,6 +35,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         feature_importance: Literal["ctfidf", "centroid"] = "centroid",
     ):
         self.encoder = encoder
+        if isinstance(encoder, int):
+            raise TypeError(integer_message)
         if isinstance(encoder, str):
             self.encoder_ = SentenceTransformer(encoder)
         else:
