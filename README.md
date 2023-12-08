@@ -1,2 +1,9 @@
+<img align="left" width="82" height="82" src="assets/logo.svg">
+
 # turftopic
-Topic modeling with contextual representations from sentence transformers.
+
+<br>
+
+Your go-to package for topic modeling with contextual representations from transformers.
+
+(Stay tuned...)
