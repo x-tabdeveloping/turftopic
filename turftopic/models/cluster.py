@@ -1,6 +1,7 @@
 from typing import Literal, Optional, Union
 
 import numpy as np
+import scipy.sparse as spr
 from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.cluster import OPTICS
@@ -57,10 +58,13 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             self.dimensionality_reduction = dimensionality_reduction
         self.feature_importance = feature_importance
 
-    def fit_predict(self, raw_documents, y=None):
-        embeddings = self.encoder_.encode(raw_documents)
-        dtm = self.vectorizer.fit_transform(raw_documents)
-        self.vocab_ = self.vectorizer.get_feature_names_out()
+    def fit_predict(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ):
+        if embeddings is None:
+            embeddings = self.encoder_.encode(raw_documents)
+        doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
+        vocab = self.vectorizer.get_feature_names_out()
         cluster_labels = self.clustering.fit_predict(embeddings)
         clusters = np.unique(cluster_labels)
         self.classes_ = np.sort(clusters)
@@ -68,9 +72,9 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             document_topic_matrix = label_binarize(
                 cluster_labels, classes=self.classes_
             )
-            self.components_ = soft_ctf_idf(document_topic_matrix, dtm)
+            self.components_ = soft_ctf_idf(document_topic_matrix, doc_term_matrix)  # type: ignore
         else:
-            vocab_embeddings = self.encoder_.encode(self.vocab_)
+            vocab_embeddings = self.encoder_.encode(vocab)  # type: ignore
             self.components_ = cluster_centroid_distance(
                 cluster_labels,
                 embeddings,
@@ -80,10 +84,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         self.labels_ = cluster_labels
         return cluster_labels
 
-    def fit(self, raw_documents, y=None):
-        self.fit_predict(raw_documents, y)
-        return self
-
-    def fit_transform(self, raw_documents, y=None):
-        labels = self.fit_predict(raw_documents, y)
+    def fit_transform(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ):
+        labels = self.fit_predict(raw_documents, y, embeddings)
         return label_binarize(labels, classes=self.classes_)

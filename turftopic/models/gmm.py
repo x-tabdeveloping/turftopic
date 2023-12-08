@@ -1,5 +1,6 @@
 from typing import Literal, Optional, Union
 
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.mixture import BayesianGaussianMixture, GaussianMixture
@@ -39,22 +40,22 @@ class MixtureTopicModel(ContextualModel):
         else:
             self.gmm_ = GaussianMixture(n_components)
 
-    def fit_transform(self, raw_documents, y=None):
+    def fit_transform(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        if embeddings is None:
+            embeddings = self.encoder_.encode(raw_documents)
         document_term_matrix = self.vectorizer.fit_transform(raw_documents)
-        embeddings = self.encoder_.encode(raw_documents)
-        self.gmm_.fit(embeddings)
         document_topic_matrix = self.gmm_.predict_proba(embeddings)
         self.components_ = soft_ctf_idf(
             document_topic_matrix, document_term_matrix
         )
-        self.vocab_ = self.vectorizer.get_feature_names_out()
         self.weights_ = self.gmm_.weights_
         return document_topic_matrix
 
-    def fit(self, raw_documents, y=None):
-        self.fit_transform(raw_documents, y)
-        return self
-
-    def transform(self, raw_documents):
-        embeddings = self.encoder_.encode(raw_documents)
+    def transform(
+        self, raw_documents, embeddings: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        if embeddings is None:
+            embeddings = self.encoder_.encode(raw_documents)
         return self.gmm_.predict_proba(embeddings)

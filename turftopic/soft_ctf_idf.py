@@ -3,7 +3,7 @@ import scipy.sparse as spr
 
 
 def soft_ctf_idf(
-    doc_topic_matrix: np.ndarray, doc_term_matrix: spr.csr_array
+    doc_topic_matrix: np.ndarray, doc_term_matrix: spr.csr_matrix
 ) -> np.ndarray:
     term_importance = doc_topic_matrix.T @ doc_term_matrix
     overall_in_topic = np.abs(term_importance).sum(axis=1)

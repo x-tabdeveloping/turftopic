@@ -4,6 +4,7 @@ from typing import Optional, Union
 import numpy as np
 import pyro
 import pyro.distributions as dist
+import scipy.sparse as spr
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -121,23 +122,36 @@ class AutoEncodingTopicModel(ContextualModel):
         self.learning_rate = learning_rate
         self.hidden = hidden
 
-    def fit(self, raw_documents, y=None):
-        embeddings = self.encoder_.encode(raw_documents)
-        bow = self.vectorizer.fit_transform(raw_documents)
+    def transform(
+        self, raw_documents, embeddings: Optional[np.ndarray] = None
+    ):
+        if embeddings is None:
+            embeddings = self.encoder_.encode(raw_documents)
         if self.combined:
+            bow = self.vectorizer.fit_transform(raw_documents)
             contextual_embeddings = np.concatenate(
                 (embeddings, bow.toarray()), axis=1
             )
         else:
             contextual_embeddings = embeddings
+        loc, scale = self.model.encoder(contextual_embeddings)
+        prob = torch.softmax(loc, dim=-1)
+        return prob.numpy()
+
+    def fit(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ):
+        if embeddings is None:
+            embeddings = self.encoder_.encode(raw_documents)
+        document_term_matrix = self.vectorizer.fit_transform(raw_documents)
         seed = 0
         torch.manual_seed(seed)
         pyro.set_rng_seed(seed)
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         pyro.clear_param_store()
         self.model = Model(
-            vocab_size=bow.shape[1],
-            contextualized_size=contextual_embeddings.shape[1],
+            vocab_size=document_term_matrix.shape[1],
+            contextualized_size=embeddings.shape[1],
             num_topics=self.n_components,
             hidden=self.hidden,
             dropout=self.dropout_rate,
@@ -150,43 +164,39 @@ class AutoEncodingTopicModel(ContextualModel):
             optimizer,
             loss=TraceMeanField_ELBO(),
         )
-        num_batches = int(math.ceil(bow.shape[0] / self.batch_size))
+        num_batches = int(
+            math.ceil(document_term_matrix.shape[0] / self.batch_size)
+        )
 
         bar = trange(self.n_epochs)
         for epoch in bar:
             running_loss = 0.0
             for i in range(num_batches):
-                batch_bow = bow[
+                batch_bow = document_term_matrix[
                     i * self.batch_size : (i + 1) * self.batch_size, :
                 ]
-                batch_bow = (
-                    torch.tensor(batch_bow.toarray()).float().to(device)
-                )
-                batch_contextualized = contextual_embeddings[
+                batch_contextualized = embeddings[
                     i * self.batch_size : (i + 1) * self.batch_size, :
                 ]
+                if self.combined:
+                    batch_contextualized = np.concatenate(
+                        (embeddings, batch_bow.toarray()), axis=1
+                    )
                 batch_contextualized = (
                     torch.tensor(batch_contextualized).float().to(device)
+                )
+                batch_bow = (
+                    torch.tensor(batch_bow.toarray()).float().to(device)
                 )
                 loss = svi.step(batch_bow, batch_contextualized)
                 running_loss += loss / batch_bow.size(0)
             bar.set_postfix(epoch_loss="{:.2e}".format(running_loss))
         self.components_ = self.model.beta()
-        self.vocab_ = self.vectorizer.get_feature_names_out()
         return self
 
-    def transform(self, raw_documents):
-        embeddings = self.encoder_.encode(raw_documents)
-        if self.combined:
-            bow = self.vectorizer.fit_transform(raw_documents)
-            contextual_embeddings = np.concatenate(
-                (embeddings, bow.toarray()), axis=1
-            )
-        else:
-            contextual_embeddings = embeddings
-        loc, scale = self.model.encoder(contextual_embeddings)
-        prob = torch.softmax(loc, dim=-1)
-        return prob.numpy()
-
-    def fit_transform(self, raw_documents, y=None):
-        return self.fit(raw_documents, y).transform(raw_documents)
+    def fit_transform(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        return self.fit(raw_documents, y, embeddings).transform(
+            raw_documents, embeddings
+        )

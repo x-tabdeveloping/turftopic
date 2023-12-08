@@ -1,5 +1,6 @@
 from typing import Literal, Optional, Union
 
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.decomposition import PCA, FastICA
 from sklearn.feature_extraction.text import CountVectorizer
@@ -33,20 +34,20 @@ class ComponentTopicModel(ContextualModel):
         else:
             self.decomposition = PCA(n_components)
 
-    def fit_transform(self, raw_documents, y=None):
-        embeddings = self.encoder_.encode(raw_documents)
+    def fit_transform(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        if embeddings is None:
+            embeddings = self.encoder_.encode(raw_documents)
         doc_topic = self.decomposition.fit_transform(embeddings)
-        self.vectorizer.fit(raw_documents)
-        self.vocab_ = self.vectorizer.get_feature_names_out()
-        vocab_embeddings = self.encoder_.encode(self.vocab_)
+        vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
+        vocab_embeddings = self.encoder_.encode(vocab)
         vocab_topic = self.decomposition.transform(vocab_embeddings)
         self.components_ = vocab_topic.T
         return doc_topic
 
-    def fit(self, raw_documents, y=None):
-        self.fit_transform(raw_documents, y)
-        return self
-
-    def transform(self, raw_documents):
+    def transform(
+        self, raw_documents, embeddings: Optional[np.ndarray] = None
+    ) -> np.ndarray:
         embeddings = self.encoder_.encode(raw_documents)
         return self.decomposition.transform(embeddings)

@@ -1,5 +1,5 @@
-from abc import ABC
-from typing import Dict
+from abc import ABC, abstractmethod
+from typing import Dict, Iterable, Optional
 
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -18,3 +18,21 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         for topic, words in zip(classes, top):
             topics[topic] = list(words)
         return topics
+
+    def encode_documents(self, raw_documents: Iterable[str]) -> np.ndarray:
+        return self.encoder_.encode(raw_documents)
+
+    @abstractmethod
+    def fit_transform(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        pass
+
+    def fit(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ):
+        self.fit_transform(raw_documents, y, embeddings)
+        return self
+
+    def get_vocab(self) -> np.ndarray:
+        return self.vectorizer.get_feature_names_out()
