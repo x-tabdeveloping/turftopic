@@ -46,6 +46,7 @@ class MixtureTopicModel(ContextualModel):
         if embeddings is None:
             embeddings = self.encoder_.encode(raw_documents)
         document_term_matrix = self.vectorizer.fit_transform(raw_documents)
+        self.gmm_.fit(embeddings)
         document_topic_matrix = self.gmm_.predict_proba(embeddings)
         self.components_ = soft_ctf_idf(
             document_topic_matrix, document_term_matrix
