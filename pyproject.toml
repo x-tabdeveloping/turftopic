@@ -16,6 +16,7 @@ scikit-learn = "^1.2.0"
 sentence-transformers = "^2.2.0"
 torch = "^2.1.0"
 scipy = "^1.10.0"
+rich = "^13.6.0"
 pyro-ppl = { version = "^1.8.0", optional = true }
 
 [tool.poetry.extras]
