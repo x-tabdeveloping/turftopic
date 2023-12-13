@@ -1,7 +1,7 @@
 from typing import Literal, Optional, Union
 
 import numpy as np
-import scipy.sparse as spr
+from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.cluster import OPTICS
@@ -33,7 +33,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
         vectorizer: Optional[CountVectorizer] = None,
-        feature_importance: Literal["ctfidf", "centroid"] = "centroid",
+        feature_importance: Literal["ctfidf", "centroid"] = "ctfidf",
     ):
         self.encoder = encoder
         if isinstance(encoder, int):
@@ -61,27 +61,37 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ):
-        if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
-        doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
-        vocab = self.vectorizer.get_feature_names_out()
-        cluster_labels = self.clustering.fit_predict(embeddings)
-        clusters = np.unique(cluster_labels)
-        self.classes_ = np.sort(clusters)
-        if self.feature_importance == "ctfidf":
-            document_topic_matrix = label_binarize(
-                cluster_labels, classes=self.classes_
-            )
-            self.components_ = soft_ctf_idf(document_topic_matrix, doc_term_matrix)  # type: ignore
-        else:
-            vocab_embeddings = self.encoder_.encode(vocab)  # type: ignore
-            self.components_ = cluster_centroid_distance(
-                cluster_labels,
-                embeddings,
-                vocab_embeddings,
-                metric="euclidean",
-            )
-        self.labels_ = cluster_labels
+        console = Console()
+        with console.status("Fitting model") as status:
+            if embeddings is None:
+                status.update("Encoding documents")
+                embeddings = self.encoder_.encode(raw_documents)
+                console.log("Encoding done.")
+            status.update("Extracting terms")
+            doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
+            console.log("Term extraction done.")
+            vocab = self.vectorizer.get_feature_names_out()
+            status.update("Clustering documents")
+            cluster_labels = self.clustering.fit_predict(embeddings)
+            clusters = np.unique(cluster_labels)
+            self.classes_ = np.sort(clusters)
+            status.update("Estimating term importances")
+            if self.feature_importance == "ctfidf":
+                document_topic_matrix = label_binarize(
+                    cluster_labels, classes=self.classes_
+                )
+                self.components_ = soft_ctf_idf(document_topic_matrix, doc_term_matrix)  # type: ignore
+            else:
+                status.update("Encoding vocabulary")
+                vocab_embeddings = self.encoder_.encode(vocab)  # type: ignore
+                self.components_ = cluster_centroid_distance(
+                    cluster_labels,
+                    embeddings,
+                    vocab_embeddings,
+                    metric="euclidean",
+                )
+            self.labels_ = cluster_labels
+            console.log("Model fitting done.")
         return cluster_labels
 
     def fit_transform(
