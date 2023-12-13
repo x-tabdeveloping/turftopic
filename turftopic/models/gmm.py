@@ -1,6 +1,7 @@
 from typing import Literal, Optional, Union
 
 import numpy as np
+from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.mixture import BayesianGaussianMixture, GaussianMixture
@@ -47,15 +48,25 @@ class MixtureTopicModel(ContextualModel):
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
-        if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
-        document_term_matrix = self.vectorizer.fit_transform(raw_documents)
-        self.gmm_.fit(embeddings)
-        document_topic_matrix = self.gmm_.predict_proba(embeddings)
-        self.components_ = soft_ctf_idf(
-            document_topic_matrix, document_term_matrix
-        )
-        self.weights_ = self.gmm_.weights_
+        console = Console()
+        with console.status("Fitting model") as status:
+            if embeddings is None:
+                status.update("Encoding documents")
+                embeddings = self.encoder_.encode(raw_documents)
+                console.log("Documents encoded.")
+            status.update("Extracting terms.")
+            document_term_matrix = self.vectorizer.fit_transform(raw_documents)
+            console.log("Term extraction done.")
+            status.update("Fitting mixture model.")
+            self.gmm_.fit(embeddings)
+            console.log("Mixture model fitted.")
+            status.update("Estimating term importances.")
+            document_topic_matrix = self.gmm_.predict_proba(embeddings)
+            self.components_ = soft_ctf_idf(
+                document_topic_matrix, document_term_matrix
+            )
+            self.weights_ = self.gmm_.weights_
+            console.log("Model fitting done.")
         return document_topic_matrix
 
     def transform(
