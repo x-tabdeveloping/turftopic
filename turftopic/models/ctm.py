@@ -134,6 +134,7 @@ class AutoEncodingTopicModel(ContextualModel):
             )
         else:
             contextual_embeddings = embeddings
+        contextual_embeddings = torch.tensor(contextual_embeddings)
         loc, scale = self.model.encoder(contextual_embeddings)
         prob = torch.softmax(loc, dim=-1)
         return prob.numpy()
