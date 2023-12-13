@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.cluster import OPTICS
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.manifold import Isomap
+from sklearn.manifold import TSNE
 from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel
@@ -47,12 +47,12 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         else:
             self.vectorizer = vectorizer
         if clustering is None:
-            self.clustering = OPTICS()
+            self.clustering = OPTICS(min_samples=25)
         else:
             self.clustering = clustering
         if dimensionality_reduction is None:
-            self.dimensionality_reduction = Isomap(
-                n_neighbors=25, n_components=5
+            self.dimensionality_reduction = TSNE(
+                n_components=2, metric="cosine"
             )
         else:
             self.dimensionality_reduction = dimensionality_reduction
@@ -71,9 +71,15 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
             vocab = self.vectorizer.get_feature_names_out()
+            status.update("Reducing Dimensionality")
+            reduced_embeddings = self.dimensionality_reduction.fit_transform(
+                embeddings
+            )
+            console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
-            cluster_labels = self.clustering.fit_predict(embeddings)
+            cluster_labels = self.clustering.fit_predict(reduced_embeddings)
             clusters = np.unique(cluster_labels)
+            console.log("Clustering done.")
             self.classes_ = np.sort(clusters)
             status.update("Estimating term importances")
             if self.feature_importance == "ctfidf":
