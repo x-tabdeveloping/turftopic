@@ -17,11 +17,14 @@ class MixtureTopicModel(ContextualModel):
             SentenceTransformer, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
-        prior: Literal["dirichlet", "dirichlet_process", None] = None,
+        weight_prior: Literal[
+            "dirichlet", "dirichlet_process", None
+        ] = "dirichlet",
+        gamma: Optional[float] = None,
     ):
         self.n_components = n_components
         self.encoder = encoder
-        self.prior = prior
+        self.weight_prior = weight_prior
         if isinstance(encoder, str):
             self.encoder_ = SentenceTransformer(encoder)
         else:
@@ -30,12 +33,13 @@ class MixtureTopicModel(ContextualModel):
             self.vectorizer = CountVectorizer(min_df=10)
         else:
             self.vectorizer = vectorizer
-        if self.prior is not None:
+        if self.weight_prior is not None:
             self.gmm_ = BayesianGaussianMixture(
                 n_components=n_components,
                 weight_concentration_prior_type="dirichlet_distribution"
-                if self.prior == "dirichlet"
+                if self.weight_prior == "dirichlet"
                 else "dirichlet_process",
+                weight_concentration_prior=gamma,
             )
         else:
             self.gmm_ = GaussianMixture(n_components)
