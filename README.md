@@ -11,4 +11,79 @@
  - Make the models' API streamlined and compatible with topicwizard and scikit-learn.
  - Develop smarter, transformer-based evaluation metrics.
 
-(Stay tuned...)
+!!!This package is still a prototype, and no papers are published about the models. Until these are out, and most features are implemented
+I DO NOT recommend using this package for production and academic use!!!
+
+### Implemented Models
+
+#### Mixture of Gaussians (GMM)
+
+Topic models where topics are assumed to be Multivariate Normal components,
+and term importances are estimated with Soft-c-TF-IDF.
+
+```python
+from turftopic import GMM
+
+model = GMM(10).fit(texts)
+model.print_topics()
+```
+
+#### KeyNMF
+
+Nonnegative Matrix Factorization over keyword importances based on transformer representations.
+
+```python
+from turftopic import KeyNMF
+
+model = KeyNMF(10).fit(texts)
+model.print_topics()
+```
+
+#### Semantic Signal Segmentation (S³)
+
+Interprets topics as dimensions of semantics.
+Obtains these dimensions with ICA or PCA.
+
+```python
+from turftopic import SemanticSignalSegmentation
+
+model = SemanticSignalSegmentation(10).fit(texts)
+model.print_topics()
+```
+
+#### Clustering Topic Models
+
+Topics are clusters in embedding space and term importances are either estimated with c-TF-IDF (BERTopic)
+or proximity to cluster centroid (Top2Vec).
+
+```python
+from turftopic import ClusteringTopicModel
+
+model = ClusteringTopicModel().fit(texts)
+model.print_topics()
+```
+
+#### Variational Autoencoders (CTM)
+
+Contextual representations are used as ProdLDA encoder network inputs,
+either alone (ZeroShotTM) or concatenated to BoW (CombinedTM).
+
+```bash
+pip install turftopic[pyro-ppl]
+```
+
+```python
+from turftopic import AutoencodingTopicModel
+
+model = AutoencodingTopicModel(10).fit(texts)
+model.print_topics()
+```
+
+### Roadmap
+ - [x] Model Implementation
+ - [x] Pretty Printing
+ - [] Publish papers (in progress..)
+ - [] Thorough documentation and good tutorials.
+ - [] Implement visualization utilites for these models in topicwizard.
+ - [] High-level topic descriptions with LLMs.
+ - [] Contextualized evaluation metrics.
