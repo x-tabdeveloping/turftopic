@@ -104,6 +104,20 @@ class KeyNMF(ContextualModel):
     def transform(
         self, raw_documents, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
+        """Infers topic importances for new documents based on a fitted model.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        embeddings: ndarray of shape (n_documents, n_dimensions), optional
+            Precomputed document encodings.
+
+        Returns
+        -------
+        ndarray of shape (n_dimensions, n_topics)
+            Document-topic matrix.
+        """
         if embeddings is None:
             embeddings = self.encoder_.encode(raw_documents)
         document_term_matrix = self.vectorizer.transform(raw_documents)
