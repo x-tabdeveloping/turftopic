@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Iterable, List, Literal, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple
 
 import numpy as np
 from rich.console import Console
@@ -12,7 +12,26 @@ def remove_whitespace(text: str) -> str:
 
 
 class ContextualModel(ABC, TransformerMixin, BaseEstimator):
-    def get_topics(self, top_k: int = 10) -> List[Tuple]:
+    """Base class for contextual topic models in Turftopic."""
+
+    def get_topics(
+        self, top_k: int = 10
+    ) -> List[Tuple[Any, List[Tuple[str, float]]]]:
+        """Returns high-level topic representations in form of the top K words
+        in each topic.
+
+        Parameters
+        ----------
+        top_k: int, default 10
+            Number of top words to return for each topic.
+
+        Returns
+        -------
+        list[tuple]
+            List of topics. Each topic is a tuple of
+            topic ID and the top k words.
+            Top k words are a list of (word, word_importance) pairs.
+        """
         n_topics = self.components_.shape[0]
         try:
             classes = self.classes_
@@ -34,6 +53,15 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         return topics
 
     def print_topics(self, top_k: int = 10, show_scores: bool = False):
+        """Pretty prints topics in the model in a table.
+
+        Parameters
+        ----------
+        top_k: int, default 10
+            Number of top words to return for each topic.
+        show_scores: bool, default False
+            Indicates whether to show importance scores for each word.
+        """
         topics = self.get_topics(top_k)
         table = Table(show_lines=True)
         table.add_column("Topic ID", style="blue", justify="right")
@@ -57,6 +85,20 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     def print_highest_ranking_documents(
         self, topic_id, raw_documents, document_topic_matrix=None, top_k=5
     ):
+        """Pretty prints the highest ranking documents in a topic.
+
+        Parameters
+        ----------
+        topic_id: int
+            ID of the topic to display.
+        raw_documents: list of str
+            List of documents to consider.
+        document_topic_matrix: ndarray of shape (n_topics, n_topics), optional
+            Document topic matrix to use. This is useful for transductive methods,
+            as they cannot infer topics from text.
+        top_k: int, default 5
+            Top K documents to show.
+        """
         if document_topic_matrix is None:
             try:
                 document_topic_matrix = self.transform(raw_documents)
@@ -95,6 +137,19 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     def print_topic_distribution(
         self, text=None, topic_dist=None, top_k: int = 10
     ):
+        """Pretty prints topic distribution in a document.
+
+        Parameters
+        ----------
+        text: str, optional
+            Text to infer topic distribution for.
+        topic_dist: ndarray of shape (n_topics), optional
+            Already inferred topic distribution for the text.
+            This is useful for transductive methods,
+            as they cannot infer topics from text.
+        top_k: int, default 10
+            Top K topics to show.
+        """
         if topic_dist is None:
             if text is None:
                 raise ValueError(
@@ -125,19 +180,83 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         console.print(table)
 
     def encode_documents(self, raw_documents: Iterable[str]) -> np.ndarray:
+        """Encodes documents with the sentence encoder of the topic model.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Textual documents to encode.
+
+        Return
+        ------
+        ndarray of shape (n_documents, n_dimensions)
+            Matrix of document embeddings.
+        """
         return self.encoder_.encode(raw_documents)
 
     @abstractmethod
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
+        """Fits model and infers topic importances for each document.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        y: None
+            Ignored, exists for sklearn compatibility.
+        embeddings: ndarray of shape (n_documents, n_dimensions), optional
+            Precomputed document encodings.
+
+        Returns
+        -------
+        ndarray of shape (n_dimensions, n_topics)
+            Document-topic matrix.
+        """
         pass
 
     def fit(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ):
+        """Fits model on the given corpus.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        y: None
+            Ignored, exists for sklearn compatibility.
+        embeddings: ndarray of shape (n_documents, n_dimensions), optional
+            Precomputed document encodings.
+        """
         self.fit_transform(raw_documents, y, embeddings)
         return self
 
     def get_vocab(self) -> np.ndarray:
+        """Get vocabulary of the model.
+
+        Returns
+        -------
+        ndarray of shape (n_vocab)
+            All terms in the vocabulary.
+        """
         return self.vectorizer.get_feature_names_out()
+
+    def get_feature_names_out(self) -> np.ndarray:
+        """Get topic ids.
+
+        Returns
+        -------
+        ndarray of shape (n_topics)
+            IDs for each output feature of the model.
+            This is useful, since some models have outlier
+            detection, and this gets -1 as ID, instead of
+            its index.
+        """
+        n_topics = self.components_.shape[0]
+        try:
+            classes = self.classes_
+        except AttributeError:
+            classes = list(range(n_topics))
+        return np.asarray(classes)

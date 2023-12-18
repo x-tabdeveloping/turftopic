@@ -25,14 +25,40 @@ For instance: ClusteringTopicModel(clustering=KMeans(10))
 
 
 class ClusteringTopicModel(ContextualModel, ClusterMixin):
+    """Topic models, which assume topics to be clusters of documents
+    in semantic space.
+    Models also include a dimensionality reduction step to aid clustering.
+
+    Parameters
+    ----------
+    encoder: str or SentenceTransformer
+        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+    vectorizer: CountVectorizer, default None
+        Vectorizer used for term extraction.
+        Can be used to prune or filter the vocabulary.
+    dimensionality_reduction: TransformerMixin, default None
+        Dimensionality reduction step to run before clustering.
+        Defaults to TSNE with cosine distance.
+        To imitate the behavior of BERTopic or Top2Vec you should use UMAP.
+    clustering: ClusterMixin, default None
+        Clustering method to use for finding topics.
+        Defaults to OPTICS with 25 minimum cluster size.
+        To imitate the behavior of BERTopic or Top2Vec you should use HDBSCAN.
+    feature_importance: 'ctfidf' or 'centroid', default 'ctfidf'
+        Method for estimating term importances.
+        'centroid' uses distances from cluster centroid similarly
+        to Top2Vec.
+        'ctfidf' uses BERTopic's c-tf-idf.
+    """
+
     def __init__(
         self,
         encoder: Union[
             SentenceTransformer, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
+        vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
-        vectorizer: Optional[CountVectorizer] = None,
         feature_importance: Literal["ctfidf", "centroid"] = "ctfidf",
     ):
         self.encoder = encoder
@@ -60,7 +86,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
 
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
-    ):
+    ) -> np.ndarray:
+        """Fits model and predicts cluster labels for all given documents."""
         console = Console()
         with console.status("Fitting model") as status:
             if embeddings is None:

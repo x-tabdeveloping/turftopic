@@ -1,3 +1,4 @@
+from turftopic.base import ContextualModel
 from turftopic.error import NotInstalled
 from turftopic.models.cluster import ClusteringTopicModel
 from turftopic.models.decomp import SemanticSignalSeparation
@@ -15,4 +16,5 @@ __all__ = [
     "GMM",
     "KeyNMF",
     "AutoEncodingTopicModel",
+    "ContextualModel",
 ]

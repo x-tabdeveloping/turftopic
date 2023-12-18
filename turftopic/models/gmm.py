@@ -11,6 +11,34 @@ from turftopic.soft_ctf_idf import soft_ctf_idf
 
 
 class GMM(ContextualModel):
+    """Multivariate Gaussian Mixture Model over document embeddings.
+    Models topics as mixture components.
+
+    Parameters
+    ----------
+    n_components: int
+        Number of topics. If you're using priors on the weight,
+        feel free to overshoot with this value.
+    encoder: str or SentenceTransformer
+        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+    vectorizer: CountVectorizer, default None
+        Vectorizer used for term extraction.
+        Can be used to prune or filter the vocabulary.
+    weight_prior: 'dirichlet', 'dirichlet_process' or None, default 'dirichlet'
+        Prior to impose on component weights, if None,
+        maximum likelihood is optimized with expectation maximization,
+        otherwise variational inference is used.
+    gamma: float, default None
+        Concentration parameter of the symmetric prior.
+        By default 1/n_components is used.
+        Ignored when weight_prior is None.
+
+    Attributes
+    ----------
+    weights_: ndarray of shape (n_components)
+        Weights of the different mixture components.
+    """
+
     def __init__(
         self,
         n_components: int,

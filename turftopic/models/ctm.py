@@ -92,6 +92,37 @@ class Model(nn.Module):
 
 
 class AutoEncodingTopicModel(ContextualModel):
+    """Variational autoencoding topic models
+    with contextualized representations (CTM).
+    Uses amortized variational inference with neural networks
+    to estimate posterior for ProdLDA.
+
+    Parameters
+    ----------
+    n_components: int
+        Number of topics.
+    encoder: str or SentenceTransformer
+        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+    vectorizer: CountVectorizer, default None
+        Vectorizer used for term extraction.
+        Can be used to prune or filter the vocabulary.
+    combined: bool, default False
+        Indicates whether encoder inputs should be combined
+        with bow representations.
+        When False the model is equivalent to ZeroShotTM,
+        when True it is CombinedTM.
+    dropout_rate: float, default 0.1
+        Dropout in the encoder layers.
+    hidden: int, default 100
+        Size of hidden layers in the encoder network.
+    batch_size: int, default 42
+        Batch size when training the network.
+    learning_rate: float, default 1e-2
+        Learning rate for the optimizer.
+    n_epochs: int, default 50
+        Number of epochs to run during training.
+    """
+
     def __init__(
         self,
         n_components: int,

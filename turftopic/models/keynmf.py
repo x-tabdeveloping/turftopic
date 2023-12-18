@@ -1,7 +1,6 @@
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
-import scipy.sparse as spr
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.decomposition import NMF
@@ -13,14 +12,32 @@ from turftopic.base import ContextualModel
 
 
 class KeyNMF(ContextualModel):
+    """Extracts keywords from documents based on semantic similarity of
+    term encodings to document encodings.
+    Topics are then extracted with non-negative matrix factorization from
+    keywords' proximity to documents.
+
+    Parameters
+    ----------
+    n_components: int
+        Number of topics.
+    encoder: str or SentenceTransformer
+        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+    vectorizer: CountVectorizer, default None
+        Vectorizer used for term extraction.
+        Can be used to prune or filter the vocabulary.
+    top_n: int, default 25
+        Number of keywords to extract for each document.
+    """
+
     def __init__(
         self,
         n_components: int,
-        top_n: int = 25,
         encoder: Union[
             SentenceTransformer, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
+        top_n: int = 25,
     ):
         self.n_components = n_components
         self.top_n = top_n

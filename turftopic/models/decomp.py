@@ -10,6 +10,25 @@ from turftopic.base import ContextualModel
 
 
 class SemanticSignalSeparation(ContextualModel):
+    """Separates the embedding matrix into 'semantic signals' with
+    component analysis methods.
+    Topics are assumed to be dimensions of semantics.
+
+    Parameters
+    ----------
+    n_components: int
+        Number of topics.
+    encoder: str or SentenceTransformer
+        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+    vectorizer: CountVectorizer, default None
+        Vectorizer used for term extraction.
+        Can be used to prune or filter the vocabulary.
+    objective: 'orthogonality' or 'independence', default 'independence'
+        Indicates what the components should be optimized for.
+        When 'orthogonality', PCA is used to discover components,
+        when 'independence', ICA is used to discover components.
+    """
+
     def __init__(
         self,
         n_components: int,
