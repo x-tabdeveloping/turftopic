@@ -1,7 +1,7 @@
 from turftopic.error import NotInstalled
 from turftopic.models.cluster import ClusteringTopicModel
-from turftopic.models.decomp import ComponentTopicModel
-from turftopic.models.gmm import MixtureTopicModel
+from turftopic.models.decomp import SemanticSignalSeparation
+from turftopic.models.gmm import GMM
 from turftopic.models.keynmf import KeyNMF
 
 try:
@@ -11,8 +11,8 @@ except ModuleNotFoundError:
 
 __all__ = [
     "ClusteringTopicModel",
-    "ComponentTopicModel",
-    "MixtureTopicModel",
+    "SemanticSignalSeparation",
+    "GMM",
     "KeyNMF",
     "AutoEncodingTopicModel",
 ]

@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from turftopic.base import ContextualModel
 
 
-class ComponentTopicModel(ContextualModel):
+class SemanticSignalSeparation(ContextualModel):
     def __init__(
         self,
         n_components: int,

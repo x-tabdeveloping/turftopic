@@ -10,7 +10,7 @@ from turftopic.base import ContextualModel
 from turftopic.soft_ctf_idf import soft_ctf_idf
 
 
-class MixtureTopicModel(ContextualModel):
+class GMM(ContextualModel):
     def __init__(
         self,
         n_components: int,
