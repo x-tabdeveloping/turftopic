@@ -82,8 +82,8 @@ model.print_topics()
 ### Roadmap
  - [x] Model Implementation
  - [x] Pretty Printing
- - [] Publish papers (in progress..)
- - [] Thorough documentation and good tutorials.
- - [] Implement visualization utilites for these models in topicwizard.
- - [] High-level topic descriptions with LLMs.
- - [] Contextualized evaluation metrics.
+ - [ ] Publish papers (in progress..)
+ - [ ] Thorough documentation and good tutorials.
+ - [ ] Implement visualization utilites for these models in topicwizard.
+ - [ ] High-level topic descriptions with LLMs.
+ - [ ] Contextualized evaluation metrics.
