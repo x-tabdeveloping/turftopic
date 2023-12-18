@@ -14,6 +14,15 @@
 !!!This package is still a prototype, and no papers are published about the models. Until these are out, and most features are implemented
 I DO NOT recommend using this package for production and academic use!!!
 
+### Roadmap
+ - [x] Model Implementation
+ - [x] Pretty Printing
+ - [ ] Publish papers (in progress..)
+ - [ ] Thorough documentation and good tutorials.
+ - [ ] Implement visualization utilites for these models in topicwizard.
+ - [ ] High-level topic descriptions with LLMs.
+ - [ ] Contextualized evaluation metrics.
+
 ### Implemented Models
 
 #### Mixture of Gaussians (GMM)
@@ -79,11 +88,4 @@ model = AutoencodingTopicModel(10).fit(texts)
 model.print_topics()
 ```
 
-### Roadmap
- - [x] Model Implementation
- - [x] Pretty Printing
- - [ ] Publish papers (in progress..)
- - [ ] Thorough documentation and good tutorials.
- - [ ] Implement visualization utilites for these models in topicwizard.
- - [ ] High-level topic descriptions with LLMs.
- - [ ] Contextualized evaluation metrics.
+
