@@ -17,9 +17,9 @@ I DO NOT recommend using this package for production and academic use!!!
 ### Roadmap
  - [x] Model Implementation
  - [x] Pretty Printing
- - [ ] Publish papers (in progress..)
- - [ ] Thorough documentation and good tutorials.
- - [ ] Implement visualization utilites for these models in topicwizard.
+ - [ ] Publish papers :hourglass_flowing_sand: (in progress..)
+ - [ ] Thorough documentation and good tutorials ⏳
+ - [ ] Implement visualization utilites for these models in topicwizard ⏳
  - [ ] High-level topic descriptions with LLMs.
  - [ ] Contextualized evaluation metrics.
 
