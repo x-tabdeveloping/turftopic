@@ -1,7 +1,7 @@
 <p align="center">
 <img align="center" height="200" src="assets/logo_w_text.svg">
 <br>
- <b>Topic modeling is your turf too. Package for topic modeling with contextual representations from transformers. </b></p>
+ <b><i>Topic models are your turf too.</i> <br> Topic modeling with contextual representations from transformers. </b></p>
 
 ### Intentions:
  - Provide simple, robust and fast implementations of existing approaches (BERTopic, Top2Vec, CTM) with minimal dependencies.
