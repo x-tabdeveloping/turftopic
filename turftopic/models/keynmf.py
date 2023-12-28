@@ -1,14 +1,27 @@
-from typing import Optional, Union
+import itertools
+import json
+import random
+from typing import Dict, Iterable, List, Optional, Union
 
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
-from sklearn.decomposition import NMF
+from sklearn.decomposition import NMF, MiniBatchNMF
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from turftopic.base import ContextualModel
+
+
+def batched(iterable, n: int) -> Iterable[List[str]]:
+    "Batch data into tuples of length n. The last batch may be shorter."
+    # batched('ABCDEFG', 3) --> ABC DEF G
+    if n < 1:
+        raise ValueError("n must be at least one")
+    it = iter(iterable)
+    while batch := list(itertools.islice(it, n)):
+        yield batch
 
 
 class KeyNMF(ContextualModel):
@@ -53,6 +66,81 @@ class KeyNMF(ContextualModel):
         self.dict_vectorizer_ = DictVectorizer()
         self.nmf_ = NMF(n_components)
 
+    def extract_keywords(
+        self,
+        batch_or_document: Union[str, List[str]],
+        embeddings: Optional[np.ndarray] = None,
+    ) -> List[Dict[str, float]]:
+        if isinstance(batch_or_document, str):
+            batch_or_document = [batch_or_document]
+        if embeddings is None:
+            embeddings = self.encoder_.encode(batch_or_document)
+        keywords = []
+        total = embeddings.shape[0]
+        document_term_matrix = self.vectorizer.transform(batch_or_document)
+        for i in range(total):
+            terms = document_term_matrix[i, :].todense()
+            embedding = embeddings[i].reshape(1, -1)
+            nonzero = terms > 0
+            if not np.any(nonzero):
+                keywords.append(dict())
+                continue
+            important_terms = np.squeeze(np.asarray(nonzero))
+            word_embeddings = self.vocab_embeddings[important_terms]
+            sim = cosine_similarity(embedding, word_embeddings)
+            sim = np.ravel(sim)
+            kth = min(self.top_n, len(sim) - 1)
+            top = np.argpartition(-sim, kth)[:kth]
+            top_words = self.vectorizer.get_feature_names_out()[
+                important_terms
+            ][top]
+            top_sims = sim[top]
+            keywords.append(dict(zip(top_words, top_sims)))
+        return keywords
+
+    def big_fit(
+        self,
+        document_stream: Iterable[str],
+        keyword_file: str = "./__keywords.jsonl",
+        batch_size: int = 5000,
+    ):
+        """Fit KeyNMF on very large datasets, that cannot fit in memory.
+        Internally uses minibatch NMF.
+        The stream of documents has to be a reusable iterable,
+        as multiple passes are needed over the corpus to
+        learn the vocabulary and then fit the model.
+        """
+        self.nmf_ = MiniBatchNMF(self.n_components)
+        console = Console()
+        with console.status("Fitting model") as status:
+            status.update("Learning vocabulary.")
+            self.vectorizer.fit(document_stream)
+            console.log("Vocabulary learned.")
+            status.update("Encoding vocabulary.")
+            console.log("Vocabulary encoded.")
+            status.update("Extracting keywords.")
+            with open(keyword_file, "w") as out_file:
+                for document_batch in batched(document_stream, batch_size):
+                    keywords = self.extract_keywords(document_batch)
+                    out_file.write(json.dumps(keywords) + "\n")
+            console.log("Keywords extracted.")
+            status.update("Fitting dict vectorizer.")
+            with open(keyword_file) as in_file:
+                entries = (json.loads(line.strip()) for line in in_file)
+                self.dict_vectorizer_.fit(entries)
+            console.log("Dict vectorizer fitted.")
+            status.update("Fitting NMF.")
+            with open(keyword_file) as in_file:
+                entries = (json.loads(line.strip()) for line in in_file)
+                entry_batches = batched(entries, batch_size)
+                for batch in entry_batches:
+                    random.shuffle(batch)
+                    dtm = self.dict_vectorizer_.transform(batch)
+                    dtm[dtm < 0] = 0  # type: ignore
+                    self.nmf_.partial_fit(dtm)
+            console.log("NMF fitted.")
+        return self
+
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
@@ -63,32 +151,16 @@ class KeyNMF(ContextualModel):
                 embeddings = self.encoder_.encode(raw_documents)
                 console.log("Documents encoded.")
             status.update("Extracting terms.")
-            document_term_matrix = self.vectorizer.fit_transform(raw_documents)
+            self.vectorizer.fit(raw_documents)
             console.log("Term extraction done.")
             vocab = self.vectorizer.get_feature_names_out()
             status.update("Encoding vocabulary")
             self.vocab_embeddings = self.encoder_.encode(vocab)
             console.log("Vocabulary encoded.")
             status.update("Extracting keywords")
-            keywords = []
-            total = embeddings.shape[0]
-            for i in range(total):
-                status.update(f"Extracting keywords [{i}/{total}]")
-                terms = document_term_matrix[i, :].todense()
-                embedding = embeddings[i].reshape(1, -1)
-                nonzero = terms > 0
-                if not np.any(nonzero):
-                    keywords.append(dict())
-                    continue
-                important_terms = np.squeeze(np.asarray(nonzero))
-                word_embeddings = self.vocab_embeddings[important_terms]
-                sim = cosine_similarity(embedding, word_embeddings)
-                sim = np.ravel(sim)
-                kth = min(self.top_n, len(sim) - 1)
-                top = np.argpartition(-sim, kth)[:kth]
-                top_words = vocab[important_terms][top]
-                top_sims = sim[top]
-                keywords.append(dict(zip(top_words, top_sims)))
+            keywords = self.extract_keywords(
+                raw_documents, embeddings=embeddings
+            )
             console.log("Keyword extraction done.")
             status.update("Decomposing with NMF")
             dtm = self.dict_vectorizer_.fit_transform(keywords)
@@ -120,25 +192,7 @@ class KeyNMF(ContextualModel):
         """
         if embeddings is None:
             embeddings = self.encoder_.encode(raw_documents)
-        document_term_matrix = self.vectorizer.transform(raw_documents)
-        vocab = self.vectorizer.get_feature_names_out()
-        keywords = []
-        total = embeddings.shape[0]
-        for i in range(total):
-            terms = document_term_matrix[i, :].todense()
-            embedding = embeddings[i].reshape(1, -1)
-            nonzero = terms > 0
-            if not np.any(nonzero):
-                keywords.append(dict())
-                continue
-            important_terms = np.squeeze(np.asarray(nonzero))
-            word_embeddings = self.vocab_embeddings[important_terms]
-            sim = cosine_similarity(embedding, word_embeddings)
-            sim = np.ravel(sim)
-            kth = min(self.top_n, len(sim) - 1)
-            top = np.argpartition(-sim, kth)[:kth]
-            top_words = vocab[important_terms][top]
-            top_sims = sim[top]
-            keywords.append(dict(zip(top_words, top_sims)))
+        keywords = self.extract_keywords(raw_documents, embeddings)
         representations = self.dict_vectorizer_.transform(keywords)
+        representations[representations < 0] = 0
         return self.nmf_.transform(representations)
