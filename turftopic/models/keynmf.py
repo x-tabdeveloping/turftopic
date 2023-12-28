@@ -67,7 +67,7 @@ class KeyNMF(ContextualModel):
             console.log("Term extraction done.")
             vocab = self.vectorizer.get_feature_names_out()
             status.update("Encoding vocabulary")
-            vocab_embeddings = self.encoder_.encode(vocab)
+            self.vocab_embeddings = self.encoder_.encode(vocab)
             console.log("Vocabulary encoded.")
             status.update("Extracting keywords")
             keywords = []
@@ -81,7 +81,7 @@ class KeyNMF(ContextualModel):
                     keywords.append(dict())
                     continue
                 important_terms = np.squeeze(np.asarray(nonzero))
-                word_embeddings = vocab_embeddings[important_terms]
+                word_embeddings = self.vocab_embeddings[important_terms]
                 sim = cosine_similarity(embedding, word_embeddings)
                 sim = np.ravel(sim)
                 kth = min(self.top_n, len(sim) - 1)
@@ -122,8 +122,23 @@ class KeyNMF(ContextualModel):
             embeddings = self.encoder_.encode(raw_documents)
         document_term_matrix = self.vectorizer.transform(raw_documents)
         vocab = self.vectorizer.get_feature_names_out()
-        keywords = self.extract_keywords(
-            embeddings, document_term_matrix, vocab
-        )
+        keywords = []
+        total = embeddings.shape[0]
+        for i in range(total):
+            terms = document_term_matrix[i, :].todense()
+            embedding = embeddings[i].reshape(1, -1)
+            nonzero = terms > 0
+            if not np.any(nonzero):
+                keywords.append(dict())
+                continue
+            important_terms = np.squeeze(np.asarray(nonzero))
+            word_embeddings = self.vocab_embeddings[important_terms]
+            sim = cosine_similarity(embedding, word_embeddings)
+            sim = np.ravel(sim)
+            kth = min(self.top_n, len(sim) - 1)
+            top = np.argpartition(-sim, kth)[:kth]
+            top_words = vocab[important_terms][top]
+            top_sims = sim[top]
+            keywords.append(dict(zip(top_words, top_sims)))
         representations = self.dict_vectorizer_.transform(keywords)
         return self.nmf_.transform(representations)
