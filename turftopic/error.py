@@ -15,7 +15,7 @@ class NotInstalled:
         self.dep = dep
 
         msg = f"In order to use {self.tool} you'll need to install via;\n\n"
-        msg += f"pip install turftopic[{self.dep}]\n\n"
+        msg += f"pip install {self.dep}\n\n"
         self.msg = msg
 
     def __getattr__(self, *args, **kwargs):
