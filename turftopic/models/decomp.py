@@ -7,6 +7,7 @@ from sklearn.decomposition import PCA, FastICA
 from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic.base import ContextualModel
+from turftopic.vectorizer import default_vectorizer
 
 
 class SemanticSignalSeparation(ContextualModel):
@@ -45,7 +46,7 @@ class SemanticSignalSeparation(ContextualModel):
         else:
             self.encoder_ = encoder
         if vectorizer is None:
-            self.vectorizer = CountVectorizer(min_df=10)
+            self.vectorizer = default_vectorizer
         else:
             self.vectorizer = vectorizer
         self.objective = objective

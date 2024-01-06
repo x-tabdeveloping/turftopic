@@ -4,17 +4,16 @@ from typing import Optional, Union
 import numpy as np
 import pyro
 import pyro.distributions as dist
-import scipy.sparse as spr
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from pyro.infer import SVI, TraceMeanField_ELBO
 from rich.console import Console
-from rich.progress import track
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic.base import ContextualModel
+from turftopic.vectorizer import default_vectorizer
 
 
 class Encoder(nn.Module):
@@ -144,7 +143,7 @@ class AutoEncodingTopicModel(ContextualModel):
         else:
             self.encoder_ = encoder
         if vectorizer is None:
-            self.vectorizer = CountVectorizer(min_df=10)
+            self.vectorizer = default_vectorizer()
         else:
             self.vectorizer = vectorizer
         self.combined = combined

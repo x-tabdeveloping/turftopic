@@ -12,6 +12,7 @@ from sklearn.preprocessing import label_binarize
 from turftopic.base import ContextualModel
 from turftopic.centroid_distance import cluster_centroid_distance
 from turftopic.soft_ctf_idf import soft_ctf_idf
+from turftopic.vectorizer import default_vectorizer
 
 integer_message = """
 You tried to pass an integer to ClusteringTopicModel as its first argument.
@@ -69,7 +70,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         else:
             self.encoder_ = encoder
         if vectorizer is None:
-            self.vectorizer = CountVectorizer(min_df=10)
+            self.vectorizer = default_vectorizer()
         else:
             self.vectorizer = vectorizer
         if clustering is None:

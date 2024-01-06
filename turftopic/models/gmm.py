@@ -8,6 +8,7 @@ from sklearn.mixture import BayesianGaussianMixture, GaussianMixture
 
 from turftopic.base import ContextualModel
 from turftopic.soft_ctf_idf import soft_ctf_idf
+from turftopic.vectorizer import default_vectorizer
 
 
 class GMM(ContextualModel):
@@ -59,7 +60,7 @@ class GMM(ContextualModel):
         else:
             self.encoder_ = encoder
         if vectorizer is None:
-            self.vectorizer = CountVectorizer(min_df=10)
+            self.vectorizer = default_vectorizer
         else:
             self.vectorizer = vectorizer
         if self.weight_prior is not None:

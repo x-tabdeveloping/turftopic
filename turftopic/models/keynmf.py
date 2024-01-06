@@ -12,6 +12,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from turftopic.base import ContextualModel
+from turftopic.vectorizer import default_vectorizer
 
 
 def batched(iterable, n: int) -> Iterable[List[str]]:
@@ -81,7 +82,7 @@ class KeyNMF(ContextualModel):
         else:
             self.encoder_ = encoder
         if vectorizer is None:
-            self.vectorizer = CountVectorizer(min_df=10)
+            self.vectorizer = default_vectorizer
         else:
             self.vectorizer = vectorizer
         self.dict_vectorizer_ = DictVectorizer()
@@ -177,7 +178,7 @@ class KeyNMF(ContextualModel):
         document_stream: Iterable[str],
         keyword_file: str = "./__keywords.jsonl",
         batch_size: int = 500,
-        max_epochs: int = 50,
+        max_epochs: int = 100,
     ):
         """Fit KeyNMF on very large datasets, that cannot fit in memory.
         Internally uses minibatch NMF.
