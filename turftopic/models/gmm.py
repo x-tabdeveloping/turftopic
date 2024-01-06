@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.mixture import BayesianGaussianMixture, GaussianMixture
 
-from turftopic.base import ContextualModel
+from turftopic.base import ContextualModel, Encoder
 from turftopic.soft_ctf_idf import soft_ctf_idf
 from turftopic.vectorizer import default_vectorizer
 
