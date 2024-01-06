@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import label_binarize
 
-from turftopic.base import ContextualModel
+from turftopic.base import ContextualModel, Encoder
 from turftopic.centroid_distance import cluster_centroid_distance
 from turftopic.soft_ctf_idf import soft_ctf_idf
 from turftopic.vectorizer import default_vectorizer
@@ -55,7 +55,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
     def __init__(
         self,
         encoder: Union[
-            SentenceTransformer, str
+            Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,

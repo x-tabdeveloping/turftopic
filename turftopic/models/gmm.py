@@ -44,7 +44,7 @@ class GMM(ContextualModel):
         self,
         n_components: int,
         encoder: Union[
-            SentenceTransformer, str
+            Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         weight_prior: Literal[

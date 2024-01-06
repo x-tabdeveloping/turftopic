@@ -2,8 +2,9 @@ import itertools
 import os
 from typing import Iterable, List
 
-import cohere
 import numpy as np
+
+from turftopic.encoders.base import ExternalEncoder
 
 
 def batched(iterable, n: int) -> Iterable[List[str]]:
@@ -16,10 +17,12 @@ def batched(iterable, n: int) -> Iterable[List[str]]:
         yield batch
 
 
-class CohereEmbeddings:
+class CohereEmbeddings(ExternalEncoder):
     """Encoder model using embeddings from Cohere."""
 
     def __init__(self, model: str = "large", batch_size: int = 25):
+        import cohere
+
         try:
             self.client = cohere.Client(os.environ["COHERE_KEY"])
         except KeyError as e:
@@ -31,7 +34,6 @@ class CohereEmbeddings:
         self.batch_size = batch_size
 
     def encode(self, sentences: Iterable[str]):
-        """Transforms the text into a numeric representation."""
         result = []
         for b in batched(sentences, self.batch_size):
             response = self.client.embed(b)

@@ -3,7 +3,8 @@ import os
 from typing import Iterable, List
 
 import numpy as np
-import openai
+
+from turftopic.encoders.base import ExternalEncoder
 
 
 def batched(iterable, n: int) -> Iterable[List[str]]:
@@ -17,12 +18,14 @@ def batched(iterable, n: int) -> Iterable[List[str]]:
 
 
 # The code here is heavily inspired by embetter.
-class OpenAIEmbeddings:
+class OpenAIEmbeddings(ExternalEncoder):
     """Encoder model using embeddings from OpenAI."""
 
     def __init__(
         self, model: str = "text-embedding-ada-002", batch_size: int = 25
     ):
+        import openai
+
         try:
             openai.api_key = os.environ["OPENAI_KEY"]
         except KeyError as e:
@@ -35,7 +38,8 @@ class OpenAIEmbeddings:
         self.batch_size = batch_size
 
     def encode(self, sentences: Iterable[str]):
-        """Transforms the text into a numeric representation."""
+        import openai
+
         result = []
         for b in batched(sentences, self.batch_size):
             resp = openai.Embedding.create(

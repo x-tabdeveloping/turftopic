@@ -3,8 +3,8 @@ import os
 from typing import Iterable, List
 
 import numpy as np
-import voyageai
-from voyageai import get_embeddings
+
+from turftopic.encoders.base import ExternalEncoder
 
 
 def batched(iterable, n: int) -> Iterable[List[str]]:
@@ -17,10 +17,12 @@ def batched(iterable, n: int) -> Iterable[List[str]]:
         yield batch
 
 
-class VoyageEmbeddings:
+class VoyageEmbeddings(ExternalEncoder):
     """Encoder model using embeddings from VoyageAI."""
 
     def __init__(self, model: str = "voyage-01", batch_size: int = 25):
+        import voyageai
+
         try:
             voyageai.api_key = os.environ["VOYAGE_KEY"]
         except KeyError as e:
@@ -32,7 +34,8 @@ class VoyageEmbeddings:
         self.batch_size = batch_size
 
     def encode(self, sentences: Iterable[str]):
-        """Transforms the text into a numeric representation."""
+        from voyageai import get_embeddings
+
         result = []
         for b in batched(sentences, self.batch_size):
             response = get_embeddings(b, self.model, input_type="document")

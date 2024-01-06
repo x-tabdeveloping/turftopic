@@ -1,14 +1,20 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple, Union
 
 import numpy as np
 from rich.console import Console
 from rich.table import Table
+from sentence_transformers import SentenceTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
+
+from turftopic.encoders import ExternalEncoder
 
 
 def remove_whitespace(text: str) -> str:
     return " ".join(text.strip().split())
+
+
+Encoder = Union[ExternalEncoder, SentenceTransformer]
 
 
 class ContextualModel(ABC, TransformerMixin, BaseEstimator):

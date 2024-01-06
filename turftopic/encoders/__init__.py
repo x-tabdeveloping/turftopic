@@ -1,18 +1,11 @@
-from turftopic.error import NotInstalled
+from turftopic.encoders.base import ExternalEncoder
+from turftopic.encoders.cohere import CohereEmbeddings
+from turftopic.encoders.openai import OpenAIEmbeddings
+from turftopic.encoders.voyage import VoyageEmbeddings
 
-try:
-    from turftopic.encoders.cohere import CohereEmbeddings
-except ModuleNotFoundError:
-    CohereEmbeddings = NotInstalled("CohereEmbeddings", "cohere")
-
-try:
-    from turftopic.encoders.openai import OpenAIEmbeddings
-except ModuleNotFoundError:
-    OpenAIEmbeddings = NotInstalled("OpenAIEmbeddings", "openai")
-
-try:
-    from turftopic.encoders.voyage import VoyageEmbeddings
-except ModuleNotFoundError:
-    VoyageEmbeddings = NotInstalled("VoyageEmbeddings", "voyageai")
-
-__all__ = ["CohereEmbeddings", "OpenAIEmbeddings", "VoyageEmbeddings"]
+__all__ = [
+    "CohereEmbeddings",
+    "OpenAIEmbeddings",
+    "VoyageEmbeddings",
+    "ExternalEncoder",
+]

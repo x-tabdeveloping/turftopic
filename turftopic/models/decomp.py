@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.decomposition import PCA, FastICA
 from sklearn.feature_extraction.text import CountVectorizer
 
-from turftopic.base import ContextualModel
+from turftopic.base import ContextualModel, Encoder
 from turftopic.vectorizer import default_vectorizer
 
 
@@ -34,7 +34,7 @@ class SemanticSignalSeparation(ContextualModel):
         self,
         n_components: int,
         encoder: Union[
-            SentenceTransformer, str
+            Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         objective: Literal["orthogonality", "independence"] = "independence",

@@ -12,11 +12,11 @@ from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 
-from turftopic.base import ContextualModel
+from turftopic.base import ContextualModel, Encoder
 from turftopic.vectorizer import default_vectorizer
 
 
-class Encoder(nn.Module):
+class EncoderNetwork(nn.Module):
     def __init__(self, contextualized_size, num_topics, hidden, dropout):
         super().__init__()
         self.drop = nn.Dropout(dropout)  # to avoid component collapse
@@ -37,7 +37,7 @@ class Encoder(nn.Module):
         return logtheta_loc, logtheta_scale
 
 
-class Decoder(nn.Module):
+class DecoderNetwork(nn.Module):
     def __init__(self, vocab_size, num_topics, dropout):
         super().__init__()
         self.beta = nn.Linear(num_topics, vocab_size, bias=False)
@@ -56,10 +56,10 @@ class Model(nn.Module):
         super().__init__()
         self.vocab_size = vocab_size
         self.num_topics = num_topics
-        self.encoder = Encoder(
+        self.encoder = EncoderNetwork(
             contextualized_size, num_topics, hidden, dropout
         )
-        self.decoder = Decoder(vocab_size, num_topics, dropout)
+        self.decoder = DecoderNetwork(vocab_size, num_topics, dropout)
 
     def model(self, bow, contextualized):
         pyro.module("decoder", self.decoder)
@@ -126,7 +126,7 @@ class AutoEncodingTopicModel(ContextualModel):
         self,
         n_components: int,
         encoder: Union[
-            str, SentenceTransformer
+            Encoder, SentenceTransformer
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         combined: bool = False,

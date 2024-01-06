@@ -11,7 +11,7 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from turftopic.base import ContextualModel
+from turftopic.base import ContextualModel, Encoder
 from turftopic.vectorizer import default_vectorizer
 
 
@@ -69,7 +69,7 @@ class KeyNMF(ContextualModel):
         self,
         n_components: int,
         encoder: Union[
-            SentenceTransformer, str
+            Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         top_n: int = 25,
