@@ -24,6 +24,27 @@ def batched(iterable, n: int) -> Iterable[List[str]]:
         yield batch
 
 
+def serialize_keywords(keywords: Dict[str, float]) -> str:
+    return json.dumps(
+        {word: str(importance) for word, importance in keywords.items()}
+    )
+
+
+def deserialize_keywords(s: str) -> Dict[str, float]:
+    obj = json.loads(s)
+    return {word: float(importance) for word, importance in obj.items()}
+
+
+class KeywordIterator:
+    def __init__(self, file: str):
+        self.file = file
+
+    def __iter__(self) -> Iterable[Dict[str, float]]:
+        with open(self.file) as in_file:
+            for line in in_file:
+                yield deserialize_keywords(line.strip())
+
+
 class KeyNMF(ContextualModel):
     """Extracts keywords from documents based on semantic similarity of
     term encodings to document encodings.
@@ -98,11 +119,65 @@ class KeyNMF(ContextualModel):
             keywords.append(dict(zip(top_words, top_sims)))
         return keywords
 
+    def learn_vocabulary(self, document_stream: Iterable[str]):
+        self.vectorizer.fit(document_stream)
+        self.vocab_embeddings = self.encoder_.encode(
+            self.vectorizer.get_feature_names_out()
+        )
+
+    def cache_keywords(
+        self,
+        document_stream: Iterable[str],
+        keyword_file: str = "./__keywords.jsonl",
+        batch_size: int = 500,
+    ):
+        with open(keyword_file, "w") as out_file:
+            for document_batch in batched(document_stream, batch_size):
+                keywords = self.extract_keywords(document_batch)
+                serialized = "\n".join(
+                    [serialize_keywords(k) for k in keywords]
+                )
+                out_file.write(serialized + "\n")
+
+    def minibatch_train(
+        self,
+        keywords: Iterable[Dict[str, float]],
+        max_epochs: int = 50,
+        batch_size: int = 500,
+        console=None,
+    ):
+        self.dict_vectorizer_.fit(keywords)
+        self.nmf_ = MiniBatchNMF(self.n_components)
+        epoch_costs = []
+        for i_epoch in range(max_epochs):
+            epoch_cost = 0
+            entry_batches = batched(keywords, batch_size)
+            for i_batch, batch in enumerate(entry_batches):
+                random.shuffle(batch)
+                dtm = self.dict_vectorizer_.transform(batch)
+                dtm[dtm < 0] = 0  # type: ignore
+                self.nmf_.partial_fit(dtm)
+                batch_cost = self.nmf_._minibatch_step(
+                    dtm, None, self.nmf_.components_, update_H=False
+                )
+                epoch_cost += batch_cost
+            epoch_costs.append(epoch_cost)
+            if (i_epoch > 5) and (
+                epoch_costs[-1] >= epoch_costs[max(0, i_epoch - 5)]
+            ):
+                if console is not None:
+                    console.log(
+                        f"Converged after {i_epoch} epochs, early stopping."
+                    )
+                break
+        self.components_ = self.nmf_.components_
+
     def big_fit(
         self,
         document_stream: Iterable[str],
         keyword_file: str = "./__keywords.jsonl",
-        batch_size: int = 5000,
+        batch_size: int = 500,
+        max_epochs: int = 50,
     ):
         """Fit KeyNMF on very large datasets, that cannot fit in memory.
         Internally uses minibatch NMF.
@@ -110,34 +185,17 @@ class KeyNMF(ContextualModel):
         as multiple passes are needed over the corpus to
         learn the vocabulary and then fit the model.
         """
-        self.nmf_ = MiniBatchNMF(self.n_components)
         console = Console()
         with console.status("Fitting model") as status:
             status.update("Learning vocabulary.")
-            self.vectorizer.fit(document_stream)
-            console.log("Vocabulary learned.")
-            status.update("Encoding vocabulary.")
-            console.log("Vocabulary encoded.")
+            self.learn_vocabulary(document_stream)
+            console.log("Vocabulary learnt.")
             status.update("Extracting keywords.")
-            with open(keyword_file, "w") as out_file:
-                for document_batch in batched(document_stream, batch_size):
-                    keywords = self.extract_keywords(document_batch)
-                    out_file.write(json.dumps(keywords) + "\n")
+            self.cache_keywords(document_stream, keyword_file, batch_size)
             console.log("Keywords extracted.")
-            status.update("Fitting dict vectorizer.")
-            with open(keyword_file) as in_file:
-                entries = (json.loads(line.strip()) for line in in_file)
-                self.dict_vectorizer_.fit(entries)
-            console.log("Dict vectorizer fitted.")
+            keywords = KeywordIterator(keyword_file)
             status.update("Fitting NMF.")
-            with open(keyword_file) as in_file:
-                entries = (json.loads(line.strip()) for line in in_file)
-                entry_batches = batched(entries, batch_size)
-                for batch in entry_batches:
-                    random.shuffle(batch)
-                    dtm = self.dict_vectorizer_.transform(batch)
-                    dtm[dtm < 0] = 0  # type: ignore
-                    self.nmf_.partial_fit(dtm)
+            self.minibatch_train(keywords, max_epochs, batch_size, console=console)  # type: ignore
             console.log("NMF fitted.")
         return self
 
@@ -150,13 +208,8 @@ class KeyNMF(ContextualModel):
                 status.update("Encoding documents")
                 embeddings = self.encoder_.encode(raw_documents)
                 console.log("Documents encoded.")
-            status.update("Extracting terms.")
-            self.vectorizer.fit(raw_documents)
-            console.log("Term extraction done.")
-            vocab = self.vectorizer.get_feature_names_out()
-            status.update("Encoding vocabulary")
-            self.vocab_embeddings = self.encoder_.encode(vocab)
-            console.log("Vocabulary encoded.")
+            status.update("Learning Vocabulary.")
+            self.learn_vocabulary(raw_documents)
             status.update("Extracting keywords")
             keywords = self.extract_keywords(
                 raw_documents, embeddings=embeddings
