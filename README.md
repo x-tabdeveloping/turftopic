@@ -1,14 +1,15 @@
-<p align="center">
-<img align="center" height="200" src="assets/logo_w_text.svg">
-<br>
- <b>Topic modeling is your turf too.</b> <br> <i> Contextual topic models with representations from transformers. </i></p>
-
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
 [![PyPI version](https://badge.fury.io/py/turftopic.svg)](https://pypi.org/project/turftopic/)
 [![pip downloads](https://img.shields.io/pypi/dm/turftopic.svg)](https://pypi.org/project/turftopic/)
 [![python version](https://img.shields.io/badge/Python-%3E=3.9-blue)](https://github.com/centre-for-humanities-computing/turftopic)
 [![Code style: black](https://img.shields.io/badge/Code%20Style-Black-black)](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html)
 <br>
+
+<p align="center">
+<img align="center" height="200" src="assets/logo_w_text.svg">
+<br>
+ <b>Topic modeling is your turf too.</b> <br> <i> Contextual topic models with representations from transformers. </i></p>
+
 
 ### Intentions:
  - Provide simple, robust and fast implementations of existing approaches (BERTopic, Top2Vec, CTM) with minimal dependencies.
