@@ -48,15 +48,15 @@ model = KeyNMF(10).fit(texts)
 model.print_topics()
 ```
 
-#### Semantic Signal Segmentation (S³)
+#### Semantic Signal Separation (S³)
 
 Interprets topics as dimensions of semantics.
 Obtains these dimensions with ICA or PCA.
 
 ```python
-from turftopic import SemanticSignalSegmentation
+from turftopic import SemanticSignalSeparation
 
-model = SemanticSignalSegmentation(10).fit(texts)
+model = SemanticSignalSeparation(10).fit(texts)
 model.print_topics()
 ```
 
