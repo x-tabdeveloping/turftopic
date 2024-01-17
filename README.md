@@ -1,14 +1,4 @@
 <p align="center">
-
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
-[![PyPI version](https://badge.fury.io/py/turftopic.svg)](https://pypi.org/project/turftopic/)
-[![pip downloads](https://img.shields.io/pypi/dm/turftopic.svg)](https://pypi.org/project/turftopic/)
-[![python version](https://img.shields.io/badge/Python-%3E=3.9-blue)](https://github.com/centre-for-humanities-computing/turftopic)
-[![Code style: black](https://img.shields.io/badge/Code%20Style-Black-black)](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html)
-
-</p>
-
-<p align="center">
 <img align="center" height="200" src="assets/logo_w_text.svg">
 <br>
  <b>Topic modeling is your turf too.</b> <br> <i> Contextual topic models with representations from transformers. </i></p>
@@ -22,6 +12,8 @@
  - Make the models' API streamlined and compatible with topicwizard and scikit-learn.
  - Develop smarter, transformer-based evaluation metrics.
 
+Try our Demo in Colab: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
+
 !!!This package is still a prototype, and no papers are published about the models. Until these are out, and most features are implemented
 I DO NOT recommend using this package for production and academic use!!!
 
@@ -33,6 +25,7 @@ I DO NOT recommend using this package for production and academic use!!!
  - [ ] Implement visualization utilites for these models in topicwizard ⏳
  - [ ] High-level topic descriptions with LLMs.
  - [ ] Contextualized evaluation metrics.
+
 
 ### Implemented Models
 
