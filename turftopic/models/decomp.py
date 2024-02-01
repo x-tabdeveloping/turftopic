@@ -46,7 +46,7 @@ class SemanticSignalSeparation(ContextualModel):
         else:
             self.encoder_ = encoder
         if vectorizer is None:
-            self.vectorizer = default_vectorizer
+            self.vectorizer = default_vectorizer()
         else:
             self.vectorizer = vectorizer
         self.objective = objective

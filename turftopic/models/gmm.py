@@ -47,20 +47,19 @@ class GMM(ContextualModel):
             Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
-        weight_prior: Literal[
-            "dirichlet", "dirichlet_process", None
-        ] = "dirichlet",
+        weight_prior: Literal["dirichlet", "dirichlet_process", None] = None,
         gamma: Optional[float] = None,
     ):
         self.n_components = n_components
         self.encoder = encoder
         self.weight_prior = weight_prior
+        self.gamma = gamma
         if isinstance(encoder, str):
             self.encoder_ = SentenceTransformer(encoder)
         else:
             self.encoder_ = encoder
         if vectorizer is None:
-            self.vectorizer = default_vectorizer
+            self.vectorizer = default_vectorizer()
         else:
             self.vectorizer = vectorizer
         if self.weight_prior is not None:

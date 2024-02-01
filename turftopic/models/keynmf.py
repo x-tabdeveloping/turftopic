@@ -82,7 +82,7 @@ class KeyNMF(ContextualModel):
         else:
             self.encoder_ = encoder
         if vectorizer is None:
-            self.vectorizer = default_vectorizer
+            self.vectorizer = default_vectorizer()
         else:
             self.vectorizer = vectorizer
         self.dict_vectorizer_ = DictVectorizer()
