@@ -4,15 +4,13 @@
  <b>Topic modeling is your turf too.</b> <br> <i> Contextual topic models with representations from transformers. </i></p>
 
 
-### Intentions:
+### Intentions
  - Provide simple, robust and fast implementations of existing approaches (BERTopic, Top2Vec, CTM) with minimal dependencies.
  - Implement state-of-the-art approaches from my papers. (papers work-in-progress)
  - Put all approaches in a broader conceptual framework.
  - Provide clear and extensive documentation about the best use-cases for each model.
  - Make the models' API streamlined and compatible with topicwizard and scikit-learn.
  - Develop smarter, transformer-based evaluation metrics.
-
-Try our Demo in Colab: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
 
 !!!This package is still a prototype, and no papers are published about the models. Until these are out, and most features are implemented
 I DO NOT recommend using this package for production and academic use!!!
@@ -28,7 +26,7 @@ I DO NOT recommend using this package for production and academic use!!!
 
 
 ### Implemented Models
-
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
 #### Mixture of Gaussians (GMM)
 
 Topic models where topics are assumed to be Multivariate Normal components,
