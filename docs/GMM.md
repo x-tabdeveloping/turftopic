@@ -41,7 +41,7 @@ Soft Class-based tf-idf scores for terms in a topic are then calculated in the f
 
 - Estimate weight of term $j$ for topic $z$: <br>
 $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
-$t_{zj} = \sum_k T_{iz} \cdot X_{ij}$ and 
+$t_{zj} = \sum_i T_{iz} \cdot X_{ij}$ and 
 $w_{z}= \sum_i(|T_{iz}| \cdot \sum_j X_{ij})$ <br>
 - Estimate inverse document/topic frequency for term $j$:  
 $idf_j = log(\frac{N}{\sum_z |t_{zj}|})$, where
