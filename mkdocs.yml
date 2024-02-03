@@ -2,7 +2,7 @@ site_name: Turftopic
 site_description: 'An all-in-one library for topic modeling with sentence embeddings.'
 repo_url: https://github.com/x-tabdeveloping/turftopic
 nav:
-  - Home: index.md
+  - Basics: index.md
   - Models:
     - S³: s3.md
     - KeyNMF: KeyNMF.md
