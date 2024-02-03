@@ -1,0 +1,919 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An all-in-one library for topic modeling with sentence embeddings.">
+      
+      
+      
+      
+      
+        <link rel="next" href="model_overview/">
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
+    
+    
+      
+        <title>Turftopic</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#installation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="Turftopic" class="md-header__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="images/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Turftopic
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Basics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
+        
+  
+    
+  
+  Basics
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="model_overview/" class="md-tabs__link">
+          
+  
+    
+  
+  Models
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="encoders/" class="md-tabs__link">
+        
+  
+    
+  
+  Encoders
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="Turftopic" class="md-nav__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="images/logo.svg" alt="logo">
+
+    </a>
+    Turftopic
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Basics
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Basics
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Usage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Important Attributes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fitting-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fitting Models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Fitting Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#performance-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance tips
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inference
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interpreting-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interpreting Models
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interpreting Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visualization
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Models
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="s3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    S³
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="KeyNMF/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KeyNMF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="GMM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GMM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="clustering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clustering Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ctm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Autoencoding Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encoders/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Encoders
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Basics</h1>
+
+<p>Turftopic is a topic modeling library which intends to simplify and streamline the usage of contextually sensitive topic models.
+We provide stable, minimal and scalable implementations of several types of models along with extensive documentation,
+so that you can make an informed choice about which model suits you best in the light of a given task or research question.</p>
+<h2 id="installation">Installation</h2>
+<p>Turftopic can be installed from PyPI.</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic
+</code></pre></div>
+<p>If you intend to use CTMs, make sure to install the package with Pyro as an optional dependency.</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>pyro-ppl<span class="o">]</span>
+</code></pre></div>
+<h2 id="basic-usage">Basic Usage</h2>
+<p>Turftopic's models follow the scikit-learn API conventions, and as such they are quite easy to use if you are familiar with
+scikit-learn workflows.</p>
+<p>Here's an example of how you use KeyNMF, one of our models on the 20Newsgroups dataset from scikit-learn.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
+
+<span class="n">newsgroups</span> <span class="o">=</span> <span class="n">fetch_20newsgroups</span><span class="p">(</span>
+    <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+    <span class="n">remove</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;headers&quot;</span><span class="p">,</span> <span class="s2">&quot;footers&quot;</span><span class="p">,</span> <span class="s2">&quot;quotes&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">corpus</span> <span class="o">=</span> <span class="n">newsgroups</span><span class="o">.</span><span class="n">data</span>
+</code></pre></div>
+<p>Turftopic also comes with interpretation tools that make it easy to display and understand your results.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Top 10 Words</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>armenians, armenian, armenia, turks, turkish, genocide, azerbaijan, soviet, turkey, azerbaijani</td>
+</tr>
+<tr>
+<td>1</td>
+<td>sale, price, shipping, offer, sell, prices, interested, 00, games, selling</td>
+</tr>
+<tr>
+<td>2</td>
+<td>christians, christian, bible, christianity, church, god, scripture, faith, jesus, sin</td>
+</tr>
+<tr>
+<td>3</td>
+<td>encryption, chip, clipper, nsa, security, secure, privacy, encrypted, crypto, cryptography</td>
+</tr>
+<tr>
+<td></td>
+<td>....</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<h2 id="important-attributes">Important Attributes</h2>
+<p>In Turftopic all models have a vectorizer and an encoder component, which you can specify when initializing a model.</p>
+<ol>
+<li>The <strong>vectorizer</strong> is used to turn documents into Bag-of-Words representations and learning the vocabulary. The default used in the package is sklearn's <code>CountVectorizer</code>.</li>
+<li>The <strong>encoder</strong> is used to encode documents, and optionally the vocabulary into contextual representations. This will most frequently be a Sentence Transformer. The default in Turftopic is <code>all-MiniLM-L6-v2</code>, a very lightweight English model.</li>
+</ol>
+<p>You can use any of the built-in encoders in Turftopic to encode your documents, or any sentence transformer from the HuggingFace Hub.
+This allows you to use embeddings of different quality and computational efficiency for different purposes.</p>
+<p>Here's a model that uses E5 large as the embedding model, and only learns words that occur in at least 20 documents.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;intfloat/e5-large-v2&quot;</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">CountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">20</span><span class="p">))</span>
+</code></pre></div>
+<p>You can also use external models for encoding, here's an example with OpenAI's embedding models:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<span class="kn">from</span> <span class="nn">turftopic.encoders</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">OpenAIEmbeddings</span><span class="p">(</span><span class="s2">&quot;text-embedding-3-large&quot;</span><span class="p">))</span>
+</code></pre></div>
+<p>If you intend to, you can also use n-grams as features instead of words:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">GMM</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">GMM</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">)))</span>
+</code></pre></div>
+<h2 id="fitting-models">Fitting Models</h2>
+<p>All models in Turftopic have a <code>fit()</code> method, that takes a textual corpus in the form of an iterable of strings.</p>
+<p>Beware that the iterable has to be reusable, as models have to do multiple passes over the corpus.</p>
+<div class="highlight"><pre><span></span><code><span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;this is a a document&quot;</span><span class="p">,</span> <span class="s2">&quot;this is yet another document&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="performance-tips">Performance tips</h4>
+<p>In order to cut down on costs/computational load when fitting multiple models in a row, you might want to encode the documents before fitting a model.
+Encoding the corpus is the heaviest part of the process and you can spare yourself a lot of time by only doing it once.</p>
+<p>Some models have to encode the vocabulary as well, this cannot be done before inference, as the models learn the vocabulary itself from the corpus.</p>
+<p>The fit method of all models takes and <code>embeddings</code> argument, that allows you to pass a precooked embedding matrix along to fitting.</p>
+<p>One thing to watch out for is that you have to pass the embedding model along to the model that was used for encoding the corpus.
+This is again, to ensure that the vocabulary gets encoded with the same embedding model as the documents.</p>
+<p>Here's a snippet of correct usage:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">GMM</span><span class="p">,</span> <span class="n">ClusteringTopicModel</span>
+
+<span class="n">encoder</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;intfloat/e5-large-v2&quot;</span><span class="p">)</span>
+
+<span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;this is a a document&quot;</span><span class="p">,</span> <span class="s2">&quot;this is yet another document&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="n">embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">corpus</span><span class="p">))</span>
+
+<span class="n">gmm</span> <span class="o">=</span> <span class="n">GMM</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">encoder</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
+
+<span class="n">clustering</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">(</span><span class="n">encoder</span><span class="o">=</span><span class="n">encoder</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="inference">Inference</h2>
+<p>In order to get the importance of each topic for the documents in the corpus, you might want to use <code>fit_transform()</code> instead of <code>fit()</code></p>
+<div class="highlight"><pre><span></span><code><span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+</code></pre></div>
+<p>This will give you a matrix, where every row is a document and every column represents the importance of a given topic.</p>
+<p>You can infer topical content for new documents with a fitted model using the <code>transform()</code> method (beware that this only works with inductive methods):</p>
+<div class="highlight"><pre><span></span><code><span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">new_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>Note that using <code>fit()</code> and <code>transform()</code> in succession is not the same as using <code>fit_transform()</code> and the later should be preferred under all circumstances.
+For one, not all models have a <code>transform()</code> method, but <code>fit_transform()</code> is also way more efficient, as documents don't have to be encoded twice.
+Some models have additional optimizations going on when using <code>fit_transform()</code>, and the <code>fit()</code> method typically uses <code>fit_transform()</code> in the background.</p>
+</blockquote>
+<h2 id="interpreting-models">Interpreting Models</h2>
+<p>Turftopic comes with a number of pretty printing utilities for interpreting the models.</p>
+<p>To see the highest the most important words for each topic, use the <code>print_topics()</code> method.</p>
+<div class="highlight"><pre><span></span><code><span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Top 10 Words</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>armenians, armenian, armenia, turks, turkish, genocide, azerbaijan, soviet, turkey, azerbaijani</td>
+</tr>
+<tr>
+<td>1</td>
+<td>sale, price, shipping, offer, sell, prices, interested, 00, games, selling</td>
+</tr>
+<tr>
+<td>2</td>
+<td>christians, christian, bible, christianity, church, god, scripture, faith, jesus, sin</td>
+</tr>
+<tr>
+<td>3</td>
+<td>encryption, chip, clipper, nsa, security, secure, privacy, encrypted, crypto, cryptography</td>
+</tr>
+<tr>
+<td></td>
+<td>....</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Print highest ranking documents for topic 0</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_highest_ranking_documents</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="p">)</span>
+</code></pre></div>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Poor 'Poly'. I see you're preparing the groundwork for yet another retreat from your...</td>
+<td>0.40</td>
+</tr>
+<tr>
+<td>Then you must be living in an alternate universe. Where were they? An Appeal to Mankind During the...</td>
+<td>0.40</td>
+</tr>
+<tr>
+<td>It is 'Serdar', 'kocaoglan'. Just love it. Well, it could be your head wasn't screwed on just right...</td>
+<td>0.39</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<div class="highlight"><pre><span></span><code><span class="n">model</span><span class="o">.</span><span class="n">print_topic_distribution</span><span class="p">(</span>
+    <span class="s2">&quot;I think guns should definitely banned from all public institutions, such as schools.&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th>Topic name</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7_gun_guns_firearms_weapons</td>
+<td>0.05</td>
+</tr>
+<tr>
+<td>17_mail_address_email_send</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>3_encryption_chip_clipper_nsa</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>19_baseball_pitching_pitcher_hitter</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>11_graphics_software_program_3d</td>
+<td>0.00</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<h3 id="visualization">Visualization</h3>
+<p>Turftopic does not come with built-in visualization utilities, but the next release of <a href="https://github.com/x-tabdeveloping/topicwizard">topicwizard</a> is going to be compatible with all models from Turftopic.</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>topic-wizard
+</code></pre></div>
+<p>By far the easiest way to visualize your models for interpretation is to launch the topicwizard web app.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">topicwizard</span>
+
+<span class="n">topicwizard</span><span class="o">.</span><span class="n">visualize</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">corpus</span><span class="o">=</span><span class="n">corpus</span><span class="p">)</span>
+</code></pre></div>
+<figure>
+  <img src="https://x-tabdeveloping.github.io/topicwizard/_images/screenshot_topics.png" width="70%" style="margin-left: auto;margin-right: auto;">
+  <figcaption>Screenshot of the topicwizard Web Application</figcaption>
+</figure>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": ".", "features": ["toc.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "toc.follow", "content.code.copy"], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.e1c3ead8.min.js"></script>
+      
+        <script src="javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
