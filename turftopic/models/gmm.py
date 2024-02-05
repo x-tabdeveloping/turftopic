@@ -15,6 +15,15 @@ class GMM(ContextualModel):
     """Multivariate Gaussian Mixture Model over document embeddings.
     Models topics as mixture components.
 
+    ```python
+    from turftopic import GMM
+
+    corpus: list[str] = ["some text", "more text", ...]
+
+    model = GMM(10, weight_prior="dirichlet_process").fit(corpus)
+    model.print_topics()
+    ```
+
     Parameters
     ----------
     n_components: int

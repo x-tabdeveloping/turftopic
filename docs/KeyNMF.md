@@ -42,3 +42,7 @@ can be explained.
  - Lack of Multilingual Capabilities: KeyNMF as it is currently implemented cannot be used in a multilingual context. Changes to the model that allow this are possible, and will likely be ijmplemented in the future.
  - Lack of Nuance: Since only the top K keywords are considered and used for topic extraction some of the nuances, especially in long texts might get lost. We therefore recommend that you scale K with the average length of the texts you're working with. For tweets it might be worth it to scale it down to 5, while with longer documents, a larger number (let's say 50) might be advisable.
  - Practitioners have to choose the number of topics a priori.
+
+## API Reference
+
+::: turftopic.models.keynmf.KeyNMF

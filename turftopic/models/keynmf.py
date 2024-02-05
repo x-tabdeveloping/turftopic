@@ -52,6 +52,15 @@ class KeyNMF(ContextualModel):
     Topics are then extracted with non-negative matrix factorization from
     keywords' proximity to documents.
 
+    ```python
+    from turftopic import KeyNMF
+
+    corpus: list[str] = ["some text", "more text", ...]
+
+    model = KeyNMF(10, top_n=10).fit(corpus)
+    model.print_topics()
+    ```
+
     Parameters
     ----------
     n_components: int

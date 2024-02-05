@@ -79,3 +79,8 @@ In practical terms this means that GMM can, by default infer topic labels for do
  - Assumption of Gaussianity: The model assumes that topics are Gaussian components, it might very well be that this is not the case.
  Fortunately enough this rarely effects real-world perceived performance of models, and typically does not present an issue in practical settings.
  - Scalability: While the model is scalable to a certain extent, it is not nearly as scalable as some of the other options. If you experience issues with computational efficiency or convergence, try another model.
+
+
+## API Reference
+
+::: turftopic.models.gmm.GMM

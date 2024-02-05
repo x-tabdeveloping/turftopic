@@ -71,6 +71,20 @@ Term importances in different models are calculated differently.
 The model that you should be using for any particular application will of course be influenced by a number of factors, that you should consider.
 The tables on this page give you a general overview of a handful of practical aspects of the models.
 
+<center>
+
+##### Practical Comparison
+
+| Model | Scalability | Ideal Document Length | Speed | Stability | Robustness to Noise | Embedding Size |
+| - | - | - | - | - | - | - |
+| S³ | Moderate | **Short, Medium, Long** | **Fast** | Moderate | Good | Any |
+| KeyNMF | **Very High** | Medium, Long | Moderate | **Stable** | **Very Good** | Any |
+| GMM | Moderate | Short, Medium | Moderate | Moderate | Good | Limited |
+| Clustering Models | Low | Short, Medium | Moderate | Volatile | **Very Good**(_centroid_) <br>  Moderate(_c-TF-IDF_) | Any |
+| Autoencoding Models | Low | Hard to Tell | Slow | Volatile | Poor | Limited |
+
+</center>
+
 Here is an opinionated guide for common use cases:
 
 ### 1. When in doubt **use KeyNMF**.
@@ -98,16 +112,6 @@ In my anecdotal experience and all experiments I've done with topic models, Auto
 and their behaviour is also incredbly opaque.
 Convergence issues or overlapping topics are a common occurrence. And as such, unless you have reasons to do so I would recommend that your first choice is another model on the list.
 
-<center>
+## Base API Reference
 
-##### Practical Comparison
-
-| Model | Scalability | Ideal Document Length | Speed | Stability | Robustness to Noise | Embedding Size |
-| - | - | - | - | - | - | - |
-| S³ | Moderate | **Short, Medium, Long** | **Fast** | Moderate | Good | Any |
-| KeyNMF | **Very High** | Medium, Long | Moderate | **Stable** | **Very Good** | Any |
-| GMM | Moderate | Short, Medium | Moderate | Moderate | Good | Limited |
-| Clustering Models | Low | Short, Medium | Moderate | Volatile | **Very Good**(_centroid_) <br>  Moderate(_c-TF-IDF_) | Any |
-| Autoencoding Models | Low | Hard to Tell | Slow | Volatile | Poor | Limited |
-
-</center>
+:::turftopic.base.ContextualModel

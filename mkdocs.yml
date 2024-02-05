@@ -14,6 +14,7 @@ nav:
 theme:
   name: material
   logo: images/logo.svg
+  navigation_depth: 1
   palette:
     primary: '#01034A'
   features:
@@ -33,9 +34,11 @@ plugins:
       python:
         options:
           annotations_path: brief
-          show_root_heading: false
+          show_root_heading: true
           show_root_toc_entry: false
           show_symbol_type_heading: true
+          docstring_style: numpy
+          heading_level: 3
     custom_templates: templates    - content.code.select
 
 markdown_extensions:
@@ -45,11 +48,14 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - admonition
+  - toc:
+      toc_depth: 2
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
 
 extra_javascript:
   - javascripts/mathjax.js
