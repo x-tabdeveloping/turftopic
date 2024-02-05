@@ -15,6 +15,15 @@ class SemanticSignalSeparation(ContextualModel):
     component analysis methods.
     Topics are assumed to be dimensions of semantics.
 
+    ```python
+    from turftopic import SemanticSignalSeparation
+
+    corpus: list[str] = ["some text", "more text", ...]
+
+    model = SemanticSignalSeparation(10, objective="independence").fit(corpus)
+    model.print_topics()
+    ```
+
     Parameters
     ----------
     n_components: int

@@ -30,6 +30,22 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
     in semantic space.
     Models also include a dimensionality reduction step to aid clustering.
 
+    ```python
+    from turftopic import KeyNMF
+    from sklearn.cluster import HDBSCAN
+    import umap
+
+    corpus: list[str] = ["some text", "more text", ...]
+
+    # Construct a Top2Vec-like model
+    model = ClusteringTopicModel(
+        dimensionality_reduction=umap.UMAP(5),
+        clustering=HDBSCAN(),
+        feature_importance="centroid"
+    ).fit(corpus)
+    model.print_topics()
+    ```
+
     Parameters
     ----------
     encoder: str or SentenceTransformer
@@ -88,7 +104,22 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
-        """Fits model and predicts cluster labels for all given documents."""
+        """Fits model and predicts cluster labels for all given documents.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        y: None
+            Ignored, exists for sklearn compatibility.
+        embeddings: ndarray of shape (n_documents, n_dimensions), optional
+            Precomputed document encodings.
+
+        Returns
+        -------
+        ndarray of shape (n_documents)
+            Cluster label for all documents (-1 for outliers)
+        """
         console = Console()
         with console.status("Fitting model") as status:
             if embeddings is None:

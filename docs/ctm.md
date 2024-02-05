@@ -69,3 +69,7 @@ Turftopic, similarly to Clustering models might not contain some model specific 
  - Curse of Dimensionality: The number of parameters in these models is typically very high. This makes inference difficult and might result in poor convergence, and very slow inference.
  - Black Box: Since the mapping to parameter space is learned by a neural network, the model is very black box in nature and it's hard to know why and what it learns.
 
+
+## API Reference
+
+::: turftopic.models.ctm.AutoEncodingTopicModel

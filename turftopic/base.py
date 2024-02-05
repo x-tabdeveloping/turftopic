@@ -217,7 +217,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
 
         Returns
         -------
-        ndarray of shape (n_dimensions, n_topics)
+        ndarray of shape (n_documents, n_topics)
             Document-topic matrix.
         """
         pass

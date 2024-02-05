@@ -167,3 +167,7 @@ top2vec = ClusteringTopicModel(
   <img src="../images/umap_hdbscan_stability.png" width="80%" style="margin-left: auto;margin-right: auto;">
   <figcaption>Effect of UMAP's and HDBSCAN's Hyperparameters on the Number of Topics in 20 Newsgroups</figcaption>
 </figure>
+
+## API Reference
+
+::: turftopic.models.cluster.ClusteringTopicModel
