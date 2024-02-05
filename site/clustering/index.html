@@ -469,48 +469,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Model">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-dimensionality-reduction" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Dimensionality Reduction
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-clustering" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Clustering
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3a-term-importance-proximity-to-cluster-centroids" class="md-nav__link">
-    <span class="md-ellipsis">
-      3a. Term Importance: Proximity to Cluster Centroids
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3b-term-importance-c-tf-idf" class="md-nav__link">
-    <span class="md-ellipsis">
-      3b. Term Importance: c-TF-IDF
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -529,29 +487,14 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Considerations">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#strengths" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
     <span class="md-ellipsis">
-      Strengths
+      API Reference
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#weaknesses" class="md-nav__link">
-    <span class="md-ellipsis">
-      Weaknesses
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -765,6 +708,656 @@ You can, however, construct models in Turftopic that imitate the behaviour of th
   <img src="../images/umap_hdbscan_stability.png" width="80%" style="margin-left: auto;margin-right: auto;">
   <figcaption>Effect of UMAP's and HDBSCAN's Hyperparameters on the Number of Topics in 20 Newsgroups</figcaption>
 </figure>
+
+<h2 id="api-reference">API Reference</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.models.cluster.ClusteringTopicModel" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.models.cluster.ClusteringTopicModel</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="turftopic.base.ContextualModel" href="../model_overview/#turftopic.base.ContextualModel">ContextualModel</a></code>, <code><span title="sklearn.base.ClusterMixin">ClusterMixin</span></code></p>
+
+  
+      <p>Topic models, which assume topics to be clusters of documents
+in semantic space.
+Models also include a dimensionality reduction step to aid clustering.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">HDBSCAN</span>
+<span class="kn">import</span> <span class="nn">umap</span>
+
+<span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;some text&quot;</span><span class="p">,</span> <span class="s2">&quot;more text&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+<span class="c1"># Construct a Top2Vec-like model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">(</span>
+    <span class="n">dimensionality_reduction</span><span class="o">=</span><span class="n">umap</span><span class="o">.</span><span class="n">UMAP</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span>
+    <span class="n">clustering</span><span class="o">=</span><span class="n">HDBSCAN</span><span class="p">(),</span>
+    <span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>encoder</code></td>
+          <td>
+                <code><span title="typing.Union">Union</span>[<span title="turftopic.base.Encoder">Encoder</span>, str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Model to encode documents/terms, all-MiniLM-L6-v2 is the default.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;sentence-transformers/all-MiniLM-L6-v2&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>vectorizer</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="sklearn.feature_extraction.text.CountVectorizer">CountVectorizer</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Vectorizer used for term extraction.
+Can be used to prune or filter the vocabulary.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>dimensionality_reduction</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="sklearn.base.TransformerMixin">TransformerMixin</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Dimensionality reduction step to run before clustering.
+Defaults to TSNE with cosine distance.
+To imitate the behavior of BERTopic or Top2Vec you should use UMAP.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>clustering</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="sklearn.base.ClusterMixin">ClusterMixin</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Clustering method to use for finding topics.
+Defaults to OPTICS with 25 minimum cluster size.
+To imitate the behavior of BERTopic or Top2Vec you should use HDBSCAN.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>feature_importance</code></td>
+          <td>
+                <code><span title="typing.Literal">Literal</span>[&#39;ctfidf&#39;, &#39;centroid&#39;]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Method for estimating term importances.
+'centroid' uses distances from cluster centroid similarly
+to Top2Vec.
+'ctfidf' uses BERTopic's c-tf-idf.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;ctfidf&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/models/cluster.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">ClusteringTopicModel</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">,</span> <span class="n">ClusterMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Topic models, which assume topics to be clusters of documents</span>
+<span class="sd">    in semantic space.</span>
+<span class="sd">    Models also include a dimensionality reduction step to aid clustering.</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    from turftopic import KeyNMF</span>
+<span class="sd">    from sklearn.cluster import HDBSCAN</span>
+<span class="sd">    import umap</span>
+
+<span class="sd">    corpus: list[str] = [&quot;some text&quot;, &quot;more text&quot;, ...]</span>
+
+<span class="sd">    # Construct a Top2Vec-like model</span>
+<span class="sd">    model = ClusteringTopicModel(</span>
+<span class="sd">        dimensionality_reduction=umap.UMAP(5),</span>
+<span class="sd">        clustering=HDBSCAN(),</span>
+<span class="sd">        feature_importance=&quot;centroid&quot;</span>
+<span class="sd">    ).fit(corpus)</span>
+<span class="sd">    model.print_topics()</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    encoder: str or SentenceTransformer</span>
+<span class="sd">        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.</span>
+<span class="sd">    vectorizer: CountVectorizer, default None</span>
+<span class="sd">        Vectorizer used for term extraction.</span>
+<span class="sd">        Can be used to prune or filter the vocabulary.</span>
+<span class="sd">    dimensionality_reduction: TransformerMixin, default None</span>
+<span class="sd">        Dimensionality reduction step to run before clustering.</span>
+<span class="sd">        Defaults to TSNE with cosine distance.</span>
+<span class="sd">        To imitate the behavior of BERTopic or Top2Vec you should use UMAP.</span>
+<span class="sd">    clustering: ClusterMixin, default None</span>
+<span class="sd">        Clustering method to use for finding topics.</span>
+<span class="sd">        Defaults to OPTICS with 25 minimum cluster size.</span>
+<span class="sd">        To imitate the behavior of BERTopic or Top2Vec you should use HDBSCAN.</span>
+<span class="sd">    feature_importance: &#39;ctfidf&#39; or &#39;centroid&#39;, default &#39;ctfidf&#39;</span>
+<span class="sd">        Method for estimating term importances.</span>
+<span class="sd">        &#39;centroid&#39; uses distances from cluster centroid similarly</span>
+<span class="sd">        to Top2Vec.</span>
+<span class="sd">        &#39;ctfidf&#39; uses BERTopic&#39;s c-tf-idf.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="n">Encoder</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformers/all-MiniLM-L6-v2&quot;</span><span class="p">,</span>
+        <span class="n">vectorizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CountVectorizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dimensionality_reduction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TransformerMixin</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">clustering</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ClusterMixin</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">feature_importance</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ctfidf&quot;</span><span class="p">,</span> <span class="s2">&quot;centroid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ctfidf&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">integer_message</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="n">encoder</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span> <span class="o">=</span> <span class="n">encoder</span>
+        <span class="k">if</span> <span class="n">vectorizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">default_vectorizer</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">vectorizer</span>
+        <span class="k">if</span> <span class="n">clustering</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clustering</span> <span class="o">=</span> <span class="n">OPTICS</span><span class="p">(</span><span class="n">min_samples</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clustering</span> <span class="o">=</span> <span class="n">clustering</span>
+        <span class="k">if</span> <span class="n">dimensionality_reduction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimensionality_reduction</span> <span class="o">=</span> <span class="n">TSNE</span><span class="p">(</span>
+                <span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cosine&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimensionality_reduction</span> <span class="o">=</span> <span class="n">dimensionality_reduction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_importance</span> <span class="o">=</span> <span class="n">feature_importance</span>
+
+    <span class="k">def</span> <span class="nf">fit_predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fits model and predicts cluster labels for all given documents.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_documents: iterable of str</span>
+<span class="sd">            Documents to fit the model on.</span>
+<span class="sd">        y: None</span>
+<span class="sd">            Ignored, exists for sklearn compatibility.</span>
+<span class="sd">        embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">            Precomputed document encodings.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray of shape (n_documents)</span>
+<span class="sd">            Cluster label for all documents (-1 for outliers)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">&quot;Fitting model&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Encoding documents&quot;</span><span class="p">)</span>
+                <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Encoding done.&quot;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Extracting terms&quot;</span><span class="p">)</span>
+            <span class="n">doc_term_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Term extraction done.&quot;</span><span class="p">)</span>
+            <span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Reducing Dimensionality&quot;</span><span class="p">)</span>
+            <span class="n">reduced_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensionality_reduction</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span>
+                <span class="n">embeddings</span>
+            <span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Dimensionality reduction done.&quot;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Clustering documents&quot;</span><span class="p">)</span>
+            <span class="n">cluster_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">reduced_embeddings</span><span class="p">)</span>
+            <span class="n">clusters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cluster_labels</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Clustering done.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">clusters</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Estimating term importances&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importance</span> <span class="o">==</span> <span class="s2">&quot;ctfidf&quot;</span><span class="p">:</span>
+                <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="n">label_binarize</span><span class="p">(</span>
+                    <span class="n">cluster_labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="n">soft_ctf_idf</span><span class="p">(</span><span class="n">document_topic_matrix</span><span class="p">,</span> <span class="n">doc_term_matrix</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Encoding vocabulary&quot;</span><span class="p">)</span>
+                <span class="n">vocab_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="n">cluster_centroid_distance</span><span class="p">(</span>
+                    <span class="n">cluster_labels</span><span class="p">,</span>
+                    <span class="n">embeddings</span><span class="p">,</span>
+                    <span class="n">vocab_embeddings</span><span class="p">,</span>
+                    <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labels_</span> <span class="o">=</span> <span class="n">cluster_labels</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Model fitting done.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cluster_labels</span>
+
+    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">label_binarize</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.models.cluster.ClusteringTopicModel.fit_predict" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">fit_predict</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Fits model and predicts cluster labels for all given documents.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>raw_documents</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Documents to fit the model on.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>y</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Ignored, exists for sklearn compatibility.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>embeddings</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="numpy.ndarray">ndarray</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Precomputed document encodings.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>ndarray of shape (n_documents)</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Cluster label for all documents (-1 for outliers)</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/models/cluster.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_predict</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fits model and predicts cluster labels for all given documents.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_documents: iterable of str</span>
+<span class="sd">        Documents to fit the model on.</span>
+<span class="sd">    y: None</span>
+<span class="sd">        Ignored, exists for sklearn compatibility.</span>
+<span class="sd">    embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">        Precomputed document encodings.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray of shape (n_documents)</span>
+<span class="sd">        Cluster label for all documents (-1 for outliers)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+    <span class="k">with</span> <span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">&quot;Fitting model&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Encoding documents&quot;</span><span class="p">)</span>
+            <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Encoding done.&quot;</span><span class="p">)</span>
+        <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Extracting terms&quot;</span><span class="p">)</span>
+        <span class="n">doc_term_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Term extraction done.&quot;</span><span class="p">)</span>
+        <span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+        <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Reducing Dimensionality&quot;</span><span class="p">)</span>
+        <span class="n">reduced_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensionality_reduction</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span>
+            <span class="n">embeddings</span>
+        <span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Dimensionality reduction done.&quot;</span><span class="p">)</span>
+        <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Clustering documents&quot;</span><span class="p">)</span>
+        <span class="n">cluster_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">reduced_embeddings</span><span class="p">)</span>
+        <span class="n">clusters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">cluster_labels</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Clustering done.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">clusters</span><span class="p">)</span>
+        <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Estimating term importances&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importance</span> <span class="o">==</span> <span class="s2">&quot;ctfidf&quot;</span><span class="p">:</span>
+            <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="n">label_binarize</span><span class="p">(</span>
+                <span class="n">cluster_labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="n">soft_ctf_idf</span><span class="p">(</span><span class="n">document_topic_matrix</span><span class="p">,</span> <span class="n">doc_term_matrix</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Encoding vocabulary&quot;</span><span class="p">)</span>
+            <span class="n">vocab_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="n">cluster_centroid_distance</span><span class="p">(</span>
+                <span class="n">cluster_labels</span><span class="p">,</span>
+                <span class="n">embeddings</span><span class="p">,</span>
+                <span class="n">vocab_embeddings</span><span class="p">,</span>
+                <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels_</span> <span class="o">=</span> <span class="n">cluster_labels</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Model fitting done.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cluster_labels</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
 
 
 

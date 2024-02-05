@@ -508,29 +508,14 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Considerations">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#strengths" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
     <span class="md-ellipsis">
-      Strengths
+      API Reference
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#weaknesses" class="md-nav__link">
-    <span class="md-ellipsis">
-      Weaknesses
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -643,6 +628,708 @@ This has a number of implications, most notably:</p>
 <li>Curse of Dimensionality: The number of parameters in these models is typically very high. This makes inference difficult and might result in poor convergence, and very slow inference.</li>
 <li>Black Box: Since the mapping to parameter space is learned by a neural network, the model is very black box in nature and it's hard to know why and what it learns.</li>
 </ul>
+<h2 id="api-reference">API Reference</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.models.ctm.AutoEncodingTopicModel" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.models.ctm.AutoEncodingTopicModel</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="turftopic.base.ContextualModel" href="../model_overview/#turftopic.base.ContextualModel">ContextualModel</a></code></p>
+
+  
+      <p>Variational autoencoding topic models
+with contextualized representations (CTM).
+Uses amortized variational inference with neural networks
+to estimate posterior for ProdLDA.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">AutoEncodingTopicModel</span>
+
+<span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;some text&quot;</span><span class="p">,</span> <span class="s2">&quot;more text&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoEncodingTopicModel</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>n_components</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Number of topics.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>encoder</code></td>
+          <td>
+                <code><span title="typing.Union">Union</span>[<span title="turftopic.base.Encoder">Encoder</span>, <span title="sentence_transformers.SentenceTransformer">SentenceTransformer</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Model to encode documents/terms, all-MiniLM-L6-v2 is the default.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;sentence-transformers/all-MiniLM-L6-v2&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>vectorizer</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="sklearn.feature_extraction.text.CountVectorizer">CountVectorizer</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Vectorizer used for term extraction.
+Can be used to prune or filter the vocabulary.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>combined</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Indicates whether encoder inputs should be combined
+with bow representations.
+When False the model is equivalent to ZeroShotTM,
+when True it is CombinedTM.</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>dropout_rate</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Dropout in the encoder layers.</p>
+            </div>
+          </td>
+          <td>
+                <code>0.1</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>hidden</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Size of hidden layers in the encoder network.</p>
+            </div>
+          </td>
+          <td>
+                <code>100</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>batch_size</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Batch size when training the network.</p>
+            </div>
+          </td>
+          <td>
+                <code>42</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>learning_rate</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Learning rate for the optimizer.</p>
+            </div>
+          </td>
+          <td>
+                <code>0.01</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>n_epochs</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Number of epochs to run during training.</p>
+            </div>
+          </td>
+          <td>
+                <code>50</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/models/ctm.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">AutoEncodingTopicModel</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Variational autoencoding topic models</span>
+<span class="sd">    with contextualized representations (CTM).</span>
+<span class="sd">    Uses amortized variational inference with neural networks</span>
+<span class="sd">    to estimate posterior for ProdLDA.</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    from turftopic import AutoEncodingTopicModel</span>
+
+<span class="sd">    corpus: list[str] = [&quot;some text&quot;, &quot;more text&quot;, ...]</span>
+
+<span class="sd">    model = AutoEncodingTopicModel(10, combined=False).fit(corpus)</span>
+<span class="sd">    model.print_topics()</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n_components: int</span>
+<span class="sd">        Number of topics.</span>
+<span class="sd">    encoder: str or SentenceTransformer</span>
+<span class="sd">        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.</span>
+<span class="sd">    vectorizer: CountVectorizer, default None</span>
+<span class="sd">        Vectorizer used for term extraction.</span>
+<span class="sd">        Can be used to prune or filter the vocabulary.</span>
+<span class="sd">    combined: bool, default False</span>
+<span class="sd">        Indicates whether encoder inputs should be combined</span>
+<span class="sd">        with bow representations.</span>
+<span class="sd">        When False the model is equivalent to ZeroShotTM,</span>
+<span class="sd">        when True it is CombinedTM.</span>
+<span class="sd">    dropout_rate: float, default 0.1</span>
+<span class="sd">        Dropout in the encoder layers.</span>
+<span class="sd">    hidden: int, default 100</span>
+<span class="sd">        Size of hidden layers in the encoder network.</span>
+<span class="sd">    batch_size: int, default 42</span>
+<span class="sd">        Batch size when training the network.</span>
+<span class="sd">    learning_rate: float, default 1e-2</span>
+<span class="sd">        Learning rate for the optimizer.</span>
+<span class="sd">    n_epochs: int, default 50</span>
+<span class="sd">        Number of epochs to run during training.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="n">Encoder</span><span class="p">,</span> <span class="n">SentenceTransformer</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformers/all-MiniLM-L6-v2&quot;</span><span class="p">,</span>
+        <span class="n">vectorizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CountVectorizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">combined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">dropout_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">hidden</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span>
+        <span class="n">n_epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">n_components</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="n">encoder</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span> <span class="o">=</span> <span class="n">encoder</span>
+        <span class="k">if</span> <span class="n">vectorizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">default_vectorizer</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">vectorizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combined</span> <span class="o">=</span> <span class="n">combined</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">dropout_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span> <span class="o">=</span> <span class="n">n_epochs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="n">hidden</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Infers topic importances for new documents based on a fitted model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_documents: iterable of str</span>
+<span class="sd">            Documents to fit the model on.</span>
+<span class="sd">        embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">            Precomputed document encodings.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray of shape (n_dimensions, n_topics)</span>
+<span class="sd">            Document-topic matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="p">:</span>
+            <span class="n">bow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+            <span class="n">contextual_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">bow</span><span class="o">.</span><span class="n">toarray</span><span class="p">()),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">contextual_embeddings</span> <span class="o">=</span> <span class="n">embeddings</span>
+        <span class="n">contextual_embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">contextual_embeddings</span><span class="p">)</span>
+        <span class="n">loc</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">contextual_embeddings</span><span class="p">)</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prob</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">&quot;Fitting model&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Encoding documents&quot;</span><span class="p">)</span>
+                <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Documents encoded.&quot;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Extracting terms.&quot;</span><span class="p">)</span>
+            <span class="n">document_term_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Term extraction done.&quot;</span><span class="p">)</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">pyro</span><span class="o">.</span><span class="n">set_rng_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span>
+                <span class="s2">&quot;cuda:0&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+            <span class="p">)</span>
+            <span class="n">pyro</span><span class="o">.</span><span class="n">clear_param_store</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+                <span class="n">vocab_size</span><span class="o">=</span><span class="n">document_term_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">contextualized_size</span><span class="o">=</span><span class="n">embeddings</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">num_topics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span>
+                <span class="n">hidden</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">,</span>
+                <span class="n">dropout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout_rate</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="n">pyro</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">({</span><span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span><span class="p">})</span>
+            <span class="n">svi</span> <span class="o">=</span> <span class="n">SVI</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">guide</span><span class="p">,</span>
+                <span class="n">optimizer</span><span class="p">,</span>
+                <span class="n">loss</span><span class="o">=</span><span class="n">TraceMeanField_ELBO</span><span class="p">(),</span>
+            <span class="p">)</span>
+            <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">document_term_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fitting model. Epoch [0/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span><span class="p">):</span>
+                <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">):</span>
+                    <span class="n">batch_bow</span> <span class="o">=</span> <span class="n">document_term_matrix</span><span class="p">[</span>
+                        <span class="n">i</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="p">:</span>
+                    <span class="p">]</span>
+                    <span class="n">batch_contextualized</span> <span class="o">=</span> <span class="n">embeddings</span><span class="p">[</span>
+                        <span class="n">i</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> <span class="p">:</span>
+                    <span class="p">]</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="p">:</span>
+                        <span class="n">batch_contextualized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                            <span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">batch_bow</span><span class="o">.</span><span class="n">toarray</span><span class="p">()),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+                        <span class="p">)</span>
+                    <span class="n">batch_contextualized</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">batch_contextualized</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">batch_bow</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">batch_bow</span><span class="o">.</span><span class="n">toarray</span><span class="p">())</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="n">svi</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">batch_bow</span><span class="p">,</span> <span class="n">batch_contextualized</span><span class="p">)</span>
+                    <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">loss</span> <span class="o">/</span> <span class="n">batch_bow</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Fitting model. Epoch [</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span><span class="si">}</span><span class="s2">], Loss [</span><span class="si">{</span><span class="n">running_loss</span><span class="si">}</span><span class="s2">]&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">beta</span><span class="p">()</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Model fitting done.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+            <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.models.ctm.AutoEncodingTopicModel.transform" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Infers topic importances for new documents based on a fitted model.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>raw_documents</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Documents to fit the model on.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>embeddings</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="numpy.ndarray">ndarray</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Precomputed document encodings.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>ndarray of shape (n_dimensions, n_topics)</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Document-topic matrix.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/models/ctm.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Infers topic importances for new documents based on a fitted model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_documents: iterable of str</span>
+<span class="sd">        Documents to fit the model on.</span>
+<span class="sd">    embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">        Precomputed document encodings.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray of shape (n_dimensions, n_topics)</span>
+<span class="sd">        Document-topic matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combined</span><span class="p">:</span>
+        <span class="n">bow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+        <span class="n">contextual_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">bow</span><span class="o">.</span><span class="n">toarray</span><span class="p">()),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">contextual_embeddings</span> <span class="o">=</span> <span class="n">embeddings</span>
+    <span class="n">contextual_embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">contextual_embeddings</span><span class="p">)</span>
+    <span class="n">loc</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">contextual_embeddings</span><span class="p">)</span>
+    <span class="n">prob</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">prob</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
 
 
 

@@ -406,30 +406,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The Model">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-semantic-signal-decomposition" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Semantic Signal Decomposition
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-term-importance-estimation-recovering-signal-strength-for-the-vocabulary" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Term Importance Estimation: Recovering Signal Strength for the Vocabulary
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -448,29 +424,14 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Considerations">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#strengths" class="md-nav__link">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
     <span class="md-ellipsis">
-      Strengths
+      API Reference
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#weaknesses" class="md-nav__link">
-    <span class="md-ellipsis">
-      Weaknesses
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -658,6 +619,460 @@ The conceptualization is very similar these models, but instead of recovering fa
 <li>Sometimes Unintuitive: Neural embedding models might have a different mapping of the semantic space than humans. Sometimes S³ uncovers unintuitive dimensions of meaning as a result of this.</li>
 <li>Moderate Scalability: The model cannot be fitted in an online fashion. It is reasonably scalable, but for very large corpora you might want to consider using a different model.</li>
 </ul>
+<h2 id="api-reference">API Reference</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.models.decomp.SemanticSignalSeparation" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.models.decomp.SemanticSignalSeparation</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="turftopic.base.ContextualModel" href="../model_overview/#turftopic.base.ContextualModel">ContextualModel</a></code></p>
+
+  
+      <p>Separates the embedding matrix into 'semantic signals' with
+component analysis methods.
+Topics are assumed to be dimensions of semantics.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+
+<span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;some text&quot;</span><span class="p">,</span> <span class="s2">&quot;more text&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">objective</span><span class="o">=</span><span class="s2">&quot;independence&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>n_components</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Number of topics.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>encoder</code></td>
+          <td>
+                <code><span title="typing.Union">Union</span>[<span title="turftopic.base.Encoder">Encoder</span>, str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Model to encode documents/terms, all-MiniLM-L6-v2 is the default.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;sentence-transformers/all-MiniLM-L6-v2&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>vectorizer</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="sklearn.feature_extraction.text.CountVectorizer">CountVectorizer</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Vectorizer used for term extraction.
+Can be used to prune or filter the vocabulary.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>objective</code></td>
+          <td>
+                <code><span title="typing.Literal">Literal</span>[&#39;orthogonality&#39;, &#39;independence&#39;]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Indicates what the components should be optimized for.
+When 'orthogonality', PCA is used to discover components,
+when 'independence', ICA is used to discover components.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;independence&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/models/decomp.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">SemanticSignalSeparation</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Separates the embedding matrix into &#39;semantic signals&#39; with</span>
+<span class="sd">    component analysis methods.</span>
+<span class="sd">    Topics are assumed to be dimensions of semantics.</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    from turftopic import SemanticSignalSeparation</span>
+
+<span class="sd">    corpus: list[str] = [&quot;some text&quot;, &quot;more text&quot;, ...]</span>
+
+<span class="sd">    model = SemanticSignalSeparation(10, objective=&quot;independence&quot;).fit(corpus)</span>
+<span class="sd">    model.print_topics()</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n_components: int</span>
+<span class="sd">        Number of topics.</span>
+<span class="sd">    encoder: str or SentenceTransformer</span>
+<span class="sd">        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.</span>
+<span class="sd">    vectorizer: CountVectorizer, default None</span>
+<span class="sd">        Vectorizer used for term extraction.</span>
+<span class="sd">        Can be used to prune or filter the vocabulary.</span>
+<span class="sd">    objective: &#39;orthogonality&#39; or &#39;independence&#39;, default &#39;independence&#39;</span>
+<span class="sd">        Indicates what the components should be optimized for.</span>
+<span class="sd">        When &#39;orthogonality&#39;, PCA is used to discover components,</span>
+<span class="sd">        when &#39;independence&#39;, ICA is used to discover components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="n">Encoder</span><span class="p">,</span> <span class="nb">str</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformers/all-MiniLM-L6-v2&quot;</span><span class="p">,</span>
+        <span class="n">vectorizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CountVectorizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">objective</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;orthogonality&quot;</span><span class="p">,</span> <span class="s2">&quot;independence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;independence&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">n_components</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span> <span class="o">=</span> <span class="n">encoder</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="n">encoder</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span> <span class="o">=</span> <span class="n">encoder</span>
+        <span class="k">if</span> <span class="n">vectorizer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">default_vectorizer</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">vectorizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objective</span> <span class="o">=</span> <span class="n">objective</span>
+        <span class="k">if</span> <span class="n">objective</span> <span class="o">==</span> <span class="s2">&quot;independence&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomposition</span> <span class="o">=</span> <span class="n">FastICA</span><span class="p">(</span><span class="n">n_components</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decomposition</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">&quot;Fitting model&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Encoding documents&quot;</span><span class="p">)</span>
+                <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Documents encoded.&quot;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Decomposing embeddings&quot;</span><span class="p">)</span>
+            <span class="n">doc_topic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomposition</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Decomposition done.&quot;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Extracting terms.&quot;</span><span class="p">)</span>
+            <span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Term extraction done.&quot;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Encoding vocabulary&quot;</span><span class="p">)</span>
+            <span class="n">vocab_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">vocab</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Vocabulary encoded.&quot;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Estimating term importances&quot;</span><span class="p">)</span>
+            <span class="n">vocab_topic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomposition</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">vocab_embeddings</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="n">vocab_topic</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Model fitting done.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc_topic</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Infers topic importances for new documents based on a fitted model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_documents: iterable of str</span>
+<span class="sd">            Documents to fit the model on.</span>
+<span class="sd">        embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">            Precomputed document encodings.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray of shape (n_dimensions, n_topics)</span>
+<span class="sd">            Document-topic matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomposition</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.models.decomp.SemanticSignalSeparation.transform" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Infers topic importances for new documents based on a fitted model.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>raw_documents</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Documents to fit the model on.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>embeddings</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="numpy.ndarray">ndarray</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Precomputed document encodings.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>ndarray of shape (n_dimensions, n_topics)</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Document-topic matrix.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/models/decomp.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Infers topic importances for new documents based on a fitted model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_documents: iterable of str</span>
+<span class="sd">        Documents to fit the model on.</span>
+<span class="sd">    embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">        Precomputed document encodings.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray of shape (n_dimensions, n_topics)</span>
+<span class="sd">        Document-topic matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomposition</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
 
 
 
