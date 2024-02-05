@@ -18,9 +18,33 @@ def batched(iterable, n: int) -> Iterable[List[str]]:
 
 
 class VoyageEmbeddings(ExternalEncoder):
-    """Encoder model using embeddings from VoyageAI."""
+    """Encoder model using embeddings from VoyageAI.
 
-    def __init__(self, model: str = "voyage-01", batch_size: int = 25):
+    The available models are:
+
+     - `voyage-2`
+     - `voyage-lite-2-instruct`
+
+    ```python
+    from turftopic.encoders import VoyageEmbeddings
+    from turftopic import GMM
+
+    model = GMM(10, encoder=VoyageEmbeddings())
+    ```
+
+    Parameters
+    ----------
+    model: str, default "voyage-lite-2-instruct"
+        Embedding model to use from Voyage.
+
+    batch_size: int, default 25
+        Sizes of the batches that will be sent to Voyage's API.
+
+    """
+
+    def __init__(
+        self, model: str = "voyage-lite-2-instruct", batch_size: int = 25
+    ):
         import voyageai
 
         try:
@@ -38,6 +62,6 @@ class VoyageEmbeddings(ExternalEncoder):
 
         result = []
         for b in batched(sentences, self.batch_size):
-            response = get_embeddings(b, self.model, input_type="document")
+            response = get_embeddings(b, self.model)
             result.extend(response)
         return np.array(result)
