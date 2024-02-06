@@ -96,6 +96,15 @@ class AutoEncodingTopicModel(ContextualModel):
     Uses amortized variational inference with neural networks
     to estimate posterior for ProdLDA.
 
+    ```python
+    from turftopic import AutoEncodingTopicModel
+
+    corpus: list[str] = ["some text", "more text", ...]
+
+    model = AutoEncodingTopicModel(10, combined=False).fit(corpus)
+    model.print_topics()
+    ```
+
     Parameters
     ----------
     n_components: int

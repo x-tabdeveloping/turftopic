@@ -1,0 +1,2516 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An all-in-one library for topic modeling with sentence embeddings.">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../s3/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
+    
+    
+      
+        <title>Overview - Turftopic</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#model-overview" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Turftopic" class="md-header__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="../images/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Turftopic
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Overview
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Basics
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+    
+  
+  Models
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../encoders/" class="md-tabs__link">
+        
+  
+    
+  
+  Encoders
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Turftopic" class="md-nav__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="../images/logo.svg" alt="logo">
+
+    </a>
+    Turftopic
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Models
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-a-topic" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is a topic?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#document-representations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Document Representations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inference
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#term-importance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Term Importance
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#which-model-should-i-choose" class="md-nav__link">
+    <span class="md-ellipsis">
+      Which model should I choose?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#base-api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Base API Reference
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    S³
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KeyNMF/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KeyNMF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GMM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GMM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clustering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clustering Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ctm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Autoencoding Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../encoders/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Encoders
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="model-overview">Model Overview</h1>
+<p>In any use case it is important that practicioners understand the implications of their choices.
+This page is dedicated to giving an overview of the models in the package, so you can find the right one for your particular application.</p>
+<h2 id="what-is-a-topic">What is a topic?</h2>
+<p>Models in Turftopic provide answers to this question that can at large be assigned into two categories:</p>
+<ol>
+<li>A topic is a <strong>dimension/factor of semantics</strong>. 
+ These models try to find the axes along which most of the variance in semantics can be explained.
+ These include S³, KeyNMF and Autoencoding Models.
+ A clear advantage of using these models is that they can capture multiple topics in a document and usually capture nuances in semantics better.</li>
+<li>A topic is a <strong>cluster of documents</strong>. These models conceptualize a topic as a group of documents that are closely related to each other.
+ The advantage of using these models is that they are perhaps more aligned with human intuition about what a "topic" is.
+ On the other hand, they can only capture nuances in topical content in documents to a limited extent.</li>
+</ol>
+<h2 id="document-representations">Document Representations</h2>
+<p>All models in Turftopic at some point in the process use contextualized representations from transformers to learn topics.
+Documents, however have different representations internally, and this has an effect on how the models behave:</p>
+<ol>
+<li>In most models the documents are <strong>directly represented by the embeddings</strong> (S³, Clustering, GMM).
+ The advantage of this is that at no point in the process do we loose contextual information.</li>
+<li>In KeyNMF documents are represented with <strong>keyword importances</strong>. This means that some of the contextual nuances get lost in the process before topic discovery.
+ As a result of this, KeyNMF models dimensions of semantics in word content, not the continuous semantic space.
+ In practice this rarely presents a challenge, but topics in KeyNMF might be less interesting or novel than in other models, and might resemble classical topic models more.</li>
+<li>In Autoencoding Models <em>embeddings are only used in the encoder network</em>, but the models describe the generative process of <strong>Bag-of-Words representations</strong>.
+ This is not ideal, as all too often contextual nuances get lost in the modeling process.</li>
+</ol>
+<p><center></p>
+<h5 id="theoretical-comparison">Theoretical Comparison</h5>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Conceptualization</th>
+<th>#N Topics</th>
+<th>Term Importance</th>
+<th>Document Representation</th>
+<th>Inference</th>
+<th>Multilingual <img alt="🌐" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f310.svg" title=":globe_with_meridians:" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S³</td>
+<td>Dimension/Factor</td>
+<td>Manual</td>
+<td>Decomposition</td>
+<td>Embedding</td>
+<td>Inductive</td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>KeyNMF</td>
+<td>Dimension/Factor</td>
+<td>Manual</td>
+<td>Parameters</td>
+<td>Keywords</td>
+<td>Inductive</td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+</tr>
+<tr>
+<td>GMM</td>
+<td>Cluster/Mixture Component</td>
+<td>Manual</td>
+<td>c-TF-IDF</td>
+<td>Embedding</td>
+<td>Inductive</td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>Clustering Models</td>
+<td>Cluster/Mixture Component</td>
+<td><strong>Automatic</strong></td>
+<td>c-TF-IDF/ <br> Centroid Proximity</td>
+<td>Embedding</td>
+<td>Transductive</td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td>Autoencoding Models</td>
+<td>Dimension/Factor</td>
+<td>Manual</td>
+<td>Parameters</td>
+<td>Embedding + <br> BoW</td>
+<td>Inductive</td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<h2 id="inference">Inference</h2>
+<p>Models in Turftopic use two different types of inference, which has a number of implications.</p>
+<ol>
+<li>Most models are <strong>inductive</strong>. Meaning that they aim to recover some underlying structure which results in the observed data.
+ Inductive models can be used for inference over novel data at any time.</li>
+<li>Clustering models that use HDBSCAN, DBSCAN or OPTICS are <strong>transductive</strong>. This means that the models have no theory of underlying semantic structures,
+ but simply desdcribe the dataset at hand. This has the effect that direct inference on unseen documents is not possible.</li>
+</ol>
+<h2 id="term-importance">Term Importance</h2>
+<p>Term importances in different models are calculated differently.</p>
+<ol>
+<li>Some models (KeyNMF, Autoencoding) have built-in term importance estimation, as term importances are literally in the models' parameters.
+ This means that term importances are <strong>inferential</strong>. Meaning that they make a claim about underlying semantical structures.
+ A potential drawback is, that if the vocabulary is very large, the models can be impacted by the curse of dimensionality, resulting in poor convergence or slow inference.</li>
+<li>Other models (GMM, Clustering) use post-hoc measures for determining term importance.
+ In other words term importances are <strong>descriptive</strong>. Inference of term importance is much more efficient for these methods, but
+ they make no claims about the underlying semantics that result in these term importances.</li>
+<li>S³ <strong>decomposes the vocabulary</strong> with a fitted model. The result of this is that the model can generalize over all sorts of corpora,
+ and can be described in different ways in different vocabularies. This is somewhere in between inferential and descriptive methods.</li>
+</ol>
+<h2 id="which-model-should-i-choose">Which model should I choose?</h2>
+<p>The model that you should be using for any particular application will of course be influenced by a number of factors, that you should consider.
+The tables on this page give you a general overview of a handful of practical aspects of the models.</p>
+<p><center></p>
+<h5 id="practical-comparison">Practical Comparison</h5>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Scalability</th>
+<th>Ideal Document Length</th>
+<th>Speed</th>
+<th>Stability</th>
+<th>Robustness to Noise</th>
+<th>Embedding Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S³</td>
+<td>Moderate</td>
+<td><strong>Short, Medium, Long</strong></td>
+<td><strong>Fast</strong></td>
+<td>Moderate</td>
+<td>Good</td>
+<td>Any</td>
+</tr>
+<tr>
+<td>KeyNMF</td>
+<td><strong>Very High</strong></td>
+<td>Medium, Long</td>
+<td>Moderate</td>
+<td><strong>Stable</strong></td>
+<td><strong>Very Good</strong></td>
+<td>Any</td>
+</tr>
+<tr>
+<td>GMM</td>
+<td>Moderate</td>
+<td>Short, Medium</td>
+<td>Moderate</td>
+<td>Moderate</td>
+<td>Good</td>
+<td>Limited</td>
+</tr>
+<tr>
+<td>Clustering Models</td>
+<td>Low</td>
+<td>Short, Medium</td>
+<td>Moderate</td>
+<td>Volatile</td>
+<td><strong>Very Good</strong>(<em>centroid</em>) <br>  Moderate(<em>c-TF-IDF</em>)</td>
+<td>Any</td>
+</tr>
+<tr>
+<td>Autoencoding Models</td>
+<td>Low</td>
+<td>Hard to Tell</td>
+<td>Slow</td>
+<td>Volatile</td>
+<td>Poor</td>
+<td>Limited</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<p>Here is an opinionated guide for common use cases:</p>
+<h3 id="1-when-in-doubt-use-keynmf">1. When in doubt <strong>use KeyNMF</strong>.</h3>
+<p>When you can't make an informed decision about which model is optimal for your use case, or you just want to get your hands dirty with topic modeling,
+KeyNMF is the best option.
+It is very stable, gives high quality topics, and is incredibly robust to noise.
+It is also the closest to classical topic models and thus conforms to your intuition about topic modeling.</p>
+<p>Another advantage is that KeyNMF is the most scalable and fail-safe option, meaning that you can use it on enormous corpora.</p>
+<h3 id="2-short-texts-use-clustering-or-gmm">2. Short Texts - <strong>use Clustering or GMM</strong></h3>
+<p>On tweets and short texts in general, making the assumption that a document only contains one topic is very reasonable.
+Clustering models and GMM are very good in this context and should be preferred over other options.</p>
+<h3 id="3-want-to-understand-variation-use-s3">3. Want to understand variation? <strong>use S³</strong></h3>
+<p>S³ is by far the best model to explain variations in semantics.
+If you are looking for a model that can help you establish a theory of semantics in a corpus, S³ is an excellent choice.</p>
+<h3 id="4-avoid-using-autoencoding-models">4. Avoid using Autoencoding Models.</h3>
+<p>In my anecdotal experience and all experiments I've done with topic models, Autoencoding Models were consistently outclassed by all else,
+and their behaviour is also incredbly opaque.
+Convergence issues or overlapping topics are a common occurrence. And as such, unless you have reasons to do so I would recommend that your first choice is another model on the list.</p>
+<h2 id="base-api-reference">Base API Reference</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.base.ContextualModel" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.base.ContextualModel</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="abc.ABC">ABC</span></code>, <code><span title="sklearn.base.TransformerMixin">TransformerMixin</span></code>, <code><span title="sklearn.base.BaseEstimator">BaseEstimator</span></code></p>
+
+  
+      <p>Base class for contextual topic models in Turftopic.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/base.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">ContextualModel</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for contextual topic models in Turftopic.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_topics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns high-level topic representations in form of the top K words</span>
+<span class="sd">        in each topic.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        top_k: int, default 10</span>
+<span class="sd">            Number of top words to return for each topic.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[tuple]</span>
+<span class="sd">            List of topics. Each topic is a tuple of</span>
+<span class="sd">            topic ID and the top k words.</span>
+<span class="sd">            Top k words are a list of (word, word_importance) pairs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_topics</span><span class="p">))</span>
+        <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">components_</span><span class="p">,</span> <span class="n">top_k</span><span class="p">)[:,</span> <span class="p">:</span><span class="n">top_k</span><span class="p">]</span>
+        <span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vocab</span><span class="p">()</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">component</span><span class="p">,</span> <span class="n">high</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_</span><span class="p">,</span> <span class="n">highest</span><span class="p">):</span>
+            <span class="n">importance</span> <span class="o">=</span> <span class="n">component</span><span class="p">[</span><span class="n">high</span><span class="p">]</span>
+            <span class="n">high</span> <span class="o">=</span> <span class="n">high</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">importance</span><span class="p">)]</span>
+            <span class="n">score</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="n">high</span><span class="p">])</span>
+            <span class="n">top</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vocab</span><span class="p">[</span><span class="n">high</span><span class="p">])</span>
+        <span class="n">topics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">topic</span><span class="p">,</span> <span class="n">words</span><span class="p">,</span> <span class="n">scores</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
+            <span class="n">topic_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">scores</span><span class="p">)))</span>
+            <span class="n">topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">topics</span>
+
+    <span class="k">def</span> <span class="nf">print_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pretty prints topics in the model in a table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        top_k: int, default 10</span>
+<span class="sd">            Number of top words to return for each topic.</span>
+<span class="sd">        show_scores: bool, default False</span>
+<span class="sd">            Indicates whether to show importance scores for each word.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_topics</span><span class="p">(</span><span class="n">top_k</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Topic ID&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Top </span><span class="si">{</span><span class="n">top_k</span><span class="si">}</span><span class="s2"> Words&quot;</span><span class="p">,</span>
+            <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+            <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span>
+            <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">show_scores</span><span class="p">:</span>
+                <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">importance</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">])</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">print_highest_ranking_documents</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pretty prints the highest ranking documents in a topic.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        topic_id: int</span>
+<span class="sd">            ID of the topic to display.</span>
+<span class="sd">        raw_documents: list of str</span>
+<span class="sd">            List of documents to consider.</span>
+<span class="sd">        document_topic_matrix: ndarray of shape (n_topics, n_topics), optional</span>
+<span class="sd">            Document topic matrix to use. This is useful for transductive methods,</span>
+<span class="sd">            as they cannot infer topics from text.</span>
+<span class="sd">        top_k: int, default 5</span>
+<span class="sd">            Top K documents to show.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">document_topic_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Transductive methods cannot &quot;</span>
+                    <span class="s2">&quot;infer topical content in documents.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;Please pass a document_topic_matrix.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">topic_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">kth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[:,</span> <span class="n">topic_id</span><span class="p">],</span> <span class="n">kth</span><span class="p">)[</span>
+            <span class="p">:</span><span class="n">kth</span>
+        <span class="p">]</span>
+        <span class="n">highest</span> <span class="o">=</span> <span class="n">highest</span><span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">])</span>
+        <span class="p">]</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">]</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
+            <span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span>
+        <span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">document_id</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">highest</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">raw_documents</span><span class="p">[</span><span class="n">document_id</span><span class="p">]</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">remove_whitespace</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">print_topic_distribution</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pretty prints topic distribution in a document.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text: str, optional</span>
+<span class="sd">            Text to infer topic distribution for.</span>
+<span class="sd">        topic_dist: ndarray of shape (n_topics), optional</span>
+<span class="sd">            Already inferred topic distribution for the text.</span>
+<span class="sd">            This is useful for transductive methods,</span>
+<span class="sd">            as they cannot infer topics from text.</span>
+<span class="sd">        top_k: int, default 10</span>
+<span class="sd">            Top K topics to show.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">topic_dist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;You should either pass a text or a distribution.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">topic_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">([</span><span class="n">text</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Transductive methods cannot &quot;</span>
+                    <span class="s2">&quot;infer topical content in documents.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;Please pass a topic distribution.&quot;</span>
+                <span class="p">)</span>
+        <span class="n">topic_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">topic_dist</span><span class="p">))</span>
+        <span class="n">topic_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_topics</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">topic_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">topic_desc</span><span class="p">:</span>
+            <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">])</span>
+            <span class="n">topic_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">topic_dist</span><span class="p">)[:</span><span class="n">top_k</span><span class="p">]</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">()</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Topic name&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">highest</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">topic_dist</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">topic_names</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">encode_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Encodes documents with the sentence encoder of the topic model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_documents: iterable of str</span>
+<span class="sd">            Textual documents to encode.</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ------</span>
+<span class="sd">        ndarray of shape (n_documents, n_dimensions)</span>
+<span class="sd">            Matrix of document embeddings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fits model and infers topic importances for each document.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_documents: iterable of str</span>
+<span class="sd">            Documents to fit the model on.</span>
+<span class="sd">        y: None</span>
+<span class="sd">            Ignored, exists for sklearn compatibility.</span>
+<span class="sd">        embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">            Precomputed document encodings.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray of shape (n_documents, n_topics)</span>
+<span class="sd">            Document-topic matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fits model on the given corpus.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        raw_documents: iterable of str</span>
+<span class="sd">            Documents to fit the model on.</span>
+<span class="sd">        y: None</span>
+<span class="sd">            Ignored, exists for sklearn compatibility.</span>
+<span class="sd">        embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">            Precomputed document encodings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">get_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get vocabulary of the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray of shape (n_vocab)</span>
+<span class="sd">            All terms in the vocabulary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_feature_names_out</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get topic ids.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ndarray of shape (n_topics)</span>
+<span class="sd">            IDs for each output feature of the model.</span>
+<span class="sd">            This is useful, since some models have outlier</span>
+<span class="sd">            detection, and this gets -1 as ID, instead of</span>
+<span class="sd">            its index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_topics</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.encode_documents" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">encode_documents</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Encodes documents with the sentence encoder of the topic model.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>raw_documents</code></td>
+          <td>
+                <code><span title="typing.Iterable">Iterable</span>[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Textual documents to encode.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+<details class="return" open>
+  <summary>Return</summary>
+  <p>ndarray of shape (n_documents, n_dimensions)
+    Matrix of document embeddings.</p>
+</details>
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">encode_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encodes documents with the sentence encoder of the topic model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_documents: iterable of str</span>
+<span class="sd">        Textual documents to encode.</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    ndarray of shape (n_documents, n_dimensions)</span>
+<span class="sd">        Matrix of document embeddings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.fit" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">fit</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Fits model on the given corpus.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>raw_documents</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Documents to fit the model on.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>y</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Ignored, exists for sklearn compatibility.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>embeddings</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="numpy.ndarray">ndarray</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Precomputed document encodings.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fits model on the given corpus.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_documents: iterable of str</span>
+<span class="sd">        Documents to fit the model on.</span>
+<span class="sd">    y: None</span>
+<span class="sd">        Ignored, exists for sklearn compatibility.</span>
+<span class="sd">    embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">        Precomputed document encodings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.fit_transform" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">fit_transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Fits model and infers topic importances for each document.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>raw_documents</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Documents to fit the model on.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>y</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Ignored, exists for sklearn compatibility.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>embeddings</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="numpy.ndarray">ndarray</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Precomputed document encodings.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>ndarray of shape (n_documents, n_topics)</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Document-topic matrix.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
+<span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fits model and infers topic importances for each document.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_documents: iterable of str</span>
+<span class="sd">        Documents to fit the model on.</span>
+<span class="sd">    y: None</span>
+<span class="sd">        Ignored, exists for sklearn compatibility.</span>
+<span class="sd">    embeddings: ndarray of shape (n_documents, n_dimensions), optional</span>
+<span class="sd">        Precomputed document encodings.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray of shape (n_documents, n_topics)</span>
+<span class="sd">        Document-topic matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.get_feature_names_out" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">get_feature_names_out</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get topic ids.</p>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>ndarray of shape (n_topics)</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>IDs for each output feature of the model.
+This is useful, since some models have outlier
+detection, and this gets -1 as ID, instead of
+its index.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_feature_names_out</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get topic ids.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray of shape (n_topics)</span>
+<span class="sd">        IDs for each output feature of the model.</span>
+<span class="sd">        This is useful, since some models have outlier</span>
+<span class="sd">        detection, and this gets -1 as ID, instead of</span>
+<span class="sd">        its index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_topics</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.get_topics" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">get_topics</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns high-level topic representations in form of the top K words
+in each topic.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>top_k</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Number of top words to return for each topic.</p>
+            </div>
+          </td>
+          <td>
+                <code>10</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>list[tuple]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of topics. Each topic is a tuple of
+topic ID and the top k words.
+Top k words are a list of (word, word_importance) pairs.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_topics</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns high-level topic representations in form of the top K words</span>
+<span class="sd">    in each topic.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    top_k: int, default 10</span>
+<span class="sd">        Number of top words to return for each topic.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[tuple]</span>
+<span class="sd">        List of topics. Each topic is a tuple of</span>
+<span class="sd">        topic ID and the top k words.</span>
+<span class="sd">        Top k words are a list of (word, word_importance) pairs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_topics</span><span class="p">))</span>
+    <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">components_</span><span class="p">,</span> <span class="n">top_k</span><span class="p">)[:,</span> <span class="p">:</span><span class="n">top_k</span><span class="p">]</span>
+    <span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vocab</span><span class="p">()</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">component</span><span class="p">,</span> <span class="n">high</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_</span><span class="p">,</span> <span class="n">highest</span><span class="p">):</span>
+        <span class="n">importance</span> <span class="o">=</span> <span class="n">component</span><span class="p">[</span><span class="n">high</span><span class="p">]</span>
+        <span class="n">high</span> <span class="o">=</span> <span class="n">high</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">importance</span><span class="p">)]</span>
+        <span class="n">score</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component</span><span class="p">[</span><span class="n">high</span><span class="p">])</span>
+        <span class="n">top</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vocab</span><span class="p">[</span><span class="n">high</span><span class="p">])</span>
+    <span class="n">topics</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">topic</span><span class="p">,</span> <span class="n">words</span><span class="p">,</span> <span class="n">scores</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span>
+        <span class="n">topic_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">scores</span><span class="p">)))</span>
+        <span class="n">topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">topics</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.get_vocab" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">get_vocab</span><span class="p">()</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get vocabulary of the model.</p>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>ndarray of shape (n_vocab)</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>All terms in the vocabulary.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get vocabulary of the model.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray of shape (n_vocab)</span>
+<span class="sd">        All terms in the vocabulary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.print_highest_ranking_documents" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">print_highest_ranking_documents</span><span class="p">(</span><span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Pretty prints the highest ranking documents in a topic.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>topic_id</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>ID of the topic to display.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>raw_documents</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of documents to consider.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>document_topic_matrix</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Document topic matrix to use. This is useful for transductive methods,
+as they cannot infer topics from text.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>top_k</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Top K documents to show.</p>
+            </div>
+          </td>
+          <td>
+                <code>5</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_highest_ranking_documents</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pretty prints the highest ranking documents in a topic.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    topic_id: int</span>
+<span class="sd">        ID of the topic to display.</span>
+<span class="sd">    raw_documents: list of str</span>
+<span class="sd">        List of documents to consider.</span>
+<span class="sd">    document_topic_matrix: ndarray of shape (n_topics, n_topics), optional</span>
+<span class="sd">        Document topic matrix to use. This is useful for transductive methods,</span>
+<span class="sd">        as they cannot infer topics from text.</span>
+<span class="sd">    top_k: int, default 5</span>
+<span class="sd">        Top K documents to show.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">document_topic_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Transductive methods cannot &quot;</span>
+                <span class="s2">&quot;infer topical content in documents.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Please pass a document_topic_matrix.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">topic_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_id</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">kth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[:,</span> <span class="n">topic_id</span><span class="p">],</span> <span class="n">kth</span><span class="p">)[</span>
+        <span class="p">:</span><span class="n">kth</span>
+    <span class="p">]</span>
+    <span class="n">highest</span> <span class="o">=</span> <span class="n">highest</span><span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">])</span>
+    <span class="p">]</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">]</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
+        <span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span>
+    <span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">document_id</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">highest</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">raw_documents</span><span class="p">[</span><span class="n">document_id</span><span class="p">]</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">remove_whitespace</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.print_topic_distribution" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">print_topic_distribution</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Pretty prints topic distribution in a document.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>text</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Text to infer topic distribution for.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>topic_dist</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Already inferred topic distribution for the text.
+This is useful for transductive methods,
+as they cannot infer topics from text.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>top_k</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Top K topics to show.</p>
+            </div>
+          </td>
+          <td>
+                <code>10</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_topic_distribution</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pretty prints topic distribution in a document.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    text: str, optional</span>
+<span class="sd">        Text to infer topic distribution for.</span>
+<span class="sd">    topic_dist: ndarray of shape (n_topics), optional</span>
+<span class="sd">        Already inferred topic distribution for the text.</span>
+<span class="sd">        This is useful for transductive methods,</span>
+<span class="sd">        as they cannot infer topics from text.</span>
+<span class="sd">    top_k: int, default 10</span>
+<span class="sd">        Top K topics to show.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">topic_dist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;You should either pass a text or a distribution.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">topic_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">([</span><span class="n">text</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Transductive methods cannot &quot;</span>
+                <span class="s2">&quot;infer topical content in documents.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;Please pass a topic distribution.&quot;</span>
+            <span class="p">)</span>
+    <span class="n">topic_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">topic_dist</span><span class="p">))</span>
+    <span class="n">topic_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_topics</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">topic_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">topic_desc</span><span class="p">:</span>
+        <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">])</span>
+        <span class="n">topic_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">topic_dist</span><span class="p">)[:</span><span class="n">top_k</span><span class="p">]</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">()</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Topic name&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">highest</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">topic_dist</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">topic_names</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.print_topics" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">print_topics</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Pretty prints topics in the model in a table.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>top_k</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Number of top words to return for each topic.</p>
+            </div>
+          </td>
+          <td>
+                <code>10</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>show_scores</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Indicates whether to show importance scores for each word.</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pretty prints topics in the model in a table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    top_k: int, default 10</span>
+<span class="sd">        Number of top words to return for each topic.</span>
+<span class="sd">    show_scores: bool, default False</span>
+<span class="sd">        Indicates whether to show importance scores for each word.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_topics</span><span class="p">(</span><span class="n">top_k</span><span class="p">)</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Topic ID&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Top </span><span class="si">{</span><span class="n">top_k</span><span class="si">}</span><span class="s2"> Words&quot;</span><span class="p">,</span>
+        <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span>
+        <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">show_scores</span><span class="p">:</span>
+            <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">importance</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">])</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["toc.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

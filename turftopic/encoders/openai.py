@@ -19,10 +19,33 @@ def batched(iterable, n: int) -> Iterable[List[str]]:
 
 # The code here is heavily inspired by embetter.
 class OpenAIEmbeddings(ExternalEncoder):
-    """Encoder model using embeddings from OpenAI."""
+    """Encoder model using embeddings from OpenAI.
+
+    The available models are:
+
+     - `text-embedding-3-large`
+     - `text-embedding-3-small`
+     - `text-embedding-ada-002`
+
+    ```python
+    from turftopic.encoders import OpenAIEmbeddings
+    from turftopic import GMM
+
+    model = GMM(10, encoder=OpenAIEmbeddings())
+    ```
+
+    Parameters
+    ----------
+    model: str, default "text-embedding-3-large"
+        Embedding model to use from OpenAI.
+
+    batch_size: int, default 25
+        Sizes of the batches that will be sent to OpenAI's API.
+
+    """
 
     def __init__(
-        self, model: str = "text-embedding-ada-002", batch_size: int = 25
+        self, model: str = "text-embedding-3-large", batch_size: int = 25
     ):
         import openai
 
