@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple, Union
+from typing import Any, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
 from rich.console import Console
@@ -7,6 +7,7 @@ from rich.table import Table
 from sentence_transformers import SentenceTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from turftopic.data import TopicData
 from turftopic.encoders import ExternalEncoder
 
 
@@ -266,3 +267,41 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         except AttributeError:
             classes = list(range(n_topics))
         return np.asarray(classes)
+
+    def prepare_topic_data(
+        self,
+        corpus: List[str],
+        embeddings: Optional[np.ndarray] = None,
+    ) -> TopicData:
+        """Produces topic inference data for a given corpus, that can be then used and reused.
+        Exists to allow visualizations out of the box with topicwizard.
+
+        Parameters
+        ----------
+        corpus: list of str
+            Documents to infer topical content for.
+        embeddings: ndarray of shape (n_documents, n_dimensions)
+            Embeddings of documents.
+
+        Returns
+        -------
+        TopicData
+            Information about topical inference in a dictionary.
+        """
+        if embeddings is None:
+            embeddings = self.encode_documents(corpus)
+        try:
+            document_topic_matrix = self.transform(corpus, embeddings=embeddings)
+        except AttributeError, NotFittedError:
+            document_topic_matrix = self.fit_transform(corpus, embeddings=embeddings)
+        dtm = self.vectorizer.transform(corpus) # type: ignore
+        res: TopicData = {
+            "corpus": corpus,
+            "document_term_matrix": dtm,
+            "vocab": self.get_vocab(),
+            "document_topic_matrix": document_topic_matrix,
+            "document_representation": embeddings,
+            "topic_term_matrix": self.components_, # type: ignore
+            "transform": getattr(self, "transform", None),
+        }
+        return res
