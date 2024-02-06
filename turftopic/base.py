@@ -142,6 +142,16 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         console = Console()
         console.print(table)
 
+    @property
+    def topic_names(self) -> list[str]:
+        """Names of the topics based on the highest scoring 4 terms."""
+        topic_desc = self.get_topics(top_k=4)
+        names = []
+        for topic_id, terms in topic_desc:
+            concat_words = "_".join([word for word, importance in terms])
+            names.append(f"{topic_id}_{concat_words}")
+        return names
+
     def print_topic_distribution(
         self, text=None, topic_dist=None, top_k: int = 10
     ):
@@ -308,5 +318,6 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             "document_representation": embeddings,
             "topic_term_matrix": self.components_,  # type: ignore
             "transform": getattr(self, "transform", None),
+            "topic_names": self.topic_names,
         }
         return res
