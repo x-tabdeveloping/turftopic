@@ -292,7 +292,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             embeddings = self.encode_documents(corpus)
         try:
             document_topic_matrix = self.transform(corpus, embeddings=embeddings)
-        except AttributeError, NotFittedError:
+        except (AttributeError, NotFittedError):
             document_topic_matrix = self.fit_transform(corpus, embeddings=embeddings)
         dtm = self.vectorizer.transform(corpus) # type: ignore
         res: TopicData = {
