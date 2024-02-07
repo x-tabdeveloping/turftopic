@@ -264,12 +264,12 @@ class KeyNMF(ContextualModel):
             status.update("Decomposing with NMF")
             try:
                 dtm = self.dict_vectorizer_.transform(keywords)
-            except NotFittedError:
+            except (NotFittedError, AttributeError):
                 dtm = self.dict_vectorizer_.fit_transform(keywords)
             dtm[dtm < 0] = 0  # type: ignore
             try:
                 doc_topic_matrix = self.nmf_.transform(dtm)
-            except NotFittedError:
+            except (NotFittedError, AttributeError):
                 doc_topic_matrix = self.nmf_.fit_transform(dtm)
                 self.components_ = self.nmf_.components_
             console.log("Model fiting done.")
