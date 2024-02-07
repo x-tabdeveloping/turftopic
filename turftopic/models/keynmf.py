@@ -7,11 +7,13 @@ import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.decomposition import NMF, MiniBatchNMF
+from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from turftopic.base import ContextualModel, Encoder
+from turftopic.data import TopicData
 from turftopic.vectorizer import default_vectorizer
 
 
@@ -212,26 +214,8 @@ class KeyNMF(ContextualModel):
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
-        console = Console()
-        with console.status("Fitting model") as status:
-            if embeddings is None:
-                status.update("Encoding documents")
-                embeddings = self.encoder_.encode(raw_documents)
-                console.log("Documents encoded.")
-            status.update("Learning Vocabulary.")
-            self.learn_vocabulary(raw_documents)
-            status.update("Extracting keywords")
-            keywords = self.extract_keywords(
-                raw_documents, embeddings=embeddings
-            )
-            console.log("Keyword extraction done.")
-            status.update("Decomposing with NMF")
-            dtm = self.dict_vectorizer_.fit_transform(keywords)
-            dtm[dtm < 0] = 0  # type: ignore
-            doc_topic_matrix = self.nmf_.fit_transform(dtm)
-            self.components_ = self.nmf_.components_
-            console.log("Model fiting done.")
-        return doc_topic_matrix
+        topic_data = self.prepare_topic_data(raw_documents, embeddings)
+        return topic_data["document_topic_matrix"]
 
     def get_vocab(self) -> np.ndarray:
         return self.dict_vectorizer_.get_feature_names_out()
@@ -254,8 +238,49 @@ class KeyNMF(ContextualModel):
             Document-topic matrix.
         """
         if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
+            embeddings = self.encode_documents(raw_documents)
         keywords = self.extract_keywords(raw_documents, embeddings)
         representations = self.dict_vectorizer_.transform(keywords)
         representations[representations < 0] = 0
         return self.nmf_.transform(representations)
+
+    def prepare_topic_data(
+        self,
+        corpus: List[str],
+        embeddings: Optional[np.ndarray] = None,
+    ) -> TopicData:
+        console = Console()
+        with console.status("Running KeyNMF") as status:
+            if embeddings is None:
+                status.update("Encoding documents")
+                embeddings = self.encode_documents(corpus)
+                console.log("Documents encoded.")
+            if getattr(self, "components_", None) is None:
+                status.update("Learning Vocabulary.")
+                self.learn_vocabulary(corpus)
+            status.update("Extracting keywords")
+            keywords = self.extract_keywords(corpus, embeddings=embeddings)
+            console.log("Keyword extraction done.")
+            status.update("Decomposing with NMF")
+            try:
+                dtm = self.dict_vectorizer_.transform(keywords)
+            except NotFittedError:
+                dtm = self.dict_vectorizer_.fit_transform(keywords)
+            dtm[dtm < 0] = 0  # type: ignore
+            try:
+                doc_topic_matrix = self.nmf_.transform(dtm)
+            except NotFittedError:
+                doc_topic_matrix = self.nmf_.fit_transform(dtm)
+                self.components_ = self.nmf_.components_
+            console.log("Model fiting done.")
+        res: TopicData = {
+            "corpus": corpus,
+            "document_term_matrix": dtm,
+            "vocab": self.get_vocab(),
+            "document_topic_matrix": doc_topic_matrix,
+            "document_representation": embeddings,
+            "topic_term_matrix": self.components_,  # type: ignore
+            "transform": getattr(self, "transform", None),
+            "topic_names": self.topic_names,
+        }
+        return res
