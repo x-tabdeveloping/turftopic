@@ -145,7 +145,7 @@ topicwizard.visualize(corpus, model=model)
   <figcaption>Screenshot of the topicwizard Web Application</figcaption>
 </figure>
 
-Alternatively you can use the Turftopic [Figures API](https://x-tabdeveloping.github.io/topicwizard/figures.html)HTML figures.
+Alternatively you can use the [Figures API](https://x-tabdeveloping.github.io/topicwizard/figures.html) in topicwizard for individual HTML figures.
 
 ## Models
 
