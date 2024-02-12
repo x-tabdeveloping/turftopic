@@ -145,7 +145,7 @@ topicwizard.visualize(corpus, model=model)
   <figcaption>Screenshot of the topicwizard Web Application</figcaption>
 </figure>
 
-Alternatively you can use the Turftopic [Figures API](https://x-tabdeveloping.github.io/topicwizard/figures.html)https://x-tabdeveloping.github.io/topicwizard/figures.html to create individual HTML figures.
+Alternatively you can use the Turftopic [Figures API](https://x-tabdeveloping.github.io/topicwizard/figures.html)HTML figures.
 
 ## Models
 
@@ -157,4 +157,4 @@ Alternatively you can use the Turftopic [Figures API](https://x-tabdeveloping.gi
 | Autoencoding Models | Learn topics using amortized variational inference enhanced by contextual representations.  | `model = AutoEncodingTopicModel(n_components=10, combined=False).fit(corpus)` |
 | Clustering Models | Clusters semantic embeddings, and estimates term importances for clusters.  | `model = ClusteringTopicModel(feature_importance="ctfidf").fit(corpus)` |
 
-For extensive comparison see our [Model Overview](https://x-tabdeveloping.github.io/turftopic/model_overview/)https://x-tabdeveloping.github.io/turftopic/model_overview/.
+For extensive comparison see our [Model Overview](https://x-tabdeveloping.github.io/turftopic/model_overview/).
