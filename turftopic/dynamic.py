@@ -1,0 +1,32 @@
+from abc import ABC, abstractmethod
+from datetime import datetime, timedelta
+from typing import Union
+
+import numpy as np
+
+
+def bin_timestamps(
+    timestamps: list[datetime],
+    bins: Union[int, list[datetime]] = 10,
+) -> tuple[np.ndarray, list[datetime]]:
+    if not timestamps and not isinstance(timestamps[0], datetime):
+        raise TypeError("Timestamps have to be `datetime` objects.")
+    unix_timestamps = [timestamp.timestamp() for timestamp in timestamps]
+    if isinstance(bins, list):
+        unix_bins = [bin.timestamp() for bin in bins]
+        return np.digitize(unix_timestamps, unix_bins), bins
+    else:
+        unix_bins = np.histogram_bin_edges(unix_timestamps, bins=bins)
+        bins = [datetime.fromtimestamp(ts) for ts in unix_bins]
+        return np.digitize(unix_timestamps, unix_bins), bins
+
+
+class DynamicTopicModel(ABC):
+    @abstractmethod
+    def fit_dynamic(
+        self,
+        raw_documents,
+        timestamps: list[datetime],
+        bins: Union[int, list[datetime]] = 10,
+    ):
+        pass
