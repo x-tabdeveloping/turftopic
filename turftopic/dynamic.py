@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
-from typing import Union
+from datetime import datetime
+from typing import Optional, Union
 
 import numpy as np
 
@@ -23,10 +23,21 @@ def bin_timestamps(
 
 class DynamicTopicModel(ABC):
     @abstractmethod
+    def fit_transform_dynamic(
+        self,
+        raw_documents,
+        timestamps: list[datetime],
+        embeddings: Optional[np.ndarray] = None,
+        bins: Union[int, list[datetime]] = 10,
+    ) -> np.ndarray:
+        pass
+
     def fit_dynamic(
         self,
         raw_documents,
         timestamps: list[datetime],
+        embeddings: Optional[np.ndarray] = None,
         bins: Union[int, list[datetime]] = 10,
     ):
-        pass
+        self.fit_transform_dynamic(raw_documents, timestamps, embeddings, bins)
+        return self
