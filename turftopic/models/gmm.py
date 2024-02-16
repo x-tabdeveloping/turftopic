@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, Optional, Union
 
 import numpy as np
@@ -7,11 +8,12 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.mixture import BayesianGaussianMixture, GaussianMixture
 
 from turftopic.base import ContextualModel, Encoder
+from turftopic.dynamic import DynamicTopicModel, bin_timestamps
 from turftopic.soft_ctf_idf import soft_ctf_idf
 from turftopic.vectorizer import default_vectorizer
 
 
-class GMM(ContextualModel):
+class GMM(ContextualModel, DynamicTopicModel):
     """Multivariate Gaussian Mixture Model over document embeddings.
     Models topics as mixture components.
 
@@ -81,6 +83,7 @@ class GMM(ContextualModel):
             )
         else:
             self.gmm_ = GaussianMixture(n_components)
+        self.components_ = None
 
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -126,3 +129,30 @@ class GMM(ContextualModel):
         if embeddings is None:
             embeddings = self.encoder_.encode(raw_documents)
         return self.gmm_.predict_proba(embeddings)
+
+    def fit_transform_dynamic(
+        self,
+        raw_documents,
+        timestamps: list[datetime],
+        embeddings: Optional[np.ndarray] = None,
+        bins: Union[int, list[datetime]] = 10,
+    ):
+        time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
+        if self.components_ is not None:
+            doc_topic_matrix = self.transform(
+                raw_documents, embeddings=embeddings
+            )
+        else:
+            doc_topic_matrix = self.fit_transform(
+                raw_documents, embeddings=embeddings
+            )
+        document_term_matrix = self.vectorizer.transform(raw_documents)
+        temporal_components = []
+        for i_timebin in np.sort(np.unique(time_labels)):
+            components = soft_ctf_idf(
+                doc_topic_matrix[time_labels == i_timebin],
+                document_term_matrix[time_labels == i_timebin],  # type: ignore
+            )
+            temporal_components.append(components)
+        self.temporal_components_ = np.stack(temporal_components)
+        return doc_topic_matrix
