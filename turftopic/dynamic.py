@@ -148,3 +148,46 @@ class DynamicTopicModel(ABC):
             table.add_row(*fields)
         console = Console()
         console.print(table)
+
+    def plot_topics_over_time(self, top_k: int = 6):
+        try:
+            import plotly.express as px
+            import plotly.graph_objects as go
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+        fig = go.Figure()
+        vocab = self.get_vocab()
+        for i_topic, topic_imp_t in enumerate(self.temporal_importance_.T):
+            component_over_time = self.temporal_components_[:, i_topic, :]
+            name_over_time = []
+            for component in component_over_time:
+                high = np.argpartition(-component, top_k)[:top_k]
+                values = component[high]
+                if np.all(values == 0) or np.all(np.isnan(values)):
+                    name_over_time.append("<not present>")
+                    continue
+                high = high[np.argsort(-values)]
+                name_over_time.append(", ".join(vocab[high]))
+            times = self.time_bin_edges[1:]
+            fig.add_trace(
+                go.Scatter(
+                    x=times,
+                    y=topic_imp_t,
+                    mode="markers+lines",
+                    text=name_over_time,
+                    name=f"Topic {i_topic}",
+                    hovertemplate="<b>%{text}</b>",
+                    marker=dict(line=dict(width=2, color="black"), size=14),
+                    line=dict(width=3),
+                )
+            )
+        fig.update_layout(
+            template="plotly_white",
+            hoverlabel=dict(font_size=16, bgcolor="white"),
+            hovermode="x",
+        )
+        fig.update_xaxes(title="Time Slice Start")
+        fig.update_yaxes(title="Topic Importance")
+        return fig
