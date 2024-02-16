@@ -148,11 +148,17 @@ class GMM(ContextualModel, DynamicTopicModel):
             )
         document_term_matrix = self.vectorizer.transform(raw_documents)
         temporal_components = []
+        temporal_importances = []
         for i_timebin in np.sort(np.unique(time_labels)):
+            topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(
+                axis=0
+            )
             components = soft_ctf_idf(
                 doc_topic_matrix[time_labels == i_timebin],
                 document_term_matrix[time_labels == i_timebin],  # type: ignore
             )
             temporal_components.append(components)
+            temporal_importances.append(topic_importances)
         self.temporal_components_ = np.stack(temporal_components)
+        self.temporal_importance_ = np.stack(temporal_importances)
         return doc_topic_matrix
