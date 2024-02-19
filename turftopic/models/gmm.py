@@ -153,6 +153,8 @@ class GMM(ContextualModel, DynamicTopicModel):
             topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(
                 axis=0
             )
+            # Normalizing
+            topic_importances = topic_importances / topic_importances.sum()
             components = soft_ctf_idf(
                 doc_topic_matrix[time_labels == i_timebin],
                 document_term_matrix[time_labels == i_timebin],  # type: ignore

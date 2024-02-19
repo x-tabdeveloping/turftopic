@@ -117,10 +117,15 @@ class DynamicTopicModel(ABC):
             start_str = start_dt.strftime(date_format)
             end_str = end_dt.strftime(date_format)
             slice_names.append(f"{start_str} - {end_str}")
+        n_topics = self.temporal_components_.shape[1]
+        try:
+            topic_names = self.topic_names
+        except AttributeError:
+            topic_names = [f"Topic {i}" for i in range(n_topics)]
         table = Table(show_lines=True)
         table.add_column("Time Slice")
-        for i_topic in range(self.temporal_components_.shape[1]):
-            table.add_column(f"Topic {i_topic}")
+        for topic in topic_names:
+            table.add_column(topic)
         for slice_name, components in zip(slice_names, temporal_components):
             fields = []
             fields.append(slice_name)
@@ -159,6 +164,11 @@ class DynamicTopicModel(ABC):
             ) from e
         fig = go.Figure()
         vocab = self.get_vocab()
+        n_topics = self.temporal_components_.shape[1]
+        try:
+            topic_names = self.topic_names
+        except AttributeError:
+            topic_names = [f"Topic {i}" for i in range(n_topics)]
         for i_topic, topic_imp_t in enumerate(self.temporal_importance_.T):
             component_over_time = self.temporal_components_[:, i_topic, :]
             name_over_time = []
@@ -177,9 +187,12 @@ class DynamicTopicModel(ABC):
                     y=topic_imp_t,
                     mode="markers+lines",
                     text=name_over_time,
-                    name=f"Topic {i_topic}",
+                    name=topic_names[i_topic],
                     hovertemplate="<b>%{text}</b>",
-                    marker=dict(line=dict(width=2, color="black"), size=14),
+                    marker=dict(
+                        line=dict(width=2, color="black"),
+                        size=14,
+                    ),
                     line=dict(width=3),
                 )
             )
