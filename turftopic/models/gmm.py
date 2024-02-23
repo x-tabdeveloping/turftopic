@@ -149,7 +149,7 @@ class GMM(ContextualModel, DynamicTopicModel):
         document_term_matrix = self.vectorizer.transform(raw_documents)
         temporal_components = []
         temporal_importances = []
-        for i_timebin in np.sort(np.unique(time_labels)):
+        for i_timebin in np.arange(len(self.time_bin_edges) - 1):
             topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(
                 axis=0
             )
