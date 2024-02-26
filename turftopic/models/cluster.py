@@ -7,6 +7,7 @@ from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.cluster import OPTICS, AgglomerativeClustering
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.manifold import TSNE
+from sklearn.metrics.pairwise import cosine_distances
 from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel, Encoder
@@ -31,6 +32,35 @@ the desired reduced number on initialization.
 
 ClusteringTopicModel(n_reduce_to=10)
 """
+
+
+def smallest_hierarchical_join(
+    topic_vectors: np.ndarray,
+    topic_sizes: np.ndarray,
+    classes_: np.ndarray,
+    n_to: int,
+) -> list[tuple]:
+    """Iteratively joins smallest topics."""
+    merge_inst = []
+    topic_vectors = np.copy(topic_vectors)
+    topic_sizes = np.copy(topic_sizes)
+    classes = list(classes_)
+    while len(classes) > n_to:
+        smallest = np.argmin(topic_sizes)
+        dist = cosine_distances(
+            np.atleast_2d(topic_vectors[smallest]), topic_vectors
+        )
+        closest = np.argsort(dist[0])[1]
+        merge_inst.append((classes[smallest], classes[closest]))
+        classes.pop(smallest)
+        topic_vectors[closest] = (
+            (topic_vectors[smallest] * topic_sizes[smallest])
+            + (topic_vectors[closest] * topic_sizes[closest])
+        ) / (topic_sizes[smallest] + topic_sizes[closest])
+        topic_vectors = np.delete(topic_vectors, smallest, axis=0)
+        topic_sizes[closest] = topic_sizes[closest] + topic_sizes[smallest]
+        topic_sizes = np.delete(topic_sizes, smallest, axis=0)
+    return merge_inst
 
 
 def calculate_topic_vectors(
@@ -94,6 +124,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
         By default, topics are not merged.
+    reduction_method: 'agglomerative', 'smallest'
     """
 
     def __init__(
@@ -106,6 +137,9 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         clustering: Optional[ClusterMixin] = None,
         feature_importance: Literal["ctfidf", "centroid"] = "ctfidf",
         n_reduce_to: Optional[int] = None,
+        reduction_method: Literal[
+            "agglomerative", "smallest"
+        ] = "agglomerative",
     ):
         self.encoder = encoder
         if isinstance(encoder, int):
@@ -130,8 +164,9 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             self.dimensionality_reduction = dimensionality_reduction
         self.feature_importance = feature_importance
         self.n_reduce_to = n_reduce_to
+        self.reduction_method = reduction_method
 
-    def _merge_agglomerative(self, n_reduce_to: int) -> dict[int, int]:
+    def _merge_agglomerative(self, n_reduce_to: int) -> np.ndarray:
         n_topics = self.components_.shape[0]
         res = {old_label: old_label for old_label in self.classes_}
         if n_topics <= n_reduce_to:
@@ -152,32 +187,34 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             res[-1] = -1
         for i_old, i_new in zip(old_labels, new_labels):
             res[i_old] = i_new
-        return res
+        return np.array([res[label] for label in self.labels_])
+
+    def _merge_smallest(self, n_reduce_to: int):
+        merge_inst = smallest_hierarchical_join(
+            self.topic_vectors_[self.classes_ != -1],
+            self.topic_sizes_[self.classes_ != -1],
+            self.classes_[self.classes_ != -1],
+            n_reduce_to,
+        )
+        labels = np.copy(self.labels_)
+        for from_topic, to_topic in merge_inst:
+            labels[labels == from_topic] = to_topic
+        return labels
 
     def _estimate_parameters(
         self,
-        cluster_labels: np.ndarray,
         embeddings: np.ndarray,
         doc_term_matrix: np.ndarray,
-        status,
-        console,
     ):
-        clusters = np.unique(cluster_labels)
+        clusters = np.unique(self.labels_)
         self.classes_ = np.sort(clusters)
         self.topic_sizes_ = np.array(
-            [np.sum(cluster_labels == label) for label in self.classes_]
+            [np.sum(self.labels_ == label) for label in self.classes_]
         )
-        status.update("Calculating topic vectors.")
-        self.topic_vectors_ = calculate_topic_vectors(
-            cluster_labels, embeddings
-        )
-        console.log("Topic vectors calculated")
-        status.update("Encoding vocabulary")
+        self.topic_vectors_ = calculate_topic_vectors(self.labels_, embeddings)
         self.vocab_embeddings = self.encoder_.encode(self.vectorizer.get_feature_names_out())  # type: ignore
-        console.log("Vocabulary encoded")
-        status.update("Estimating term importances")
         document_topic_matrix = label_binarize(
-            cluster_labels, classes=self.classes_
+            self.labels_, classes=self.classes_
         )
         if self.feature_importance == "soft-c-tf-idf":
             self.components_ = soft_ctf_idf(document_topic_matrix, doc_term_matrix)  # type: ignore
@@ -189,7 +226,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             )
         else:
             self.components_ = ctf_idf(document_topic_matrix, doc_term_matrix)
-        self.labels_ = cluster_labels
 
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -225,28 +261,32 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             )
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
-            cluster_labels = self.clustering.fit_predict(reduced_embeddings)
+            self.labels_ = self.clustering.fit_predict(reduced_embeddings)
             console.log("Clustering done.")
+            status.update("Estimating parameters.")
             self._estimate_parameters(
-                cluster_labels,
                 embeddings,
                 self.doc_term_matrix,
-                status,
-                console,
             )
+            console.log("Parameter estimation done.")
             if self.n_reduce_to is not None:
-                status.update("Reducing topics.")
-                self.mapping_ = self._merge_agglomerative(self.n_reduce_to)
-                cluster_labels = np.array(
-                    [self.mapping_[label] for label in cluster_labels]
+                n_topics = self.classes_.shape[0]
+                status.update(
+                    f"Reducing topics from {n_topics} to {self.n_reduce_to}"
                 )
+                if self.reduction_method == "agglomerative":
+                    self.labels_ = self._merge_agglomerative(self.n_reduce_to)
+                else:
+                    self.labels_ = self._merge_smallest(self.n_reduce_to)
+                console.log(
+                    f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
+                )
+                status.update("Reestimating parameters.")
                 self._estimate_parameters(
-                    np.array(cluster_labels),
                     embeddings,
                     self.doc_term_matrix,
-                    status,
-                    console,
                 )
+                console.log("Reestimation done.")
         console.log("Model fitting done.")
         return self.labels_
 
