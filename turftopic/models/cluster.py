@@ -4,14 +4,16 @@ import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
-from sklearn.cluster import OPTICS
+from sklearn.cluster import OPTICS, AgglomerativeClustering
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel, Encoder
-from turftopic.centroid_distance import cluster_centroid_distance
-from turftopic.soft_ctf_idf import soft_ctf_idf
+from turftopic.feature_importance import (
+    cluster_centroid_distance,
+    soft_ctf_idf,
+)
 from turftopic.vectorizer import default_vectorizer
 
 integer_message = """
@@ -22,7 +24,26 @@ and this process may be automatic, you have to pass along a clustering model
 where the number of clusters is predefined.
 
 For instance: ClusteringTopicModel(clustering=KMeans(10))
+
+Alternatively you can reduce the number of topics in the model by specifying
+the desired reduced number on initialization.
+
+ClusteringTopicModel(n_reduce_to=10)
 """
+
+
+def calculate_topic_vectors(
+    cluster_labels: np.ndarray, embeddings: np.ndarray
+) -> np.ndarray:
+    """Calculates topic centroids."""
+    centroids = []
+    unique_labels = np.unique(cluster_labels)
+    unique_labels = np.sort(unique_labels)
+    for label in unique_labels:
+        centroid = np.mean(embeddings[cluster_labels == label], axis=0)
+        centroids.append(centroid)
+    centroids = np.stack(centroids)
+    return centroids
 
 
 class ClusteringTopicModel(ContextualModel, ClusterMixin):
@@ -66,6 +87,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         'centroid' uses distances from cluster centroid similarly
         to Top2Vec.
         'ctfidf' uses BERTopic's c-tf-idf.
+    n_reduce_to: int, default None
+        Number of topics to reduce topics to.
+        The specified reduction method will be used to merge them.
+        By default, topics are not merged.
     """
 
     def __init__(
@@ -77,6 +102,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
         feature_importance: Literal["ctfidf", "centroid"] = "ctfidf",
+        n_reduce_to: Optional[int] = None,
     ):
         self.encoder = encoder
         if isinstance(encoder, int):
@@ -100,6 +126,65 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         else:
             self.dimensionality_reduction = dimensionality_reduction
         self.feature_importance = feature_importance
+        self.n_reduce_to = n_reduce_to
+
+    def _merge_agglomerative(self, n_reduce_to: int) -> dict[int, int]:
+        n_topics = self.components_.shape[0]
+        res = {old_label: old_label for old_label in self.classes_}
+        if n_topics <= n_reduce_to:
+            return res
+        interesting_topic_vectors = np.stack(
+            [
+                vec
+                for label, vec in zip(self.classes_, self.topic_vectors_)
+                if label != -1
+            ]
+        )
+        old_labels = [label for label in self.classes_ if label != -1]
+        new_labels = AgglomerativeClustering(
+            n_clusters=n_reduce_to, metric="cosine", linkage="average"
+        ).fit_predict(interesting_topic_vectors)
+        res = {}
+        if -1 in self.classes_:
+            res[-1] = -1
+        for i_old, i_new in zip(old_labels, new_labels):
+            res[i_old] = i_new
+        return res
+
+    def _estimate_parameters(
+        self,
+        cluster_labels: np.ndarray,
+        embeddings: np.ndarray,
+        doc_term_matrix: np.ndarray,
+        status,
+        console,
+    ):
+        clusters = np.unique(cluster_labels)
+        self.classes_ = np.sort(clusters)
+        self.topic_sizes_ = np.array(
+            [np.sum(cluster_labels == label) for label in self.classes_]
+        )
+        status.update("Calculating topic vectors.")
+        self.topic_vectors_ = calculate_topic_vectors(
+            cluster_labels, embeddings
+        )
+        console.log("Topic vectors calculated")
+        status.update("Encoding vocabulary")
+        self.vocab_embeddings = self.encoder_.encode(self.vectorizer.get_feature_names_out())  # type: ignore
+        console.log("Vocabulary encoded")
+        status.update("Estimating term importances")
+        if self.feature_importance == "ctfidf":
+            document_topic_matrix = label_binarize(
+                cluster_labels, classes=self.classes_
+            )
+            self.components_ = soft_ctf_idf(document_topic_matrix, doc_term_matrix)  # type: ignore
+        else:
+            self.components_ = cluster_centroid_distance(
+                self.topic_vectors_,
+                self.vocab_embeddings,
+                metric="cosine",
+            )
+        self.labels_ = cluster_labels
 
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -127,9 +212,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
                 embeddings = self.encoder_.encode(raw_documents)
                 console.log("Encoding done.")
             status.update("Extracting terms")
-            doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
+            self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
-            vocab = self.vectorizer.get_feature_names_out()
             status.update("Reducing Dimensionality")
             reduced_embeddings = self.dimensionality_reduction.fit_transform(
                 embeddings
@@ -137,27 +221,30 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
             cluster_labels = self.clustering.fit_predict(reduced_embeddings)
-            clusters = np.unique(cluster_labels)
+            print(np.unique(cluster_labels))
             console.log("Clustering done.")
-            self.classes_ = np.sort(clusters)
-            status.update("Estimating term importances")
-            if self.feature_importance == "ctfidf":
-                document_topic_matrix = label_binarize(
-                    cluster_labels, classes=self.classes_
+            self._estimate_parameters(
+                cluster_labels,
+                embeddings,
+                self.doc_term_matrix,
+                status,
+                console,
+            )
+            if self.n_reduce_to is not None:
+                status.update("Reducing topics.")
+                self.mapping_ = self._merge_agglomerative(self.n_reduce_to)
+                cluster_labels = np.array(
+                    [self.mapping_[label] for label in cluster_labels]
                 )
-                self.components_ = soft_ctf_idf(document_topic_matrix, doc_term_matrix)  # type: ignore
-            else:
-                status.update("Encoding vocabulary")
-                vocab_embeddings = self.encoder_.encode(vocab)  # type: ignore
-                self.components_ = cluster_centroid_distance(
-                    cluster_labels,
+                self._estimate_parameters(
+                    np.array(cluster_labels),
                     embeddings,
-                    vocab_embeddings,
-                    metric="euclidean",
+                    self.doc_term_matrix,
+                    status,
+                    console,
                 )
-            self.labels_ = cluster_labels
-            console.log("Model fitting done.")
-        return cluster_labels
+        console.log("Model fitting done.")
+        return self.labels_
 
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
