@@ -9,7 +9,7 @@ from sklearn.mixture import BayesianGaussianMixture, GaussianMixture
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel, bin_timestamps
-from turftopic.soft_ctf_idf import soft_ctf_idf
+from turftopic.feature_importance import soft_ctf_idf
 from turftopic.vectorizer import default_vectorizer
 
 
