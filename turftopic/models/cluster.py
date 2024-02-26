@@ -12,6 +12,7 @@ from sklearn.preprocessing import label_binarize
 from turftopic.base import ContextualModel, Encoder
 from turftopic.feature_importance import (
     cluster_centroid_distance,
+    ctf_idf,
     soft_ctf_idf,
 )
 from turftopic.vectorizer import default_vectorizer
@@ -52,7 +53,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
     Models also include a dimensionality reduction step to aid clustering.
 
     ```python
-    from turftopic import KeyNMF
+    from turftopic import ClusteringTopicModel
     from sklearn.cluster import HDBSCAN
     import umap
 
@@ -82,11 +83,13 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         Clustering method to use for finding topics.
         Defaults to OPTICS with 25 minimum cluster size.
         To imitate the behavior of BERTopic or Top2Vec you should use HDBSCAN.
-    feature_importance: 'ctfidf' or 'centroid', default 'ctfidf'
+    feature_importance: 'soft-c-tf-idf', 'c-tf-idf' or 'centroid', default 'soft-c-tf-idf'
         Method for estimating term importances.
         'centroid' uses distances from cluster centroid similarly
         to Top2Vec.
-        'ctfidf' uses BERTopic's c-tf-idf.
+        'c-tf-idf' uses BERTopic's c-tf-idf.
+        'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
+        be very similar to 'c-tf-idf'.
     n_reduce_to: int, default None
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
@@ -173,17 +176,19 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         self.vocab_embeddings = self.encoder_.encode(self.vectorizer.get_feature_names_out())  # type: ignore
         console.log("Vocabulary encoded")
         status.update("Estimating term importances")
-        if self.feature_importance == "ctfidf":
-            document_topic_matrix = label_binarize(
-                cluster_labels, classes=self.classes_
-            )
+        document_topic_matrix = label_binarize(
+            cluster_labels, classes=self.classes_
+        )
+        if self.feature_importance == "soft-c-tf-idf":
             self.components_ = soft_ctf_idf(document_topic_matrix, doc_term_matrix)  # type: ignore
-        else:
+        elif self.feature_importance == "centroid":
             self.components_ = cluster_centroid_distance(
                 self.topic_vectors_,
                 self.vocab_embeddings,
                 metric="cosine",
             )
+        else:
+            self.components_ = ctf_idf(document_topic_matrix, doc_term_matrix)
         self.labels_ = cluster_labels
 
     def fit_predict(
@@ -221,7 +226,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
             cluster_labels = self.clustering.fit_predict(reduced_embeddings)
-            print(np.unique(cluster_labels))
             console.log("Clustering done.")
             self._estimate_parameters(
                 cluster_labels,

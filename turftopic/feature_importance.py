@@ -31,3 +31,20 @@ def soft_ctf_idf(
     idf = np.log(n_docs / (np.abs(term_importance).sum(axis=0) + eps))
     ctf_idf = tf * idf
     return ctf_idf
+
+
+def ctf_idf(
+    doc_topic_matrix: np.ndarray, doc_term_matrix: spr.csr_matrix
+) -> np.ndarray:
+    labels = np.argmax(doc_topic_matrix, axis=1)
+    n_topics = doc_topic_matrix.shape[1]
+    components = []
+    overall_freq = np.ravel(np.asarray(doc_term_matrix.sum(axis=0)))
+    average = overall_freq.sum() / n_topics
+    for i_topic in range(n_topics):
+        freq = np.ravel(
+            np.asarray(doc_term_matrix[labels == i_topic].sum(axis=0))
+        )
+        component = freq * np.log(1 + average / overall_freq)
+        components.append(component)
+    return np.stack(components)
