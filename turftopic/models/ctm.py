@@ -188,7 +188,7 @@ class AutoEncodingTopicModel(ContextualModel):
             )
         else:
             contextual_embeddings = embeddings
-        contextual_embeddings = torch.tensor(contextual_embeddings)
+        contextual_embeddings = torch.tensor(contextual_embeddings).float()
         loc, scale = self.model.encoder(contextual_embeddings)
         prob = torch.softmax(loc, dim=-1)
         return prob.cpu().data.numpy()
@@ -212,9 +212,14 @@ class AutoEncodingTopicModel(ContextualModel):
                 "cuda:0" if torch.cuda.is_available() else "cpu"
             )
             pyro.clear_param_store()
+            contextualized_size = embeddings.shape[1]
+            if self.combined:
+                contextualized_size = (
+                    contextualized_size + document_term_matrix.shape[1]
+                )
             self.model = Model(
                 vocab_size=document_term_matrix.shape[1],
-                contextualized_size=embeddings.shape[1],
+                contextualized_size=contextualized_size,
                 num_topics=self.n_components,
                 hidden=self.hidden,
                 dropout=self.dropout_rate,
@@ -235,22 +240,27 @@ class AutoEncodingTopicModel(ContextualModel):
             for epoch in range(self.n_epochs):
                 running_loss = 0.0
                 for i in range(num_batches):
-                    batch_bow = document_term_matrix[
-                        i * self.batch_size : (i + 1) * self.batch_size, :
-                    ]
-                    batch_contextualized = embeddings[
-                        i * self.batch_size : (i + 1) * self.batch_size, :
-                    ]
+                    batch_bow = np.atleast_2d(
+                        document_term_matrix[
+                            i * self.batch_size : (i + 1) * self.batch_size, :
+                        ].toarray()
+                    )
+                    # Skipping batches that are smaller than 2
+                    if batch_bow.shape[0] < 2:
+                        continue
+                    batch_contextualized = np.atleast_2d(
+                        embeddings[
+                            i * self.batch_size : (i + 1) * self.batch_size, :
+                        ]
+                    )
                     if self.combined:
                         batch_contextualized = np.concatenate(
-                            (embeddings, batch_bow.toarray()), axis=1
+                            (batch_contextualized, batch_bow), axis=1
                         )
                     batch_contextualized = (
                         torch.tensor(batch_contextualized).float().to(device)
                     )
-                    batch_bow = (
-                        torch.tensor(batch_bow.toarray()).float().to(device)
-                    )
+                    batch_bow = torch.tensor(batch_bow).float().to(device)
                     loss = svi.step(batch_bow, batch_contextualized)
                     running_loss += loss / batch_bow.size(0)
                 status.update(
