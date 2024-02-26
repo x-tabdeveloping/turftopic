@@ -170,7 +170,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         n_topics = self.components_.shape[0]
         res = {old_label: old_label for old_label in self.classes_}
         if n_topics <= n_reduce_to:
-            return res
+            return self.labels_
         interesting_topic_vectors = np.stack(
             [
                 vec
