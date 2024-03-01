@@ -70,7 +70,8 @@ c-TF-IDF is a weighting scheme based on the number of occurrences of terms in ea
 Terms which frequently occur in other clusters are inversely weighted so that words, which are specific to a topic gain larger importance.
 
 Let $X$ be the document term matrix where each element ($X_{ij}$) corresponds with the number of times word $j$ occurs in a document $i$.
-Turftopic uses a modified version of c-TF-IDF, which is calculated in the following manner:
+
+By default, Turftopic uses a modified version of c-TF-IDF, called Soft-c-TF-IDF, which is calculated in the following manner:
 
 - Estimate weight of term $j$ for topic $z$: <br>
 $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
@@ -80,10 +81,46 @@ $w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
 $idf_j = log(\frac{N}{\sum_z |t_{zj}|})$, where
 $N$ is the total number of documents.
 - Calculate importance of term $j$ for topic $z$:   
+$Soft-c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
+
+You can also use the original c-TF-IDF formula, if you intend to replicate the behaviour of BERTopic exactly. The two formulas tend to give similar results, though the implications of choosing one over the other has not been thoroughly evaluated.
+
+$tf_{zj} = \frac{t_{zj}}{w_z}$, where 
+$t_{zj} = \sum_{i \in z} X_{ij}$ is the number of occurrences of a word in a topic and 
+$w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
+- Estimate inverse document/topic frequency for term $j$:  
+$idf_j = log(1 + \frac{A}{\sum_z |t_{zj}|})$, where
+$A = \frac{\sum_z \sum_j t_{zj}}{Z}$ is the average number of words per topic, and $Z$ is the number of topics.
+- Calculate importance of term $j$ for topic $z$:   
 $c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
 
 This solution is generally to be preferred to centroid-based term importance (and the default in Turftopic), as it is more likely to give correct results.
 On the other hand, c-TF-IDF can be sensitive to words with atypical statistical properties (stop words), and can result in low diversity between topics, when clusters are joined post-hoc.
+
+### 4. Hierarchical Topic Merging
+
+A weakness of clustering approaches based on density-based clustering methods, is that all too frequently they find a very large number of topics.
+To limit the number of topics in a topic model you can use hierarchical topic merging.
+
+#### Merge Smallest
+The approach used in the Top2Vec package is to always merge the smallest topic into the one closest to it (except the outlier-cluster) until the number of topics is down to the desired amount.
+
+You can achieve this behaviour like so:
+
+```python
+from turftopic import ClusteringTopicModel
+
+model = ClusteringTopicModel(n_reduce_to=10, reduction_method="smallest")
+```
+
+#### Agglomerative Clustering
+
+In BERTopic topics are merged based on agglomerative clustering using average linkage, and then term importances are reestimated.
+You can do this in Turftopic as well:
+
+```python
+model = ClusteringTopicModel(n_reduce_to=10, reduction_method="agglomerative")
+```
 
 ## Comparison to BERTopic and Top2Vec
 
@@ -91,7 +128,6 @@ Turftopic's implementation differs in multiple places to BERTopic and Top2Vec.
 You can, however, construct models in Turftopic that imitate the behaviour of these other packages.
 
 The main differences to these packages are:
- - The c-TF-IDF formulae are not identical. BERTopic's version might be added in the future for compatibility.
  - Dimensionality reduction in BERTopic and Top2Vec is done with UMAP.
  - Clustering is in BERTopic and Top2Vec is done with HDBSCAN.
  - Turftopic does not include many of the visualization and model-specific utilities that BERTopic does.
@@ -125,7 +161,8 @@ berttopic = ClusteringTopicModel(
         metric="euclidean",
         cluster_selection_method="eom",
     ),
-    feature_importance="ctfidf",
+    feature_importance="c-tf-idf",
+    reduction_method="agglomerative"
 )
 ```
 
@@ -144,8 +181,12 @@ top2vec = ClusteringTopicModel(
         cluster_selection_method="eom",
     ),
     feature_importance="centroid",
+    reduction_method="smallest"
 )
 ```
+
+Theoretically the model descriptions above should result in the same behaviour as the other two packages, but there might be minor changes in implementation.
+We do not intend to keep up with changes in Top2Vec's and BERTopic's internal implementation details indefinitely.
 
 ## Considerations
 
@@ -160,7 +201,7 @@ top2vec = ClusteringTopicModel(
 
  - Scalability: Clustering models typically cannot be fitted in an online fashion, and manifold learning is usually inefficient in large corpora. When the number of texts is huge, the number of topics also gets inflated, which is impractical for interpretation.
  - Lack of Nuance: The models are unable to capture multiple topics in a document or capture uncertainty around topic labels. This makes the models impractical for longer texts as well.
- - Sensitivity to Hyperparameters: While do not have to set the number of topics directly, the hyperparameters you choose has a huge impact on the number of topics you will end up getting. (see figure)
+ - Sensitivity to Hyperparameters: While do not have to set the number of topics directly, the hyperparameters you choose has a huge impact on the number of topics you will end up getting. You can counteract this to a certain extent with hierarchical merging. (see figure)
  - Transductivity: Some clustering methods are transductive, meaning you can't predict topical content for new documents, as they would change the cluster structure.
 
 <figure>

@@ -2,7 +2,10 @@ site_name: Turftopic
 site_description: 'An all-in-one library for topic modeling with sentence embeddings.'
 repo_url: https://github.com/x-tabdeveloping/turftopic
 nav:
-  - Basics: index.md
+  - Usage:
+    - Basics: index.md
+    - Dynamic Modeling: dynamic.md
+    - Model Persistence: persistence.md
   - Models:
     - Overview: model_overview.md
     - S³: s3.md
