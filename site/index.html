@@ -12,7 +12,7 @@
       
       
       
-        <link rel="next" href="model_overview/">
+        <link rel="next" href="dynamic/">
       
       
       <link rel="icon" href="assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Turftopic</title>
+        <title>Basics - Turftopic</title>
       
     
     
@@ -146,16 +146,19 @@
     
   
   
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
-        
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="." class="md-tabs__link">
+          
   
     
   
-  Basics
+  Usage
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -256,103 +259,104 @@
   
   
   
-    <li class="md-nav__item md-nav__item--active">
+    
+    
       
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
+        
           
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="." class="md-nav__link md-nav__link--active">
+              
   
   <span class="md-ellipsis">
-    Basics
+    Usage
   </span>
   
 
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+            </a>
+            
+              
+              <label class="md-nav__link md-nav__link--active" for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Usage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dynamic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Basics
+    Dynamic Modeling
   </span>
   
 
       </a>
-      
-        
+    </li>
+  
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+              
+            
+              
+                
   
   
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation
-    </span>
-  </a>
+    <li class="md-nav__item">
+      <a href="persistence/" class="md-nav__link">
+        
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#basic-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      Basic Usage
-    </span>
-  </a>
+  <span class="md-ellipsis">
+    Model Persistence
+  </span>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#important-attributes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Important Attributes
-    </span>
-  </a>
+
+      </a>
+    </li>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#fitting-models" class="md-nav__link">
-    <span class="md-ellipsis">
-      Fitting Models
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inference" class="md-nav__link">
-    <span class="md-ellipsis">
-      Inference
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#interpreting-models" class="md-nav__link">
-    <span class="md-ellipsis">
-      Interpreting Models
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -815,7 +819,7 @@ Some models have additional optimizations going on when using <code>fit_transfor
 </table>
 <p></center></p>
 <h3 id="visualization">Visualization</h3>
-<p>Turftopic does not come with built-in visualization utilities, but the next release of <a href="https://github.com/x-tabdeveloping/topicwizard">topicwizard</a> is going to be compatible with all models from Turftopic.</p>
+<p>Turftopic does not come with built-in visualization utilities, <a href="https://github.com/x-tabdeveloping/topicwizard">topicwizard</a>, a package for interactive topic model interpretation is fully compatible with Turftopic models.</p>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>topic-wizard
 </code></pre></div>
 <p>By far the easiest way to visualize your models for interpretation is to launch the topicwizard web app.</p>
@@ -827,6 +831,8 @@ Some models have additional optimizations going on when using <code>fit_transfor
   <img src="https://x-tabdeveloping.github.io/topicwizard/_images/screenshot_topics.png" width="70%" style="margin-left: auto;margin-right: auto;">
   <figcaption>Screenshot of the topicwizard Web Application</figcaption>
 </figure>
+
+<p>You can also produce individual interactive figures using the <a href="https://x-tabdeveloping.github.io/topicwizard/figures.html">Figures API in topicwizard</a>.</p>
 
 
 

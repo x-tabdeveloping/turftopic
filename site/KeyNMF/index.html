@@ -146,16 +146,19 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href=".." class="md-tabs__link">
-        
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
   
     
   
-  Basics
+  Usage
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -256,16 +259,107 @@
   
   
   
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Usage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../dynamic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Basics
+    Dynamic Modeling
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../persistence/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model Persistence
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -705,9 +799,7 @@ Can be used to prune or filter the vocabulary.</p>
 
             <details class="quote">
               <summary>Source code in <code>turftopic/models/keynmf.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 49</span>
-<span class="normal"> 50</span>
-<span class="normal"> 51</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 51</span>
 <span class="normal"> 52</span>
 <span class="normal"> 53</span>
 <span class="normal"> 54</span>
@@ -917,7 +1009,32 @@ Can be used to prune or filter the vocabulary.</p>
 <span class="normal">258</span>
 <span class="normal">259</span>
 <span class="normal">260</span>
-<span class="normal">261</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">KeyNMF</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">):</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">KeyNMF</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts keywords from documents based on semantic similarity of</span>
 <span class="sd">    term encodings to document encodings.</span>
 <span class="sd">    Topics are then extracted with non-negative matrix factorization from</span>
@@ -1083,26 +1200,8 @@ Can be used to prune or filter the vocabulary.</p>
     <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
-        <span class="k">with</span> <span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">&quot;Fitting model&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Encoding documents&quot;</span><span class="p">)</span>
-                <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
-                <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Documents encoded.&quot;</span><span class="p">)</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Learning Vocabulary.&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">learn_vocabulary</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Extracting keywords&quot;</span><span class="p">)</span>
-            <span class="n">keywords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_keywords</span><span class="p">(</span>
-                <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span>
-            <span class="p">)</span>
-            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Keyword extraction done.&quot;</span><span class="p">)</span>
-            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Decomposing with NMF&quot;</span><span class="p">)</span>
-            <span class="n">dtm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_vectorizer_</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
-            <span class="n">dtm</span><span class="p">[</span><span class="n">dtm</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># type: ignore</span>
-            <span class="n">doc_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmf_</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dtm</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmf_</span><span class="o">.</span><span class="n">components_</span>
-            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Model fiting done.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">doc_topic_matrix</span>
+        <span class="n">topic_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_topic_data</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">topic_data</span><span class="p">[</span><span class="s2">&quot;document_topic_matrix&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_vectorizer_</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
@@ -1125,11 +1224,52 @@ Can be used to prune or filter the vocabulary.</p>
 <span class="sd">            Document-topic matrix.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+            <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_documents</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
         <span class="n">keywords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_keywords</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
         <span class="n">representations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_vectorizer_</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
         <span class="n">representations</span><span class="p">[</span><span class="n">representations</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmf_</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">representations</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">prepare_topic_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">corpus</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicData</span><span class="p">:</span>
+        <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">console</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="s2">&quot;Running KeyNMF&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Encoding documents&quot;</span><span class="p">)</span>
+                <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_documents</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+                <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Documents encoded.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;components_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Learning Vocabulary.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">learn_vocabulary</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Extracting keywords&quot;</span><span class="p">)</span>
+            <span class="n">keywords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_keywords</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Keyword extraction done.&quot;</span><span class="p">)</span>
+            <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Decomposing with NMF&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">dtm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_vectorizer_</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">NotFittedError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                <span class="n">dtm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_vectorizer_</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
+            <span class="n">dtm</span><span class="p">[</span><span class="n">dtm</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># type: ignore</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">doc_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmf_</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dtm</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">NotFittedError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                <span class="n">doc_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmf_</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dtm</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nmf_</span><span class="o">.</span><span class="n">components_</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Model fiting done.&quot;</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">:</span> <span class="n">TopicData</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;corpus&quot;</span><span class="p">:</span> <span class="n">corpus</span><span class="p">,</span>
+            <span class="s2">&quot;document_term_matrix&quot;</span><span class="p">:</span> <span class="n">dtm</span><span class="p">,</span>
+            <span class="s2">&quot;vocab&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vocab</span><span class="p">(),</span>
+            <span class="s2">&quot;document_topic_matrix&quot;</span><span class="p">:</span> <span class="n">doc_topic_matrix</span><span class="p">,</span>
+            <span class="s2">&quot;document_representation&quot;</span><span class="p">:</span> <span class="n">embeddings</span><span class="p">,</span>
+            <span class="s2">&quot;topic_term_matrix&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="s2">&quot;transform&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;transform&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="s2">&quot;topic_names&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">topic_names</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">res</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -1166,9 +1306,7 @@ learn the vocabulary and then fit the model.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/models/keynmf.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">187</span>
 <span class="normal">188</span>
 <span class="normal">189</span>
 <span class="normal">190</span>
@@ -1191,7 +1329,9 @@ learn the vocabulary and then fit the model.</p>
 <span class="normal">207</span>
 <span class="normal">208</span>
 <span class="normal">209</span>
-<span class="normal">210</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">big_fit</span><span class="p">(</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">big_fit</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">document_stream</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">keyword_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./__keywords.jsonl&quot;</span><span class="p">,</span>
@@ -1307,29 +1447,29 @@ learn the vocabulary and then fit the model.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/models/keynmf.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">239</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
 <span class="normal">240</span>
 <span class="normal">241</span>
 <span class="normal">242</span>
 <span class="normal">243</span>
 <span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
+<span class="normal">245</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Infers topic importances for new documents based on a fitted model.</span>
@@ -1347,7 +1487,7 @@ learn the vocabulary and then fit the model.</p>
 <span class="sd">        Document-topic matrix.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_documents</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
     <span class="n">keywords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_keywords</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
     <span class="n">representations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_vectorizer_</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
     <span class="n">representations</span><span class="p">[</span><span class="n">representations</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
