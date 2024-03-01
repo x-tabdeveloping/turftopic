@@ -47,9 +47,7 @@ def smallest_hierarchical_join(
     classes = list(classes_)
     while len(classes) > n_to:
         smallest = np.argmin(topic_sizes)
-        dist = cosine_distances(
-            np.atleast_2d(topic_vectors[smallest]), topic_vectors
-        )
+        dist = cosine_distances(np.atleast_2d(topic_vectors[smallest]), topic_vectors)
         closest = np.argsort(dist[0])[1]
         merge_inst.append((classes[smallest], classes[closest]))
         classes.pop(smallest)
@@ -129,17 +127,15 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
 
     def __init__(
         self,
-        encoder: Union[
-            Encoder, str
-        ] = "sentence-transformers/all-MiniLM-L6-v2",
+        encoder: Union[Encoder, str] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
-        feature_importance: Literal["ctfidf", "centroid"] = "ctfidf",
+        feature_importance: Literal[
+            "c-tf-idf", "soft-c-tf-idf", "centroid"
+        ] = "soft-c-tf-idf",
         n_reduce_to: Optional[int] = None,
-        reduction_method: Literal[
-            "agglomerative", "smallest"
-        ] = "agglomerative",
+        reduction_method: Literal["agglomerative", "smallest"] = "agglomerative",
     ):
         self.encoder = encoder
         if isinstance(encoder, int):
@@ -157,9 +153,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
         else:
             self.clustering = clustering
         if dimensionality_reduction is None:
-            self.dimensionality_reduction = TSNE(
-                n_components=2, metric="cosine"
-            )
+            self.dimensionality_reduction = TSNE(n_components=2, metric="cosine")
         else:
             self.dimensionality_reduction = dimensionality_reduction
         self.feature_importance = feature_importance
@@ -212,10 +206,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             [np.sum(self.labels_ == label) for label in self.classes_]
         )
         self.topic_vectors_ = calculate_topic_vectors(self.labels_, embeddings)
-        self.vocab_embeddings = self.encoder_.encode(self.vectorizer.get_feature_names_out())  # type: ignore
-        document_topic_matrix = label_binarize(
-            self.labels_, classes=self.classes_
-        )
+        self.vocab_embeddings = self.encoder_.encode(
+            self.vectorizer.get_feature_names_out()
+        )  # type: ignore
+        document_topic_matrix = label_binarize(self.labels_, classes=self.classes_)
         if self.feature_importance == "soft-c-tf-idf":
             self.components_ = soft_ctf_idf(document_topic_matrix, doc_term_matrix)  # type: ignore
         elif self.feature_importance == "centroid":
@@ -256,9 +250,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
             status.update("Reducing Dimensionality")
-            reduced_embeddings = self.dimensionality_reduction.fit_transform(
-                embeddings
-            )
+            reduced_embeddings = self.dimensionality_reduction.fit_transform(embeddings)
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
             self.labels_ = self.clustering.fit_predict(reduced_embeddings)
@@ -271,9 +263,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             console.log("Parameter estimation done.")
             if self.n_reduce_to is not None:
                 n_topics = self.classes_.shape[0]
-                status.update(
-                    f"Reducing topics from {n_topics} to {self.n_reduce_to}"
-                )
+                status.update(f"Reducing topics from {n_topics} to {self.n_reduce_to}")
                 if self.reduction_method == "agglomerative":
                     self.labels_ = self._merge_agglomerative(self.n_reduce_to)
                 else:
