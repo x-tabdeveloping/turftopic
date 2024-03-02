@@ -818,6 +818,13 @@ Some models have additional optimizations going on when using <code>fit_transfor
 </tbody>
 </table>
 <p></center></p>
+<p>If you want to share these results, you can also export all tables, by using the <code>export_&lt;something&gt;</code> method instead of <code>print_&lt;something&gt;</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">csv_table</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_topic_distribution</span><span class="p">(</span><span class="s2">&quot;something something&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span>
+
+<span class="n">latex_table</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_topics</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">&quot;latex&quot;</span><span class="p">)</span>
+
+<span class="n">md_table</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">export_highest_ranking_documents</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">corpus</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;markdown&quot;</span><span class="p">)</span>
+</code></pre></div>
 <h3 id="visualization">Visualization</h3>
 <p>Turftopic does not come with built-in visualization utilities, <a href="https://github.com/x-tabdeveloping/topicwizard">topicwizard</a>, a package for interactive topic model interpretation is fully compatible with Turftopic models.</p>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>topic-wizard

@@ -512,6 +512,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#interpretation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interpretation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#considerations" class="md-nav__link">
     <span class="md-ellipsis">
       Considerations
@@ -699,6 +708,33 @@ The decomposed signals' matrix is then transposed to get a topic-term matrix.</p
 The conceptualization is very similar these models, but instead of recovering factors of word use, S³ recovers dimensions in a continuous semantic space.</p>
 <p>Most of the intuitions you have about LSA will also apply with S³, but it might give more surprising results, as embedding models can potentially learn different efficient representations of semantics from humans.</p>
 <p>S³ is also way more robust to stop words, meaning that you won't have to do extensive preprocessing.</p>
+<h2 id="interpretation">Interpretation</h2>
+<p>S³ is one of the trickier models to interpret due to the way it conceptualizes topics.
+Unlike many other models, the fact that a word ranks very low for a topic is also useful information for interpretation's sake.
+In other words, both ends of term importance are important for S³, words that rank highest, and words that rank lowest.</p>
+<p>To investigate these relations, we recommend that you use <a href="https://x-tabdeveloping.github.io/topicwizard/figures.html#word-map">Word Maps from topicwizard</a>.
+Word maps allow you to display the distribution of all words in the vocabulary on two given topic axes.</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>topic-wizard
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<span class="kn">from</span> <span class="nn">topicwizard</span> <span class="kn">import</span> <span class="n">figures</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">topic_data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">prepare_topic_data</span><span class="p">(</span><span class="n">chatgpt_tweets</span><span class="p">)</span>
+
+<span class="n">figures</span><span class="o">.</span><span class="n">word_map</span><span class="p">(</span>
+  <span class="n">topic_data</span><span class="p">,</span>
+  <span class="n">topic_axes</span><span class="o">=</span><span class="p">(</span>
+     <span class="s2">&quot;9_api_apis_register_automatedsarcasmgenerator&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;4_study_studying_assessments_exams&quot;</span>
+  <span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<figure>
+  <img src="../images/word_map_axes.png" width="100%" style="margin-left: auto;margin-right: auto;">
+  <figcaption>Word Map with two Discovered Semantic Components as Axes</figcaption>
+</figure>
+
 <h2 id="considerations">Considerations</h2>
 <h3 id="strengths">Strengths</h3>
 <ul>
