@@ -85,7 +85,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         show_scores: bool, default False
             Indicates whether to show importance scores for each word.
         """
-        columns, *rows = self._topic_rows(top_k, show_scores)
+        columns, *rows = self._topics_table(top_k, show_scores)
         table = Table(show_lines=True)
         table.add_column(columns[0], style="blue", justify="right")
         table.add_column(
@@ -115,7 +115,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             Specifies which format should be used.
             'csv', 'latex' and 'markdown' are supported.
         """
-        table = self._topic_rows(top_k, show_scores)
+        table = self._topics_table(top_k, show_scores)
         return export_table(table, format=format)
 
     def _highest_ranking_docs(
@@ -291,7 +291,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             'csv', 'latex' and 'markdown' are supported.
         """
         table = self._topic_distribution(text, topic_dist, top_k)
-        return export_table(table, format="format")
+        return export_table(table, format=format)
 
     def encode_documents(self, raw_documents: Iterable[str]) -> np.ndarray:
         """Encodes documents with the sentence encoder of the topic model.
