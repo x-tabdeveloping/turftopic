@@ -210,6 +210,16 @@ model.print_topic_distribution(
 
 </center>
 
+If you want to share these results, you can also export all tables, by using the `export_<something>` method instead of `print_<something>`.
+
+```python
+csv_table: str = model.export_topic_distribution("something something", format="csv")
+
+latex_table: str = model.export_topics(format="latex")
+
+md_table: str = model.export_highest_ranking_documents(0, corpus, document_topic_matrix, format="markdown")
+```
+
 ### Visualization
 
 Turftopic does not come with built-in visualization utilities, [topicwizard](https://github.com/x-tabdeveloping/topicwizard), a package for interactive topic model interpretation is fully compatible with Turftopic models.
