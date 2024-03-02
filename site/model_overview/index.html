@@ -900,8 +900,7 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
 
             <details class="quote">
               <summary>Source code in <code>turftopic/base.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 22</span>
-<span class="normal"> 23</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 23</span>
 <span class="normal"> 24</span>
 <span class="normal"> 25</span>
 <span class="normal"> 26</span>
@@ -1201,12 +1200,100 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
 <span class="normal">320</span>
 <span class="normal">321</span>
 <span class="normal">322</span>
-<span class="normal">323</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">ContextualModel</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">ContextualModel</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for contextual topic models in Turftopic.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">get_topics</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]:</span>
+    <span class="k">def</span> <span class="nf">get_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns high-level topic representations in form of the top K words</span>
 <span class="sd">        in each topic.</span>
 
@@ -1242,6 +1329,22 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
             <span class="n">topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">topics</span>
 
+    <span class="k">def</span> <span class="nf">_topics_table</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="n">topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_topics</span><span class="p">(</span><span class="n">top_k</span><span class="p">)</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Topic ID&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Top </span><span class="si">{</span><span class="n">top_k</span><span class="si">}</span><span class="s2"> Words&quot;</span><span class="p">]</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">show_scores</span><span class="p">:</span>
+                <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">importance</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">])</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">]</span>
+
     <span class="k">def</span> <span class="nf">print_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Pretty prints topics in the model in a table.</span>
 
@@ -1252,25 +1355,70 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
 <span class="sd">        show_scores: bool, default False</span>
 <span class="sd">            Indicates whether to show importance scores for each word.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_topics</span><span class="p">(</span><span class="n">top_k</span><span class="p">)</span>
+        <span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topics_table</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">)</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Topic ID&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Top </span><span class="si">{</span><span class="n">top_k</span><span class="si">}</span><span class="s2"> Words&quot;</span><span class="p">,</span>
+            <span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
             <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
             <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span>
             <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">for</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">show_scores</span><span class="p">:</span>
-                <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">importance</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">]</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">])</span>
-            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span>
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">export_topics</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exports top K words from topics in a table in a given format.</span>
+<span class="sd">        Returns table as a pure string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        top_k: int, default 10</span>
+<span class="sd">            Number of top words to return for each topic.</span>
+<span class="sd">        show_scores: bool, default False</span>
+<span class="sd">            Indicates whether to show importance scores for each word.</span>
+<span class="sd">        format: &#39;csv&#39;, &#39;latex&#39; or &#39;markdown&#39;</span>
+<span class="sd">            Specifies which format should be used.</span>
+<span class="sd">            &#39;csv&#39;, &#39;latex&#39; and &#39;markdown&#39; are supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topics_table</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_highest_ranking_docs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="n">document_topic_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Transductive methods cannot &quot;</span>
+                    <span class="s2">&quot;infer topical content in documents.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;Please pass a document_topic_matrix.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">topic_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">kth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[:,</span> <span class="n">topic_id</span><span class="p">],</span> <span class="n">kth</span><span class="p">)[:</span><span class="n">kth</span><span class="p">]</span>
+        <span class="n">highest</span> <span class="o">=</span> <span class="n">highest</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">])]</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">)</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">document_id</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">highest</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">raw_documents</span><span class="p">[</span><span class="n">document_id</span><span class="p">]</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">remove_whitespace</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">doc</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">print_highest_ranking_documents</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span>
@@ -1289,40 +1437,46 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
 <span class="sd">        top_k: int, default 5</span>
 <span class="sd">            Top K documents to show.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">document_topic_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Transductive methods cannot &quot;</span>
-                    <span class="s2">&quot;infer topical content in documents.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;Please pass a document_topic_matrix.&quot;</span>
-                <span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">topic_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_id</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="n">kth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[:,</span> <span class="n">topic_id</span><span class="p">],</span> <span class="n">kth</span><span class="p">)[</span>
-            <span class="p">:</span><span class="n">kth</span>
-        <span class="p">]</span>
-        <span class="n">highest</span> <span class="o">=</span> <span class="n">highest</span><span class="p">[</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">])</span>
-        <span class="p">]</span>
-        <span class="n">scores</span> <span class="o">=</span> <span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">]</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
-            <span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span>
+        <span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_highest_ranking_docs</span><span class="p">(</span>
+            <span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="p">,</span> <span class="n">top_k</span>
         <span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">document_id</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">highest</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="n">raw_documents</span><span class="p">[</span><span class="n">document_id</span><span class="p">]</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="n">remove_whitespace</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
-                <span class="n">doc</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
-            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span>
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">export_highest_ranking_documents</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">topic_id</span><span class="p">,</span>
+        <span class="n">raw_documents</span><span class="p">,</span>
+        <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exports the highest ranking documents in a topic as a text table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        topic_id: int</span>
+<span class="sd">            ID of the topic to display.</span>
+<span class="sd">        raw_documents: list of str</span>
+<span class="sd">            List of documents to consider.</span>
+<span class="sd">        document_topic_matrix: ndarray of shape (n_topics, n_topics), optional</span>
+<span class="sd">            Document topic matrix to use. This is useful for transductive methods,</span>
+<span class="sd">            as they cannot infer topics from text.</span>
+<span class="sd">        top_k: int, default 5</span>
+<span class="sd">            Top K documents to show.</span>
+<span class="sd">        format: &#39;csv&#39;, &#39;latex&#39; or &#39;markdown&#39;</span>
+<span class="sd">            Specifies which format should be used.</span>
+<span class="sd">            &#39;csv&#39;, &#39;latex&#39; and &#39;markdown&#39; are supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_highest_ranking_docs</span><span class="p">(</span>
+            <span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="p">,</span> <span class="n">top_k</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">topic_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -1334,27 +1488,12 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
             <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">names</span>
 
-    <span class="k">def</span> <span class="nf">print_topic_distribution</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_topic_distribution</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pretty prints topic distribution in a document.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        text: str, optional</span>
-<span class="sd">            Text to infer topic distribution for.</span>
-<span class="sd">        topic_dist: ndarray of shape (n_topics), optional</span>
-<span class="sd">            Already inferred topic distribution for the text.</span>
-<span class="sd">            This is useful for transductive methods,</span>
-<span class="sd">            as they cannot infer topics from text.</span>
-<span class="sd">        top_k: int, default 10</span>
-<span class="sd">            Top K topics to show.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="n">topic_dist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;You should either pass a text or a distribution.&quot;</span>
-                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;You should either pass a text or a distribution.&quot;</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">topic_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">([</span><span class="n">text</span><span class="p">])</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -1370,14 +1509,59 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
             <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">])</span>
             <span class="n">topic_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">topic_dist</span><span class="p">)[:</span><span class="n">top_k</span><span class="p">]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Topic name&quot;</span><span class="p">)</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">highest</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">topic_dist</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">topic_names</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">print_topic_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pretty prints topic distribution in a document.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text: str, optional</span>
+<span class="sd">            Text to infer topic distribution for.</span>
+<span class="sd">        topic_dist: ndarray of shape (n_topics), optional</span>
+<span class="sd">            Already inferred topic distribution for the text.</span>
+<span class="sd">            This is useful for transductive methods,</span>
+<span class="sd">            as they cannot infer topics from text.</span>
+<span class="sd">        top_k: int, default 10</span>
+<span class="sd">            Top K topics to show.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topic_distribution</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">topic_dist</span><span class="p">,</span> <span class="n">top_k</span><span class="p">)</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">()</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Topic name&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">)</span>
         <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">highest</span><span class="p">:</span>
-            <span class="n">score</span> <span class="o">=</span> <span class="n">topic_dist</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
-            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">topic_names</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span>
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">export_topic_distribution</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exports topic distribution as a text table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text: str, optional</span>
+<span class="sd">            Text to infer topic distribution for.</span>
+<span class="sd">        topic_dist: ndarray of shape (n_topics), optional</span>
+<span class="sd">            Already inferred topic distribution for the text.</span>
+<span class="sd">            This is useful for transductive methods,</span>
+<span class="sd">            as they cannot infer topics from text.</span>
+<span class="sd">        top_k: int, default 10</span>
+<span class="sd">            Top K topics to show.</span>
+<span class="sd">        format: &#39;csv&#39;, &#39;latex&#39; or &#39;markdown&#39;</span>
+<span class="sd">            Specifies which format should be used.</span>
+<span class="sd">            &#39;csv&#39;, &#39;latex&#39; and &#39;markdown&#39; are supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topic_distribution</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">topic_dist</span><span class="p">,</span> <span class="n">top_k</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">encode_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Encodes documents with the sentence encoder of the topic model.</span>
@@ -1416,9 +1600,7 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Fits model on the given corpus.</span>
 
 <span class="sd">        Parameters</span>
@@ -1484,13 +1666,9 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
         <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_documents</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-                <span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span>
-            <span class="p">)</span>
+            <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="n">NotFittedError</span><span class="p">):</span>
-            <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span>
-                <span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span>
-            <span class="p">)</span>
+            <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
         <span class="n">dtm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
         <span class="n">res</span><span class="p">:</span> <span class="n">TopicData</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;corpus&quot;</span><span class="p">:</span> <span class="n">corpus</span><span class="p">,</span>
@@ -1591,20 +1769,20 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
 </details>
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">encode_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">encode_documents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encodes documents with the sentence encoder of the topic model.</span>
 
 <span class="sd">    Parameters</span>
@@ -1618,6 +1796,424 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
 <span class="sd">        Matrix of document embeddings.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.export_highest_ranking_documents" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">export_highest_ranking_documents</span><span class="p">(</span><span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Exports the highest ranking documents in a topic as a text table.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>topic_id</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>ID of the topic to display.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>raw_documents</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of documents to consider.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>document_topic_matrix</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Document topic matrix to use. This is useful for transductive methods,
+as they cannot infer topics from text.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>top_k</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Top K documents to show.</p>
+            </div>
+          </td>
+          <td>
+                <code>5</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>format</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Specifies which format should be used.
+'csv', 'latex' and 'markdown' are supported.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;csv&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">export_highest_ranking_documents</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">topic_id</span><span class="p">,</span>
+    <span class="n">raw_documents</span><span class="p">,</span>
+    <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exports the highest ranking documents in a topic as a text table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    topic_id: int</span>
+<span class="sd">        ID of the topic to display.</span>
+<span class="sd">    raw_documents: list of str</span>
+<span class="sd">        List of documents to consider.</span>
+<span class="sd">    document_topic_matrix: ndarray of shape (n_topics, n_topics), optional</span>
+<span class="sd">        Document topic matrix to use. This is useful for transductive methods,</span>
+<span class="sd">        as they cannot infer topics from text.</span>
+<span class="sd">    top_k: int, default 5</span>
+<span class="sd">        Top K documents to show.</span>
+<span class="sd">    format: &#39;csv&#39;, &#39;latex&#39; or &#39;markdown&#39;</span>
+<span class="sd">        Specifies which format should be used.</span>
+<span class="sd">        &#39;csv&#39;, &#39;latex&#39; and &#39;markdown&#39; are supported.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_highest_ranking_docs</span><span class="p">(</span>
+        <span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="p">,</span> <span class="n">top_k</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.export_topic_distribution" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">export_topic_distribution</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Exports topic distribution as a text table.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>text</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Text to infer topic distribution for.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>topic_dist</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Already inferred topic distribution for the text.
+This is useful for transductive methods,
+as they cannot infer topics from text.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>top_k</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Top K topics to show.</p>
+            </div>
+          </td>
+          <td>
+                <code>10</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>format</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Specifies which format should be used.
+'csv', 'latex' and 'markdown' are supported.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;csv&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">export_topic_distribution</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exports topic distribution as a text table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    text: str, optional</span>
+<span class="sd">        Text to infer topic distribution for.</span>
+<span class="sd">    topic_dist: ndarray of shape (n_topics), optional</span>
+<span class="sd">        Already inferred topic distribution for the text.</span>
+<span class="sd">        This is useful for transductive methods,</span>
+<span class="sd">        as they cannot infer topics from text.</span>
+<span class="sd">    top_k: int, default 10</span>
+<span class="sd">        Top K topics to show.</span>
+<span class="sd">    format: &#39;csv&#39;, &#39;latex&#39; or &#39;markdown&#39;</span>
+<span class="sd">        Specifies which format should be used.</span>
+<span class="sd">        &#39;csv&#39;, &#39;latex&#39; and &#39;markdown&#39; are supported.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topic_distribution</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">topic_dist</span><span class="p">,</span> <span class="n">top_k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.base.ContextualModel.export_topics" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">export_topics</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Exports top K words from topics in a table in a given format.
+Returns table as a pure string.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>top_k</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Number of top words to return for each topic.</p>
+            </div>
+          </td>
+          <td>
+                <code>10</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>show_scores</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Indicates whether to show importance scores for each word.</p>
+            </div>
+          </td>
+          <td>
+                <code>False</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>format</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Specifies which format should be used.
+'csv', 'latex' and 'markdown' are supported.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;csv&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/base.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">export_topics</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exports top K words from topics in a table in a given format.</span>
+<span class="sd">    Returns table as a pure string.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    top_k: int, default 10</span>
+<span class="sd">        Number of top words to return for each topic.</span>
+<span class="sd">    show_scores: bool, default False</span>
+<span class="sd">        Indicates whether to show importance scores for each word.</span>
+<span class="sd">    format: &#39;csv&#39;, &#39;latex&#39; or &#39;markdown&#39;</span>
+<span class="sd">        Specifies which format should be used.</span>
+<span class="sd">        &#39;csv&#39;, &#39;latex&#39; and &#39;markdown&#39; are supported.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topics_table</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -1697,24 +2293,20 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
 
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">):</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fits model on the given corpus.</span>
 
 <span class="sd">    Parameters</span>
@@ -1835,27 +2427,27 @@ Convergence issues or overlapping topics are a common occurrence. And as such, u
 
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
 <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -1926,23 +2518,23 @@ its index.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_feature_names_out</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_feature_names_out</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get topic ids.</span>
 
 <span class="sd">    Returns</span>
@@ -2039,8 +2631,7 @@ Top k words are a list of (word, word_importance) pairs.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
-<span class="normal">26</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
@@ -2074,10 +2665,7 @@ Top k words are a list of (word, word_importance) pairs.</p>
 <span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_topics</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]:</span>
+<span class="normal">60</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns high-level topic representations in form of the top K words</span>
 <span class="sd">    in each topic.</span>
 
@@ -2159,15 +2747,15 @@ Top k words are a list of (word, word_importance) pairs.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get vocabulary of the model.</span>
 
 <span class="sd">    Returns</span>
@@ -2268,48 +2856,44 @@ Exists to allow visualizations out of the box with topicwizard.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span>
-<span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span>
-<span class="normal">305</span>
-<span class="normal">306</span>
-<span class="normal">307</span>
-<span class="normal">308</span>
-<span class="normal">309</span>
-<span class="normal">310</span>
-<span class="normal">311</span>
-<span class="normal">312</span>
-<span class="normal">313</span>
-<span class="normal">314</span>
-<span class="normal">315</span>
-<span class="normal">316</span>
-<span class="normal">317</span>
-<span class="normal">318</span>
-<span class="normal">319</span>
-<span class="normal">320</span>
-<span class="normal">321</span>
-<span class="normal">322</span>
-<span class="normal">323</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_topic_data</span><span class="p">(</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_topic_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">corpus</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2332,13 +2916,9 @@ Exists to allow visualizations out of the box with topicwizard.</p>
     <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_documents</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-            <span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span>
-        <span class="p">)</span>
+        <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="n">NotFittedError</span><span class="p">):</span>
-        <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span>
-            <span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span>
-        <span class="p">)</span>
+        <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
     <span class="n">dtm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
     <span class="n">res</span><span class="p">:</span> <span class="n">TopicData</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;corpus&quot;</span><span class="p">:</span> <span class="n">corpus</span><span class="p">,</span>
@@ -2443,57 +3023,33 @@ as they cannot infer topics from text.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_highest_ranking_documents</span><span class="p">(</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_highest_ranking_documents</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Pretty prints the highest ranking documents in a topic.</span>
@@ -2510,38 +3066,14 @@ as they cannot infer topics from text.</p>
 <span class="sd">    top_k: int, default 5</span>
 <span class="sd">        Top K documents to show.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">document_topic_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Transductive methods cannot &quot;</span>
-                <span class="s2">&quot;infer topical content in documents.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;Please pass a document_topic_matrix.&quot;</span>
-            <span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">topic_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_id</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="n">kth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argpartition</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[:,</span> <span class="n">topic_id</span><span class="p">],</span> <span class="n">kth</span><span class="p">)[</span>
-        <span class="p">:</span><span class="n">kth</span>
-    <span class="p">]</span>
-    <span class="n">highest</span> <span class="o">=</span> <span class="n">highest</span><span class="p">[</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">])</span>
-    <span class="p">]</span>
-    <span class="n">scores</span> <span class="o">=</span> <span class="n">document_topic_matrix</span><span class="p">[</span><span class="n">highest</span><span class="p">,</span> <span class="n">topic_id</span><span class="p">]</span>
-    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
-        <span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span>
+    <span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_highest_ranking_docs</span><span class="p">(</span>
+        <span class="n">topic_id</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">document_topic_matrix</span><span class="p">,</span> <span class="n">top_k</span>
     <span class="p">)</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
     <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">document_id</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">highest</span><span class="p">,</span> <span class="n">scores</span><span class="p">):</span>
-        <span class="n">doc</span> <span class="o">=</span> <span class="n">raw_documents</span><span class="p">[</span><span class="n">document_id</span><span class="p">]</span>
-        <span class="n">doc</span> <span class="o">=</span> <span class="n">remove_whitespace</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span>
     <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
     <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2625,52 +3157,28 @@ as they cannot infer topics from text.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_topic_distribution</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="p">):</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_topic_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Pretty prints topic distribution in a document.</span>
 
 <span class="sd">    Parameters</span>
@@ -2684,32 +3192,12 @@ as they cannot infer topics from text.</p>
 <span class="sd">    top_k: int, default 10</span>
 <span class="sd">        Top K topics to show.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">topic_dist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;You should either pass a text or a distribution.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">topic_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">([</span><span class="n">text</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Transductive methods cannot &quot;</span>
-                <span class="s2">&quot;infer topical content in documents.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="s2">&quot;Please pass a topic distribution.&quot;</span>
-            <span class="p">)</span>
-    <span class="n">topic_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">topic_dist</span><span class="p">))</span>
-    <span class="n">topic_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_topics</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-    <span class="n">topic_names</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">topic_desc</span><span class="p">:</span>
-        <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">])</span>
-        <span class="n">topic_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">highest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">topic_dist</span><span class="p">)[:</span><span class="n">top_k</span><span class="p">]</span>
+    <span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topic_distribution</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">topic_dist</span><span class="p">,</span> <span class="n">top_k</span><span class="p">)</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">()</span>
     <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Topic name&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">)</span>
     <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">highest</span><span class="p">:</span>
-        <span class="n">score</span> <span class="o">=</span> <span class="n">topic_dist</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="n">topic_names</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span>
     <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
     <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2779,35 +3267,29 @@ as they cannot infer topics from text.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/base.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_topics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Pretty prints topics in the model in a table.</span>
 
 <span class="sd">    Parameters</span>
@@ -2817,23 +3299,17 @@ as they cannot infer topics from text.</p>
 <span class="sd">    show_scores: bool, default False</span>
 <span class="sd">        Indicates whether to show importance scores for each word.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_topics</span><span class="p">(</span><span class="n">top_k</span><span class="p">)</span>
+    <span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topics_table</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">)</span>
     <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s2">&quot;Topic ID&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
     <span class="n">table</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Top </span><span class="si">{</span><span class="n">top_k</span><span class="si">}</span><span class="s2"> Words&quot;</span><span class="p">,</span>
+        <span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
         <span class="n">justify</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span>
         <span class="n">style</span><span class="o">=</span><span class="s2">&quot;magenta&quot;</span><span class="p">,</span>
         <span class="n">max_width</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">for</span> <span class="n">topic_id</span><span class="p">,</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">show_scores</span><span class="p">:</span>
-            <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">importance</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">]</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">importance</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">])</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span>
     <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
     <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
