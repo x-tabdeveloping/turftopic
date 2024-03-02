@@ -49,6 +49,11 @@ $N$ is the total number of documents.
 - Calculate importance of term $j$ for topic $z$:   
 $Soft-c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
 
+### _(Optional)_ 4. Dynamic Modeling
+
+GMM is also capable of dynamic topic modeling. This happens by fitting one underlying mixture model over the entire corpus, as we expect that there is only one semantic model generating the documents.
+To gain temporal representations for topics, the corpus is divided into equal, or arbitrarily chosen time slices, and then term importances are estimated using Soft-c-TF-IDF for each of the time slices separately.
+
 ### Similarities with Clustering Models
 
 Gaussian Mixtures can in some sense be considered a fuzzy clustering model.
@@ -63,22 +68,45 @@ This means that in the case of GMM we are inferring some underlying semantic str
 instead of just describing the corpus at hand.
 In practical terms this means that GMM can, by default infer topic labels for documents, while (some) clustering models cannot.
 
+## Performance Tips
+
+GMM can be a bit tedious to run at scale. This is due to the fact, that the dimensionality of parameter space increases drastically with the number of mixture components, and with embedding dimensionality.
+To counteract this issue, you can use dimensionality reduction. We recommend that you use PCA, as it is a linear and interpretable method, and it can function efficiently at scale.
+
+> Through experimentation on the 20Newsgroups dataset I found that with 20 mixture components and embeddings from the `all-MiniLM-L6-v2` embedding model
+ reducing the dimensionality of the embeddings to 20 with PCA resulted in no performance decrease, but ran multiple times faster.
+ Needless to say this difference increases with the number of topics, embedding and corpus size.
+
+```python
+from turftopic import GMM
+from sklearn.decomposition import PCA
+
+model = GMM(20, dimensionality_reduction=PCA(20))
+
+# for very large corpora you can also use Incremental PCA with minibatches
+
+from sklearn.decomposition import IncrementalPCA
+
+model = GMM(20, dimensionality_reduction=IncrementalPCA(20))
+```
+
 ## Considerations
 
 ### Strengths
 
  - Efficiency, Stability: GMM relies on a rock solid implementation in scikit-learn, you can rest assured that the model will be fast and reliable.
- - High Quality: GMM typically finds very high quality and easily interpretable topics.
  - Coverage of Ingroup Variance: The model is very efficient at describing the extracted topics in all their detail.
  This means that the topic descriptions will typically cover most of the documents generated from the topic fairly well.
  - Uncertainty: GMM is capable of expressing and modeling uncertainty around topic labels for documents.
+ - Dynamic Modeling: You can model changes in topics over time using GMM.
 
 ### Weaknesses
 
  - Curse of Dimensionality: The dimensionality of embeddings can vary wildly from model to model. High-dimensional embeddings might decrease the efficiency and performance of GMM, as it is sensitive to the curse of dimensionality. Dimensionality reduction can help mitigate these issues.
  - Assumption of Gaussianity: The model assumes that topics are Gaussian components, it might very well be that this is not the case.
  Fortunately enough this rarely effects real-world perceived performance of models, and typically does not present an issue in practical settings.
- - Scalability: While the model is scalable to a certain extent, it is not nearly as scalable as some of the other options. If you experience issues with computational efficiency or convergence, try another model.
+ - Moderate Scalability: While the model is scalable to a certain extent, it is not nearly as scalable as some of the other options. If you experience issues with computational efficiency or convergence, try another model.
+ - Moderate Robustness to Noise: GMM is similarly sensitive to noise and  stop words as BERTopic, and can sometimes find noise components. Our experience indicates that GMM is way less volatile, and the quality of the results is more reliable than with clustering models using C-TF-IDF.
 
 
 ## API Reference

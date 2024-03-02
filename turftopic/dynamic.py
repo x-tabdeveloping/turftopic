@@ -32,6 +32,27 @@ class DynamicTopicModel(ABC):
         embeddings: Optional[np.ndarray] = None,
         bins: Union[int, list[datetime]] = 10,
     ) -> np.ndarray:
+        """Fits a dynamic topic model on the corpus and returns document-topic-importances.
+
+        Parameters
+        ----------
+        raw_documents
+            Documents to fit the model on.
+        timestamps: list[datetime]
+            Timestamp for each document in `datetime` format.
+        embeddings: np.ndarray, default None
+            Document embeddings produced by an embedding model.
+        bins: int or list[datetime], default 10
+            Specifies how to bin timestamps in to time slices.
+            When an `int`, the corpus will be divided into N equal time slices.
+            When a list, it describes the edges of each time slice including the starting
+            and final edges of the slices.
+
+        Returns
+        -------
+        ndarray of shape (n_documents, n_topics)
+            Document-topic importance matrix.
+        """
         pass
 
     def fit_dynamic(
@@ -41,6 +62,22 @@ class DynamicTopicModel(ABC):
         embeddings: Optional[np.ndarray] = None,
         bins: Union[int, list[datetime]] = 10,
     ):
+        """Fits a dynamic topic model on the corpus and returns document-topic-importances.
+
+        Parameters
+        ----------
+        raw_documents
+            Documents to fit the model on.
+        timestamps: list[datetime]
+            Timestamp for each document in `datetime` format.
+        embeddings: np.ndarray, default None
+            Document embeddings produced by an embedding model.
+        bins: int or list[datetime], default 10
+            Specifies how to bin timestamps in to time slices.
+            When an `int`, the corpus will be divided into N equal time slices.
+            When a list, it describes the edges of each time slice including the starting
+            and final edges of the slices.
+        """
         self.fit_transform_dynamic(raw_documents, timestamps, embeddings, bins)
         return self
 
@@ -155,6 +192,21 @@ class DynamicTopicModel(ABC):
         console.print(table)
 
     def plot_topics_over_time(self, top_k: int = 6):
+        """Displays topics over time in the fitted dynamic model on a dynamic HTML figure.
+
+        > You will need to `pip install plotly` to use this method.
+
+        Parameters
+        ----------
+        top_k: int, default 6
+            Number of top words per topic to display on the figure.
+
+        Returns
+        -------
+        go.Figure
+            Plotly graph objects Figure, that can be displayed or exported as
+            HTML or static image.
+        """
         try:
             import plotly.express as px
             import plotly.graph_objects as go

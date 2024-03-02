@@ -146,16 +146,19 @@
   
   
   
-    <li class="md-tabs__item">
-      <a href=".." class="md-tabs__link">
-        
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
   
     
   
-  Basics
+  Usage
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -256,16 +259,107 @@
   
   
   
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Usage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../dynamic/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Basics
+    Dynamic Modeling
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../persistence/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model Persistence
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -451,6 +545,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#performance-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Tips
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#considerations" class="md-nav__link">
     <span class="md-ellipsis">
       Considerations
@@ -607,6 +710,9 @@ Soft Class-based tf-idf scores for terms in a topic are then calculated in the f
 <li>Calculate importance of term <span class="arithmatex">\(j\)</span> for topic <span class="arithmatex">\(z\)</span>: <br />
 <span class="arithmatex">\(Soft-c-TF-IDF{zj} = tf_{zj} \cdot idf_j\)</span></li>
 </ul>
+<h3 id="optional-4-dynamic-modeling"><em>(Optional)</em> 4. Dynamic Modeling</h3>
+<p>GMM is also capable of dynamic topic modeling. This happens by fitting one underlying mixture model over the entire corpus, as we expect that there is only one semantic model generating the documents.
+To gain temporal representations for topics, the corpus is divided into equal, or arbitrarily chosen time slices, and then term importances are estimated using Soft-c-TF-IDF for each of the time slices separately.</p>
 <h3 id="similarities-with-clustering-models">Similarities with Clustering Models</h3>
 <p>Gaussian Mixtures can in some sense be considered a fuzzy clustering model.</p>
 <p>Since we assume the existence of a ground truth label for each document, the model technically cannot capture multiple topics in a document,
@@ -616,21 +722,41 @@ only uncertainty around the topic label.</p>
 This means that in the case of GMM we are inferring some underlying semantic structure, from which the different documents are generated,
 instead of just describing the corpus at hand.
 In practical terms this means that GMM can, by default infer topic labels for documents, while (some) clustering models cannot.</p>
+<h2 id="performance-tips">Performance Tips</h2>
+<p>GMM can be a bit tedious to run at scale. This is due to the fact, that the dimensionality of parameter space increases drastically with the number of mixture components, and with embedding dimensionality.
+To counteract this issue, you can use dimensionality reduction. We recommend that you use PCA, as it is a linear and interpretable method, and it can function efficiently at scale.</p>
+<blockquote>
+<p>Through experimentation on the 20Newsgroups dataset I found that with 20 mixture components and embeddings from the <code>all-MiniLM-L6-v2</code> embedding model
+ reducing the dimensionality of the embeddings to 20 with PCA resulted in no performance decrease, but ran multiple times faster.
+ Needless to say this difference increases with the number of topics, embedding and corpus size.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">GMM</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">GMM</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">dimensionality_reduction</span><span class="o">=</span><span class="n">PCA</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+
+<span class="c1"># for very large corpora you can also use Incremental PCA with minibatches</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">IncrementalPCA</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">GMM</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">dimensionality_reduction</span><span class="o">=</span><span class="n">IncrementalPCA</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+</code></pre></div>
 <h2 id="considerations">Considerations</h2>
 <h3 id="strengths">Strengths</h3>
 <ul>
 <li>Efficiency, Stability: GMM relies on a rock solid implementation in scikit-learn, you can rest assured that the model will be fast and reliable.</li>
-<li>High Quality: GMM typically finds very high quality and easily interpretable topics.</li>
 <li>Coverage of Ingroup Variance: The model is very efficient at describing the extracted topics in all their detail.
  This means that the topic descriptions will typically cover most of the documents generated from the topic fairly well.</li>
 <li>Uncertainty: GMM is capable of expressing and modeling uncertainty around topic labels for documents.</li>
+<li>Dynamic Modeling: You can model changes in topics over time using GMM.</li>
 </ul>
 <h3 id="weaknesses">Weaknesses</h3>
 <ul>
 <li>Curse of Dimensionality: The dimensionality of embeddings can vary wildly from model to model. High-dimensional embeddings might decrease the efficiency and performance of GMM, as it is sensitive to the curse of dimensionality. Dimensionality reduction can help mitigate these issues.</li>
 <li>Assumption of Gaussianity: The model assumes that topics are Gaussian components, it might very well be that this is not the case.
  Fortunately enough this rarely effects real-world perceived performance of models, and typically does not present an issue in practical settings.</li>
-<li>Scalability: While the model is scalable to a certain extent, it is not nearly as scalable as some of the other options. If you experience issues with computational efficiency or convergence, try another model.</li>
+<li>Moderate Scalability: While the model is scalable to a certain extent, it is not nearly as scalable as some of the other options. If you experience issues with computational efficiency or convergence, try another model.</li>
+<li>Moderate Robustness to Noise: GMM is similarly sensitive to noise and  stop words as BERTopic, and can sometimes find noise components. Our experience indicates that GMM is way less volatile, and the quality of the results is more reliable than with clustering models using C-TF-IDF.</li>
 </ul>
 <h2 id="api-reference">API Reference</h2>
 
@@ -648,7 +774,7 @@ In practical terms this means that GMM can, by default infer topic labels for do
 
   <div class="doc doc-contents first">
           <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="turftopic.base.ContextualModel" href="../model_overview/#turftopic.base.ContextualModel">ContextualModel</a></code></p>
+            Bases: <code><a class="autorefs autorefs-internal" title="turftopic.base.ContextualModel" href="../model_overview/#turftopic.base.ContextualModel">ContextualModel</a></code>, <code><a class="autorefs autorefs-internal" title="turftopic.dynamic.DynamicTopicModel" href="../dynamic/#turftopic.dynamic.DynamicTopicModel">DynamicTopicModel</a></code></p>
 
   
       <p>Multivariate Gaussian Mixture Model over document embeddings.
@@ -750,6 +876,26 @@ Ignored when weight_prior is None.</p>
                 <code>None</code>
           </td>
         </tr>
+        <tr>
+          <td><code>dimensionality_reduction</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="sklearn.base.TransformerMixin">TransformerMixin</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Optional dimensionality reduction step before GMM is run.
+This is recommended for very large datasets with high dimensionality,
+as the number of parameters grows vast in the model otherwise.
+We recommend using PCA, as it is a linear solution, and will likely
+result in Gaussian components.
+For even larger datasets you can use IncrementalPCA to reduce
+memory load.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
     </tbody>
   </table>
 
@@ -781,11 +927,7 @@ Ignored when weight_prior is None.</p>
 
             <details class="quote">
               <summary>Source code in <code>turftopic/models/gmm.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 14</span>
-<span class="normal"> 15</span>
-<span class="normal"> 16</span>
-<span class="normal"> 17</span>
-<span class="normal"> 18</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 18</span>
 <span class="normal"> 19</span>
 <span class="normal"> 20</span>
 <span class="normal"> 21</span>
@@ -895,7 +1037,60 @@ Ignored when weight_prior is None.</p>
 <span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
-<span class="normal">128</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">GMM</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">):</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">GMM</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">,</span> <span class="n">DynamicTopicModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Multivariate Gaussian Mixture Model over document embeddings.</span>
 <span class="sd">    Models topics as mixture components.</span>
 
@@ -926,6 +1121,14 @@ Ignored when weight_prior is None.</p>
 <span class="sd">        Concentration parameter of the symmetric prior.</span>
 <span class="sd">        By default 1/n_components is used.</span>
 <span class="sd">        Ignored when weight_prior is None.</span>
+<span class="sd">    dimensionality_reduction: TransformerMixin, default None</span>
+<span class="sd">        Optional dimensionality reduction step before GMM is run.</span>
+<span class="sd">        This is recommended for very large datasets with high dimensionality,</span>
+<span class="sd">        as the number of parameters grows vast in the model otherwise.</span>
+<span class="sd">        We recommend using PCA, as it is a linear solution, and will likely</span>
+<span class="sd">        result in Gaussian components.</span>
+<span class="sd">        For even larger datasets you can use IncrementalPCA to reduce</span>
+<span class="sd">        memory load.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -936,10 +1139,9 @@ Ignored when weight_prior is None.</p>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
-            <span class="n">Encoder</span><span class="p">,</span> <span class="nb">str</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformers/all-MiniLM-L6-v2&quot;</span><span class="p">,</span>
+        <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Encoder</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sentence-transformers/all-MiniLM-L6-v2&quot;</span><span class="p">,</span>
         <span class="n">vectorizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CountVectorizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dimensionality_reduction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TransformerMixin</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">weight_prior</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dirichlet&quot;</span><span class="p">,</span> <span class="s2">&quot;dirichlet_process&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">gamma</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -955,16 +1157,24 @@ Ignored when weight_prior is None.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">default_vectorizer</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">vectorizer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimensionality_reduction</span> <span class="o">=</span> <span class="n">dimensionality_reduction</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_prior</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span> <span class="o">=</span> <span class="n">BayesianGaussianMixture</span><span class="p">(</span>
+            <span class="n">mixture</span> <span class="o">=</span> <span class="n">BayesianGaussianMixture</span><span class="p">(</span>
                 <span class="n">n_components</span><span class="o">=</span><span class="n">n_components</span><span class="p">,</span>
-                <span class="n">weight_concentration_prior_type</span><span class="o">=</span><span class="s2">&quot;dirichlet_distribution&quot;</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_prior</span> <span class="o">==</span> <span class="s2">&quot;dirichlet&quot;</span>
-                <span class="k">else</span> <span class="s2">&quot;dirichlet_process&quot;</span><span class="p">,</span>
+                <span class="n">weight_concentration_prior_type</span><span class="o">=</span><span class="p">(</span>
+                    <span class="s2">&quot;dirichlet_distribution&quot;</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_prior</span> <span class="o">==</span> <span class="s2">&quot;dirichlet&quot;</span>
+                    <span class="k">else</span> <span class="s2">&quot;dirichlet_process&quot;</span>
+                <span class="p">),</span>
                 <span class="n">weight_concentration_prior</span><span class="o">=</span><span class="n">gamma</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span> <span class="o">=</span> <span class="n">GaussianMixture</span><span class="p">(</span><span class="n">n_components</span><span class="p">)</span>
+            <span class="n">mixture</span> <span class="o">=</span> <span class="n">GaussianMixture</span><span class="p">(</span><span class="n">n_components</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dimensionality_reduction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">dimensionality_reduction</span><span class="p">,</span> <span class="n">mixture</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span> <span class="o">=</span> <span class="n">mixture</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -983,12 +1193,17 @@ Ignored when weight_prior is None.</p>
             <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Mixture model fitted.&quot;</span><span class="p">)</span>
             <span class="n">status</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;Estimating term importances.&quot;</span><span class="p">)</span>
             <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="n">soft_ctf_idf</span><span class="p">(</span>
-                <span class="n">document_topic_matrix</span><span class="p">,</span> <span class="n">document_term_matrix</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">weights_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span><span class="o">.</span><span class="n">weights_</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="n">soft_ctf_idf</span><span class="p">(</span><span class="n">document_topic_matrix</span><span class="p">,</span> <span class="n">document_term_matrix</span><span class="p">)</span>
             <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Model fitting done.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">document_topic_matrix</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">weights_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">weights_</span>
 
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1010,6 +1225,35 @@ Ignored when weight_prior is None.</p>
         <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gmm_</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">fit_transform_dynamic</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raw_documents</span><span class="p">,</span>
+        <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
+        <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bins</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">time_labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_bin_edges</span> <span class="o">=</span> <span class="n">bin_timestamps</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">doc_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">doc_topic_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
+        <span class="n">document_term_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+        <span class="n">temporal_components</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">temporal_importances</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i_timebin</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_bin_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">topic_importances</span> <span class="o">=</span> <span class="n">doc_topic_matrix</span><span class="p">[</span><span class="n">time_labels</span> <span class="o">==</span> <span class="n">i_timebin</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># Normalizing</span>
+            <span class="n">topic_importances</span> <span class="o">=</span> <span class="n">topic_importances</span> <span class="o">/</span> <span class="n">topic_importances</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">components</span> <span class="o">=</span> <span class="n">soft_ctf_idf</span><span class="p">(</span>
+                <span class="n">doc_topic_matrix</span><span class="p">[</span><span class="n">time_labels</span> <span class="o">==</span> <span class="n">i_timebin</span><span class="p">],</span>
+                <span class="n">document_term_matrix</span><span class="p">[</span><span class="n">time_labels</span> <span class="o">==</span> <span class="n">i_timebin</span><span class="p">],</span>  <span class="c1"># type: ignore</span>
+            <span class="p">)</span>
+            <span class="n">temporal_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">components</span><span class="p">)</span>
+            <span class="n">temporal_importances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic_importances</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temporal_components_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">temporal_components</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temporal_importance_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">temporal_importances</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">doc_topic_matrix</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -1109,26 +1353,26 @@ Ignored when weight_prior is None.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/models/gmm.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Infers topic importances for new documents based on a fitted model.</span>

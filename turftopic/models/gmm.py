@@ -4,8 +4,10 @@ from typing import Literal, Optional, Union
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
+from sklearn.base import TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.mixture import BayesianGaussianMixture, GaussianMixture
+from sklearn.pipeline import Pipeline, make_pipeline
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel, bin_timestamps
@@ -44,6 +46,14 @@ class GMM(ContextualModel, DynamicTopicModel):
         Concentration parameter of the symmetric prior.
         By default 1/n_components is used.
         Ignored when weight_prior is None.
+    dimensionality_reduction: TransformerMixin, default None
+        Optional dimensionality reduction step before GMM is run.
+        This is recommended for very large datasets with high dimensionality,
+        as the number of parameters grows vast in the model otherwise.
+        We recommend using PCA, as it is a linear solution, and will likely
+        result in Gaussian components.
+        For even larger datasets you can use IncrementalPCA to reduce
+        memory load.
 
     Attributes
     ----------
@@ -54,10 +64,9 @@ class GMM(ContextualModel, DynamicTopicModel):
     def __init__(
         self,
         n_components: int,
-        encoder: Union[
-            Encoder, str
-        ] = "sentence-transformers/all-MiniLM-L6-v2",
+        encoder: Union[Encoder, str] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
+        dimensionality_reduction: Optional[TransformerMixin] = None,
         weight_prior: Literal["dirichlet", "dirichlet_process", None] = None,
         gamma: Optional[float] = None,
     ):
@@ -73,16 +82,23 @@ class GMM(ContextualModel, DynamicTopicModel):
             self.vectorizer = default_vectorizer()
         else:
             self.vectorizer = vectorizer
+        self.dimensionality_reduction = dimensionality_reduction
         if self.weight_prior is not None:
-            self.gmm_ = BayesianGaussianMixture(
+            mixture = BayesianGaussianMixture(
                 n_components=n_components,
-                weight_concentration_prior_type="dirichlet_distribution"
-                if self.weight_prior == "dirichlet"
-                else "dirichlet_process",
+                weight_concentration_prior_type=(
+                    "dirichlet_distribution"
+                    if self.weight_prior == "dirichlet"
+                    else "dirichlet_process"
+                ),
                 weight_concentration_prior=gamma,
             )
         else:
-            self.gmm_ = GaussianMixture(n_components)
+            mixture = GaussianMixture(n_components)
+        if dimensionality_reduction is not None:
+            self.gmm_ = make_pipeline(dimensionality_reduction, mixture)
+        else:
+            self.gmm_ = mixture
         self.components_ = None
 
     def fit_transform(
@@ -102,12 +118,17 @@ class GMM(ContextualModel, DynamicTopicModel):
             console.log("Mixture model fitted.")
             status.update("Estimating term importances.")
             document_topic_matrix = self.gmm_.predict_proba(embeddings)
-            self.components_ = soft_ctf_idf(
-                document_topic_matrix, document_term_matrix
-            )
-            self.weights_ = self.gmm_.weights_
+            self.components_ = soft_ctf_idf(document_topic_matrix, document_term_matrix)
             console.log("Model fitting done.")
         return document_topic_matrix
+
+    @property
+    def weights_(self) -> np.ndarray:
+        if isinstance(self.gmm_, Pipeline):
+            model = self.gmm_.steps[-1][1]
+        else:
+            model = self.gmm_
+        return model.weights_
 
     def transform(
         self, raw_documents, embeddings: Optional[np.ndarray] = None
@@ -139,20 +160,14 @@ class GMM(ContextualModel, DynamicTopicModel):
     ):
         time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
         if self.components_ is not None:
-            doc_topic_matrix = self.transform(
-                raw_documents, embeddings=embeddings
-            )
+            doc_topic_matrix = self.transform(raw_documents, embeddings=embeddings)
         else:
-            doc_topic_matrix = self.fit_transform(
-                raw_documents, embeddings=embeddings
-            )
+            doc_topic_matrix = self.fit_transform(raw_documents, embeddings=embeddings)
         document_term_matrix = self.vectorizer.transform(raw_documents)
         temporal_components = []
         temporal_importances = []
         for i_timebin in np.arange(len(self.time_bin_edges) - 1):
-            topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(
-                axis=0
-            )
+            topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(axis=0)
             # Normalizing
             topic_importances = topic_importances / topic_importances.sum()
             components = soft_ctf_idf(

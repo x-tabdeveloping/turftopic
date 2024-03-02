@@ -212,7 +212,7 @@ model.print_topic_distribution(
 
 ### Visualization
 
-Turftopic does not come with built-in visualization utilities, but the next release of [topicwizard](https://github.com/x-tabdeveloping/topicwizard) is going to be compatible with all models from Turftopic.
+Turftopic does not come with built-in visualization utilities, [topicwizard](https://github.com/x-tabdeveloping/topicwizard), a package for interactive topic model interpretation is fully compatible with Turftopic models.
 
 ```bash
 pip install topic-wizard
@@ -231,3 +231,4 @@ topicwizard.visualize(model=model, corpus=corpus)
   <figcaption>Screenshot of the topicwizard Web Application</figcaption>
 </figure>
 
+You can also produce individual interactive figures using the [Figures API in topicwizard](https://x-tabdeveloping.github.io/topicwizard/figures.html).
