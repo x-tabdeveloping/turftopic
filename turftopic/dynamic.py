@@ -6,6 +6,8 @@ import numpy as np
 from rich.console import Console
 from rich.table import Table
 
+from turftopic.utils import export_table
+
 
 def bin_timestamps(
     timestamps: list[datetime],
@@ -132,21 +134,12 @@ class DynamicTopicModel(ABC):
             res.append(topics)
         return res
 
-    def print_topics_over_time(
+    def _topics_over_time(
         self,
         top_k: int = 5,
         show_scores: bool = False,
         date_format: str = "%Y %m %d",
-    ):
-        """Pretty prints topics in the model in a table.
-
-        Parameters
-        ----------
-        top_k: int, default 10
-            Number of top words to return for each topic.
-        show_scores: bool, default False
-            Indicates whether to show importance scores for each word.
-        """
+    ) -> list[list[str]]:
         temporal_components = self.temporal_components_
         slices = self.get_time_slices()
         slice_names = []
@@ -159,10 +152,11 @@ class DynamicTopicModel(ABC):
             topic_names = self.topic_names
         except AttributeError:
             topic_names = [f"Topic {i}" for i in range(n_topics)]
-        table = Table(show_lines=True)
-        table.add_column("Time Slice")
+        columns = []
+        rows = []
+        columns.append("Time Slice")
         for topic in topic_names:
-            table.add_column(topic)
+            columns.append(topic)
         for slice_name, components in zip(slice_names, temporal_components):
             fields = []
             fields.append(slice_name)
@@ -187,9 +181,54 @@ class DynamicTopicModel(ABC):
                 else:
                     concat_words = ", ".join([word for word in words])
                 fields.append(concat_words)
-            table.add_row(*fields)
+            rows.append(fields)
+        return [columns, *rows]
+
+    def print_topics_over_time(
+        self,
+        top_k: int = 5,
+        show_scores: bool = False,
+        date_format: str = "%Y %m %d",
+    ):
+        """Pretty prints topics in the model in a table.
+
+        Parameters
+        ----------
+        top_k: int, default 10
+            Number of top words to return for each topic.
+        show_scores: bool, default False
+            Indicates whether to show importance scores for each word.
+        """
+        columns, *rows = self._topics_over_time(top_k, show_scores, date_format)
+        table = Table(show_lines=True)
+        for column in columns:
+            table.add_column(column)
+        for row in rows:
+            table.add_row(*row)
         console = Console()
         console.print(table)
+
+    def export_topics_over_time(
+        self,
+        top_k: int = 5,
+        show_scores: bool = False,
+        date_format: str = "%Y %m %d",
+        format="csv",
+    ) -> str:
+        """Pretty prints topics in the model in a table.
+
+        Parameters
+        ----------
+        top_k: int, default 10
+            Number of top words to return for each topic.
+        show_scores: bool, default False
+            Indicates whether to show importance scores for each word.
+        format: 'csv', 'latex' or 'markdown'
+            Specifies which format should be used.
+            'csv', 'latex' and 'markdown' are supported.
+        """
+        table = self._topics_over_time(top_k, show_scores, date_format)
+        return export_table(table, format=format)
 
     def plot_topics_over_time(self, top_k: int = 6):
         """Displays topics over time in the fitted dynamic model on a dynamic HTML figure.
