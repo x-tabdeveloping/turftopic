@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.13">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.50c56a3b.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e359304.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -270,14 +270,14 @@
       
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
           
@@ -298,7 +298,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -385,14 +385,14 @@
       
     
     
-    
-    
       
-      
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
           
@@ -400,7 +400,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -607,6 +607,15 @@
   <a href="#external-embeddings" class="md-nav__link">
     <span class="md-ellipsis">
       External Embeddings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e5-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      E5 Embeddings
     </span>
   </a>
   
@@ -1472,6 +1481,461 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
   </div>
 
 
+</div><h2 id="e5-embeddings">E5 Embeddings</h2>
+<p>Most E5 models expect the input to be prefixed with something like <code>"query: "</code> (see the <a href="https://huggingface.co/intfloat/multilingual-e5-small">multilingual-e5-small</a> model card).<br />
+In instructional E5 models, it is also possible to add an instruction, following the format <code>f"Instruct: {task_description} \nQuery: {document}"</code> (see the <a href="https://huggingface.co/intfloat/multilingual-e5-large-instruct">multilingual-e5-large-instruct</a> model card).<br />
+In Turftopic, E5 embeddings including the prefixing is handled by the <code>E5Encoder</code>.</p>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.encoders.E5Encoder" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.encoders.E5Encoder</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sentence_transformers.SentenceTransformer">SentenceTransformer</span></code></p>
+
+  
+      <p>Encoder model oriented at using E5 models.</p>
+<div class="highlight"><pre><span></span><code>```python
+from turftopic.encoders import E5Encoder
+from turftopic import GMM
+
+model = GMM(10, encoder=E5Encoder(model_name=&quot;intfloat/multilingual-e5-small&quot;, prefix=&quot;query: &quot;))
+```
+</code></pre></div>
+
+<details class="----parameters" open>
+  <summary><div class="highlight"><pre><span></span><code>Parameters
+</code></pre></div></summary>
+  <div class="highlight"><pre><span></span><code>model_name: str
+    Embedding model to use.
+    Either a SentenceTransformers pre-trained models or a model from HuggingFace Hub.
+
+prefix : Optional[str]
+    A string that gets added to the start of each document (formats each document followingly: `f&quot;{prefix}{text}&quot;`).
+    Expected by most E5 models. Consult model cards on Hugging Face to see what prefix is expected by your specific model.
+
+preprocessor : Optional[Callable]
+    A function that formats documents as desired.
+    Overwrites `prefix` and only applies if `prefix == None`.
+    Both input and output must be string.
+    First argument must be input text.
+    By default `None`.
+</code></pre></div>
+</details>
+<details class="----examples" open>
+  <summary><div class="highlight"><pre><span></span><code>Examples
+</code></pre></div></summary>
+  <div class="highlight"><pre><span></span><code>Instructional models can also be used.
+In this case, the documents should be prefixed with a one-sentence instruction that describes the task.
+See Notes for available models and instruction suggestions.
+```
+from turftopic.encoders import E5Encoder
+
+def add_instruct_prefix(document: str) -&gt; str:
+    task_description = &quot;YOUR_INSTRUCTION&quot;
+    return f&#39;Instruct: {task_description}
+</code></pre></div>
+<p>Query: {document}'</p>
+<div class="highlight"><pre><span></span><code>encoder = E5Encoder(model_name=&quot;intfloat/multilingual-e5-large-instruct&quot;, preprocessor=add_instruct_prefix)
+model = GMM(10, encoder=encoder)
+```
+
+Or the same can be done using a `prefix` argument:
+```python
+from turftopic.encoders import E5Encoder
+from turftopic import GMM
+
+prefix = &quot;Instruct: YOUR_INSTRUCTION
+</code></pre></div>
+<p>Query: "
+    encoder = E5Encoder(model_name="intfloat/multilingual-e5-large-instruct", prefix=prefix)
+    model = GMM(10, encoder=encoder)
+    ```</p>
+</details>
+<details class="----notes" open>
+  <summary><div class="highlight"><pre><span></span><code>Notes
+</code></pre></div></summary>
+  <div class="highlight"><pre><span></span><code>See available E5-based sentence transformers on Hugging Face Hub:
+https://huggingface.co/models?library=sentence-transformers&amp;sort=trending&amp;search=e5
+
+Instruction templates:
+https://github.com/microsoft/unilm/blob/9c0f1ff7ca53431fe47d2637dfe253643d94185b/e5/utils.py#L106
+</code></pre></div>
+</details>
+            <details class="quote">
+              <summary>Source code in <code>turftopic/encoders/e5.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">E5Encoder</span><span class="p">(</span><span class="n">SentenceTransformer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder model oriented at using E5 models.</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    from turftopic.encoders import E5Encoder</span>
+<span class="sd">    from turftopic import GMM</span>
+
+<span class="sd">    model = GMM(10, encoder=E5Encoder(model_name=&quot;intfloat/multilingual-e5-small&quot;, prefix=&quot;query: &quot;))</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model_name: str</span>
+<span class="sd">        Embedding model to use.</span>
+<span class="sd">        Either a SentenceTransformers pre-trained models or a model from HuggingFace Hub.</span>
+
+<span class="sd">    prefix : Optional[str]</span>
+<span class="sd">        A string that gets added to the start of each document (formats each document followingly: `f&quot;{prefix}{text}&quot;`).</span>
+<span class="sd">        Expected by most E5 models. Consult model cards on Hugging Face to see what prefix is expected by your specific model.</span>
+
+<span class="sd">    preprocessor : Optional[Callable]</span>
+<span class="sd">        A function that formats documents as desired.</span>
+<span class="sd">        Overwrites `prefix` and only applies if `prefix == None`.</span>
+<span class="sd">        Both input and output must be string.</span>
+<span class="sd">        First argument must be input text.</span>
+<span class="sd">        By default `None`.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Instructional models can also be used.</span>
+<span class="sd">    In this case, the documents should be prefixed with a one-sentence instruction that describes the task.</span>
+<span class="sd">    See Notes for available models and instruction suggestions.</span>
+<span class="sd">    ```</span>
+<span class="sd">    from turftopic.encoders import E5Encoder</span>
+
+<span class="sd">    def add_instruct_prefix(document: str) -&gt; str:</span>
+<span class="sd">        task_description = &quot;YOUR_INSTRUCTION&quot;</span>
+<span class="sd">        return f&#39;Instruct: {task_description}\nQuery: {document}&#39;</span>
+
+<span class="sd">    encoder = E5Encoder(model_name=&quot;intfloat/multilingual-e5-large-instruct&quot;, preprocessor=add_instruct_prefix)</span>
+<span class="sd">    model = GMM(10, encoder=encoder)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Or the same can be done using a `prefix` argument:</span>
+<span class="sd">    ```python</span>
+<span class="sd">    from turftopic.encoders import E5Encoder</span>
+<span class="sd">    from turftopic import GMM</span>
+
+<span class="sd">    prefix = &quot;Instruct: YOUR_INSTRUCTION\nQuery: &quot;</span>
+<span class="sd">    encoder = E5Encoder(model_name=&quot;intfloat/multilingual-e5-large-instruct&quot;, prefix=prefix)</span>
+<span class="sd">    model = GMM(10, encoder=encoder)</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    See available E5-based sentence transformers on Hugging Face Hub:</span>
+<span class="sd">    https://huggingface.co/models?library=sentence-transformers&amp;sort=trending&amp;search=e5</span>
+
+<span class="sd">    Instruction templates:</span>
+<span class="sd">    https://github.com/microsoft/unilm/blob/9c0f1ff7ca53431fe47d2637dfe253643d94185b/e5/utils.py#L106</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">preprocessor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># check for both prefix and preprocessor being specified</span>
+        <span class="k">if</span> <span class="n">prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Both `prefix` and `preprocessor` are specified. `preprocessor` will be ignored! &quot;</span>
+                <span class="s2">&quot;To avoid this warning, specify only one of them.&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># pick either prefix or preprocessor to do the job</span>
+        <span class="k">if</span> <span class="n">prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_preprocessor_valid</span><span class="p">(</span><span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">preprocessor</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;`preprocessor` failed vaildation. Please make sure your preprocessor returns type `str`.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either `prefix` or `preprocessor` must be specified.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_is_preprocessor_valid</span><span class="p">(</span><span class="n">preprocessor</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if preprocessor returns string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_0</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">input_1</span> <span class="o">=</span> <span class="s2">&quot;What are assertions? and why would you use them?&quot;</span>
+        <span class="n">output_0</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="p">(</span><span class="n">input_0</span><span class="p">)</span>
+        <span class="n">output_1</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="p">(</span><span class="n">input_1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">all</span><span class="p">([</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_0</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_1</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+        <span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sentences: list[str]</span>
+<span class="sd">            Input text.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        See docs for `SentenceTransformer.encode` for available **kwargs</span>
+<span class="sd">        https://www.sbert.net/docs/package_reference/SentenceTransformer.html#sentence_transformers.SentenceTransformer.encode</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sentences</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.encoders.E5Encoder.encode" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>sentences</code></td>
+          <td>
+                <code>list[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Input text.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+<details class="note" open>
+  <summary>Notes</summary>
+  <p>See docs for <code>SentenceTransformer.encode</code> for available **kwargs
+https://www.sbert.net/docs/package_reference/SentenceTransformer.html#sentence_transformers.SentenceTransformer.encode</p>
+</details>
+          <details class="quote">
+            <summary>Source code in <code>turftopic/encoders/e5.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sentences: list[str]</span>
+<span class="sd">        Input text.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    See docs for `SentenceTransformer.encode` for available **kwargs</span>
+<span class="sd">    https://www.sbert.net/docs/package_reference/SentenceTransformer.html#sentence_transformers.SentenceTransformer.encode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sentences</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="p">(</span><span class="n">sentence</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+
 </div>
 
 
@@ -1522,7 +1986,7 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
     <script id="__config" type="application/json">{"base": "..", "features": ["toc.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
+      <script src="../assets/javascripts/bundle.c8d2eff1.min.js"></script>
       
         <script src="../javascripts/mathjax.js"></script>
       
