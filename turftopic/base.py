@@ -161,7 +161,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             ID of the topic to display.
         raw_documents: list of str
             List of documents to consider.
-        document_topic_matrix: ndarray of shape (n_topics, n_topics), optional
+        document_topic_matrix: ndarray of shape (n_documents, n_topics), optional
             Document topic matrix to use. This is useful for transductive methods,
             as they cannot infer topics from text.
         top_k: int, default 5
