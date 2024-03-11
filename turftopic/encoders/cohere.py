@@ -4,7 +4,7 @@ from typing import Iterable
 import numpy as np
 
 from turftopic.encoders.base import ExternalEncoder
-from turftopic.encoder.utils import batched
+from turftopic.encoders.utils import batched
 
 
 class CohereEmbeddings(ExternalEncoder):
