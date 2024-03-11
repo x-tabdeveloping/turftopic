@@ -7,8 +7,8 @@ from rich.table import Table
 from sentence_transformers import SentenceTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.exceptions import NotFittedError
+from topicwizard.data import TopicData
 
-from turftopic.data import TopicData
 from turftopic.encoders import ExternalEncoder
 from turftopic.utils import export_table
 
