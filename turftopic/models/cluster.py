@@ -255,12 +255,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
             status.update("Clustering documents")
             self.labels_ = self.clustering.fit_predict(reduced_embeddings)
             console.log("Clustering done.")
-            status.update("Estimating parameters.")
-            self._estimate_parameters(
-                embeddings,
-                self.doc_term_matrix,
-            )
-            console.log("Parameter estimation done.")
             if self.n_reduce_to is not None:
                 n_topics = self.classes_.shape[0]
                 status.update(f"Reducing topics from {n_topics} to {self.n_reduce_to}")
@@ -271,12 +265,12 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
                 console.log(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
-                status.update("Reestimating parameters.")
-                self._estimate_parameters(
-                    embeddings,
-                    self.doc_term_matrix,
-                )
-                console.log("Reestimation done.")
+            status.update("Estimating parameters.")
+            self._estimate_parameters(
+                embeddings,
+                self.doc_term_matrix,
+            )
+            console.log("Parameter estimation done.")
         console.log("Model fitting done.")
         return self.labels_
 
