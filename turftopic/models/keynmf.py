@@ -11,9 +11,9 @@ from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from topicwizard.data import TopicData
 
 from turftopic.base import ContextualModel, Encoder
+from turftopic.data import TopicData
 from turftopic.vectorizer import default_vectorizer
 
 
