@@ -29,7 +29,8 @@ embeddings = np.asarray(trf.encode(texts))
 models = [
     GMM(5, encoder=trf),
     SemanticSignalSeparation(5, encoder=trf),
-    KeyNMF(5, encoder=trf),
+    KeyNMF(5, encoder=trf, keyword_scope='document'),
+    KeyNMF(5, encoder=trf, keyword_scope='corpus'),
     ClusteringTopicModel(
         n_reduce_to=5,
         feature_importance="c-tf-idf",
