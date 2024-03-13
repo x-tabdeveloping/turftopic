@@ -124,15 +124,15 @@ class KeyNMF(ContextualModel):
             terms = document_term_matrix[i, :].todense()
             embedding = embeddings[i].reshape(1, -1)
             if self.keyword_scope == 'document':
-                nonzero = terms > 0
-                if not np.any(nonzero):
+                mask = terms > 0
+                if not np.any(mask):
                     keywords.append(dict())
                     continue
-                important_terms = np.squeeze(np.asarray(nonzero))
-                word_embeddings = self.vocab_embeddings[important_terms]
-                sim = cosine_similarity(embedding, word_embeddings)
             else:
-                sim = cosine_similarity(embedding, self.vocab_embeddings)
+                mask = np.ones(shape=terms.shape, dtype=bool)
+            important_terms = np.squeeze(np.asarray(mask))
+            word_embeddings = self.vocab_embeddings[important_terms]
+            sim = cosine_similarity(embedding, word_embeddings)
             sim = np.ravel(sim)
             kth = min(self.top_n, len(sim) - 1)
             top = np.argpartition(-sim, kth)[:kth]
