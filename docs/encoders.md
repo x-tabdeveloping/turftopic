@@ -33,3 +33,11 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.
 :::turftopic.encoders.OpenAIEmbeddings
 
 :::turftopic.encoders.VoyageEmbeddings
+
+## E5 Embeddings
+
+Most E5 models expect the input to be prefixed with something like `"query: "` (see the [multilingual-e5-small](https://huggingface.co/intfloat/multilingual-e5-small) model card).  
+In instructional E5 models, it is also possible to add an instruction, following the format `f"Instruct: {task_description} \nQuery: {document}"` (see the [multilingual-e5-large-instruct](https://huggingface.co/intfloat/multilingual-e5-large-instruct) model card).  
+In Turftopic, E5 embeddings including the prefixing is handled by the `E5Encoder`.
+
+:::turftopic.encoders.E5Encoder
