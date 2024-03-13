@@ -19,8 +19,10 @@ Keywords are assigned to each document based on the cosine similarity of the doc
 Only the top K words with positive cosine similarity to the document are kept.
 
 These keywords are then arranged into a document-term importance matrix where each column represents a keyword that was encountered in at least one document,
-and each row is a document.
-The entries in the matrix are the cosine similarities of the given keyword to the document in semantic space.
+and each row is a document. The entries in the matrix are the cosine similarities of the given keyword to the document in semantic space.
+
+Keyword extraction can be performed by computing cosine similarities between document embeddings and embeddings of the entire vocabulary, 
+or between document embeddings and words that occur within each document. The former scenario allows for multilingual topics.
 
 ### 2. Topic Discovery
 
@@ -39,7 +41,6 @@ can be explained.
 
 ### Weaknesses
 
- - Lack of Multilingual Capabilities: KeyNMF as it is currently implemented cannot be used in a multilingual context. Changes to the model that allow this are possible, and will likely be ijmplemented in the future.
  - Lack of Nuance: Since only the top K keywords are considered and used for topic extraction some of the nuances, especially in long texts might get lost. We therefore recommend that you scale K with the average length of the texts you're working with. For tweets it might be worth it to scale it down to 5, while with longer documents, a larger number (let's say 50) might be advisable.
  - Practitioners have to choose the number of topics a priori.
 
