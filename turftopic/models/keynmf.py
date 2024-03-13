@@ -74,6 +74,11 @@ class KeyNMF(ContextualModel):
         Can be used to prune or filter the vocabulary.
     top_n: int, default 25
         Number of keywords to extract for each document.
+    keyword_scope: str, default 'document'
+        Specifies whether keyword extraction for each document
+        is performed on the whole vocabulary ('corpus') or only
+        using words that are included in the document ('document').
+        Setting this to 'corpus' allows for multilingual topics.
     """
 
     def __init__(
@@ -84,7 +89,10 @@ class KeyNMF(ContextualModel):
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         top_n: int = 25,
+        keyword_scope: str = 'document',
     ):
+        if keyword_scope not in ['document', 'corpus']:
+            raise ValueError("keyword_scope must be 'document' or 'corpus'")
         self.n_components = n_components
         self.top_n = top_n
         self.encoder = encoder
@@ -98,6 +106,7 @@ class KeyNMF(ContextualModel):
             self.vectorizer = vectorizer
         self.dict_vectorizer_ = DictVectorizer()
         self.nmf_ = NMF(n_components)
+        self.keyword_scope = keyword_scope
 
     def extract_keywords(
         self,
@@ -114,13 +123,16 @@ class KeyNMF(ContextualModel):
         for i in range(total):
             terms = document_term_matrix[i, :].todense()
             embedding = embeddings[i].reshape(1, -1)
-            nonzero = terms > 0
-            if not np.any(nonzero):
-                keywords.append(dict())
-                continue
-            important_terms = np.squeeze(np.asarray(nonzero))
-            word_embeddings = self.vocab_embeddings[important_terms]
-            sim = cosine_similarity(embedding, word_embeddings)
+            if self.keyword_scope == 'document':
+                nonzero = terms > 0
+                if not np.any(nonzero):
+                    keywords.append(dict())
+                    continue
+                important_terms = np.squeeze(np.asarray(nonzero))
+                word_embeddings = self.vocab_embeddings[important_terms]
+                sim = cosine_similarity(embedding, word_embeddings)
+            else:
+                sim = cosine_similarity(embedding, self.vocab_embeddings)
             sim = np.ravel(sim)
             kth = min(self.top_n, len(sim) - 1)
             top = np.argpartition(-sim, kth)[:kth]
