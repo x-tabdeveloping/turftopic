@@ -42,7 +42,6 @@ plugins:
           show_symbol_type_heading: true
           docstring_style: numpy
           heading_level: 3
-    custom_templates: templates    - content.code.select
 
 markdown_extensions:
   - pymdownx.highlight:
