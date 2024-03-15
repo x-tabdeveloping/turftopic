@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, Optional, Union
 
 import numpy as np
@@ -11,6 +12,7 @@ from sklearn.metrics.pairwise import cosine_distances
 from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel, Encoder
+from turftopic.dynamic import DynamicTopicModel, bin_timestamps
 from turftopic.feature_importance import (
     cluster_centroid_distance,
     ctf_idf,
@@ -285,3 +287,50 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin):
     ):
         labels = self.fit_predict(raw_documents, y, embeddings)
         return label_binarize(labels, classes=self.classes_)
+
+    def fit_transform_dynamic(
+        self,
+        raw_documents,
+        timestamps: list[datetime],
+        embeddings: Optional[np.ndarray] = None,
+        bins: Union[int, list[datetime]] = 10,
+    ):
+        time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
+        temporal_components = []
+        temporal_importances = []
+        if embeddings is None:
+            embeddings = self.encoder_.encode(raw_documents)
+        for i_timebin in np.arange(len(self.time_bin_edges) - 1):
+            if self.labels_ is not None:
+                doc_topic_matrix = label_binarize(self.labels_, classes=self.classes_)
+            else:
+                doc_topic_matrix = self.fit_transform(raw_documents, embeddings=embeddings)
+            topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(axis=0)
+            topic_importances = topic_importances / topic_importances.sum()
+            if "c-tf-idf" in self.feature_importance:
+                t_doc_topic_matrix = doc_topic_matrix[time_labels == i_timebin]
+                t_doc_term_matrix = self.doc_term_matrix[time_labels == i_timebin]
+                if self.feature_importance == 'soft-c-tf-idf':
+                    components = soft_ctf_idf(
+                        t_doc_topic_matrix,
+                        t_doc_term_matrix
+                    )
+                elif self.feature_importance == 'c-tf-idf':
+                    components = ctf_idf(t_doc_topic_matrix, t_doc_term_matrix)
+            elif self.feature_importance == 'centroids':
+                t_labels = self.labels_[time_labels == i_timebin]
+                t_embeddings = embeddings[time_labels == i_timebin] # type: ignore
+                t_topic_vectors = calculate_topic_vectors(t_labels, t_embeddings)
+                t_vocab_embeddings = self.encoder_.encode(
+                    self.vectorizer.get_feature_names_out()
+                )
+                components = cluster_centroid_distance(
+                    t_topic_vectors,
+                    t_vocab_embeddings,
+                    metric="cosine",
+                )
+            temporal_components.append(components)
+            temporal_importances.append(topic_importances)
+        self.temporal_components_ = np.stack(temporal_components)
+        self.temporal_importance_ = np.stack(temporal_importances)
+        return doc_topic_matrix
