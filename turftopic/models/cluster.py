@@ -313,11 +313,12 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 doc_topic_matrix = label_binarize(self.labels_, classes=self.classes_)
             else:
                 doc_topic_matrix = self.fit_transform(raw_documents, embeddings=embeddings)
+
             topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(axis=0)
             topic_importances = topic_importances / topic_importances.sum()
+            t_doc_term_matrix = self.doc_term_matrix[time_labels == i_timebin]
+            t_doc_topic_matrix = doc_topic_matrix[time_labels == i_timebin]
             if "c-tf-idf" in self.feature_importance:
-                t_doc_topic_matrix = doc_topic_matrix[time_labels == i_timebin]
-                t_doc_term_matrix = self.doc_term_matrix[time_labels == i_timebin]
                 if self.feature_importance == 'soft-c-tf-idf':
                     components = soft_ctf_idf(
                         t_doc_topic_matrix,
@@ -327,16 +328,15 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                     components = ctf_idf(t_doc_topic_matrix, t_doc_term_matrix)
             elif self.feature_importance == 'centroids':
                 t_labels = self.labels_[time_labels == i_timebin]
-                t_embeddings = embeddings[time_labels == i_timebin] # type: ignore
+                t_embeddings = embeddings[time_labels == i_timebin]
                 t_topic_vectors = calculate_topic_vectors(t_labels, t_embeddings)
-                t_vocab_embeddings = self.encoder_.encode(
-                    self.vectorizer.get_feature_names_out()
-                )
                 components = cluster_centroid_distance(
                     t_topic_vectors,
-                    t_vocab_embeddings,
+                    self.vocab_embeddings,
                     metric="cosine",
                 )
+                mask = t_doc_term_matrix.sum(axis=0)
+                components = components * mask
             temporal_components.append(components)
             temporal_importances.append(topic_importances)
         self.temporal_components_ = np.stack(temporal_components)
