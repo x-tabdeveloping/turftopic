@@ -77,7 +77,7 @@ def calculate_topic_vectors(
     return centroids
 
 
-class ClusteringTopicModel(ContextualModel, ClusterMixin):
+class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
     """Topic models, which assume topics to be clusters of documents
     in semantic space.
     Models also include a dimensionality reduction step to aid clustering.

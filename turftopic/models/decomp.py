@@ -47,6 +47,7 @@ class SemanticSignalSeparation(ContextualModel):
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         objective: Literal["orthogonality", "independence"] = "independence",
+        subset: str = None
     ):
         self.n_components = n_components
         self.encoder = encoder
@@ -63,6 +64,7 @@ class SemanticSignalSeparation(ContextualModel):
             self.decomposition = FastICA(n_components)
         else:
             self.decomposition = PCA(n_components)
+        self.subset = subset
 
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -87,6 +89,12 @@ class SemanticSignalSeparation(ContextualModel):
             self.components_ = vocab_topic.T
             console.log("Model fitting done.")
         return doc_topic
+
+    def abs_components(self, subset):
+        if subset == 'abs':
+            self.components_ = np.abs(self.components_)
+        if subset == 'neg':
+            self.components_ = -self.components_
 
     def transform(
         self, raw_documents, embeddings: Optional[np.ndarray] = None
