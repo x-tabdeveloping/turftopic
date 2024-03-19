@@ -35,6 +35,10 @@ the desired reduced number on initialization.
 ClusteringTopicModel(n_reduce_to=10)
 """
 
+feature_message = """ 
+feature_importance must be one of 'soft-c-tf-idf', 'c-tf-idf', 'centroids'
+"""
+
 
 def smallest_hierarchical_join(
     topic_vectors: np.ndarray,
@@ -140,6 +144,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         reduction_method: Literal["agglomerative", "smallest"] = "agglomerative",
     ):
         self.encoder = encoder
+        if feature_importance not in ["c-tf-idf", 
+                                      "soft-c-tf-idf", 
+                                      "centroid"]:
+            raise ValueError(feature_message)
         if isinstance(encoder, int):
             raise TypeError(integer_message)
         if isinstance(encoder, str):
