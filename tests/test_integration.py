@@ -13,22 +13,22 @@ from turftopic import (
     AutoEncodingTopicModel,
     ClusteringTopicModel,
     KeyNMF,
-    SemanticSignalSeparation
+    SemanticSignalSeparation,
 )
 
 
 def generate_dates(
-        n_dates: int,
+    n_dates: int,
 ) -> list[datetime]:
-        """ Generate random dates to test dynamic models """
-        dates = []
-        for n in range(n_dates):
-             d = np.random.randint(low=1, high=29)
-             m = np.random.randint(low=1, high=13)
-             y = np.random.randint(low=2000, high=2020)
-             date = datetime(year=y, month=m, day=d)
-             dates.append(date)
-        return dates
+    """Generate random dates to test dynamic models"""
+    dates = []
+    for n in range(n_dates):
+        d = np.random.randint(low=1, high=29)
+        m = np.random.randint(low=1, high=13)
+        y = np.random.randint(low=2000, high=2020)
+        date = datetime(year=y, month=m, day=d)
+        dates.append(date)
+    return dates
 
 
 newsgroups = fetch_20newsgroups(
@@ -46,8 +46,8 @@ timestamps = generate_dates(n_dates=len(texts))
 models = [
     GMM(5, encoder=trf),
     SemanticSignalSeparation(5, encoder=trf),
-    KeyNMF(5, encoder=trf, keyword_scope='document'),
-    KeyNMF(5, encoder=trf, keyword_scope='corpus'),
+    KeyNMF(5, encoder=trf, keyword_scope="document"),
+    KeyNMF(5, encoder=trf, keyword_scope="corpus"),
     ClusteringTopicModel(
         n_reduce_to=5,
         feature_importance="c-tf-idf",
@@ -69,14 +69,14 @@ dynamic_models = [
         n_reduce_to=5,
         feature_importance="centroid",
         encoder=trf,
-        reduction_method="smallest"
+        reduction_method="smallest",
     ),
     ClusteringTopicModel(
         n_reduce_to=5,
         feature_importance="soft-c-tf-idf",
         encoder=trf,
         reduction_method="smallest"
-    )
+    ),
 ]
 
 
@@ -94,7 +94,9 @@ def test_fit_export_table(model):
 @pytest.mark.parametrize("model", dynamic_models)
 def test_fit_dynamic(model):
     doc_topic_matrix = model.fit_transform_dynamic(
-         texts, embeddings=embeddings, timestamps=timestamps,
+        texts,
+        embeddings=embeddings,
+        timestamps=timestamps,
     )
     table = model.export_topics(format="csv")
     with tempfile.TemporaryDirectory() as tmpdirname:

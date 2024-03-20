@@ -23,7 +23,9 @@ Encoder = Union[ExternalEncoder, SentenceTransformer]
 class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     """Base class for contextual topic models in Turftopic."""
 
-    def get_topics(self, top_k: int = 10) -> List[Tuple[Any, List[Tuple[str, float]]]]:
+    def get_topics(
+        self, top_k: int = 10
+    ) -> List[Tuple[Any, List[Tuple[str, float]]]]:
         """Returns high-level topic representations in form of the top K words
         in each topic.
 
@@ -135,8 +137,12 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         except AttributeError:
             pass
         kth = min(top_k, document_topic_matrix.shape[0] - 1)
-        highest = np.argpartition(-document_topic_matrix[:, topic_id], kth)[:kth]
-        highest = highest[np.argsort(-document_topic_matrix[highest, topic_id])]
+        highest = np.argpartition(-document_topic_matrix[:, topic_id], kth)[
+            :kth
+        ]
+        highest = highest[
+            np.argsort(-document_topic_matrix[highest, topic_id])
+        ]
         scores = document_topic_matrix[highest, topic_id]
         columns = []
         columns.append("Document")
@@ -171,7 +177,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             topic_id, raw_documents, document_topic_matrix, top_k
         )
         table = Table(show_lines=True)
-        table.add_column("Document", justify="left", style="magenta", max_width=100)
+        table.add_column(
+            "Document", justify="left", style="magenta", max_width=100
+        )
         table.add_column("Score", style="blue", justify="right")
         for row in rows:
             table.add_row(*row)
@@ -223,7 +231,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     ) -> list[list[str]]:
         if topic_dist is None:
             if text is None:
-                raise ValueError("You should either pass a text or a distribution.")
+                raise ValueError(
+                    "You should either pass a text or a distribution."
+                )
             try:
                 topic_dist = self.transform([text])
             except AttributeError:
@@ -248,7 +258,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             rows.append([topic_names[ind], f"{score:.2f}"])
         return [columns, *rows]
 
-    def print_topic_distribution(self, text=None, topic_dist=None, top_k: int = 10):
+    def print_topic_distribution(
+        self, text=None, topic_dist=None, top_k: int = 10
+    ):
         """Pretty prints topic distribution in a document.
 
         Parameters
@@ -330,7 +342,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         """
         pass
 
-    def fit(self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None):
+    def fit(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ):
         """Fits model on the given corpus.
 
         Parameters
@@ -396,9 +410,13 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         if embeddings is None:
             embeddings = self.encode_documents(corpus)
         try:
-            document_topic_matrix = self.transform(corpus, embeddings=embeddings)
+            document_topic_matrix = self.transform(
+                corpus, embeddings=embeddings
+            )
         except (AttributeError, NotFittedError):
-            document_topic_matrix = self.fit_transform(corpus, embeddings=embeddings)
+            document_topic_matrix = self.fit_transform(
+                corpus, embeddings=embeddings
+            )
         dtm = self.vectorizer.transform(corpus)  # type: ignore
         res: TopicData = {
             "corpus": corpus,
