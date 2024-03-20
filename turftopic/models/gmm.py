@@ -101,7 +101,6 @@ class GMM(ContextualModel, DynamicTopicModel):
             self.gmm_ = make_pipeline(dimensionality_reduction, mixture)
         else:
             self.gmm_ = mixture
-        self.components_ = None
 
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -163,7 +162,7 @@ class GMM(ContextualModel, DynamicTopicModel):
         bins: Union[int, list[datetime]] = 10,
     ):
         time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
-        if self.components_ is not None:
+        if hasattr(self, 'components_'):
             doc_topic_matrix = self.transform(
                 raw_documents, embeddings=embeddings
             )

@@ -181,7 +181,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self.feature_importance = feature_importance
         self.n_reduce_to = n_reduce_to
         self.reduction_method = reduction_method
-        self.components_ = None
 
     def _merge_agglomerative(self, n_reduce_to: int) -> np.ndarray:
         n_topics = self.components_.shape[0]
@@ -328,7 +327,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         if embeddings is None:
             embeddings = self.encoder_.encode(raw_documents)
         for i_timebin in np.arange(len(self.time_bin_edges) - 1):
-            if self.components_ is not None:
+            if hasattr(self, 'components_'):
                 doc_topic_matrix = label_binarize(
                     self.labels_, classes=self.classes_
                 )
