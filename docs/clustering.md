@@ -188,6 +188,11 @@ top2vec = ClusteringTopicModel(
 Theoretically the model descriptions above should result in the same behaviour as the other two packages, but there might be minor changes in implementation.
 We do not intend to keep up with changes in Top2Vec's and BERTopic's internal implementation details indefinitely.
 
+### _(Optional)_ 5. Dynamic Modeling
+
+Clustering models are also capable of dynamic topic modeling. This happens by fitting a clustering model over the entire corpus, as we expect that there is only one semantic model generating the documents.
+To gain temporal representations for topics, the corpus is divided into equal, or arbitrarily chosen time slices, and then term importances are estimated using Soft-c-TF-IDF, c-TF-IDF, or distances from cluster centroid for each of the time slices separately. When distance from cluster centroids is used to estimate topic importances in dynamic modeling, cluster centroids are computed based on documents and terms present within a given time slice.
+
 ## Considerations
 
 ### Strengths

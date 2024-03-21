@@ -18,17 +18,13 @@ torch = "^2.1.0"
 scipy = "^1.10.0"
 rich = "^13.6.0"
 pyro-ppl = { version = "^1.8.0", optional = true }
+mkdocs = { version = "^1.5.2", optional = true }
+mkdocs-material = { version = "^9.5.12", optional = true }
+mkdocstrings = { version = "^0.24.0", extras = ["python"], optional = true }
 
 [tool.poetry.extras]
 pyro-ppl = ["pyro-ppl"]
-
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-mkdocs = "^1.5.2"
-mkdocs-material = "^9.5.12"
-mkdocstrings = { version = "^0.24.0", extras = ["python"] }
+docs = ["mkdocs", "mkdocs-material", "mkdocstrings"]
 
 [build-system]
 requires = ["poetry-core"]
