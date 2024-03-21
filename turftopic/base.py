@@ -161,7 +161,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             Specifies which format should be used.
             'csv', 'latex' and 'markdown' are supported.
         """
-        table = self._topics_table(top_k, show_scores)
+        table = self._topics_table(top_k, show_scores, show_negative=show_negative)
         return export_table(table, format=format)
 
     def _highest_ranking_docs(

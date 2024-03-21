@@ -119,7 +119,7 @@ class SemanticSignalSeparation(ContextualModel):
         self,
         top_k: int = 5,
         show_scores: bool = False,
-        show_negative: bool = False,
+        show_negative: bool = True,
         format: str = "csv",
     ) -> str:
-        return super().print_topics(top_k, show_scores, show_negative, format)
+        return super().export_topics(top_k, show_scores, show_negative, format)
