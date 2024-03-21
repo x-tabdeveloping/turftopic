@@ -3,7 +3,7 @@ line-length=79
 
 [tool.poetry]
 name = "turftopic"
-version = "0.2.11"
+version = "0.2.12"
 description = "Topic modeling with contextual representations from sentence transformers."
 authors = ["Márton Kardos <power.up1163@gmail.com>"]
 license = "MIT"
