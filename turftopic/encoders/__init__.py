@@ -9,5 +9,5 @@ __all__ = [
     "OpenAIEmbeddings",
     "VoyageEmbeddings",
     "ExternalEncoder",
-    "E5Encoder"
+    "E5Encoder",
 ]

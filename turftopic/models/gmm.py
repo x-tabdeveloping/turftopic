@@ -64,7 +64,9 @@ class GMM(ContextualModel, DynamicTopicModel):
     def __init__(
         self,
         n_components: int,
-        encoder: Union[Encoder, str] = "sentence-transformers/all-MiniLM-L6-v2",
+        encoder: Union[
+            Encoder, str
+        ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
         weight_prior: Literal["dirichlet", "dirichlet_process", None] = None,
@@ -99,7 +101,6 @@ class GMM(ContextualModel, DynamicTopicModel):
             self.gmm_ = make_pipeline(dimensionality_reduction, mixture)
         else:
             self.gmm_ = mixture
-        self.components_ = None
 
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -118,7 +119,9 @@ class GMM(ContextualModel, DynamicTopicModel):
             console.log("Mixture model fitted.")
             status.update("Estimating term importances.")
             document_topic_matrix = self.gmm_.predict_proba(embeddings)
-            self.components_ = soft_ctf_idf(document_topic_matrix, document_term_matrix)
+            self.components_ = soft_ctf_idf(
+                document_topic_matrix, document_term_matrix
+            )
             console.log("Model fitting done.")
         return document_topic_matrix
 
@@ -159,15 +162,21 @@ class GMM(ContextualModel, DynamicTopicModel):
         bins: Union[int, list[datetime]] = 10,
     ):
         time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
-        if self.components_ is not None:
-            doc_topic_matrix = self.transform(raw_documents, embeddings=embeddings)
+        if hasattr(self, 'components_'):
+            doc_topic_matrix = self.transform(
+                raw_documents, embeddings=embeddings
+            )
         else:
-            doc_topic_matrix = self.fit_transform(raw_documents, embeddings=embeddings)
+            doc_topic_matrix = self.fit_transform(
+                raw_documents, embeddings=embeddings
+            )
         document_term_matrix = self.vectorizer.transform(raw_documents)
         temporal_components = []
         temporal_importances = []
         for i_timebin in np.arange(len(self.time_bin_edges) - 1):
-            topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(axis=0)
+            topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(
+                axis=0
+            )
             # Normalizing
             topic_importances = topic_importances / topic_importances.sum()
             components = soft_ctf_idf(

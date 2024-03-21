@@ -28,7 +28,7 @@ Dynamic topic models in Turftopic have a unified interface.
 To fit a dynamic topic model you will need a corpus, that has been annotated with timestamps.
 The timestamps need to be Python `datetime` objects, but pandas `Timestamp` object are also supported.
 
-Models that have dynamic modeling capabilities have a `fit_transform_dynamic()` method, that fits the model on the corpus over time.
+Models that have dynamic modeling capabilities (currently, `GMM` and `ClusteringTopicModel`) have a `fit_transform_dynamic()` method, that fits the model on the corpus over time.
 
 ```python
 from datetime import datetime

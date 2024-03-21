@@ -199,7 +199,9 @@ class DynamicTopicModel(ABC):
         show_scores: bool, default False
             Indicates whether to show importance scores for each word.
         """
-        columns, *rows = self._topics_over_time(top_k, show_scores, date_format)
+        columns, *rows = self._topics_over_time(
+            top_k, show_scores, date_format
+        )
         table = Table(show_lines=True)
         for column in columns:
             table.add_column(column)

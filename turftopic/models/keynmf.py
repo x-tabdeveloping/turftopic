@@ -89,9 +89,9 @@ class KeyNMF(ContextualModel):
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         top_n: int = 25,
-        keyword_scope: str = 'document',
+        keyword_scope: str = "document",
     ):
-        if keyword_scope not in ['document', 'corpus']:
+        if keyword_scope not in ["document", "corpus"]:
             raise ValueError("keyword_scope must be 'document' or 'corpus'")
         self.n_components = n_components
         self.top_n = top_n
@@ -123,7 +123,7 @@ class KeyNMF(ContextualModel):
         for i in range(total):
             terms = document_term_matrix[i, :].todense()
             embedding = embeddings[i].reshape(1, -1)
-            if self.keyword_scope == 'document':
+            if self.keyword_scope == "document":
                 mask = terms > 0
             else:
                 tot_freq = document_term_matrix.sum(axis=0)
