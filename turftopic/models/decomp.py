@@ -42,9 +42,7 @@ class SemanticSignalSeparation(ContextualModel):
     def __init__(
         self,
         n_components: int,
-        encoder: Union[
-            Encoder, str
-        ] = "sentence-transformers/all-MiniLM-L6-v2",
+        encoder: Union[Encoder, str] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         objective: Literal["orthogonality", "independence"] = "independence",
     ):
@@ -108,3 +106,20 @@ class SemanticSignalSeparation(ContextualModel):
         if embeddings is None:
             embeddings = self.encoder_.encode(raw_documents)
         return self.decomposition.transform(embeddings)
+
+    def print_topics(
+        self,
+        top_k: int = 5,
+        show_scores: bool = False,
+        show_negative: bool = True,
+    ):
+        super().print_topics(top_k, show_scores, show_negative)
+
+    def export_topics(
+        self,
+        top_k: int = 5,
+        show_scores: bool = False,
+        show_negative: bool = False,
+        format: str = "csv",
+    ) -> str:
+        return super().print_topics(top_k, show_scores, show_negative, format)

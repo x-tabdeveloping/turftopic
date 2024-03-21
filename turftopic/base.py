@@ -23,9 +23,7 @@ Encoder = Union[ExternalEncoder, SentenceTransformer]
 class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     """Base class for contextual topic models in Turftopic."""
 
-    def get_topics(
-        self, top_k: int = 10
-    ) -> List[Tuple[Any, List[Tuple[str, float]]]]:
+    def get_topics(self, top_k: int = 10) -> List[Tuple[Any, List[Tuple[str, float]]]]:
         """Returns high-level topic representations in form of the top K words
         in each topic.
 
@@ -62,22 +60,53 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         return topics
 
     def _topics_table(
-        self, top_k: int = 10, show_scores: bool = False
+        self,
+        top_k: int = 10,
+        show_scores: bool = False,
+        show_negative: bool = False,
     ) -> list[list[str]]:
-        topics = self.get_topics(top_k)
-        columns = ["Topic ID", f"Top {top_k} Words"]
+        columns = ["Topic ID", "Positive"]
+        if show_negative:
+            columns.append("Negative")
         rows = []
-        for topic_id, terms in topics:
+        try:
+            classes = self.classes_
+        except AttributeError:
+            classes = list(range(self.components_.shape[0]))
+        vocab = self.get_vocab()
+        for topic_id, component in zip(classes, self.components_):
+            highest = np.argpartition(-component, top_k)[:top_k]
+            highest = highest[np.argsort(-component[highest])]
+            lowest = np.argpartition(component, top_k)[:top_k]
+            lowest = lowest[np.argsort(component[lowest])]
             if show_scores:
-                concat_words = ", ".join(
-                    [f"{word}({importance:.2f})" for word, importance in terms]
+                concat_positive = ", ".join(
+                    [
+                        f"{word}({importance:.2f})"
+                        for word, importance in zip(vocab[highest], component[highest])
+                    ]
+                )
+                concat_negative = ", ".join(
+                    [
+                        f"{word}({importance:.2f})"
+                        for word, importance in zip(vocab[lowest], component[lowest])
+                    ]
                 )
             else:
-                concat_words = ", ".join([word for word, importance in terms])
-            rows.append([f"{topic_id}", f"{concat_words}"])
+                concat_positive = ", ".join([word for word in vocab[highest]])
+                concat_negative = ", ".join([word for word in vocab[lowest]])
+            row = [f"{topic_id}", f"{concat_positive}"]
+            if show_negative:
+                row.append(concat_negative)
+            rows.append(row)
         return [columns, *rows]
 
-    def print_topics(self, top_k: int = 10, show_scores: bool = False):
+    def print_topics(
+        self,
+        top_k: int = 10,
+        show_scores: bool = False,
+        show_negative: bool = False,
+    ):
         """Pretty prints topics in the model in a table.
 
         Parameters
@@ -86,23 +115,36 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             Number of top words to return for each topic.
         show_scores: bool, default False
             Indicates whether to show importance scores for each word.
+        show_negative: bool, default False
+            Indicates whether the most negative terms should also be displayed.
         """
-        columns, *rows = self._topics_table(top_k, show_scores)
+        columns, *rows = self._topics_table(top_k, show_scores, show_negative)
         table = Table(show_lines=True)
-        table.add_column(columns[0], style="blue", justify="right")
+        table.add_column("Topic ID", style="blue", justify="right")
         table.add_column(
-            columns[1],
+            "Positive",
             justify="left",
             style="magenta",
             max_width=100,
         )
+        if show_negative:
+            table.add_column(
+                "Negative",
+                justify="left",
+                style="red",
+                max_width=100,
+            )
         for row in rows:
             table.add_row(*row)
         console = Console()
         console.print(table)
 
     def export_topics(
-        self, top_k: int = 10, show_scores: bool = False, format: str = "csv"
+        self,
+        top_k: int = 10,
+        show_scores: bool = False,
+        show_negative: bool = False,
+        format: str = "csv",
     ) -> str:
         """Exports top K words from topics in a table in a given format.
         Returns table as a pure string.
@@ -113,6 +155,8 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             Number of top words to return for each topic.
         show_scores: bool, default False
             Indicates whether to show importance scores for each word.
+        show_negative: bool, default False
+            Indicates whether the most negative terms should also be displayed.
         format: 'csv', 'latex' or 'markdown'
             Specifies which format should be used.
             'csv', 'latex' and 'markdown' are supported.
@@ -137,12 +181,8 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         except AttributeError:
             pass
         kth = min(top_k, document_topic_matrix.shape[0] - 1)
-        highest = np.argpartition(-document_topic_matrix[:, topic_id], kth)[
-            :kth
-        ]
-        highest = highest[
-            np.argsort(-document_topic_matrix[highest, topic_id])
-        ]
+        highest = np.argpartition(-document_topic_matrix[:, topic_id], kth)[:kth]
+        highest = highest[np.argsort(-document_topic_matrix[highest, topic_id])]
         scores = document_topic_matrix[highest, topic_id]
         columns = []
         columns.append("Document")
@@ -177,9 +217,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             topic_id, raw_documents, document_topic_matrix, top_k
         )
         table = Table(show_lines=True)
-        table.add_column(
-            "Document", justify="left", style="magenta", max_width=100
-        )
+        table.add_column("Document", justify="left", style="magenta", max_width=100)
         table.add_column("Score", style="blue", justify="right")
         for row in rows:
             table.add_row(*row)
@@ -231,9 +269,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     ) -> list[list[str]]:
         if topic_dist is None:
             if text is None:
-                raise ValueError(
-                    "You should either pass a text or a distribution."
-                )
+                raise ValueError("You should either pass a text or a distribution.")
             try:
                 topic_dist = self.transform([text])
             except AttributeError:
@@ -258,9 +294,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             rows.append([topic_names[ind], f"{score:.2f}"])
         return [columns, *rows]
 
-    def print_topic_distribution(
-        self, text=None, topic_dist=None, top_k: int = 10
-    ):
+    def print_topic_distribution(self, text=None, topic_dist=None, top_k: int = 10):
         """Pretty prints topic distribution in a document.
 
         Parameters
@@ -342,9 +376,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         """
         pass
 
-    def fit(
-        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
-    ):
+    def fit(self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None):
         """Fits model on the given corpus.
 
         Parameters
@@ -410,13 +442,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         if embeddings is None:
             embeddings = self.encode_documents(corpus)
         try:
-            document_topic_matrix = self.transform(
-                corpus, embeddings=embeddings
-            )
+            document_topic_matrix = self.transform(corpus, embeddings=embeddings)
         except (AttributeError, NotFittedError):
-            document_topic_matrix = self.fit_transform(
-                corpus, embeddings=embeddings
-            )
+            document_topic_matrix = self.fit_transform(corpus, embeddings=embeddings)
         dtm = self.vectorizer.transform(corpus)  # type: ignore
         res: TopicData = {
             "corpus": corpus,
