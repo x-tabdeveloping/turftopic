@@ -94,7 +94,7 @@ model.print_topics()
 
 ```python
 # Print highest ranking documents for topic 0
-model.print_highest_ranking_documents(0, corpus, document_topic_matrix)
+model.print_representative_documents(0, corpus, document_topic_matrix)
 ```
 
 <center>
