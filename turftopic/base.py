@@ -23,7 +23,9 @@ Encoder = Union[ExternalEncoder, SentenceTransformer]
 class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     """Base class for contextual topic models in Turftopic."""
 
-    def get_topics(self, top_k: int = 10) -> List[Tuple[Any, List[Tuple[str, float]]]]:
+    def get_topics(
+        self, top_k: int = 10
+    ) -> List[Tuple[Any, List[Tuple[str, float]]]]:
         """Returns high-level topic representations in form of the top K words
         in each topic.
 
@@ -81,13 +83,17 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
                 concat_positive = ", ".join(
                     [
                         f"{word}({importance:.2f})"
-                        for word, importance in zip(vocab[highest], component[highest])
+                        for word, importance in zip(
+                            vocab[highest], component[highest]
+                        )
                     ]
                 )
                 concat_negative = ", ".join(
                     [
                         f"{word}({importance:.2f})"
-                        for word, importance in zip(vocab[lowest], component[lowest])
+                        for word, importance in zip(
+                            vocab[lowest], component[lowest]
+                        )
                     ]
                 )
             else:
@@ -159,11 +165,18 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             Specifies which format should be used.
             'csv', 'latex' and 'markdown' are supported.
         """
-        table = self._topics_table(top_k, show_scores, show_negative=show_negative)
+        table = self._topics_table(
+            top_k, show_scores, show_negative=show_negative
+        )
         return export_table(table, format=format)
 
-    def _highest_ranking_docs(
-        self, topic_id, raw_documents, document_topic_matrix=None, top_k=5
+    def _representative_docs(
+        self,
+        topic_id,
+        raw_documents,
+        document_topic_matrix=None,
+        top_k=5,
+        show_negative: bool = False,
     ) -> list[list[str]]:
         if document_topic_matrix is None:
             try:
@@ -179,8 +192,12 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         except AttributeError:
             pass
         kth = min(top_k, document_topic_matrix.shape[0] - 1)
-        highest = np.argpartition(-document_topic_matrix[:, topic_id], kth)[:kth]
-        highest = highest[np.argsort(-document_topic_matrix[highest, topic_id])]
+        highest = np.argpartition(-document_topic_matrix[:, topic_id], kth)[
+            :kth
+        ]
+        highest = highest[
+            np.argsort(-document_topic_matrix[highest, topic_id])
+        ]
         scores = document_topic_matrix[highest, topic_id]
         columns = []
         columns.append("Document")
@@ -192,10 +209,30 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             if len(doc) > 300:
                 doc = doc[:300] + "..."
             rows.append([doc, f"{score:.2f}"])
+        if show_negative:
+            rows.append(["...", ""])
+            lowest = np.argpartition(document_topic_matrix[:, topic_id], kth)[
+                :kth
+            ]
+            lowest = lowest[
+                np.argsort(document_topic_matrix[lowest, topic_id])
+            ]
+            scores = document_topic_matrix[lowest, topic_id]
+            for document_id, score in zip(lowest, scores):
+                doc = raw_documents[document_id]
+                doc = remove_whitespace(doc)
+                if len(doc) > 300:
+                    doc = doc[:300] + "..."
+                rows.append([doc, f"{score:.2f}"])
         return [columns, *rows]
 
-    def print_highest_ranking_documents(
-        self, topic_id, raw_documents, document_topic_matrix=None, top_k=5
+    def print_representative_documents(
+        self,
+        topic_id,
+        raw_documents,
+        document_topic_matrix=None,
+        top_k=5,
+        show_negative: bool = False,
     ):
         """Pretty prints the highest ranking documents in a topic.
 
@@ -210,24 +247,33 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             as they cannot infer topics from text.
         top_k: int, default 5
             Top K documents to show.
+        show_negative: bool, default False
+            Indicates whether lowest ranking documents should also be shown.
         """
-        columns, *rows = self._highest_ranking_docs(
-            topic_id, raw_documents, document_topic_matrix, top_k
+        columns, *rows = self._representative_docs(
+            topic_id,
+            raw_documents,
+            document_topic_matrix,
+            top_k,
+            show_negative,
         )
         table = Table(show_lines=True)
-        table.add_column("Document", justify="left", style="magenta", max_width=100)
+        table.add_column(
+            "Document", justify="left", style="magenta", max_width=100
+        )
         table.add_column("Score", style="blue", justify="right")
         for row in rows:
             table.add_row(*row)
         console = Console()
         console.print(table)
 
-    def export_highest_ranking_documents(
+    def export_representative_documents(
         self,
         topic_id,
         raw_documents,
         document_topic_matrix=None,
         top_k=5,
+        show_negative: bool = False,
         format: str = "csv",
     ):
         """Exports the highest ranking documents in a topic as a text table.
@@ -243,12 +289,18 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             as they cannot infer topics from text.
         top_k: int, default 5
             Top K documents to show.
+        show_negative: bool, default False
+            Indicates whether lowest ranking documents should also be shown.
         format: 'csv', 'latex' or 'markdown'
             Specifies which format should be used.
             'csv', 'latex' and 'markdown' are supported.
         """
         table = self._highest_ranking_docs(
-            topic_id, raw_documents, document_topic_matrix, top_k
+            topic_id,
+            raw_documents,
+            document_topic_matrix,
+            top_k,
+            show_negative,
         )
         return export_table(table, format=format)
 
@@ -267,7 +319,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     ) -> list[list[str]]:
         if topic_dist is None:
             if text is None:
-                raise ValueError("You should either pass a text or a distribution.")
+                raise ValueError(
+                    "You should either pass a text or a distribution."
+                )
             try:
                 topic_dist = self.transform([text])
             except AttributeError:
@@ -292,7 +346,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             rows.append([topic_names[ind], f"{score:.2f}"])
         return [columns, *rows]
 
-    def print_topic_distribution(self, text=None, topic_dist=None, top_k: int = 10):
+    def print_topic_distribution(
+        self, text=None, topic_dist=None, top_k: int = 10
+    ):
         """Pretty prints topic distribution in a document.
 
         Parameters
@@ -374,7 +430,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         """
         pass
 
-    def fit(self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None):
+    def fit(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ):
         """Fits model on the given corpus.
 
         Parameters
@@ -440,9 +498,13 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         if embeddings is None:
             embeddings = self.encode_documents(corpus)
         try:
-            document_topic_matrix = self.transform(corpus, embeddings=embeddings)
+            document_topic_matrix = self.transform(
+                corpus, embeddings=embeddings
+            )
         except (AttributeError, NotFittedError):
-            document_topic_matrix = self.fit_transform(corpus, embeddings=embeddings)
+            document_topic_matrix = self.fit_transform(
+                corpus, embeddings=embeddings
+            )
         dtm = self.vectorizer.transform(corpus)  # type: ignore
         res: TopicData = {
             "corpus": corpus,
