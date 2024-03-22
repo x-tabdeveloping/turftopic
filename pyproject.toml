@@ -1,6 +1,9 @@
 [tool.black]
 line-length=79
 
+[tool.ruff]
+line-length=79
+
 [tool.poetry]
 name = "turftopic"
 version = "0.2.12"
