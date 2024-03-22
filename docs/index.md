@@ -179,7 +179,7 @@ model.print_topics()
 
 ```python
 # Print highest ranking documents for topic 0
-model.print_highest_ranking_documents(0, corpus, document_topic_matrix)
+model.print_representative_documents(0, corpus, document_topic_matrix)
 ```
 
 <center>
@@ -217,7 +217,7 @@ csv_table: str = model.export_topic_distribution("something something", format="
 
 latex_table: str = model.export_topics(format="latex")
 
-md_table: str = model.export_highest_ranking_documents(0, corpus, document_topic_matrix, format="markdown")
+md_table: str = model.export_representative_documents(0, corpus, document_topic_matrix, format="markdown")
 ```
 
 ### Visualization
