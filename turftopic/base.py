@@ -27,9 +27,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         """Returns high-level topic representations in form of the top K words
         in each topic.
 
-        Parameters
-        ----------
-        top_k: int, default 10
+        Parameters ---------- top_k: int, default 10
             Number of top words to return for each topic.
 
         Returns
@@ -65,9 +63,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         show_scores: bool = False,
         show_negative: bool = False,
     ) -> list[list[str]]:
-        columns = ["Topic ID", "Positive"]
+        columns = ["Topic ID", "Highest Ranking"]
         if show_negative:
-            columns.append("Negative")
+            columns.append("Lowest Ranking")
         rows = []
         try:
             classes = self.classes_
@@ -122,14 +120,14 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         table = Table(show_lines=True)
         table.add_column("Topic ID", style="blue", justify="right")
         table.add_column(
-            "Positive",
+            "Highest Ranking",
             justify="left",
             style="magenta",
             max_width=100,
         )
         if show_negative:
             table.add_column(
-                "Negative",
+                "Lowest Ranking",
                 justify="left",
                 style="red",
                 max_width=100,
