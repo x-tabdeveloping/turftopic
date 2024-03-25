@@ -20,9 +20,8 @@ I DO NOT recommend using this package for production and academic use!!!
  - [x] Pretty Printing
  - [x] Implement visualization utilites for these models in topicwizard
  - [x] Thorough documentation
+ - [x] Dynamic modeling (currently `GMM` and `ClusteringTopicModel` others might follow)
  - [ ] Publish papers :hourglass_flowing_sand: (in progress..)
- - [ ] Dynamic modeling :hourglass_flowing_sand:
- - [ ] More Tutorials
  - [ ] High-level topic descriptions with LLMs.
  - [ ] Contextualized evaluation metrics.
 
@@ -94,7 +93,7 @@ model.print_topics()
 
 ```python
 # Print highest ranking documents for topic 0
-model.print_highest_ranking_documents(0, corpus, document_topic_matrix)
+model.print_representative_documents(0, corpus, document_topic_matrix)
 ```
 
 <center>
