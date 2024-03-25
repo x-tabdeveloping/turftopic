@@ -8,7 +8,7 @@ class ExternalEncoder(ABC):
     """Base class for external encoder models."""
 
     @abstractmethod
-    def encode(sentences: Iterable[str]) -> np.ndarray:
+    def encode(self, sentences: Iterable[str]) -> np.ndarray:
         """Encodes sentences into an embedding matrix.
 
         Parameters
