@@ -1,0 +1,16 @@
+cff-version: 0.1.0
+message: "When using this package please cite us."
+authors:
+- family-names: "Kardos"
+  given-names: "Márton"
+  orcid: "https://orcid.org/0000-0001-9652-4498"
+- family-names: "Jan"
+  given-names: "Kostkan"
+  orcid: "https://orcid.org/0000-0002-9707-7121"
+- family-names: "Rocca"
+  given-names: "Roberta"
+  orcid: "https://orcid.org/0000-0001-9017-8088"
+title: "Turftopic: Robust and fast implementations of transformer-based topic models in Python."
+version: 0.2.13
+date-released: 2024-03-22
+url: "https://github.com/x-tabdeveloping/turftopic"
