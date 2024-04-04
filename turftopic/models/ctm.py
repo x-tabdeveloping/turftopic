@@ -1,4 +1,6 @@
 import math
+import random
+import sys
 from typing import Optional, Union
 
 import numpy as np
@@ -129,6 +131,8 @@ class AutoEncodingTopicModel(ContextualModel):
         Learning rate for the optimizer.
     n_epochs: int, default 50
         Number of epochs to run during training.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
     """
 
     def __init__(
@@ -144,8 +148,10 @@ class AutoEncodingTopicModel(ContextualModel):
         batch_size: int = 42,
         learning_rate: float = 1e-2,
         n_epochs: int = 50,
+        random_state: Optional[int] = None,
     ):
         self.n_components = n_components
+        self.random_state = random_state
         self.encoder = encoder
         if isinstance(encoder, str):
             self.encoder_ = SentenceTransformer(encoder)
@@ -205,7 +211,7 @@ class AutoEncodingTopicModel(ContextualModel):
             status.update("Extracting terms.")
             document_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
-            seed = 0
+            seed = self.random_state or random.randint(0, sys.maxint - 1)
             torch.manual_seed(seed)
             pyro.set_rng_seed(seed)
             device = torch.device(

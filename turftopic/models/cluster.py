@@ -137,6 +137,14 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         The specified reduction method will be used to merge them.
         By default, topics are not merged.
     reduction_method: 'agglomerative', 'smallest'
+        Method used to reduce the number of topics post-hoc.
+        When 'agglomerative', BERTopic's topic reduction method is used,
+        where topic vectors are hierarchically clustered.
+        When 'smallest', the smallest topic gets merged into the closest
+        non-outlier cluster until the desired number
+        is achieved similarly to Top2Vec.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
     """
 
     def __init__(
@@ -154,8 +162,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         reduction_method: Literal[
             "agglomerative", "smallest"
         ] = "agglomerative",
+        random_state: Optional[int] = None,
     ):
         self.encoder = encoder
+        self.random_state = random_state
         if feature_importance not in ["c-tf-idf", "soft-c-tf-idf", "centroid"]:
             raise ValueError(feature_message)
         if isinstance(encoder, int):
@@ -174,7 +184,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.clustering = clustering
         if dimensionality_reduction is None:
             self.dimensionality_reduction = TSNE(
-                n_components=2, metric="cosine"
+                n_components=2, metric="cosine", random_state=random_state
             )
         else:
             self.dimensionality_reduction = dimensionality_reduction
@@ -196,7 +206,9 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         )
         old_labels = [label for label in self.classes_ if label != -1]
         new_labels = AgglomerativeClustering(
-            n_clusters=n_reduce_to, metric="cosine", linkage="average"
+            n_clusters=n_reduce_to,
+            metric="cosine",
+            linkage="average",
         ).fit_predict(interesting_topic_vectors)
         res = {}
         if -1 in self.classes_:
@@ -235,7 +247,9 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.labels_, classes=self.classes_
         )
         if self.feature_importance == "soft-c-tf-idf":
-            self.components_ = soft_ctf_idf(document_topic_matrix, doc_term_matrix)  # type: ignore
+            self.components_ = soft_ctf_idf(
+                document_topic_matrix, doc_term_matrix
+            )  # type: ignore
         elif self.feature_importance == "centroid":
             self.components_ = cluster_centroid_distance(
                 self.topic_vectors_,
@@ -327,7 +341,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         if embeddings is None:
             embeddings = self.encoder_.encode(raw_documents)
         for i_timebin in np.arange(len(self.time_bin_edges) - 1):
-            if hasattr(self, 'components_'):
+            if hasattr(self, "components_"):
                 doc_topic_matrix = label_binarize(
                     self.labels_, classes=self.classes_
                 )

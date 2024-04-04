@@ -79,6 +79,8 @@ class KeyNMF(ContextualModel):
         is performed on the whole vocabulary ('corpus') or only
         using words that are included in the document ('document').
         Setting this to 'corpus' allows for multilingual topics.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
     """
 
     def __init__(
@@ -90,7 +92,9 @@ class KeyNMF(ContextualModel):
         vectorizer: Optional[CountVectorizer] = None,
         top_n: int = 25,
         keyword_scope: str = "document",
+        random_state: Optional[int] = None,
     ):
+        self.random_state = random_state
         if keyword_scope not in ["document", "corpus"]:
             raise ValueError("keyword_scope must be 'document' or 'corpus'")
         self.n_components = n_components
@@ -105,7 +109,7 @@ class KeyNMF(ContextualModel):
         else:
             self.vectorizer = vectorizer
         self.dict_vectorizer_ = DictVectorizer()
-        self.nmf_ = NMF(n_components)
+        self.nmf_ = NMF(n_components, random_state=self.random_state)
         self.keyword_scope = keyword_scope
 
     def extract_keywords(
@@ -172,7 +176,9 @@ class KeyNMF(ContextualModel):
         console=None,
     ):
         self.dict_vectorizer_.fit(keywords)
-        self.nmf_ = MiniBatchNMF(self.n_components)
+        self.nmf_ = MiniBatchNMF(
+            self.n_components, random_state=self.random_state
+        )
         epoch_costs = []
         for i_epoch in range(max_epochs):
             epoch_cost = 0
@@ -220,7 +226,9 @@ class KeyNMF(ContextualModel):
             console.log("Keywords extracted.")
             keywords = KeywordIterator(keyword_file)
             status.update("Fitting NMF.")
-            self.minibatch_train(keywords, max_epochs, batch_size, console=console)  # type: ignore
+            self.minibatch_train(
+                keywords, max_epochs, batch_size, console=console
+            )  # type: ignore
             console.log("NMF fitted.")
         return self
 
