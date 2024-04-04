@@ -27,7 +27,7 @@ class SemanticSignalSeparation(ContextualModel):
 
     Parameters
     ----------
-    n_components: int
+    n_components: int, default 10
         Number of topics.
     encoder: str or SentenceTransformer
         Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
@@ -47,7 +47,7 @@ class SemanticSignalSeparation(ContextualModel):
 
     def __init__(
         self,
-        n_components: int,
+        n_components: int = 10,
         encoder: Union[
             Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
