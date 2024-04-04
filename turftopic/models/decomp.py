@@ -20,7 +20,7 @@ class SemanticSignalSeparation(ContextualModel):
 
     corpus: list[str] = ["some text", "more text", ...]
 
-    model = SemanticSignalSeparation(10, objective="independence").fit(corpus)
+    model = SemanticSignalSeparation(10).fit(corpus)
     model.print_topics()
     ```
 
@@ -33,10 +33,10 @@ class SemanticSignalSeparation(ContextualModel):
     vectorizer: CountVectorizer, default None
         Vectorizer used for term extraction.
         Can be used to prune or filter the vocabulary.
-    objective: 'orthogonality' or 'independence', default 'independence'
-        Indicates what the components should be optimized for.
-        When 'orthogonality', PCA is used to discover components,
-        when 'independence', ICA is used to discover components.
+    max_iter: int, default 200
+        Maximum number of iterations for ICA.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
     """
 
     def __init__(
@@ -46,7 +46,8 @@ class SemanticSignalSeparation(ContextualModel):
             Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
-        objective: Literal["orthogonality", "independence"] = "independence",
+        max_iter: int = 200,
+        random_state: Optional[int] = None,
     ):
         self.n_components = n_components
         self.encoder = encoder
@@ -58,11 +59,11 @@ class SemanticSignalSeparation(ContextualModel):
             self.vectorizer = default_vectorizer()
         else:
             self.vectorizer = vectorizer
-        self.objective = objective
-        if objective == "independence":
-            self.decomposition = FastICA(n_components)
-        else:
-            self.decomposition = PCA(n_components)
+        self.max_iter = max_iter
+        self.random_state = random_state
+        self.decomposition = FastICA(
+            n_components, max_iter=max_iter, random_state=random_state
+        )
 
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
