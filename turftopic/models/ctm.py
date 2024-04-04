@@ -1,6 +1,5 @@
 import math
 import random
-import sys
 from typing import Optional, Union
 
 import numpy as np
@@ -211,7 +210,7 @@ class AutoEncodingTopicModel(ContextualModel):
             status.update("Extracting terms.")
             document_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
-            seed = self.random_state or random.randint(0, sys.maxint - 1)
+            seed = self.random_state or random.randint(0, 10_000)
             torch.manual_seed(seed)
             pyro.set_rng_seed(seed)
             device = torch.device(
