@@ -3,7 +3,8 @@ from typing import Literal, Optional, Union
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
-from sklearn.decomposition import PCA, FastICA
+from sklearn.base import TransformerMixin
+from sklearn.decomposition import FastICA
 from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic.base import ContextualModel, Encoder
@@ -33,6 +34,11 @@ class SemanticSignalSeparation(ContextualModel):
     vectorizer: CountVectorizer, default None
         Vectorizer used for term extraction.
         Can be used to prune or filter the vocabulary.
+    decomposition: TransformerMixin, default None
+        Custom decomposition method to use.
+        Can be an instance of FastICA or PCA, or basically any dimensionality
+        reduction method. Has to have `fit_transform` and `fit` methods.
+        If not specified, FastICA is used.
     max_iter: int, default 200
         Maximum number of iterations for ICA.
     random_state: int, default None
@@ -46,6 +52,7 @@ class SemanticSignalSeparation(ContextualModel):
             Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
+        decomposition: Optional[TransformerMixin] = None,
         max_iter: int = 200,
         random_state: Optional[int] = None,
     ):
@@ -61,9 +68,12 @@ class SemanticSignalSeparation(ContextualModel):
             self.vectorizer = vectorizer
         self.max_iter = max_iter
         self.random_state = random_state
-        self.decomposition = FastICA(
-            n_components, max_iter=max_iter, random_state=random_state
-        )
+        if decomposition is None:
+            self.decomposition = FastICA(
+                n_components, max_iter=max_iter, random_state=random_state
+            )
+        else:
+            self.decomposition = decomposition
 
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
