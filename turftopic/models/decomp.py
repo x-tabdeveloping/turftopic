@@ -3,7 +3,8 @@ from typing import Literal, Optional, Union
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
-from sklearn.decomposition import PCA, FastICA
+from sklearn.base import TransformerMixin
+from sklearn.decomposition import FastICA
 from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic.base import ContextualModel, Encoder
@@ -20,33 +21,40 @@ class SemanticSignalSeparation(ContextualModel):
 
     corpus: list[str] = ["some text", "more text", ...]
 
-    model = SemanticSignalSeparation(10, objective="independence").fit(corpus)
+    model = SemanticSignalSeparation(10).fit(corpus)
     model.print_topics()
     ```
 
     Parameters
     ----------
-    n_components: int
+    n_components: int, default 10
         Number of topics.
     encoder: str or SentenceTransformer
         Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
     vectorizer: CountVectorizer, default None
         Vectorizer used for term extraction.
         Can be used to prune or filter the vocabulary.
-    objective: 'orthogonality' or 'independence', default 'independence'
-        Indicates what the components should be optimized for.
-        When 'orthogonality', PCA is used to discover components,
-        when 'independence', ICA is used to discover components.
+    decomposition: TransformerMixin, default None
+        Custom decomposition method to use.
+        Can be an instance of FastICA or PCA, or basically any dimensionality
+        reduction method. Has to have `fit_transform` and `fit` methods.
+        If not specified, FastICA is used.
+    max_iter: int, default 200
+        Maximum number of iterations for ICA.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
     """
 
     def __init__(
         self,
-        n_components: int,
+        n_components: int = 10,
         encoder: Union[
             Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
-        objective: Literal["orthogonality", "independence"] = "independence",
+        decomposition: Optional[TransformerMixin] = None,
+        max_iter: int = 200,
+        random_state: Optional[int] = None,
     ):
         self.n_components = n_components
         self.encoder = encoder
@@ -58,11 +66,14 @@ class SemanticSignalSeparation(ContextualModel):
             self.vectorizer = default_vectorizer()
         else:
             self.vectorizer = vectorizer
-        self.objective = objective
-        if objective == "independence":
-            self.decomposition = FastICA(n_components)
+        self.max_iter = max_iter
+        self.random_state = random_state
+        if decomposition is None:
+            self.decomposition = FastICA(
+                n_components, max_iter=max_iter, random_state=random_state
+            )
         else:
-            self.decomposition = PCA(n_components)
+            self.decomposition = decomposition
 
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None

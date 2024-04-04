@@ -54,6 +54,8 @@ class GMM(ContextualModel, DynamicTopicModel):
         result in Gaussian components.
         For even larger datasets you can use IncrementalPCA to reduce
         memory load.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
 
     Attributes
     ----------
@@ -71,11 +73,13 @@ class GMM(ContextualModel, DynamicTopicModel):
         dimensionality_reduction: Optional[TransformerMixin] = None,
         weight_prior: Literal["dirichlet", "dirichlet_process", None] = None,
         gamma: Optional[float] = None,
+        random_state: Optional[int] = None,
     ):
         self.n_components = n_components
         self.encoder = encoder
         self.weight_prior = weight_prior
         self.gamma = gamma
+        self.random_state = random_state
         if isinstance(encoder, str):
             self.encoder_ = SentenceTransformer(encoder)
         else:
@@ -94,9 +98,12 @@ class GMM(ContextualModel, DynamicTopicModel):
                     else "dirichlet_process"
                 ),
                 weight_concentration_prior=gamma,
+                random_state=self.random_state,
             )
         else:
-            mixture = GaussianMixture(n_components)
+            mixture = GaussianMixture(
+                n_components, random_state=self.random_state
+            )
         if dimensionality_reduction is not None:
             self.gmm_ = make_pipeline(dimensionality_reduction, mixture)
         else:
@@ -162,7 +169,7 @@ class GMM(ContextualModel, DynamicTopicModel):
         bins: Union[int, list[datetime]] = 10,
     ):
         time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
-        if hasattr(self, 'components_'):
+        if hasattr(self, "components_"):
             doc_topic_matrix = self.transform(
                 raw_documents, embeddings=embeddings
             )
