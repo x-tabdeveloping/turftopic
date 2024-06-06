@@ -217,6 +217,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             lowest = lowest[
                 np.argsort(document_topic_matrix[lowest, topic_id])
             ]
+            lowest = lowest[::-1]
             scores = document_topic_matrix[lowest, topic_id]
             for document_id, score in zip(lowest, scores):
                 doc = raw_documents[document_id]
