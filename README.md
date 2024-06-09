@@ -14,16 +14,35 @@
 
 **Note**: This package is still work in progress and scientific papers on some of the novel methods (e.g., decomposition-based methods) are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-## Roadmap
+## Feature Roadmap
  - [x] Model Implementation
  - [x] Pretty Printing
  - [x] Implement visualization utilites for these models in topicwizard
  - [x] Thorough documentation
- - [x] Dynamic modeling (currently `GMM` and `ClusteringTopicModel` others might follow)
+ - [x] Dynamic modeling (`GMM`, `ClusteringTopicModel` and `KeyNMF`)
  - [ ] Publish papers :hourglass_flowing_sand: (in progress..)
  - [ ] High-level topic descriptions with LLMs.
  - [ ] Contextualized evaluation metrics.
 
+
+#### New in version 0.3.0: Dynamic KeyNMF
+KeyNMF can now be used for dynamic topic modeling.
+
+```python
+from datetime import datetime
+from turftopic import KeyNMF
+
+corpus: list[str] = [...]
+timestamps = list[datetime] = [...]
+
+model = KeyNMF(10)
+doc_topic_matrix = model.fit_transform_dynamic(corpus, timestamps=timestamps, bins=10)
+
+model.print_topics_over_time()
+
+# This needs Plotly: pip install plotly
+model.plot_topics_over_time()
+```
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
