@@ -6,7 +6,7 @@ while taking inspiration from classical matrix-decomposition approaches for extr
 ## The Model
 
 <figure>
-  <img src="/images/keynmf.png" width="90%" style="margin-left: auto;margin-right: auto;">
+  <img src="../images/keynmf.png" width="90%" style="margin-left: auto;margin-right: auto;">
   <figcaption>Schematic overview of KeyNMF</figcaption>
 </figure>
 
