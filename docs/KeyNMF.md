@@ -30,6 +30,12 @@ Topics in this matrix are then discovered using Non-negative Matrix Factorizatio
 Essentially the model tries to discover underlying dimensions/factors along which most of the variance in term importance
 can be explained.
 
+### _(Optional)_ 3. Dynamic Modeling
+
+KeyNMF is also capable of modeling topics over time.
+This happens by fitting a KeyNMF model first on the entire corpus, then
+fitting individual topic-term matrices using coordinate descent based on the document-topic and document-term matrices in the given time slices.
+
 ## Considerations
 
 ### Strengths
