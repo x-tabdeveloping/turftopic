@@ -12,8 +12,7 @@
  - Make the models' API streamlined and compatible with topicwizard and scikit-learn.
  - Develop smarter, transformer-based evaluation metrics.
 
-!!!This package is still a prototype, and no papers are published about the models. Until these are out, and most features are implemented
-I DO NOT recommend using this package for production and academic use!!!
+**Note**: This package is still work in progress and scientific papers on some of the novel methods (e.g., decomposition-based methods) are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
 ## Roadmap
  - [x] Model Implementation
