@@ -6,7 +6,7 @@ while taking inspiration from classical matrix-decomposition approaches for extr
 ## The Model
 
 <figure>
-  <img src="/images/keynmf.png" width="90%" style="margin-left: auto;margin-right: auto;">
+  <img src="../images/keynmf.png" width="90%" style="margin-left: auto;margin-right: auto;">
   <figcaption>Schematic overview of KeyNMF</figcaption>
 </figure>
 
@@ -29,6 +29,12 @@ or between document embeddings and words that occur within each document. The fo
 Topics in this matrix are then discovered using Non-negative Matrix Factorization.
 Essentially the model tries to discover underlying dimensions/factors along which most of the variance in term importance
 can be explained.
+
+### _(Optional)_ 3. Dynamic Modeling
+
+KeyNMF is also capable of modeling topics over time.
+This happens by fitting a KeyNMF model first on the entire corpus, then
+fitting individual topic-term matrices using coordinate descent based on the document-topic and document-term matrices in the given time slices.
 
 ## Considerations
 

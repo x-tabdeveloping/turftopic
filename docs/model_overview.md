@@ -90,7 +90,7 @@ Here is an opinionated guide for common use cases:
 ### 1. When in doubt **use KeyNMF**.
 
 When you can't make an informed decision about which model is optimal for your use case, or you just want to get your hands dirty with topic modeling,
-KeyNMF is the best option.
+KeyNMF is by far the best option.
 It is very stable, gives high quality topics, and is incredibly robust to noise.
 It is also the closest to classical topic models and thus conforms to your intuition about topic modeling.
 

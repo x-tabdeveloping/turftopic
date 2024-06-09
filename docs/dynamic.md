@@ -4,23 +4,12 @@ If you want to examine the evolution of topics over time, you will need a dynami
 
 > Note that regular static models can also be used to study the evolution of topics and information dynamics, but they can't capture changes in the topics themselves.
 
-## Theory
+## Models
 
-A number of different conceptualizations can be used to study evolving topics in corpora, for instance:
-
-1. One can imagine topic representations to be governed by a Brownian Markov Process (random walk), in such a case the evolution is part of the model itself.
- In layman's terms you describe the evolution of topics directly in your generative model by expecting the topic representations to be sampled from Gaussian noise around the last time step.
- Sometimes researchers will also refer to such models as _state-space_ approaches.
- This is the approach that the original [DTM paper](https://mimno.infosci.cornell.edu/info6150/readings/dynamic_topic_models.pdf) utilizes.
- Along with [this paper](https://arxiv.org/pdf/1709.00025.pdf) on Dynamic NMF.
-2. You can fit one underlying statistical model over the entire corpus, and then do post-hoc term importance estimation per time slice.
- This is [what BERTopic does](https://maartengr.github.io/BERTopic/getting_started/topicsovertime/topicsovertime.html).
-3. You can fit one model per time slice, and then use some aggregation procedure to merge the models.
- This approach is used in the Dynamic NMF in [this paper](https://www.cambridge.org/core/journals/political-analysis/article/exploring-the-political-agenda-of-the-european-parliament-using-a-dynamic-topic-modeling-approach/BBC7751778E4542C7C6C69E6BF954E4B).
-
-Developing such approaches takes a lot of time and effort, and we have plans to add dynamic modeling capabilities to all models in Turftopic.
-For now only models of the second kind are on our list of things to do, and dynamic topic modeling has been implemented for GMM, and will soon be implemented for Clustering Topic Models.
-For more theoretical background, see the page on [GMM](GMM.md).
+In Turftopic you can currently use three different topic models for modeling topics over time:
+1. [ClusteringTopicModel](clustering.md), where an overall model is fitted on the whole corpus, and then term importances are estimated over time slices.
+2. [GMM](GMM.md), similarly to clustering models, term importances are reestimated per time slice
+3. [KeyNMF](KeyNMF.md), an overall decomposition is done, then using coordinate descent, topic-term-matrices are recalculated based on document-topic importances in the given time slice.
 
 ## Usage
 
@@ -28,17 +17,17 @@ Dynamic topic models in Turftopic have a unified interface.
 To fit a dynamic topic model you will need a corpus, that has been annotated with timestamps.
 The timestamps need to be Python `datetime` objects, but pandas `Timestamp` object are also supported.
 
-Models that have dynamic modeling capabilities (currently, `GMM` and `ClusteringTopicModel`) have a `fit_transform_dynamic()` method, that fits the model on the corpus over time.
+Models that have dynamic modeling capabilities (`KeyNMF`, `GMM` and `ClusteringTopicModel`) have a `fit_transform_dynamic()` method, that fits the model on the corpus over time.
 
 ```python
 from datetime import datetime
 
-from turftopic import GMM
+from turftopic import KeyNMF
 
 corpus: list[str] = [...]
 timestamps: list[datetime] = [...]
 
-model = GMM(5)
+model = KeyNMF(5)
 document_topic_matrix = model.fit_transform_dynamic(corpus, timestamps=timestamps)
 ```
 

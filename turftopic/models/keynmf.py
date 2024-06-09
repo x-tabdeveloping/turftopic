@@ -1,20 +1,65 @@
 import itertools
 import json
 import random
+from datetime import datetime
 from typing import Dict, Iterable, List, Optional, Union
 
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.decomposition import NMF, MiniBatchNMF
+from sklearn.decomposition._nmf import (_initialize_nmf,
+                                        _update_coordinate_descent)
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.utils import check_array
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.data import TopicData
+from turftopic.dynamic import DynamicTopicModel, bin_timestamps
 from turftopic.vectorizer import default_vectorizer
+
+
+def fit_timeslice(
+    X,
+    W,
+    H,
+    tol=1e-4,
+    max_iter=200,
+    l1_reg_W=0,
+    l1_reg_H=0,
+    l2_reg_W=0,
+    l2_reg_H=0,
+    verbose=0,
+    shuffle=False,
+    random_state=None,
+):
+    """Fits topic_term_matrix based on a precomputed document_topic_matrix.
+    This is used to get temporal components in dynamic KeyNMF.
+    """
+    Ht = check_array(H.T, order="C")
+    if random_state is None:
+        rng = np.random.mtrand._rand
+    else:
+        rng = np.random.RandomState(random_state)
+    for n_iter in range(1, max_iter + 1):
+        violation = 0.0
+        violation += _update_coordinate_descent(
+            X.T, Ht, W, l1_reg_H, l2_reg_H, shuffle, rng
+        )
+        if n_iter == 1:
+            violation_init = violation
+        if violation_init == 0:
+            break
+        if verbose:
+            print("violation:", violation / violation_init)
+        if violation / violation_init <= tol:
+            if verbose:
+                print("Converged at iteration", n_iter + 1)
+            break
+    return W, Ht.T, n_iter
 
 
 def batched(iterable, n: int) -> Iterable[List[str]]:
@@ -48,7 +93,7 @@ class KeywordIterator:
                 yield deserialize_keywords(line.strip())
 
 
-class KeyNMF(ContextualModel):
+class KeyNMF(ContextualModel, DynamicTopicModel):
     """Extracts keywords from documents based on semantic similarity of
     term encodings to document encodings.
     Topics are then extracted with non-negative matrix factorization from
@@ -305,3 +350,32 @@ class KeyNMF(ContextualModel):
             "topic_names": self.topic_names,
         }
         return res
+
+    def fit_transform_dynamic(
+        self,
+        raw_documents,
+        timestamps: list[datetime],
+        embeddings: Optional[np.ndarray] = None,
+        bins: Union[int, list[datetime]] = 10,
+    ) -> np.ndarray:
+        time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
+        topic_data = self.prepare_topic_data(
+            raw_documents, embeddings=embeddings
+        )
+        n_bins = len(self.time_bin_edges) + 1
+        n_comp, n_vocab = self.components_.shape
+        self.temporal_components_ = np.zeros((n_bins, n_comp, n_vocab))
+        self.temporal_importance_ = np.zeros((n_bins, n_comp))
+        for label in np.unique(time_labels):
+            idx = np.nonzero(time_labels == label)
+            X = topic_data["document_term_matrix"][idx]
+            W = topic_data["document_topic_matrix"][idx]
+            _, H = _initialize_nmf(
+                X, self.components_.shape[0], random_state=self.random_state
+            )
+            _, H, _ = fit_timeslice(X, W, H, random_state=self.random_state)
+            self.temporal_components_[label] = H
+            topic_importances = np.squeeze(np.asarray(W.sum(axis=0)))
+            topic_importances = topic_importances / topic_importances.sum()
+            self.temporal_importance_[label] = topic_importances
+        return topic_data["document_topic_matrix"]

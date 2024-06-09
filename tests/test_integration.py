@@ -1,5 +1,5 @@
-from datetime import datetime
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -8,13 +8,8 @@ import pytest
 from sentence_transformers import SentenceTransformer
 from sklearn.datasets import fetch_20newsgroups
 
-from turftopic import (
-    GMM,
-    AutoEncodingTopicModel,
-    ClusteringTopicModel,
-    KeyNMF,
-    SemanticSignalSeparation,
-)
+from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
+                       KeyNMF, SemanticSignalSeparation)
 
 
 def generate_dates(
@@ -75,8 +70,9 @@ dynamic_models = [
         n_reduce_to=5,
         feature_importance="soft-c-tf-idf",
         encoder=trf,
-        reduction_method="smallest"
+        reduction_method="smallest",
     ),
+    KeyNMF(5, encoder=trf),
 ]
 
 
