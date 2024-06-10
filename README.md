@@ -4,26 +4,20 @@
  <b>Topic modeling is your turf too.</b> <br> <i> Contextual topic models with representations from transformers. </i></p>
 
 
-## Intentions
- - Provide simple, robust and fast implementations of existing approaches (BERTopic, Top2Vec, CTM) with minimal dependencies.
- - Implement state-of-the-art approaches from my papers. (papers work-in-progress)
- - Put all approaches in a broader conceptual framework.
- - Provide clear and extensive documentation about the best use-cases for each model.
- - Make the models' API streamlined and compatible with topicwizard and scikit-learn.
- - Develop smarter, transformer-based evaluation metrics.
+## Features
+ - Novel transformer-based topic models:
+   - Semantic Signal Separation - S³ (paper in progress ⏳)
+   - KeyNMF 🔑
+   - GMM
+ - Implementations of existing transformer-based topic models
+   - Clustering Topic Models: BERTopic and Top2Vec
+   - Autoencoding Topic Models: CombinedTM and ZeroShotTM
+ - Streamlined scikit-learn compatible API 🛠️
+ - Easy topic interpretation 🔍
+ - Dynamic Topic Modeling 📈 (GMM, ClusteringTopicModel and KeyNMF)
+ - Visualization with [topicwizard](https://github.com/x-tabdeveloping/topicwizard) 🖌️
 
-**Note**: This package is still work in progress and scientific papers on some of the novel methods (e.g., decomposition-based methods) are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
-
-## Feature Roadmap
- - [x] Model Implementation
- - [x] Pretty Printing
- - [x] Implement visualization utilites for these models in topicwizard
- - [x] Thorough documentation
- - [x] Dynamic modeling (`GMM`, `ClusteringTopicModel` and `KeyNMF`)
- - [ ] Publish papers :hourglass_flowing_sand: (in progress..)
- - [ ] High-level topic descriptions with LLMs.
- - [ ] Contextualized evaluation metrics.
-
+> This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
 #### New in version 0.3.0: Dynamic KeyNMF
 KeyNMF can now be used for dynamic topic modeling.
