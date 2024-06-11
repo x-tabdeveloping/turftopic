@@ -11,6 +11,7 @@ from sklearn.decomposition._nmf import (
     _initialize_nmf,
     _update_coordinate_descent,
 )
+from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.utils import check_array
@@ -99,14 +100,14 @@ class KeywordExtractor:
         documents: list[str],
         embeddings: Optional[np.ndarray] = None,
     ) -> list[dict[str, float]]:
-        if len(embeddings) != len(documents):
-            raise ValueError(
-                "Number of documents doesn't match number of embeddings."
-            )
         if not len(documents):
             return []
         if embeddings is None:
             embeddings = self.encoder.encode(documents)
+        if len(embeddings) != len(documents):
+            raise ValueError(
+                "Number of documents doesn't match number of embeddings."
+            )
         keywords = []
         vectorizer = clone(self.vectorizer)
         document_term_matrix = vectorizer.fit_transform(documents)
@@ -132,7 +133,7 @@ class KeywordExtractor:
             kth = min(self.top_n, len(sim) - 1)
             top = np.argpartition(-sim, kth)[:kth]
             top_words = batch_vocab[important_terms][top]
-            top_sims = sim[top]
+            top_sims = [sim for sim in sim[top] if sim > 0]
             keywords.append(dict(zip(top_words, top_sims)))
         return keywords
 
@@ -162,6 +163,17 @@ class KeywordNMF:
             if n_new:
                 self.components = np.concatenate(
                     (self.components, H[:, -n_new:]), axis=1
+                )
+        if self.temporal_components is not None:
+            n_new = X.shape[1] - self.temporal_components.shape[-1]
+            if n_new:
+                new_comps = H[:, -n_new:]
+                new_comps = np.broadcast_to(
+                    new_comps,
+                    (self.temporal_components.shape[0], *new_comps.shape),
+                )
+                self.temporal_components = np.concatenate(
+                    (self.temporal_components, new_comps), axis=-1
                 )
 
     def vectorize(
@@ -193,16 +205,20 @@ class KeywordNMF:
         W, H, self.n_iter = NMF(
             self.n_components, init="custom", random_state=self.seed
         )._fit_transform(X, W=W, H=H, update_H=True)
-        self.components = H
+        self.components = H.astype(X.dtype)
         return W
 
     def transform(self, keywords: list[dict[str, float]]):
+        if self.components is None:
+            raise NotFittedError(
+                "Can't transform() if the model has not been fitted."
+            )
         X = self.vectorize(keywords, fitting=False)
         check_non_negative(X, "NMF (input X)")
         W, _, _ = NMF(
             self.n_components, init="custom", random_state=self.seed
         )._fit_transform(X, W=None, H=self.components, update_H=False)
-        return W
+        return W.astype(X.dtype)
 
     def partial_fit(self, keyword_batch: list[dict[str, float]]):
         X = self.vectorize(keyword_batch, fitting=True)
@@ -212,7 +228,7 @@ class KeywordNMF:
         _minibatchnmf = MiniBatchNMF(
             self.n_components, init="custom", random_state=self.seed
         ).partial_fit(X, W=W, H=self.components)
-        self.components = _minibatchnmf.components_
+        self.components = _minibatchnmf.components_.astype(X.dtype)
         return self
 
     def fit_transform_dynamic(
@@ -227,7 +243,7 @@ class KeywordNMF:
         check_non_negative(document_term_matrix, "NMF (input X)")
         document_topic_matrix, H = _initialize_nmf(
             document_term_matrix,
-            self.components.shape[0],
+            self.n_components,
             random_state=self.seed,
         )
         document_topic_matrix, H, self.n_iter = NMF(
@@ -235,18 +251,20 @@ class KeywordNMF:
         )._fit_transform(
             document_term_matrix, W=document_topic_matrix, H=H, update_H=True
         )
-        self.components = H
+        self.components = H.astype(document_term_matrix.dtype)
         n_comp, n_vocab = self.components.shape
-        self.temporal_components = np.zeros((n_bins, n_comp, n_vocab))
+        self.temporal_components = np.zeros(
+            (n_bins, n_comp, n_vocab), dtype=document_term_matrix.dtype
+        )
         self.temporal_importance_ = np.zeros((n_bins, n_comp))
         for label in np.unique(time_labels):
             idx = np.nonzero(time_labels == label)
             X = document_term_matrix[idx]
             W = document_topic_matrix[idx]
             _, H = _initialize_nmf(
-                X, self.components.shape[0], random_state=self.random_state
+                X, self.components.shape[0], random_state=self.seed
             )
-            _, H, _ = fit_timeslice(X, W, H, random_state=self.random_state)
+            _, H, _ = fit_timeslice(X, W, H, random_state=self.seed)
             self.temporal_components[label] = H
             topic_importances = np.squeeze(np.asarray(W.sum(axis=0)))
             self.temporal_importance_[label] = topic_importances
@@ -260,16 +278,23 @@ class KeywordNMF:
     ) -> np.ndarray:
         if self.temporal_components is None:
             self.fit_transform_dynamic(
-                self, keyword_batch, time_labels, time_bin_edges
+                keyword_batch, time_labels, time_bin_edges
             )
         else:
             document_term_matrix = self.vectorize(keyword_batch, fitting=True)
             check_non_negative(document_term_matrix, "NMF (input X)")
             self._add_word_components(document_term_matrix)
+            document_topic_matrix = self.transform(keyword_batch)
             _minibatchnmf = MiniBatchNMF(
                 self.n_components, init="custom", random_state=self.seed
-            ).partial_fit(document_term_matrix, W=None, H=self.components)
-            self.components = _minibatchnmf.components_
+            ).partial_fit(
+                document_term_matrix,
+                W=document_topic_matrix,
+                H=self.components,
+            )
+            self.components = _minibatchnmf.components_.astype(
+                document_term_matrix.dtype
+            )
             document_topic_matrix = self.transform(keyword_batch)
             for label in np.unique(time_labels):
                 idx = np.nonzero(time_labels == label)
@@ -282,6 +307,6 @@ class KeywordNMF:
                     W=W,
                     H=self.temporal_components[label],
                 )
-                self.temporal_components.label = _minibatchnmf.components_
+                self.temporal_components[label] = _minibatchnmf.components_
                 topic_importances = np.squeeze(np.asarray(W.sum(axis=0)))
                 self.temporal_importance_[label] += topic_importances
