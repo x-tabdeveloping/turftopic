@@ -1,6 +1,5 @@
-import json
 from datetime import datetime
-from typing import Iterable, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 from rich.console import Console
@@ -12,27 +11,6 @@ from turftopic.base import ContextualModel, Encoder
 from turftopic.data import TopicData
 from turftopic.dynamic import DynamicTopicModel, bin_timestamps
 from turftopic.models._keynmf import KeywordExtractor, KeywordNMF
-
-
-def serialize_keywords(keywords: dict[str, float]) -> str:
-    return json.dumps(
-        {word: str(importance) for word, importance in keywords.items()}
-    )
-
-
-def deserialize_keywords(s: str) -> dict[str, float]:
-    obj = json.loads(s)
-    return {word: float(importance) for word, importance in obj.items()}
-
-
-class KeywordIterator:
-    def __init__(self, file: str):
-        self.file = file
-
-    def __iter__(self) -> Iterable[dict[str, float]]:
-        with open(self.file) as in_file:
-            for line in in_file:
-                yield deserialize_keywords(line.strip())
 
 
 class KeyNMF(ContextualModel, DynamicTopicModel):
@@ -183,6 +161,17 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         embeddings: Optional[np.ndarray] = None,
         keywords: Optional[list[dict[str, float]]] = None,
     ):
+        """Online fits KeyNMF on a batch of documents.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        embeddings: ndarray of shape (n_documents, n_dimensions), optional
+            Precomputed document encodings.
+        keywords: list[dict[str, float]], optional
+            Precomputed keyword dictionaries.
+        """
         if keywords is None and raw_documents is None:
             raise ValueError(
                 "You have to pass either keywords or raw_documents."
@@ -279,6 +268,21 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         keywords: Optional[list[dict[str, float]]] = None,
         bins: Union[int, list[datetime]] = 10,
     ):
+        """Online fits Dynamic KeyNMF on a batch of documents.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        embeddings: ndarray of shape (n_documents, n_dimensions), optional
+            Precomputed document encodings.
+        keywords: list[dict[str, float]], optional
+            Precomputed keyword dictionaries.
+        timestamps: list[datetime], optional
+            List of timestamps for the batch.
+        bins: list[datetime]
+            Explicit time bin edges for the dynamic model.
+        """
         if timestamps is None:
             raise TypeError(
                 "You have to pass timestamps when fitting a dynamic model."
