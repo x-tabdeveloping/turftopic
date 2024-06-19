@@ -6,7 +6,7 @@
 
 ## Features
  - Novel transformer-based topic models:
-   - Semantic Signal Separation - S³ (paper in progress ⏳)
+   - Semantic Signal Separation - S³ 🧭
    - KeyNMF 🔑
    - GMM
  - Implementations of existing transformer-based topic models
@@ -159,14 +159,10 @@ topicwizard.visualize(corpus, model=model)
 
 Alternatively you can use the [Figures API](https://x-tabdeveloping.github.io/topicwizard/figures.html) in topicwizard for individual HTML figures.
 
-## Models
-
-| Model | Description | Usage |
-| - | - | - |
-| KeyNMF | Non-negative Matrix Factorization enhanced with keyword extraction using sentence embeddings | `model = KeyNMF(n_components=10).fit(corpus)` |
-| GMM | Gaussian Mixture Model over contextual embeddings + post-hoc term importance estimation | `model = GMM(n_components=10).fit(corpus)` |
-| S³ | Separates semantic signals, aka. axes of semantics in a corpus using independent component analysis. | `model = SemanticSignalSeparation(n_components=10).fit(corpus)` |
-| Autoencoding Models | Learn topics using amortized variational inference enhanced by contextual representations.  | `model = AutoEncodingTopicModel(n_components=10, combined=False).fit(corpus)` |
-| Clustering Models | Clusters semantic embeddings, and estimates term importances for clusters.  | `model = ClusteringTopicModel(feature_importance="ctfidf").fit(corpus)` |
-
-For extensive comparison see our [Model Overview](https://x-tabdeveloping.github.io/turftopic/model_overview/).
+## References
+- Kardos, M., Kostkan, J., Vermillet, A., Nielbo, K., Enevoldsen, K., & Rocca, R. (2024, June 13). $S^3$ - Semantic Signal separation. arXiv.org. https://arxiv.org/abs/2406.09556
+ - Grootendorst, M. (2022, March 11). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. arXiv.org. https://arxiv.org/abs/2203.05794
+ - Angelov, D. (2020, August 19). Top2VEC: Distributed representations of topics. arXiv.org. https://arxiv.org/abs/2008.09470
+ - Bianchi, F., Terragni, S., & Hovy, D. (2020, April 8). Pre-training is a Hot Topic: Contextualized Document Embeddings Improve Topic Coherence. arXiv.org. https://arxiv.org/abs/2004.03974
+ - Bianchi, F., Terragni, S., Hovy, D., Nozza, D., & Fersini, E. (2021). Cross-lingual Contextualized Topic Models with Zero-shot Learning. In Proceedings of the 16th Conference of the European 
+ - Chapter of the Association for Computational Linguistics: Main Volume (pp. 1676–1683). Association for Computational Linguistics.
