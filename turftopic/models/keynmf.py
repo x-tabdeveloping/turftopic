@@ -90,7 +90,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             self.vectorizer = CountVectorizer()
         else:
             self.vectorizer = vectorizer
-        self.model = KeywordNMF(n_components=n_components, seed=random_state)
+        self.model = KeywordNMF(
+            n_components=n_components, seed=random_state, top_n=self.top_n
+        )
         self.extractor = KeywordExtractor(
             top_n=self.top_n, vectorizer=self.vectorizer, encoder=self.encoder_
         )

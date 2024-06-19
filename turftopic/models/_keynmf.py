@@ -139,15 +139,30 @@ class KeywordExtractor:
 
 
 class KeywordNMF:
-    def __init__(self, n_components: int, seed: Optional[int] = None):
+    def __init__(
+        self,
+        n_components: int,
+        seed: Optional[int] = None,
+        top_n: Optional[int] = None,
+    ):
         self.n_components = n_components
         self.key_to_index: dict[str, int] = {}
         self.index_to_key: list[str] = []
+        self.top_n = top_n
         # n_components * n_vocab
         self.components: Optional[np.ndarray] = None
         self.seed = seed
         self.temporal_components: Optional[np.ndarray] = None
         self.temporal_importance_: Optional[np.ndarray] = None
+
+    def prune_keywords(self, keywords: dict[str, float]) -> dict[str, float]:
+        """If there are more keywords than allowed, this prunes them."""
+        if (self.top_n is None) or (self.top_n >= len(keywords)):
+            return keywords
+        words, similarities = zip(*keywords.items())
+        selected = np.argsort(similarities)[: self.top_n]
+        items = [(words[i], similarities[i]) for i in selected]
+        return dict(items)
 
     @property
     def n_vocab(self) -> int:
@@ -183,6 +198,7 @@ class KeywordNMF:
         indptr = [0]
         values = []
         for k in keywords:
+            k = self.prune_keywords(k)
             for w, v in k.items():
                 # Adding vocab item if missing
                 if (w not in self.key_to_index) and fitting:
