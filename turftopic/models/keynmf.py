@@ -73,12 +73,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         top_n: int = 25,
-        keyword_scope: str = "document",
         random_state: Optional[int] = None,
     ):
         self.random_state = random_state
-        if keyword_scope not in ["document", "corpus"]:
-            raise ValueError("keyword_scope must be 'document' or 'corpus'")
         self.n_components = n_components
         self.top_n = top_n
         self.encoder = encoder
