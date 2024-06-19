@@ -8,8 +8,23 @@ import pytest
 from sentence_transformers import SentenceTransformer
 from sklearn.datasets import fetch_20newsgroups
 
-from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
-                       KeyNMF, SemanticSignalSeparation)
+from turftopic import (
+    GMM,
+    AutoEncodingTopicModel,
+    ClusteringTopicModel,
+    KeyNMF,
+    SemanticSignalSeparation,
+)
+
+
+def batched(iterable, n: int):
+    "Batch data into tuples of length n. The last batch may be shorter."
+    # batched('ABCDEFG', 3) --> ABC DEF G
+    if n < 1:
+        raise ValueError("n must be at least one")
+    it = iter(iterable)
+    while batch := list(itertools.islice(it, n)):
+        yield batch
 
 
 def generate_dates(
@@ -75,6 +90,8 @@ dynamic_models = [
     KeyNMF(5, encoder=trf),
 ]
 
+online_models = [KeyNMF(5, encoder=trf)]
+
 
 @pytest.mark.parametrize("model", models)
 def test_fit_export_table(model):
@@ -94,6 +111,19 @@ def test_fit_dynamic(model):
         embeddings=embeddings,
         timestamps=timestamps,
     )
+    table = model.export_topics(format="csv")
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        out_path = Path(tmpdirname).joinpath("topics.csv")
+        with out_path.open("w") as out_file:
+            out_file.write(table)
+        df = pd.read_csv(out_path)
+
+
+@pytest.mark.parametrize("model", online_models)
+def test_fit_online(model):
+    for epoch in range(5):
+        for batch in batched(texts, 50):
+            model.partial_fit(texts)
     table = model.export_topics(format="csv")
     with tempfile.TemporaryDirectory() as tmpdirname:
         out_path = Path(tmpdirname).joinpath("topics.csv")
