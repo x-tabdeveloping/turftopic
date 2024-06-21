@@ -1,3 +1,4 @@
+import itertools
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -56,8 +57,7 @@ timestamps = generate_dates(n_dates=len(texts))
 models = [
     GMM(5, encoder=trf),
     SemanticSignalSeparation(5, encoder=trf),
-    KeyNMF(5, encoder=trf, keyword_scope="document"),
-    KeyNMF(5, encoder=trf, keyword_scope="corpus"),
+    KeyNMF(5, encoder=trf),
     ClusteringTopicModel(
         n_reduce_to=5,
         feature_importance="c-tf-idf",
@@ -122,8 +122,11 @@ def test_fit_dynamic(model):
 @pytest.mark.parametrize("model", online_models)
 def test_fit_online(model):
     for epoch in range(5):
-        for batch in batched(texts, 50):
-            model.partial_fit(texts)
+        for batch in batched(zip(texts, embeddings), 50):
+            batch_text, batch_embedding = zip(*batch)
+            batch_text = list(batch_text)
+            batch_embedding = np.stack(batch_embedding)
+            model.partial_fit(batch_text, embeddings=batch_embedding)
     table = model.export_topics(format="csv")
     with tempfile.TemporaryDirectory() as tmpdirname:
         out_path = Path(tmpdirname).joinpath("topics.csv")
