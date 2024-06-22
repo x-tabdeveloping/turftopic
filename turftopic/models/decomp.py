@@ -176,6 +176,8 @@ class SemanticSignalSeparation(ContextualModel):
         self, topic_x: Union[int, str], topic_y: Union[str, int]
     ):
         """Display a compass of concepts along two semantic axes.
+        In order for the plot to be concise and readable, terms are randomly selected on
+        a grid of the two topics.
 
         Parameters
         ----------
