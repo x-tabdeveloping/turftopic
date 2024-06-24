@@ -4,26 +4,39 @@
  <b>Topic modeling is your turf too.</b> <br> <i> Contextual topic models with representations from transformers. </i></p>
 
 
-## Intentions
- - Provide simple, robust and fast implementations of existing approaches (BERTopic, Top2Vec, CTM) with minimal dependencies.
- - Implement state-of-the-art approaches from my papers. (papers work-in-progress)
- - Put all approaches in a broader conceptual framework.
- - Provide clear and extensive documentation about the best use-cases for each model.
- - Make the models' API streamlined and compatible with topicwizard and scikit-learn.
- - Develop smarter, transformer-based evaluation metrics.
+## Features
+ - Novel transformer-based topic models:
+   - Semantic Signal Separation - S³ 🧭
+   - KeyNMF 🔑
+   - GMM
+ - Implementations of existing transformer-based topic models
+   - Clustering Topic Models: BERTopic and Top2Vec
+   - Autoencoding Topic Models: CombinedTM and ZeroShotTM
+ - Streamlined scikit-learn compatible API 🛠️
+ - Easy topic interpretation 🔍
+ - Dynamic Topic Modeling 📈 (GMM, ClusteringTopicModel and KeyNMF)
+ - Visualization with [topicwizard](https://github.com/x-tabdeveloping/topicwizard) 🖌️
 
-**Note**: This package is still work in progress and scientific papers on some of the novel methods (e.g., decomposition-based methods) are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
+> This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-## Roadmap
- - [x] Model Implementation
- - [x] Pretty Printing
- - [x] Implement visualization utilites for these models in topicwizard
- - [x] Thorough documentation
- - [x] Dynamic modeling (currently `GMM` and `ClusteringTopicModel` others might follow)
- - [ ] Publish papers :hourglass_flowing_sand: (in progress..)
- - [ ] High-level topic descriptions with LLMs.
- - [ ] Contextualized evaluation metrics.
+#### New in version 0.3.0: Dynamic KeyNMF
+KeyNMF can now be used for dynamic topic modeling.
 
+```python
+from datetime import datetime
+from turftopic import KeyNMF
+
+corpus: list[str] = [...]
+timestamps = list[datetime] = [...]
+
+model = KeyNMF(10)
+doc_topic_matrix = model.fit_transform_dynamic(corpus, timestamps=timestamps, bins=10)
+
+model.print_topics_over_time()
+
+# This needs Plotly: pip install plotly
+model.plot_topics_over_time()
+```
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
@@ -146,14 +159,10 @@ topicwizard.visualize(corpus, model=model)
 
 Alternatively you can use the [Figures API](https://x-tabdeveloping.github.io/topicwizard/figures.html) in topicwizard for individual HTML figures.
 
-## Models
-
-| Model | Description | Usage |
-| - | - | - |
-| KeyNMF | Non-negative Matrix Factorization enhanced with keyword extraction using sentence embeddings | `model = KeyNMF(n_components=10).fit(corpus)` |
-| GMM | Gaussian Mixture Model over contextual embeddings + post-hoc term importance estimation | `model = GMM(n_components=10).fit(corpus)` |
-| S³ | Separates semantic signals, aka. axes of semantics in a corpus using independent component analysis. | `model = SemanticSignalSeparation(n_components=10).fit(corpus)` |
-| Autoencoding Models | Learn topics using amortized variational inference enhanced by contextual representations.  | `model = AutoEncodingTopicModel(n_components=10, combined=False).fit(corpus)` |
-| Clustering Models | Clusters semantic embeddings, and estimates term importances for clusters.  | `model = ClusteringTopicModel(feature_importance="ctfidf").fit(corpus)` |
-
-For extensive comparison see our [Model Overview](https://x-tabdeveloping.github.io/turftopic/model_overview/).
+## References
+- Kardos, M., Kostkan, J., Vermillet, A., Nielbo, K., Enevoldsen, K., & Rocca, R. (2024, June 13). $S^3$ - Semantic Signal separation. arXiv.org. https://arxiv.org/abs/2406.09556
+ - Grootendorst, M. (2022, March 11). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. arXiv.org. https://arxiv.org/abs/2203.05794
+ - Angelov, D. (2020, August 19). Top2VEC: Distributed representations of topics. arXiv.org. https://arxiv.org/abs/2008.09470
+ - Bianchi, F., Terragni, S., & Hovy, D. (2020, April 8). Pre-training is a Hot Topic: Contextualized Document Embeddings Improve Topic Coherence. arXiv.org. https://arxiv.org/abs/2004.03974
+ - Bianchi, F., Terragni, S., Hovy, D., Nozza, D., & Fersini, E. (2021). Cross-lingual Contextualized Topic Models with Zero-shot Learning. In Proceedings of the 16th Conference of the European 
+ - Chapter of the Association for Computational Linguistics: Main Volume (pp. 1676–1683). Association for Computational Linguistics.
