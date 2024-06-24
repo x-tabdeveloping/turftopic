@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
 import numpy as np
@@ -17,15 +17,53 @@ def bin_timestamps(
         raise TypeError("Timestamps have to be `datetime` objects.")
     unix_timestamps = [timestamp.timestamp() for timestamp in timestamps]
     if isinstance(bins, list):
+        if min(timestamps) < min(bins):
+            raise ValueError(
+                f"Earliest timestamp ({min(timestamps)}) is not later or the same as first bin edge ({min(bins)})."
+            )
+        if max(timestamps) >= max(bins):
+            raise ValueError(
+                f"Latest timestamp ({max(timestamps)}) is not earlier than last bin edge ({max(bins)})."
+            )
         unix_bins = [bin.timestamp() for bin in bins]
-        return np.digitize(unix_timestamps, unix_bins), bins
+        # Have to substract one, else it starts from one
+        return np.digitize(unix_timestamps, unix_bins) - 1, bins
     else:
+        # Adding one day, so that the maximum value is still included.
+        max_timestamp = max(timestamps) + timedelta(days=1)
         unix_bins = np.histogram_bin_edges(unix_timestamps, bins=bins)
+        unix_bins[-1] = max_timestamp.timestamp()
         bins = [datetime.fromtimestamp(ts) for ts in unix_bins]
-        return np.digitize(unix_timestamps, unix_bins), bins
+        # Have to substract one, else it starts from one
+        return np.digitize(unix_timestamps, unix_bins) - 1, bins
 
 
 class DynamicTopicModel(ABC):
+    @staticmethod
+    def bin_timestamps(
+        timestamps: list[datetime], bins: Union[int, list[datetime]] = 10
+    ) -> tuple[np.ndarray, list[datetime]]:
+        """Bins timestamps based on given bins.
+
+        Parameters
+        ----------
+        timestamps: list[datetime]
+            List of timestamps for documents.
+        bins: int or list[datetime], default 10
+            Time bins to use.
+            If the bins are an int (N), N equally sized bins are used.
+            Otherwise they should be bin edges, including the last and first edge.
+            Bins are inclusive at the lower end and exclusive at the upper (lower <= timestamp < upper).
+
+        Returns
+        -------
+        time_labels: ndarray of int
+            Labels for time slice in each document.
+        bin_edges: list[datetime]
+            List of edges for time bins.
+        """
+        return bin_timestamps(timestamps, bins)
+
     @abstractmethod
     def fit_transform_dynamic(
         self,
@@ -79,6 +117,9 @@ class DynamicTopicModel(ABC):
             When an `int`, the corpus will be divided into N equal time slices.
             When a list, it describes the edges of each time slice including the starting
             and final edges of the slices.
+
+            Note: The final edge is not included. You might want to add one day to
+            the last bin edge if it equals the last timestamp.
         """
         self.fit_transform_dynamic(raw_documents, timestamps, embeddings, bins)
         return self
@@ -273,7 +314,7 @@ class DynamicTopicModel(ABC):
                     continue
                 high = high[np.argsort(-values)]
                 name_over_time.append(", ".join(vocab[high]))
-            times = self.time_bin_edges[1:]
+            times = self.time_bin_edges[:-1]
             fig.add_trace(
                 go.Scatter(
                     x=times,

@@ -10,7 +10,7 @@ from sklearn.mixture import BayesianGaussianMixture, GaussianMixture
 from sklearn.pipeline import Pipeline, make_pipeline
 
 from turftopic.base import ContextualModel, Encoder
-from turftopic.dynamic import DynamicTopicModel, bin_timestamps
+from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import soft_ctf_idf
 from turftopic.vectorizer import default_vectorizer
 
@@ -168,7 +168,9 @@ class GMM(ContextualModel, DynamicTopicModel):
         embeddings: Optional[np.ndarray] = None,
         bins: Union[int, list[datetime]] = 10,
     ):
-        time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
+        time_labels, self.time_bin_edges = self.bin_timestamps(
+            timestamps, bins
+        )
         if hasattr(self, "components_"):
             doc_topic_matrix = self.transform(
                 raw_documents, embeddings=embeddings
@@ -178,9 +180,13 @@ class GMM(ContextualModel, DynamicTopicModel):
                 raw_documents, embeddings=embeddings
             )
         document_term_matrix = self.vectorizer.transform(raw_documents)
-        temporal_components = []
-        temporal_importances = []
-        for i_timebin in np.arange(len(self.time_bin_edges) - 1):
+        n_comp, n_vocab = self.components_.shape
+        n_bins = len(self.time_bin_edges) - 1
+        self.temporal_components_ = np.zeros(
+            (n_bins, n_comp, n_vocab), dtype=document_term_matrix.dtype
+        )
+        self.temporal_importance_ = np.zeros((n_bins, n_comp))
+        for i_timebin in np.unique(time_labels):
             topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(
                 axis=0
             )
@@ -190,8 +196,6 @@ class GMM(ContextualModel, DynamicTopicModel):
                 doc_topic_matrix[time_labels == i_timebin],
                 document_term_matrix[time_labels == i_timebin],  # type: ignore
             )
-            temporal_components.append(components)
-            temporal_importances.append(topic_importances)
-        self.temporal_components_ = np.stack(temporal_components)
-        self.temporal_importance_ = np.stack(temporal_importances)
+            self.temporal_components_[i_timebin] = components
+            self.temporal_importance_[i_timebin] = topic_importances
         return doc_topic_matrix

@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.data import TopicData
-from turftopic.dynamic import DynamicTopicModel, bin_timestamps
+from turftopic.dynamic import DynamicTopicModel
 from turftopic.models._keynmf import KeywordExtractor, KeywordNMF
 
 
@@ -248,7 +248,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             keywords = self.extract_keywords(
                 raw_documents, embeddings=embeddings
             )
-        time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
+        time_labels, self.time_bin_edges = self.bin_timestamps(
+            timestamps, bins
+        )
         doc_topic_matrix = self.model.fit_transform_dynamic(
             keywords, time_labels, self.time_bin_edges
         )
@@ -300,7 +302,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
                 )
             else:
                 self.time_bin_edges = bins
-        time_labels, self.time_bin_edges = bin_timestamps(
+        time_labels, self.time_bin_edges = self.bin_timestamps(
             timestamps, self.time_bin_edges
         )
         if keywords is None:

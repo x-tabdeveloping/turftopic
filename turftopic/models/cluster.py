@@ -12,7 +12,7 @@ from sklearn.metrics.pairwise import cosine_distances
 from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel, Encoder
-from turftopic.dynamic import DynamicTopicModel, bin_timestamps
+from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import (
     cluster_centroid_distance,
     ctf_idf,
@@ -335,20 +335,26 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         embeddings: Optional[np.ndarray] = None,
         bins: Union[int, list[datetime]] = 10,
     ):
-        time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
-        temporal_components = []
-        temporal_importances = []
+        time_labels, self.time_bin_edges = self.bin_timestamps(
+            timestamps, bins
+        )
+        if hasattr(self, "components_"):
+            doc_topic_matrix = label_binarize(
+                self.labels_, classes=self.classes_
+            )
+        else:
+            doc_topic_matrix = self.fit_transform(
+                raw_documents, embeddings=embeddings
+            )
+        n_comp, n_vocab = self.components_.shape
+        n_bins = len(self.time_bin_edges) - 1
+        self.temporal_components_ = np.zeros(
+            (n_bins, n_comp, n_vocab), dtype=doc_topic_matrix.dtype
+        )
+        self.temporal_importance_ = np.zeros((n_bins, n_comp))
         if embeddings is None:
             embeddings = self.encoder_.encode(raw_documents)
-        for i_timebin in np.arange(len(self.time_bin_edges) - 1):
-            if hasattr(self, "components_"):
-                doc_topic_matrix = label_binarize(
-                    self.labels_, classes=self.classes_
-                )
-            else:
-                doc_topic_matrix = self.fit_transform(
-                    raw_documents, embeddings=embeddings
-                )
+        for i_timebin in np.unique(time_labels):
             topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(
                 axis=0
             )
@@ -382,8 +388,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 mask_terms = t_doc_term_matrix.sum(axis=0).astype(np.float64)
                 mask_terms[mask_terms == 0] = np.nan
                 components *= mask_terms
-            temporal_components.append(components)
-            temporal_importances.append(topic_importances)
-        self.temporal_components_ = np.stack(temporal_components)
-        self.temporal_importance_ = np.stack(temporal_importances)
+            self.temporal_components_[i_timebin] = components
+            self.temporal_importance_[i_timebin] = topic_importances
         return doc_topic_matrix
