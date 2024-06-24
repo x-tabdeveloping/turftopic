@@ -6,6 +6,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
 from sklearn.decomposition import FastICA
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import euclidean_distances
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.vectorizer import default_vectorizer
@@ -170,3 +171,78 @@ class SemanticSignalSeparation(ContextualModel):
             show_negative,
             format,
         )
+
+    def concept_compass(
+        self, topic_x: Union[int, str], topic_y: Union[str, int]
+    ):
+        """Display a compass of concepts along two semantic axes.
+        In order for the plot to be concise and readable, terms are randomly selected on
+        a grid of the two topics.
+
+        Parameters
+        ----------
+        topic_x: int or str
+            Index or name of the topic to display on the X axis.
+        topic_y: int or str
+            Index or name of the topic to display on the Y axis.
+
+        Returns
+        -------
+        go.Figure
+            Plotly interactive plot of the concept compass.
+        """
+        try:
+            import plotly.express as px
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+        if isinstance(topic_x, str):
+            try:
+                topic_x = list(self.topic_names).index(topic_x)
+            except ValueError as e:
+                raise ValueError(
+                    f"{topic_x} is not a valid topic name or index."
+                ) from e
+        if isinstance(topic_y, str):
+            try:
+                topic_y = list(self.topic_names).index(topic_y)
+            except ValueError as e:
+                raise ValueError(
+                    f"{topic_y} is not a valid topic name or index."
+                ) from e
+        x = self.components_[topic_x]
+        y = self.components_[topic_y]
+        vocab = self.get_vocab()
+        points = np.array(list(zip(x, y)))
+        xx, yy = np.meshgrid(
+            np.linspace(np.min(x), np.max(x), 20),
+            np.linspace(np.min(y), np.max(y), 20),
+        )
+        coords = np.array(list(zip(np.ravel(xx), np.ravel(yy))))
+        coords = coords + np.random.default_rng(0).normal(
+            [0, 0], [0.1, 0.1], size=coords.shape
+        )
+        dist = euclidean_distances(coords, points)
+        idxs = np.argmin(dist, axis=1)
+        fig = px.scatter(
+            x=x[idxs],
+            y=y[idxs],
+            text=vocab[idxs],
+            template="plotly_white",
+        )
+        fig = fig.update_traces(
+            mode="text", textfont_color="black", marker=dict(color="black")
+        ).update_layout(
+            xaxis_title=f"{self.topic_names[topic_x]}",
+            yaxis_title=f"{self.topic_names[topic_y]}",
+        )
+        fig = fig.update_layout(
+            width=1000,
+            height=1000,
+            font=dict(family="Times New Roman", color="black", size=21),
+            margin=dict(l=5, r=5, t=5, b=5),
+        )
+        fig = fig.add_hline(y=0, line_color="black", line_width=4)
+        fig = fig.add_vline(x=0, line_color="black", line_width=4)
+        return fig
