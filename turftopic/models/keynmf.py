@@ -248,7 +248,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             keywords = self.extract_keywords(
                 raw_documents, embeddings=embeddings
             )
-        time_labels, self.time_bin_edges = bin_timestamps(timestamps, bins)
+        time_labels, self.time_bin_edges = self.bin_timestamps(
+            timestamps, bins
+        )
         doc_topic_matrix = self.model.fit_transform_dynamic(
             keywords, time_labels, self.time_bin_edges
         )

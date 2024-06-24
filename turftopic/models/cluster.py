@@ -338,8 +338,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         time_labels, self.time_bin_edges = self.bin_timestamps(
             timestamps, bins
         )
-        n_comp, n_vocab = self.components_.shape
-        n_bins = len(self.time_bin_edges) - 1
         if hasattr(self, "components_"):
             doc_topic_matrix = label_binarize(
                 self.labels_, classes=self.classes_
@@ -348,7 +346,9 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             doc_topic_matrix = self.fit_transform(
                 raw_documents, embeddings=embeddings
             )
-        self.temporal_components = np.zeros(
+        n_comp, n_vocab = self.components_.shape
+        n_bins = len(self.time_bin_edges) - 1
+        self.temporal_components_ = np.zeros(
             (n_bins, n_comp, n_vocab), dtype=doc_topic_matrix.dtype
         )
         self.temporal_importance_ = np.zeros((n_bins, n_comp))

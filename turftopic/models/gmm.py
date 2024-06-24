@@ -182,7 +182,7 @@ class GMM(ContextualModel, DynamicTopicModel):
         document_term_matrix = self.vectorizer.transform(raw_documents)
         n_comp, n_vocab = self.components_.shape
         n_bins = len(self.time_bin_edges) - 1
-        self.temporal_components = np.zeros(
+        self.temporal_components_ = np.zeros(
             (n_bins, n_comp, n_vocab), dtype=document_term_matrix.dtype
         )
         self.temporal_importance_ = np.zeros((n_bins, n_comp))
