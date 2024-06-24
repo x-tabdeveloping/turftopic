@@ -254,7 +254,7 @@ class KeywordNMF:
         time_bin_edges: list[datetime],
     ) -> np.ndarray:
         self.time_bin_edges = time_bin_edges
-        n_bins = len(time_bin_edges) + 1
+        n_bins = len(time_bin_edges) - 1
         document_term_matrix = self.vectorize(keywords, fitting=True)
         check_non_negative(document_term_matrix, "NMF (input X)")
         document_topic_matrix, H = _initialize_nmf(

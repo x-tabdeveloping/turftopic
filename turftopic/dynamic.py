@@ -314,7 +314,7 @@ class DynamicTopicModel(ABC):
                     continue
                 high = high[np.argsort(-values)]
                 name_over_time.append(", ".join(vocab[high]))
-            times = self.time_bin_edges[1:]
+            times = self.time_bin_edges[:-1]
             fig.add_trace(
                 go.Scatter(
                     x=times,
