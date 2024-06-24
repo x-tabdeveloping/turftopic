@@ -389,5 +389,5 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 mask_terms[mask_terms == 0] = np.nan
                 components *= mask_terms
             self.temporal_components_[i_timebin] = components
-            self.temporal_importance_[i_timebin].append(topic_importances)
+            self.temporal_importance_[i_timebin] = topic_importances
         return doc_topic_matrix

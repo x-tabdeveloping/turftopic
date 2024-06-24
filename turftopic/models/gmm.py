@@ -197,5 +197,5 @@ class GMM(ContextualModel, DynamicTopicModel):
                 document_term_matrix[time_labels == i_timebin],  # type: ignore
             )
             self.temporal_components_[i_timebin] = components
-            self.temporal_importance_[i_timebin].append(topic_importances)
+            self.temporal_importance_[i_timebin] = topic_importances
         return doc_topic_matrix
