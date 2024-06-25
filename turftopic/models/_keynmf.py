@@ -128,7 +128,9 @@ class KeywordExtractor:
                 self.term_embeddings[self.key_to_index[term]]
                 for term in batch_vocab[important_terms]
             ]
-            sim = cosine_similarity(embedding, word_embeddings)
+            sim = cosine_similarity(embedding, word_embeddings).astype(
+                np.float64
+            )
             sim = np.ravel(sim)
             kth = min(self.top_n, len(sim) - 1)
             top = np.argpartition(-sim, kth)[:kth]
