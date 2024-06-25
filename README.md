@@ -41,19 +41,21 @@ for batch in batched(corpus, 200):
 
 You can now produce a compass of concepts along two semantic axes using $S^3$.
 
+<table>
+  <tr>
+   <td>
+    
 ```python
-from turftopic import SemanticSignalSeparation
-
 model = SemanticSignalSeparation(10).fit(corpus)
-
-# You will need to `pip install plotly` before this.
 fig = model.concept_compass(topic_x=1, topic_y=4)
 fig.show()
 ```
 
-<p align="center">
-  <img src="../images/arxiv_ml_compass.png" width="60%" style="margin-left: auto;margin-right: auto;">
-</p>
+   </td>
+   <td><img src="./docs/images/arxiv_ml_compass.png" width="350" style="margin-left: auto;margin-right: auto;"></td>
+  </tr>
+</table>
+
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
