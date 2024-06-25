@@ -19,24 +19,41 @@
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-#### New in version 0.3.0: Dynamic KeyNMF
-KeyNMF can now be used for dynamic topic modeling.
+### New in version 0.4.0
+
+#### Online KeyNMF
+
+You can now online fit and finetune KeyNMF as you wish!
 
 ```python
-from datetime import datetime
+from itertools import batched
 from turftopic import KeyNMF
 
-corpus: list[str] = [...]
-timestamps = list[datetime] = [...]
+model = KeyNMF(10, top_n=5)
 
-model = KeyNMF(10)
-doc_topic_matrix = model.fit_transform_dynamic(corpus, timestamps=timestamps, bins=10)
-
-model.print_topics_over_time()
-
-# This needs Plotly: pip install plotly
-model.plot_topics_over_time()
+corpus = ["some string", "etc", ...]
+for batch in batched(corpus, 200):
+    batch = list(batch)
+    model.partial_fit(batch)
 ```
+
+#### $S^3$ Concept Compasses
+
+You can now produce a compass of concepts along two semantic axes using $S^3$.
+
+```python
+from turftopic import SemanticSignalSeparation
+
+model = SemanticSignalSeparation(10).fit(corpus)
+
+# You will need to `pip install plotly` before this.
+fig = model.concept_compass(topic_x=1, topic_y=4)
+fig.show()
+```
+
+<p align="center">
+  <img src="../images/arxiv_ml_compass.png" width="60%" style="margin-left: auto;margin-right: auto;">
+</p>
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
