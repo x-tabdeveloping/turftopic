@@ -122,7 +122,7 @@ You can do this in Turftopic as well:
 model = ClusteringTopicModel(n_reduce_to=10, reduction_method="agglomerative")
 ```
 
-## Comparison to BERTopic and Top2Vec
+## BERTopic and Top2Vec
 
 Turftopic's implementation differs in multiple places to BERTopic and Top2Vec.
 You can, however, construct models in Turftopic that imitate the behaviour of these other packages.
