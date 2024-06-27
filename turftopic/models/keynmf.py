@@ -196,10 +196,6 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             )
         console = Console()
         with console.status("Running KeyNMF") as status:
-            if embeddings is None:
-                status.update("Encoding documents")
-                embeddings = self.encode_documents(corpus)
-                console.log("Documents encoded.")
             if keywords is None:
                 status.update("Extracting keywords")
                 keywords = self.extract_keywords(corpus, embeddings=embeddings)
