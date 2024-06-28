@@ -162,7 +162,8 @@ class KeywordNMF:
         if (self.top_n is None) or (self.top_n >= len(keywords)):
             return keywords
         words, similarities = zip(*keywords.items())
-        selected = np.argsort(similarities)[: self.top_n]
+        similarities = np.array(similarities)
+        selected = np.argsort(-similarities)[: self.top_n]
         items = [(words[i], similarities[i]) for i in selected]
         return dict(items)
 
