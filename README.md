@@ -7,8 +7,8 @@
 ## Features
  - Novel transformer-based topic models:
    - Semantic Signal Separation - S³ 🧭
-   - KeyNMF 🔑
-   - GMM
+   - KeyNMF 🔑 (paper in progress ⏳)
+   - GMM :gem: (paper soon)
  - Implementations of existing transformer-based topic models
    - Clustering Topic Models: BERTopic and Top2Vec
    - Autoencoding Topic Models: CombinedTM and ZeroShotTM
