@@ -116,9 +116,30 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             Document-topic matrix.
         """
         topic_data = self.prepare_topic_data(
-            list(raw_documents), embeddings=embeddings, keywords=keywords
+            raw_documents, embeddings=embeddings, keywords=keywords
         )
         return topic_data["document_topic_matrix"]
+
+    def fit(
+        self,
+        raw_documents=None,
+        y=None,
+        embeddings: Optional[np.ndarray] = None,
+        keywords: Optional[list[dict[str, float]]] = None,
+    ) -> np.ndarray:
+        """Fits topic model and returns topic importances for documents.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str, optional
+            Documents to fit the model on.
+        embeddings: ndarray of shape (n_documents, n_dimensions), optional
+            Precomputed document encodings.
+        keywords: list[dict[str, float]], optional
+            Precomputed keyword dictionaries.
+        """
+        self.fit_transform(raw_documents, y, embeddings, keywords)
+        return self
 
     def get_vocab(self) -> np.ndarray:
         return np.array(self.model.index_to_key)
@@ -151,7 +172,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             )
         if keywords is None:
             keywords = self.extract_keywords(
-                raw_documents, embeddings=embeddings
+                list(raw_documents), embeddings=embeddings
             )
         return self.model.transform(keywords)
 
@@ -200,7 +221,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
                 status.update("Extracting keywords")
                 keywords = self.extract_keywords(corpus, embeddings=embeddings)
                 console.log("Keyword extraction done.")
-            if len(keywords) != len(corpus):
+            if (corpus is not None) and (len(keywords) != len(corpus)):
                 raise ValueError(
                     "length of keywords is not the same as length of the corpus"
                 )
