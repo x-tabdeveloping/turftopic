@@ -75,7 +75,7 @@ A precomputed Keyword matrix can also be used to fit a model:
 
 ```python
 keyword_matrix = model.extract_keywords(corpus)
-model.fit(keywords=keyword_matrix)
+model.fit(None, keywords=keyword_matrix)
 ```
 
 ## Topic Discovery
@@ -106,7 +106,7 @@ model.fit(corpus, embeddings=embeddings)
 
 # Fitting with precomputed keyword matrix
 keyword_matrix = model.extract_keywords(corpus)
-model.fit(keywords=keyword_matrix)
+model.fit(None, keywords=keyword_matrix)
 ```
 
 ## Dynamic Topic Modeling
