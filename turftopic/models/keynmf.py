@@ -115,10 +115,22 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         ndarray of shape (n_dimensions, n_topics)
             Document-topic matrix.
         """
-        topic_data = self.prepare_topic_data(
-            raw_documents, embeddings=embeddings, keywords=keywords
-        )
-        return topic_data["document_topic_matrix"]
+        console = Console()
+        with console.status("Running KeyNMF") as status:
+            if keywords is None:
+                status.update("Extracting keywords")
+                keywords = self.extract_keywords(
+                    raw_documents, embeddings=embeddings
+                )
+                console.log("Keyword extraction done.")
+            status.update("Decomposing with NMF")
+            try:
+                doc_topic_matrix = self.model.transform(keywords)
+            except (NotFittedError, AttributeError):
+                doc_topic_matrix = self.model.fit_transform(keywords)
+                self.components_ = self.model.components
+            console.log("Model fitting done.")
+        return doc_topic_matrix
 
     def fit(
         self,
@@ -207,7 +219,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
 
     def prepare_topic_data(
         self,
-        corpus: Optional[list[str]] = None,
+        corpus: list[str],
         embeddings: Optional[np.ndarray] = None,
         keywords: Optional[list[dict[str, float]]] = None,
     ) -> TopicData:
@@ -217,6 +229,8 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             )
         console = Console()
         with console.status("Running KeyNMF") as status:
+            if embeddings is None:
+                embeddings = self.encode_documents(corpus)
             if keywords is None:
                 status.update("Extracting keywords")
                 keywords = self.extract_keywords(corpus, embeddings=embeddings)
