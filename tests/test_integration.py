@@ -9,13 +9,8 @@ import pytest
 from sentence_transformers import SentenceTransformer
 from sklearn.datasets import fetch_20newsgroups
 
-from turftopic import (
-    GMM,
-    AutoEncodingTopicModel,
-    ClusteringTopicModel,
-    KeyNMF,
-    SemanticSignalSeparation,
-)
+from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
+                       KeyNMF, SemanticSignalSeparation)
 
 
 def batched(iterable, n: int):
@@ -133,3 +128,14 @@ def test_fit_online(model):
         with out_path.open("w") as out_file:
             out_file.write(table)
         df = pd.read_csv(out_path)
+
+
+@pytest.mark.parametrize("model", models)
+def test_prepare_topic_data(model):
+    topic_data = model.prepare_topic_data(texts, embeddings=embeddings)
+    for key, value in topic_data.items():
+        # We allow transform() to be None for transductive models
+        if key == "transform":
+            continue
+        if value is None:
+            raise TypeError(f"Field {key} is None in topic_data.")
