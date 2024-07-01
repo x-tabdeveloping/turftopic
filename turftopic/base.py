@@ -10,6 +10,7 @@ from sklearn.exceptions import NotFittedError
 
 from turftopic.data import TopicData
 from turftopic.encoders import ExternalEncoder
+from turftopic.namers.base import TopicNamer
 from turftopic.utils import export_table
 
 
@@ -29,7 +30,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         """Returns high-level topic representations in form of the top K words
         in each topic.
 
-        Parameters ---------- top_k: int, default 10
+        Parameters
+        ----------
+        top_k: int, default 10
             Number of top words to return for each topic.
 
         Returns
@@ -59,13 +62,48 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             topics.append(topic_data)
         return topics
 
+    def _top_terms(
+        self, top_k: int = 10, positive: bool = True
+    ) -> list[list[str]]:
+        terms = []
+        vocab = self.get_vocab()
+        for component in self.components_:
+            lowest = np.argpartition(component, top_k)[:top_k]
+            lowest = lowest[np.argsort(component[lowest])]
+            highest = np.argpartition(-component, top_k)[:top_k]
+            highest = highest[np.argsort(-component[highest])]
+            if not positive:
+                terms.append(list(vocab[lowest]))
+            else:
+                terms.append(list(vocab[highest]))
+        return terms
+
+    def name_topics(self, namer: TopicNamer) -> list[str]:
+        """Names topics with a topic namer in the model.
+
+        Parameters
+        ----------
+        namer: TopicNamer
+            A Topic namer model to name topics with.
+
+        Returns
+        -------
+        list[str]
+            List of topic names.
+        """
+        self.topic_names_ = namer.name_topics(self._top_terms)
+        return self.topic_names_
+
     def _topics_table(
         self,
         top_k: int = 10,
         show_scores: bool = False,
         show_negative: bool = False,
     ) -> list[list[str]]:
-        columns = ["Topic ID", "Highest Ranking"]
+        columns = ["Topic ID"]
+        if hasattr(self, "topic_names_"):
+            columns.append("Topic Name")
+        columns.append("Highest Ranking")
         if show_negative:
             columns.append("Lowest Ranking")
         rows = []
@@ -74,7 +112,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         except AttributeError:
             classes = list(range(self.components_.shape[0]))
         vocab = self.get_vocab()
-        for topic_id, component in zip(classes, self.components_):
+        for i_topic, (topic_id, component) in enumerate(
+            zip(classes, self.components_)
+        ):
             highest = np.argpartition(-component, top_k)[:top_k]
             highest = highest[np.argsort(-component[highest])]
             lowest = np.argpartition(component, top_k)[:top_k]
@@ -99,7 +139,10 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             else:
                 concat_positive = ", ".join([word for word in vocab[highest]])
                 concat_negative = ", ".join([word for word in vocab[lowest]])
-            row = [f"{topic_id}", f"{concat_positive}"]
+            row = [f"{topic_id}"]
+            if hasattr(self, "topic_names_"):
+                row.append(self.topic_names_[i_topic])
+            row.append(f"{concat_positive}")
             if show_negative:
                 row.append(concat_negative)
             rows.append(row)
@@ -124,20 +167,19 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         """
         columns, *rows = self._topics_table(top_k, show_scores, show_negative)
         table = Table(show_lines=True)
-        table.add_column("Topic ID", style="blue", justify="right")
-        table.add_column(
-            "Highest Ranking",
-            justify="left",
-            style="magenta",
-            max_width=100,
-        )
-        if show_negative:
-            table.add_column(
-                "Lowest Ranking",
-                justify="left",
-                style="red",
-                max_width=100,
-            )
+        for column in columns:
+            if column == "Highest Ranking":
+                table.add_column(
+                    column, justify="left", style="magenta", max_width=100
+                )
+            elif column == "Lowest Ranking":
+                table.add_column(
+                    column, justify="left", style="red", max_width=100
+                )
+            elif column == "Topic ID":
+                table.add_column(column, style="blue", justify="right")
+            else:
+                table.add_column(column)
         for row in rows:
             table.add_row(*row)
         console = Console()
@@ -308,6 +350,8 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     @property
     def topic_names(self) -> list[str]:
         """Names of the topics based on the highest scoring 4 terms."""
+        if hasattr(self, "topic_names_"):
+            return self.topic_names_
         topic_desc = self.get_topics(top_k=4)
         names = []
         for topic_id, terms in topic_desc:
