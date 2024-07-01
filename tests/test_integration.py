@@ -134,7 +134,8 @@ def test_fit_online(model):
 def test_prepare_topic_data(model):
     topic_data = model.prepare_topic_data(texts, embeddings=embeddings)
     for key, value in topic_data.items():
+        # We allow transform() to be None for transductive models
+        if key == "transform":
+            continue
         if value is None:
-            raise TypeError(
-                "None of the fields of prepare_topic_data should be None."
-            )
+            raise TypeError(f"Field {key} is None in topic_data.")
