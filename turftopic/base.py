@@ -91,7 +91,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         list[str]
             List of topic names.
         """
-        self.topic_names_ = namer.name_topics(self._top_terms)
+        self.topic_names_ = namer.name_topics(self._top_terms())
         return self.topic_names_
 
     def _topics_table(

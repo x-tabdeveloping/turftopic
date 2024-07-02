@@ -5,8 +5,9 @@ DEFAULT_POSITIVE_PROMPT = """
 You will be tasked with naming a topic.
 The topic is described by the following set of keywords: {positive}.
 
-Based on the keywords, create a short label (3 words maximum) that best summarizes the topics.
-Only respond with the topic name and nothing else.
+Based on the keywords, create a short label that best summarizes the topics.
+The topic name should be at maximum three words long.
+Only respond with a short topic name and nothing else.
 """
 
 DEFAULT_NEGATIVE_PROMPT = """
@@ -25,8 +26,7 @@ Only respond with the topic name and nothing else.
 
 DEFAULT_SYSTEM_PROMPT = """
 You are a topic namer. When the user gives you a set of keywords, you respond with a name for the topic they describe.
-When negative terms are also specified, you take them into account.
-You only repond briefly with the name of the topic, and don't ramble, nor reason about your choice.
+You only repond briefly with the name of the topic, and nothing else.
 """
 
 
@@ -79,4 +79,4 @@ class TopicNamer(ABC):
                 self.name_topic(pos, neg)
                 for pos, neg in zip(positive, negative)
             ]
-        return [self.name_topics(pos) for pos in positive]
+        return [self.name_topic(pos) for pos in positive]
