@@ -43,9 +43,19 @@ class TopicHierarchy:
     components_: np.ndarray
     document_topic_matrix: np.ndarray
     subtopics: Optional[list[TopicHierarchy]] = None
+    path: tuple[int] = ()
+    desc: str = "Root"
 
     def __getitem__(self, index: int):
         return self.subtopics[index]
+
+    @property
+    def level(self) -> int:
+        return len(self.path)
+
+    @level.setter
+    def level(self, value):
+        self._level = value
 
     def get_topics(
         self, top_k: int = 10
@@ -101,27 +111,15 @@ class TopicHierarchy:
         color = COLOR_PER_LEVEL[min(level, len(COLOR_PER_LEVEL) - 1)]
         for topic_id, terms in topic_desc:
             concat_words = ", ".join([word for word, importance in terms])
+            topic_id = ".".join(str(elem) for elem in [*self.path, topic_id])
             names.append(
                 f"[{color} bold]{topic_id}[/]: [italic]{concat_words}[/]"
             )
         return names
 
-    def print_tree(self, top_k: int = 10):
-        """Prints tree of hierarchical topics.
-
-        Parameters
-        ----------
-        top_k: int, default 10
-            Number of top words to describe topics with.
-        """
-        tree = Tree("Topic Hierarchy:")
-        _build_tree(self, tree, top_k)
-        console = Console()
-        console.print(tree)
-
     def __str__(self):
-        tree = Tree("Topic Hierarchy:")
-        _build_tree(self, tree, top_k=10)
+        tree = Tree(f"[bold]{self.desc}[/]")
+        _build_tree(self, tree, top_k=10, level=self.level)
         console = Console()
         with console.capture() as capture:
             console.print(tree)
@@ -252,4 +250,9 @@ class TopicHierarchy:
         self.subtopics = self.model.calculate_subtopics(
             hierarchy=self, n_subtopics=n_subtopics, **kwargs
         )
+        for i, (desc, subtopic) in enumerate(
+            zip(self._topic_desc(level=self.level), self.subtopics)
+        ):
+            subtopic.path = (*self.path, i)
+            subtopic.desc = desc
         return self
