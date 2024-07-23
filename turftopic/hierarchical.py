@@ -12,15 +12,29 @@ from turftopic.base import ContextualModel
 from turftopic.utils import export_table
 
 
-def _build_tree(h: TopicHierarchy, tree: Tree, top_k: int):
-    names = h._topic_desc(top_k)
+def _build_tree(h: TopicHierarchy, tree: Tree, top_k: int, level=0):
+    names = h._topic_desc(top_k, level=level)
     if h.subtopics is None:
         for name in names:
             tree.add(name)
         return
     for name, sub in zip(names, h.subtopics):
         branch = tree.add(name)
-        _build_tree(sub, branch, top_k)
+        _build_tree(sub, branch, top_k, level=level + 1)
+
+
+COLOR_PER_LEVEL = [
+    "bright_blue",
+    "bright_magenta",
+    "bright_cyan",
+    "bright_green",
+    "bright_red",
+    "bright_yellow",
+    "cyan",
+    "magenta",
+    "blue",
+    "white",
+]
 
 
 @dataclass
@@ -81,12 +95,15 @@ class TopicHierarchy:
             names.append(f"{topic_id}_{concat_words}")
         return names
 
-    def _topic_desc(self, top_k: int = 10) -> str:
+    def _topic_desc(self, top_k: int = 10, level=0) -> str:
         topic_desc = self.get_topics(top_k=top_k)
         names = []
+        color = COLOR_PER_LEVEL[min(level, len(COLOR_PER_LEVEL) - 1)]
         for topic_id, terms in topic_desc:
             concat_words = ", ".join([word for word, importance in terms])
-            names.append(f"{topic_id}: {concat_words}")
+            names.append(
+                f"[{color} bold]{topic_id}[/]: [italic]{concat_words}[/]"
+            )
         return names
 
     def print_tree(self, top_k: int = 10):
@@ -101,6 +118,17 @@ class TopicHierarchy:
         _build_tree(self, tree, top_k)
         console = Console()
         console.print(tree)
+
+    def __str__(self):
+        tree = Tree("Topic Hierarchy:")
+        _build_tree(self, tree, top_k=10)
+        console = Console()
+        with console.capture() as capture:
+            console.print(tree)
+        return capture.get()
+
+    def __repr__(self):
+        return str(self)
 
     def _topics_table(
         self,
@@ -224,3 +252,4 @@ class TopicHierarchy:
         self.subtopics = self.model.calculate_subtopics(
             hierarchy=self, n_subtopics=n_subtopics, **kwargs
         )
+        return self
