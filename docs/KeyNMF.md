@@ -309,6 +309,47 @@ for batch in batched(zip(corpus, timestamps)):
     model.partial_fit_dynamic(text_batch, timestamps=ts_batch, bins=bins)
 ```
 
+## Hierarchical Topic Modeling
+
+When you suspect that subtopics might be present in the topics you find with the model, KeyNMF can be used to discover topics further down the hierarchy.
+
+This is done by utilising a special case of **weighted NMF**, where documents are weighted by how high they score on the parent topic.
+In other words:
+
+1. Decompose keyword matrix $M \approx WH$
+2. To find subtopics in topic $j$, define document weights $w$ as the $j$th column of $W$.
+3. Estimate subcomponents with **wNMF** $M \approx \mathring{W} \mathring{H}$ with document weight $w$
+    1. Initialise $\mathring{H}$ and  $\mathring{W}$ randomly.
+    2. Perform multiplicative updates until convergence. <br>
+        $\mathring{W}^T = \mathring{W}^T \odot \frac{\mathring{H} \cdot (M^T \odot w)}{\mathring{H} \cdot \mathring{H}^T \cdot (\mathring{W}^T \odot w)}$ <br>
+        $\mathring{H}^T = \mathring{H}^T \odot \frac{ (M^T \odot w)\cdot \mathring{W}}{\mathring{H}^T \cdot (\mathring{W}^T \odot w) \cdot \mathring{W}}$
+4. To sufficiently differentiate the subcomponents from each other a pseudo-c-tf-idf weighting scheme is applied to $\mathring{H}$:
+    1. $\mathring{H} = \mathring{H}_{ij} \odot ln(1 + \frac{A}{1+\sum_k \mathring{H}_{kj}})$, where $A$ is the average of all elements in $\mathring{H}$
+
+To create a hierarchical model, you can use the `hierarchy` property of the model.
+
+```python
+# This divides each of the topics in the model to 3 subtopics.
+model.hierarchy.divide_children(n_subtopics=3)
+print(model.hierarchy)
+```
+
+<div style="background-color: #F5F5F5; padding: 10px; padding-left: 20px; padding-right: 20px;">
+<tt style="font-size: 11pt">
+<b>Root </b><br>
+├── <b style="color: blue">0</b>: windows, dos, os, disk, card, drivers, file, pc, files, microsoft <br>
+│   ├── <b style="color: magenta">0.0</b>: dos, file, disk, files, program, windows, disks, shareware, norton, memory <br>
+│   ├── <b style="color: magenta">0.1</b>: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform <br>
+│   └── <b style="color: magenta">0.2</b>: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati <br>
+└── <b style="color: blue">1</b>: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs <br>
+.    ├── <b style="color: magenta">1.0</b>: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers <br>
+.    ├── <b style="color: magenta">1.1</b>: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions <br>
+.    └── <b style="color: magenta">1.2</b>: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion <br>
+</tt>
+</div>
+
+For a detailed tutorial on hierarchical modeling click [here](hierarchical.md).
+
 ## Considerations
 
 ### Strengths
