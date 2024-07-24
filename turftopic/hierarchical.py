@@ -23,6 +23,75 @@ COLOR_PER_LEVEL = [
 ]
 
 
+def _tree_plot(hierarchy: TopicNode):
+    """Plots hierarchy with Plotly as a Tree"""
+    try:
+        import igraph as ig
+        import plotly.express as px
+    except ModuleNotFoundError as e:
+        raise ModuleNotFoundError(
+            "You will need to install plotly and igraph to use hierarchical plotting functionality."
+        ) from e
+
+    def traverse(h, nodes, edges, parent=None):
+        nodes.append(h)
+        if parent is not None:
+            edges.append([parent._simple_desc, h._simple_desc])
+        if h.children is not None:
+            for child in h.children:
+                traverse(child, nodes, edges, parent=h)
+
+    def word_table(h):
+        entries = []
+        words = h.get_words(top_k=10)
+        for word, imp in words:
+            entries.append(f"<b>{word}</b>: <i>{imp:.2f}</i>")
+        return " <br> ".join(entries)
+
+    nodes = []
+    edges = []
+    for child in hierarchy.children:
+        traverse(child, nodes, edges)
+    node_names = [node._simple_desc for node in nodes]
+    node_to_idx = {node_name: idx for idx, node_name in enumerate(node_names)}
+    edges_idx = [
+        [node_to_idx[start], node_to_idx[end]] for start, end in edges
+    ]
+    tables = [word_table(node) for node in nodes]
+    graph = ig.Graph(len(nodes), edges=edges_idx, directed=True)
+    layout = graph.layout("rt")
+    layout.rotate(-90)
+    x, y = np.array(layout.coords).T
+    xmin, xmax = np.min(x), np.max(x)
+    xpad = (xmax - xmin) * 0.35
+    fig = px.scatter(x=x, y=y, text=node_names, template="plotly_white")
+    fig = fig.update_traces(
+        customdata=[[table] for table in tables],
+        hovertemplate="<b>%{text}</b> <br> <br> %{customdata[0]}",
+    )
+    fig = fig.update_traces(marker=dict(size=20, color="rgba(0,0,0,0.2)"))
+    fig = fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+    fig = fig.update_yaxes(showgrid=False, visible=False, zeroline=False)
+    fig = fig.update_xaxes(
+        showgrid=False,
+        visible=False,
+        zeroline=False,
+        range=(xmin - xpad, xmax + xpad),
+    )
+    for start, end in edges_idx:
+        fig.add_shape(
+            type="line",
+            xref="x",
+            yref="y",
+            x0=x[start],
+            y0=y[start],
+            x1=x[end],
+            y1=y[end],
+            opacity=0.2,
+        )
+    return fig
+
+
 @dataclass
 class TopicNode:
     """Node for a topic in a topic hierarchy.
@@ -100,7 +169,7 @@ class TopicNode:
         ) is None:
             return []
         idx = np.argpartition(-self.word_importance, top_k)[:top_k]
-        order = np.argsort(self.word_importance[idx])
+        order = np.argsort(-self.word_importance[idx])
         idx = idx[order]
         imp = self.word_importance[idx]
         words = self.model.get_vocab()[idx]
@@ -124,6 +193,18 @@ class TopicNode:
         with console.capture() as capture:
             console.print(stylized, end="")
         return capture.get()
+
+    @property
+    def _simple_desc(self) -> str:
+        if not len(self.path):
+            path = "Root"
+        else:
+            path = ".".join([str(idx) for idx in self.path])
+        words = []
+        for word, imp in self.get_words(top_k=5):
+            words.append(word)
+        concat_words = ", ".join(words)
+        return f"{path}: {concat_words}"
 
     def _build_tree(self, tree: Tree = None, top_k: int = 10) -> Tree:
         if tree is None:
@@ -190,3 +271,7 @@ class TopicNode:
         for child in self.children:
             child.divide(n_subtopics, **kwargs)
         return self
+
+    def plot_tree(self):
+        """Plots hierarchy as an interactive tree in Plotly."""
+        return _tree_plot(self)
