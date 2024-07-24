@@ -122,7 +122,7 @@ class TopicNode:
         stylized = f"[{color} bold]{path}[/]: [italic]{concat_words}[/]"
         console = Console()
         with console.capture() as capture:
-            console.print(stylized)
+            console.print(stylized, end="")
         return capture.get()
 
     def _build_tree(self, tree: Tree = None, top_k: int = 10) -> Tree:
