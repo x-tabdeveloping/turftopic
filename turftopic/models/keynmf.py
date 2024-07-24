@@ -7,6 +7,7 @@ from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.preprocessing import normalize
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.data import TopicData
@@ -128,6 +129,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         subcomponents = subcomponents * np.log(
             1 + subcomponents.mean() / (subcomponents.sum(axis=0) + 1)
         )
+        subcomponents = normalize(subcomponents, axis=1, norm="l2")
         for i, component, doc_topic_vector in zip(
             range(n_subtopics), subcomponents, sub_doc_topic.T
         ):
