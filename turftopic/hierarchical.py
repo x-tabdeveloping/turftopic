@@ -5,23 +5,9 @@ from typing import Any, Optional
 
 import numpy as np
 from rich.console import Console
-from rich.table import Table
 from rich.tree import Tree
 
 from turftopic.base import ContextualModel
-from turftopic.utils import export_table
-
-
-def _build_tree(h: TopicHierarchy, tree: Tree, top_k: int, level=0):
-    names = h._topic_desc(top_k, level=level)
-    if h.subtopics is None:
-        for name in names:
-            tree.add(name)
-        return
-    for name, sub in zip(names, h.subtopics):
-        branch = tree.add(name)
-        _build_tree(sub, branch, top_k, level=level + 1)
-
 
 COLOR_PER_LEVEL = [
     "bright_blue",
@@ -38,88 +24,119 @@ COLOR_PER_LEVEL = [
 
 
 @dataclass
-class TopicHierarchy:
-    model: ContextualModel
-    components_: np.ndarray
-    document_topic_matrix: np.ndarray
-    subtopics: Optional[list[TopicHierarchy]] = None
-    path: tuple[int] = ()
-    desc: str = "Root"
+class TopicNode:
+    """Node for a topic in a topic hierarchy.
 
-    def __getitem__(self, index: int):
-        return self.subtopics[index]
+    Parameters
+    ----------
+    model: ContextualModel
+        Underlying topic model, which the hierarchy is based on.
+    path: tuple[int], default ()
+        Path that leads to this node from the root of the tree.
+    word_importance: ndarray of shape (n_vocab), default None
+        Importance of each word in the vocabulary for given topic.
+    document_topic_vector: ndarray of shape (n_documents), default None
+        Importance of the topic in all documents in the corpus.
+    children: list[TopicNode], default None
+        List of subtopics within this topic.
+    """
+
+    model: ContextualModel
+    path: tuple[int] = ()
+    word_importance: Optional[np.ndarray] = None
+    document_topic_vector: Optional[np.ndarray] = None
+    children: Optional[list[TopicNode]] = None
+
+    @classmethod
+    def create_root(
+        cls,
+        model: ContextualModel,
+        components: np.ndarray,
+        document_topic_matrix: np.ndarray,
+    ) -> TopicNode:
+        """Creates root node from a topic models' components and topic importances in documents."""
+        children = []
+        n_components = components.shape[0]
+        for i, comp, doc_top in zip(
+            range(n_components), components, document_topic_matrix.T
+        ):
+            children.append(
+                cls(
+                    model,
+                    path=(i,),
+                    word_importance=comp,
+                    document_topic_vector=doc_top,
+                    children=None,
+                )
+            )
+        return TopicNode(
+            model,
+            path=(),
+            word_importance=None,
+            document_topic_vector=None,
+            children=children,
+        )
 
     @property
     def level(self) -> int:
+        """Indicates how deep down the hierarchy the topic is."""
         return len(self.path)
 
-    @level.setter
-    def level(self, value):
-        self._level = value
-
-    def get_topics(
-        self, top_k: int = 10
-    ) -> list[tuple[Any, list[tuple[str, float]]]]:
-        """Returns high-level topic representations in form of the top K words
-        in each topic.
+    def get_words(self, top_k: int = 10) -> list[tuple[str, float]]:
+        """Returns top words and words importances for the topic.
 
         Parameters
         ----------
         top_k: int, default 10
-            Number of top words to return for each topic.
+            Number of top words to return.
 
         Returns
         -------
-        list[tuple]
-            List of topics. Each topic is a tuple of
-            topic ID and the top k words.
-            Top k words are a list of (word, word_importance) pairs.
+        list[tuple[str, float]]
+            List of word, importance pairs.
         """
-        n_topics = self.components_.shape[0]
-        try:
-            classes = self.model.classes_
-        except AttributeError:
-            classes = list(range(n_topics))
-        highest = np.argpartition(-self.components_, top_k)[:, :top_k]
-        vocab = self.model.get_vocab()
-        top = []
-        score = []
-        for component, high in zip(self.components_, highest):
-            importance = component[high]
-            high = high[np.argsort(-importance)]
-            score.append(component[high])
-            top.append(vocab[high])
-        topics = []
-        for topic, words, scores in zip(classes, top, score):
-            topic_data = (topic, list(zip(words, scores)))
-            topics.append(topic_data)
-        return topics
+        if (self.word_importance is None) or (
+            self.document_topic_vector
+        ) is None:
+            return []
+        idx = np.argpartition(-self.word_importance, top_k)[:top_k]
+        order = np.argsort(self.word_importance[idx])
+        idx = idx[order]
+        imp = self.word_importance[idx]
+        words = self.model.get_vocab()[idx]
+        return list(zip(words, imp))
 
     @property
-    def topic_names(self) -> list[str]:
-        """Names of the topics based on the highest scoring 4 terms."""
-        topic_desc = self.get_topics(top_k=4)
-        names = []
-        for topic_id, terms in topic_desc:
-            concat_words = "_".join([word for word, importance in terms])
-            names.append(f"{topic_id}_{concat_words}")
-        return names
+    def description(self) -> str:
+        """Returns a high level description of the topic with its path in the tree
+        and top words."""
+        if not len(self.path):
+            path = "Root"
+        else:
+            path = ".".join([str(idx) for idx in self.path])
+        words = []
+        for word, imp in self.get_words(top_k=10):
+            words.append(word)
+        concat_words = ", ".join(words)
+        color = COLOR_PER_LEVEL[min(self.level, len(COLOR_PER_LEVEL) - 1)]
+        stylized = f"[{color} bold]{path}[/]: [italic]{concat_words}[/]"
+        console = Console()
+        with console.capture() as capture:
+            console.print(stylized)
+        return capture.get()
 
-    def _topic_desc(self, top_k: int = 10, level=0) -> str:
-        topic_desc = self.get_topics(top_k=top_k)
-        names = []
-        color = COLOR_PER_LEVEL[min(level, len(COLOR_PER_LEVEL) - 1)]
-        for topic_id, terms in topic_desc:
-            concat_words = ", ".join([word for word, importance in terms])
-            topic_id = ".".join(str(elem) for elem in [*self.path, topic_id])
-            names.append(
-                f"[{color} bold]{topic_id}[/]: [italic]{concat_words}[/]"
-            )
-        return names
+    def _build_tree(self, tree: Tree = None, top_k: int = 10) -> Tree:
+        if tree is None:
+            tree = Tree(self.description)
+        else:
+            tree = tree.add(self.description)
+        if self.children is not None:
+            for child in self.children:
+                child._build_tree(tree)
+        return tree
 
     def __str__(self):
-        tree = Tree(f"[bold]{self.desc}[/]")
-        _build_tree(self, tree, top_k=10, level=self.level)
+        tree = self._build_tree(top_k=10)
         console = Console()
         with console.capture() as capture:
             console.print(tree)
@@ -128,131 +145,48 @@ class TopicHierarchy:
     def __repr__(self):
         return str(self)
 
-    def _topics_table(
-        self,
-        top_k: int = 10,
-        show_scores: bool = False,
-        show_negative: bool = False,
-    ) -> list[list[str]]:
-        columns = ["Topic ID", "Highest Ranking"]
-        if show_negative:
-            columns.append("Lowest Ranking")
-        rows = []
-        try:
-            classes = self.model.classes_
-        except AttributeError:
-            classes = list(range(self.components_.shape[0]))
-        vocab = self.model.get_vocab()
-        for topic_id, component in zip(classes, self.components_):
-            highest = np.argpartition(-component, top_k)[:top_k]
-            highest = highest[np.argsort(-component[highest])]
-            lowest = np.argpartition(component, top_k)[:top_k]
-            lowest = lowest[np.argsort(component[lowest])]
-            if show_scores:
-                concat_positive = ", ".join(
-                    [
-                        f"{word}({importance:.2f})"
-                        for word, importance in zip(
-                            vocab[highest], component[highest]
-                        )
-                    ]
-                )
-                concat_negative = ", ".join(
-                    [
-                        f"{word}({importance:.2f})"
-                        for word, importance in zip(
-                            vocab[lowest], component[lowest]
-                        )
-                    ]
-                )
-            else:
-                concat_positive = ", ".join([word for word in vocab[highest]])
-                concat_negative = ", ".join([word for word in vocab[lowest]])
-            row = [f"{topic_id}", f"{concat_positive}"]
-            if show_negative:
-                row.append(concat_negative)
-            rows.append(row)
-        return [columns, *rows]
+    def clear(self):
+        """Deletes children of the given node."""
+        self.children = None
+        return self
 
-    def print_topics(
-        self,
-        top_k: int = 10,
-        show_scores: bool = False,
-        show_negative: bool = False,
-    ):
-        """Pretty prints topics at the current level of the hierarchy.
+    def __getitem__(self, index: int):
+        if self.children is None:
+            raise IndexError("Current node is a leaf and has not children.")
+        return self.children[index]
 
-        Parameters
-        ----------
-        top_k: int, default 10
-            Number of top words to return for each topic.
-        show_scores: bool, default False
-            Indicates whether to show importance scores for each word.
-        show_negative: bool, default False
-            Indicates whether the most negative terms should also be displayed.
-        """
-        columns, *rows = self._topics_table(top_k, show_scores, show_negative)
-        table = Table(show_lines=True)
-        table.add_column("Topic ID", style="blue", justify="right")
-        table.add_column(
-            "Highest Ranking",
-            justify="left",
-            style="magenta",
-            max_width=100,
-        )
-        if show_negative:
-            table.add_column(
-                "Lowest Ranking",
-                justify="left",
-                style="red",
-                max_width=100,
-            )
-        for row in rows:
-            table.add_row(*row)
-        console = Console()
-        console.print(table)
-
-    def export_topics(
-        self,
-        top_k: int = 10,
-        show_scores: bool = False,
-        show_negative: bool = False,
-        format: str = "csv",
-    ) -> str:
-        """Exports top K words from topics in a table in a given format.
-        Returns table as a pure string.
-
-        Parameters
-        ----------
-        top_k: int, default 10
-            Number of top words to return for each topic.
-        show_scores: bool, default False
-            Indicates whether to show importance scores for each word.
-        show_negative: bool, default False
-            Indicates whether the most negative terms should also be displayed.
-        format: 'csv', 'latex' or 'markdown'
-            Specifies which format should be used.
-            'csv', 'latex' and 'markdown' are supported.
-        """
-        table = self._topics_table(
-            top_k, show_scores, show_negative=show_negative
-        )
-        return export_table(table, format=format)
-
-    def add_level(self, n_subtopics: int, **kwargs):
-        """Adds level to hierarchy based on the topics on this level.
+    def divide(self, n_subtopics: int, **kwargs):
+        """Divides current node into smaller subtopics.
+        Only works when the underlying model is a divisive hierarchical model.
 
         Parameters
         ----------
         n_subtopics: int
-            Number of subtopics to add for each topic on this level.
+            Number of topics to divide the topic into.
         """
-        self.subtopics = self.model.calculate_subtopics(
-            hierarchy=self, n_subtopics=n_subtopics, **kwargs
-        )
-        for i, (desc, subtopic) in enumerate(
-            zip(self._topic_desc(level=self.level), self.subtopics)
-        ):
-            subtopic.path = (*self.path, i)
-            subtopic.desc = desc
+        try:
+            self.children = self.model.divide_topic(
+                node=self, n_subtopics=n_subtopics, **kwargs
+            )
+        except AttributeError as e:
+            raise AttributeError(
+                "Looks like your model is not a divisive hierarchical model."
+            ) from e
+        return self
+
+    def divide_children(self, n_subtopics: int, **kwargs):
+        """Divides all children of the current node to smaller topics.
+        Only works when the underlying model is a divisive hierarchical model.
+
+        Parameters
+        ----------
+        n_subtopics: int
+            Number of topics to divide the topics into.
+        """
+        if self.children is None:
+            raise ValueError(
+                "Current Node is a leaf, children can't be subdivided."
+            )
+        for child in self.children:
+            child.divide(n_subtopics, **kwargs)
         return self

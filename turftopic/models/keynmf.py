@@ -11,7 +11,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from turftopic.base import ContextualModel, Encoder
 from turftopic.data import TopicData
 from turftopic.dynamic import DynamicTopicModel
-from turftopic.hierarchical import TopicHierarchy
+from turftopic.hierarchical import TopicNode
 from turftopic.models._keynmf import KeywordExtractor, KeywordNMF
 from turftopic.models.wnmf import weighted_nmf
 from turftopic.vectorizer import default_vectorizer
@@ -109,43 +109,36 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             )
         return self.model.vectorize(keywords)
 
-    def calculate_subtopics(
+    def divide_topic(
         self,
-        hierarchy: TopicHierarchy,
+        node: TopicNode,
         n_subtopics: int,
-        keywords: Optional[list[dict[str, float]]] = None,
-        document_term_matrix: Optional[np.ndarray] = None,
-    ) -> list[TopicHierarchy]:
-        document_term_matrix = getattr(
-            self, "document_term_matrix", document_term_matrix
-        )
-        if (document_term_matrix is None) and (keywords is not None):
-            document_term_matrix = self.vectorize(keywords)
+    ) -> list[TopicNode]:
+        document_term_matrix = getattr(self, "document_term_matrix", None)
         if document_term_matrix is None:
             raise ValueError(
                 "document_term_matrix is needed for computing hierarchies. Perhaps you fitted the model online?"
             )
         dtm = document_term_matrix
-        N = dtm.shape[0]
         subtopics = []
-        for topic_importance, base_component in zip(
-            hierarchy.document_topic_matrix.T, hierarchy.components_
+        weight = node.document_topic_vector
+        subcomponents, sub_doc_topic = weighted_nmf(
+            dtm, weight, n_subtopics, self.random_state, max_iter=200
+        )
+        subcomponents = subcomponents * np.log(
+            1 + subcomponents.mean() / (subcomponents.sum(axis=0) + 1)
+        )
+        for i, component, doc_topic_vector in zip(
+            range(n_subtopics), subcomponents, sub_doc_topic.T
         ):
-            weight = topic_importance
-            subcomponents, sub_doc_topic = weighted_nmf(
-                dtm, weight, n_subtopics, self.random_state, max_iter=200
+            sub = TopicNode(
+                self,
+                path=(*node.path, i),
+                word_importance=component,
+                document_topic_vector=doc_topic_vector,
+                children=None,
             )
-            subcomponents = subcomponents * np.log(
-                1 + subcomponents.mean() / (subcomponents.sum(axis=0) + 1)
-            )
-            subtopics.append(
-                TopicHierarchy(
-                    self,
-                    components_=subcomponents,
-                    document_topic_matrix=sub_doc_topic,
-                    subtopics=None,
-                )
-            )
+            subtopics.append(sub)
         return subtopics
 
     def fit_transform(
@@ -188,11 +181,8 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             console.log("Model fitting done.")
         self.document_topic_matrix = doc_topic_matrix
         self.document_term_matrix = self.model.vectorize(keywords)
-        self.hierarchy = TopicHierarchy(
-            self,
-            components_=self.components_,
-            document_topic_matrix=self.document_topic_matrix,
-            subtopics=None,
+        self.hierarchy = TopicNode.create_root(
+            self, self.components_, self.document_topic_matrix
         )
         return doc_topic_matrix
 
@@ -313,11 +303,8 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             document_term_matrix = self.model.vectorize(keywords)
         self.document_topic_matrix = doc_topic_matrix
         self.document_term_matrix = self.document_term_matrix
-        self.hierarchy = TopicHierarchy(
-            self,
-            components_=self.components_,
-            document_topic_matrix=self.document_topic_matrix,
-            subtopics=None,
+        self.hierarchy = TopicNode.create_root(
+            self, self.components_, self.document_topic_matrix
         )
         res: TopicData = {
             "corpus": corpus,
@@ -365,6 +352,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self.components_ = self.model.components
         self.document_topic_matrix = doc_topic_matrix
         self.document_term_matrix = self.model.vectorize(keywords)
+        self.hierarchy = TopicNode.create_root(
+            self, self.components_, self.document_topic_matrix
+        )
         return doc_topic_matrix
 
     def partial_fit_dynamic(
