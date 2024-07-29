@@ -13,6 +13,54 @@ from turftopic.vectorizer import default_vectorizer
 
 
 class FASTopic(ContextualModel):
+    """
+    Implementation of the FASTopic model with a Turftopic API.
+    The implementation is based on the [original FASTopic package](https://github.com/BobXWu/FASTopic/tree/master),
+    but is adapted for optimal use in Turftopic (you can pre-compute embeddings for instance).
+
+    You will need to install torch to use this model.
+
+    ```bash
+    pip install turftopic[torch]
+    ## OR:
+    pip install turftopic[pyro-ppl]
+    ```
+
+    ```python
+    from turftopic import FASTopic
+
+    corpus: list[str] = ["some text", "more text", ...]
+
+    model = FASTopic(10).fit(corpus)
+    model.print_topics()
+    ```
+
+    Parameters
+    ----------
+    n_components: int
+        Number of topics. If you're using priors on the weight,
+        feel free to overshoot with this value.
+    encoder: str or SentenceTransformer
+        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+    vectorizer: CountVectorizer, default None
+        Vectorizer used for term extraction.
+        Can be used to prune or filter the vocabulary.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
+    DT_alpha: float, default 3.0
+        Sinkhorn alpha between document embeddings and topic embeddings.
+    TW_alpha: float, default 2.0
+        Sinkhorn alpha between topic embeddings and word embeddings.
+    theta_temp: float, default 1.0
+        Temperature parameter of used in softmax to compute topic probabilities in documents.
+    n_epochs: int, default 200
+        Number of epochs to train the model for.
+    learning_rate: float, default 0.002
+        Learning rate for the ADAM optimizer.
+    device: str, default "cpu"
+        Device to run the model on. Defaults to CPU.
+    """
+
     def __init__(
         self,
         n_components: int,
@@ -27,7 +75,7 @@ class FASTopic(ContextualModel):
         theta_temp: float = 1.0,
         n_epochs: int = 200,
         learning_rate: float = 0.002,
-        device: str = None,
+        device: str = "cpu",
     ):
         self.n_components = n_components
         self.encoder = encoder
