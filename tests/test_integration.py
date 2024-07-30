@@ -10,7 +10,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.datasets import fetch_20newsgroups
 
 from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
-                       KeyNMF, SemanticSignalSeparation)
+                       FASTopic, KeyNMF, SemanticSignalSeparation)
 
 
 def batched(iterable, n: int):
@@ -66,6 +66,7 @@ models = [
         reduction_method="smallest",
     ),
     AutoEncodingTopicModel(5, combined=True),
+    FASTopic(5, batch_size=None),
 ]
 
 dynamic_models = [
