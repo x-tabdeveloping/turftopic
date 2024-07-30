@@ -318,7 +318,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             console.log("Model fitting done.")
             document_term_matrix = self.model.vectorize(keywords)
         self.document_topic_matrix = doc_topic_matrix
-        self.document_term_matrix = self.document_term_matrix
+        self.document_term_matrix = document_term_matrix
         self.hierarchy = TopicNode.create_root(
             self, self.components_, self.document_topic_matrix
         )
