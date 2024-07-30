@@ -1,3 +1,4 @@
+import warnings
 from datetime import datetime
 from typing import Optional, Union
 
@@ -62,6 +63,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self.n_components = n_components
         self.top_n = top_n
         self.encoder = encoder
+        self._has_custom_vectorizer = vectorizer is not None
         if isinstance(encoder, str):
             self.encoder_ = SentenceTransformer(encoder)
         else:
@@ -261,6 +263,18 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         keywords: list[dict[str, float]], optional
             Precomputed keyword dictionaries.
         """
+        if not self._has_custom_vectorizer:
+            self.vectorizer = CountVectorizer(stop_words="english")
+            self._has_custom_vectorizer = True
+        min_df = self.vectorizer.min_df
+        max_df = self.vectorizer.max_df
+        if (min_df != 1) or (max_df != 1.0):
+            warnings.warn(f"""When applying partial fitting, the vectorizer is fitted batch-wise in KeyNMF.
+            You have a vectorizer with min_df={min_df}, and max_df={max_df}.
+            If you continue with these settings, all tokens might get filtered out.
+            We recommend setting min_df=1 and max_df=1.0 for online fitting.
+            `model = KeyNMF(10, vectorizer=CountVectorizer(min_df=1, max_df=1.0)`
+            """)
         if keywords is None and raw_documents is None:
             raise ValueError(
                 "You have to pass either keywords or raw_documents."

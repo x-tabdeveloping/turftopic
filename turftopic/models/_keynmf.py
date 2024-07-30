@@ -1,16 +1,13 @@
 import itertools
+import warnings
 from datetime import datetime
 from typing import Iterable, Optional
 
 import numpy as np
 import scipy.sparse as spr
 from sklearn.base import clone
-from sklearn.decomposition._nmf import (
-    NMF,
-    MiniBatchNMF,
-    _initialize_nmf,
-    _update_coordinate_descent,
-)
+from sklearn.decomposition._nmf import (NMF, MiniBatchNMF, _initialize_nmf,
+                                        _update_coordinate_descent)
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -123,7 +120,7 @@ class KeywordExtractor:
             if not np.any(mask):
                 keywords.append(dict())
                 continue
-            important_terms = np.squeeze(np.asarray(mask))
+            important_terms = np.ravel(np.asarray(mask))
             word_embeddings = [
                 self.term_embeddings[self.key_to_index[term]]
                 for term in batch_vocab[important_terms]
@@ -241,13 +238,19 @@ class KeywordNMF:
 
     def partial_fit(self, keyword_batch: list[dict[str, float]]):
         X = self.vectorize(keyword_batch, fitting=True)
-        check_non_negative(X, "NMF (input X)")
-        self._add_word_components(X)
-        W, _ = _initialize_nmf(X, self.n_components, random_state=self.seed)
-        _minibatchnmf = MiniBatchNMF(
-            self.n_components, init="custom", random_state=self.seed
-        ).partial_fit(X, W=W, H=self.components)
-        self.components = _minibatchnmf.components_.astype(X.dtype)
+        try:
+            check_non_negative(X, "NMF (input X)")
+            self._add_word_components(X)
+            W, _ = _initialize_nmf(
+                X, self.n_components, random_state=self.seed
+            )
+            _minibatchnmf = MiniBatchNMF(
+                self.n_components, init="custom", random_state=self.seed
+            ).partial_fit(X, W=W, H=self.components)
+            self.components = _minibatchnmf.components_.astype(X.dtype)
+        except ValueError as e:
+            warnings.warn(f"Batch failed with error: {e}, skipping.")
+            return self
         return self
 
     def fit_transform_dynamic(
