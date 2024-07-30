@@ -23,7 +23,7 @@ pip install turftopic[pyro-ppl]
 You can use most transformer-based topic models in Turftopic, these include:
 
  - [Semantic Signal Separation - $S^3$](s3.md) :compass:
-- [KeyNMF](KeyNMF.md) :key:
+ - [KeyNMF](KeyNMF.md) :key:
  - [Gaussian Mixture Models (GMM)](gmm.md)
  - [Clustering Topic Models](clustering.md):
     - [BERTopic](clustering.md#bertopic_and_top2vec)
@@ -31,6 +31,8 @@ You can use most transformer-based topic models in Turftopic, these include:
  - [Auto-encoding Topic Models](ctm.md):
     - CombinedTM
     - ZeroShotTM
+ - [FASTopic](fastopic.md) :zap:
+
 
 
 ## Basic Usage
