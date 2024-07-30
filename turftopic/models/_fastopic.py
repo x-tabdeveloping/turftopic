@@ -81,11 +81,11 @@ class fastopic(nn.Module):
         self.DT_alpha = DT_alpha
         self.TW_alpha = TW_alpha
         self.theta_temp = theta_temp
-        seed = self.random_state or random.randint(0, 10_000)
-        torch.manual_seed(seed)
+        self.seed = random_state or random.randint(0, 10_000)
         self.epsilon = 1e-12
 
     def init(self, vocab_size: int, embed_size: int):
+        torch.manual_seed(self.seed)
         self.word_embeddings = nn.init.trunc_normal_(
             torch.empty(vocab_size, embed_size)
         )
@@ -108,6 +108,7 @@ class fastopic(nn.Module):
         self,
         doc_embeddings,
     ):
+        torch.manual_seed(self.seed)
         topic_embeddings = self.topic_embeddings.detach().to(
             doc_embeddings.device
         )
@@ -116,6 +117,7 @@ class fastopic(nn.Module):
 
     # only for testing
     def get_beta(self):
+        torch.manual_seed(self.seed)
         _, transp_TW = self.TW_ETP(self.topic_embeddings, self.word_embeddings)
         # use transport plan as beta
         beta = transp_TW * transp_TW.shape[0]
@@ -123,6 +125,7 @@ class fastopic(nn.Module):
 
     # only for testing
     def get_theta(self, doc_embeddings, train_doc_embeddings):
+        torch.manual_seed(self.seed)
         topic_embeddings = self.topic_embeddings.detach().to(
             doc_embeddings.device
         )
@@ -137,6 +140,7 @@ class fastopic(nn.Module):
         return theta
 
     def forward(self, train_bow, doc_embeddings):
+        torch.manual_seed(self.seed)
         loss_DT, transp_DT = self.DT_ETP(doc_embeddings, self.topic_embeddings)
         loss_TW, transp_TW = self.TW_ETP(
             self.topic_embeddings, self.word_embeddings
