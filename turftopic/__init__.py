@@ -2,6 +2,7 @@ from turftopic.base import ContextualModel
 from turftopic.error import NotInstalled
 from turftopic.models.cluster import ClusteringTopicModel
 from turftopic.models.decomp import SemanticSignalSeparation
+from turftopic.models.fastopic import FASTopic
 from turftopic.models.gmm import GMM
 from turftopic.models.keynmf import KeyNMF
 
@@ -10,10 +11,6 @@ try:
 except ModuleNotFoundError:
     AutoEncodingTopicModel = NotInstalled("AutoEncodingTopicModel", "pyro-ppl")
 
-try:
-    from turftopic.models.fastopic import FASTopic
-except ModuleNotFoundError:
-    FASTopic = NotInstalled("FASTopic", "torch")
 
 __all__ = [
     "ClusteringTopicModel",
