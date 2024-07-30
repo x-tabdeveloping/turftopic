@@ -7,6 +7,7 @@ nav:
     - Using Turftopic: basics.md
     - Dynamic Topic Modeling: dynamic.md
     - Online Topic Modeling: online.md
+    - Hierarchical Topic Modeling: hierarchical.md
     - Model Persistence: persistence.md
   - Models:
     - Model Overview: model_overview.md
