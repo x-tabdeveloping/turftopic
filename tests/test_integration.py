@@ -7,7 +7,9 @@ import numpy as np
 import pandas as pd
 import pytest
 from sentence_transformers import SentenceTransformer
+from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_20newsgroups
+from sklearn.decomposition import PCA
 
 from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
                        FASTopic, KeyNMF, SemanticSignalSeparation)
@@ -50,43 +52,47 @@ embeddings = np.asarray(trf.encode(texts))
 timestamps = generate_dates(n_dates=len(texts))
 
 models = [
-    GMM(5, encoder=trf),
-    SemanticSignalSeparation(5, encoder=trf),
-    KeyNMF(5, encoder=trf),
+    GMM(3, encoder=trf),
+    SemanticSignalSeparation(3, encoder=trf),
+    KeyNMF(3, encoder=trf),
     ClusteringTopicModel(
-        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(3),
         feature_importance="c-tf-idf",
         encoder=trf,
         reduction_method="agglomerative",
     ),
     ClusteringTopicModel(
-        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(3),
         feature_importance="centroid",
         encoder=trf,
         reduction_method="smallest",
     ),
-    AutoEncodingTopicModel(5, combined=True),
-    FASTopic(5, batch_size=None),
+    AutoEncodingTopicModel(3, combined=True),
+    FASTopic(3, batch_size=None),
 ]
 
 dynamic_models = [
-    GMM(5, encoder=trf),
+    GMM(3, encoder=trf),
     ClusteringTopicModel(
-        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(3),
         feature_importance="centroid",
         encoder=trf,
         reduction_method="smallest",
     ),
     ClusteringTopicModel(
-        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(3),
         feature_importance="soft-c-tf-idf",
         encoder=trf,
         reduction_method="smallest",
     ),
-    KeyNMF(5, encoder=trf),
+    KeyNMF(3, encoder=trf),
 ]
 
-online_models = [KeyNMF(5, encoder=trf)]
+online_models = [KeyNMF(3, encoder=trf)]
 
 
 @pytest.mark.parametrize("model", models)
