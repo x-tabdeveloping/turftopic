@@ -12,7 +12,7 @@
  - Implementations of other transformer-based topic models
    - Clustering Topic Models: BERTopic and Top2Vec
    - Autoencoding Topic Models: CombinedTM and ZeroShotTM
-   - FASTopic :zap:
+   - FASTopic
  - Streamlined scikit-learn compatible API 🛠️
  - Easy topic interpretation 🔍
  - Dynamic Topic Modeling 📈 (GMM, ClusteringTopicModel and KeyNMF)
