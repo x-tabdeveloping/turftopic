@@ -147,3 +147,10 @@ def test_prepare_topic_data_export_table(model):
         with out_path.open("w") as out_file:
             out_file.write(table)
         df = pd.read_csv(out_path)
+
+
+def test_hierarchical():
+    model = KeyNMF(2).fit(texts, embeddings=embeddings)
+    model.hierarchy.divide_children(3)
+    model.hierarchy[0][0].divide(3)
+    repr = str(model.hierarchy)
