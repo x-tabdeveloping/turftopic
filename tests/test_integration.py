@@ -11,8 +11,14 @@ from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.decomposition import PCA
 
-from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
-                       FASTopic, KeyNMF, SemanticSignalSeparation)
+from turftopic import (
+    GMM,
+    AutoEncodingTopicModel,
+    ClusteringTopicModel,
+    FASTopic,
+    KeyNMF,
+    SemanticSignalSeparation,
+)
 
 
 def batched(iterable, n: int):
@@ -95,17 +101,6 @@ dynamic_models = [
 online_models = [KeyNMF(3, encoder=trf)]
 
 
-@pytest.mark.parametrize("model", models)
-def test_fit_export_table(model):
-    doc_topic_matrix = model.fit_transform(texts, embeddings=embeddings)
-    table = model.export_topics(format="csv")
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        out_path = Path(tmpdirname).joinpath("topics.csv")
-        with out_path.open("w") as out_file:
-            out_file.write(table)
-        df = pd.read_csv(out_path)
-
-
 @pytest.mark.parametrize("model", dynamic_models)
 def test_fit_dynamic(model):
     doc_topic_matrix = model.fit_transform_dynamic(
@@ -138,7 +133,7 @@ def test_fit_online(model):
 
 
 @pytest.mark.parametrize("model", models)
-def test_prepare_topic_data(model):
+def test_prepare_topic_data_export_table(model):
     topic_data = model.prepare_topic_data(texts, embeddings=embeddings)
     for key, value in topic_data.items():
         # We allow transform() to be None for transductive models
@@ -146,3 +141,16 @@ def test_prepare_topic_data(model):
             continue
         if value is None:
             raise TypeError(f"Field {key} is None in topic_data.")
+    table = model.export_topics(format="csv")
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        out_path = Path(tmpdirname).joinpath("topics.csv")
+        with out_path.open("w") as out_file:
+            out_file.write(table)
+        df = pd.read_csv(out_path)
+
+
+def test_hierarchical():
+    model = KeyNMF(2).fit(texts, embeddings=embeddings)
+    model.hierarchy.divide_children(3)
+    model.hierarchy[0][0].divide(3)
+    repr = str(model.hierarchy)

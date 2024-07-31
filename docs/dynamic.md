@@ -77,7 +77,7 @@ model.plot_topics_over_time(top_k=5)
   <figcaption>Topics over time on a Figure</figcaption>
 </figure>
 
-## Interface
+## API reference
 
 All dynamic topic models have a `temporal_components_` attribute, which contains the topic-term matrices for each time slice, along with a `temporal_importance_` attribute, which contains the importance of each topic in each time slice.
 

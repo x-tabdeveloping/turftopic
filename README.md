@@ -9,9 +9,10 @@
    - Semantic Signal Separation - S³ 🧭
    - KeyNMF 🔑 (paper in progress ⏳)
    - GMM :gem: (paper soon)
- - Implementations of existing transformer-based topic models
+ - Implementations of other transformer-based topic models
    - Clustering Topic Models: BERTopic and Top2Vec
    - Autoencoding Topic Models: CombinedTM and ZeroShotTM
+   - FASTopic
  - Streamlined scikit-learn compatible API 🛠️
  - Easy topic interpretation 🔍
  - Dynamic Topic Modeling 📈 (GMM, ClusteringTopicModel and KeyNMF)
@@ -19,43 +20,45 @@
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-### New in version 0.4.0
+### New in version 0.5.0
 
-#### Online KeyNMF
+#### Hierarchical KeyNMF
 
-You can now online fit and finetune KeyNMF as you wish!
+You can now subdivide topics in KeyNMF at will.
 
 ```python
-from itertools import batched
 from turftopic import KeyNMF
 
-model = KeyNMF(10, top_n=5)
-
-corpus = ["some string", "etc", ...]
-for batch in batched(corpus, 200):
-    batch = list(batch)
-    model.partial_fit(batch)
+model = KeyNMF(2, top_n=15, random_state=42).fit(corpus)
+model.hierarchy.divide_children(n_subtopics=3)
+print(model.hierarchy)
 ```
 
-#### $S^3$ Concept Compasses
+<div style="background-color: #F5F5F5; padding: 10px; padding-left: 20px; padding-right: 20px;">
+<tt style="font-size: 11pt">
+<b>Root </b><br>
+├── <b style="color: blue">0</b>: windows, dos, os, disk, card, drivers, file, pc, files, microsoft <br>
+│   ├── <b style="color: magenta">0.0</b>: dos, file, disk, files, program, windows, disks, shareware, norton, memory <br>
+│   ├── <b style="color: magenta">0.1</b>: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform <br>
+│   └── <b style="color: magenta">0.2</b>: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati <br>
+└── <b style="color: blue">1</b>: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs <br>
+.    ├── <b style="color: magenta">1.0</b>: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers <br>
+.    ├── <b style="color: magenta">1.1</b>: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions <br>
+.    └── <b style="color: magenta">1.2</b>: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion <br>
+</tt>
+</div>
 
-You can now produce a compass of concepts along two semantic axes using $S^3$.
 
-<table>
-  <tr>
-   <td>
-    
+#### FASTopic *(Experimental)*
+
+You can now use [FASTopic](https://github.com/BobXWu/FASTopic) inside Turftopic.
+
 ```python
-model = SemanticSignalSeparation(10).fit(corpus)
-fig = model.concept_compass(topic_x=1, topic_y=4)
-fig.show()
+from turftopic import FASTopic
+
+model = FASTopic(10).fit(corpus)
+model.print_topics()
 ```
-
-   </td>
-   <td><img src="./docs/images/arxiv_ml_compass.png" width="350" style="margin-left: auto;margin-right: auto;"></td>
-  </tr>
-</table>
-
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
@@ -180,6 +183,7 @@ Alternatively you can use the [Figures API](https://x-tabdeveloping.github.io/to
 
 ## References
 - Kardos, M., Kostkan, J., Vermillet, A., Nielbo, K., Enevoldsen, K., & Rocca, R. (2024, June 13). $S^3$ - Semantic Signal separation. arXiv.org. https://arxiv.org/abs/2406.09556
+- Wu, X., Nguyen, T., Zhang, D. C., Wang, W. Y., & Luu, A. T. (2024). FASTopic: A Fast, Adaptive, Stable, and Transferable Topic Modeling Paradigm. ArXiv Preprint ArXiv:2405.17978.
  - Grootendorst, M. (2022, March 11). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. arXiv.org. https://arxiv.org/abs/2203.05794
  - Angelov, D. (2020, August 19). Top2VEC: Distributed representations of topics. arXiv.org. https://arxiv.org/abs/2008.09470
  - Bianchi, F., Terragni, S., & Hovy, D. (2020, April 8). Pre-training is a Hot Topic: Contextualized Document Embeddings Improve Topic Coherence. arXiv.org. https://arxiv.org/abs/2004.03974
