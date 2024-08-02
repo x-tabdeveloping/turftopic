@@ -127,13 +127,14 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         Clustering method to use for finding topics.
         Defaults to OPTICS with 25 minimum cluster size.
         To imitate the behavior of BERTopic or Top2Vec you should use HDBSCAN.
-    feature_importance: 'soft-c-tf-idf', 'c-tf-idf' or 'centroid', default 'soft-c-tf-idf'
+    feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
         Method for estimating term importances.
         'centroid' uses distances from cluster centroid similarly
         to Top2Vec.
         'c-tf-idf' uses BERTopic's c-tf-idf.
         'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
         be very similar to 'c-tf-idf'.
+        'bayes' uses Bayes' rule.
     n_reduce_to: int, default None
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
@@ -281,8 +282,14 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
 
         Parameters
         ----------
-        feature_importance: {'centroid', 'soft-c-tf-idf', 'bayes' 'c-tf-idf'}
-            Estimation method.
+        feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
+            Method for estimating term importances.
+            'centroid' uses distances from cluster centroid similarly
+            to Top2Vec.
+            'c-tf-idf' uses BERTopic's c-tf-idf.
+            'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
+            be very similar to 'c-tf-idf'.
+            'bayes' uses Bayes' rule.
 
         Returns
         -------
