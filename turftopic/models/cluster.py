@@ -12,6 +12,7 @@ from sklearn.metrics.pairwise import cosine_distances
 from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel, Encoder
+from turftopic.data import TopicData
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import (
     bayes_rule,
@@ -238,28 +239,32 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             labels[labels == from_topic] = to_topic
         return labels
 
-    def _estimate_parameters(
+    def estimate_components(
         self,
-        embeddings: np.ndarray,
-        doc_term_matrix: np.ndarray,
-    ):
+        feature_importance: Literal[
+            "centroid", "soft_ctf_idf", "bayes", "c-tf-idf"
+        ],
+    ) -> np.array:
         clusters = np.unique(self.labels_)
         self.classes_ = np.sort(clusters)
         self.topic_sizes_ = np.array(
             [np.sum(self.labels_ == label) for label in self.classes_]
         )
-        self.topic_vectors_ = calculate_topic_vectors(self.labels_, embeddings)
-        self.vocab_embeddings = self.encoder_.encode(
-            self.vectorizer.get_feature_names_out()
-        )  # type: ignore
+        self.topic_vectors_ = calculate_topic_vectors(
+            self.labels_, self.embeddings
+        )
         document_topic_matrix = label_binarize(
             self.labels_, classes=self.classes_
         )
         if self.feature_importance == "soft-c-tf-idf":
             self.components_ = soft_ctf_idf(
-                document_topic_matrix, doc_term_matrix
+                document_topic_matrix, self.doc_term_matrix
             )  # type: ignore
         elif self.feature_importance == "centroid":
+            if not hasattr(self, "vocab_embeddings"):
+                self.vocab_embeddings = self.encoder_.encode(
+                    self.vectorizer.get_feature_names_out()
+                )  # type: ignore
             self.components_ = cluster_centroid_distance(
                 self.topic_vectors_,
                 self.vocab_embeddings,
@@ -267,10 +272,13 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             )
         elif self.feature_importance == "bayes":
             self.components_ = bayes_rule(
-                document_topic_matrix, doc_term_matrix
+                document_topic_matrix, self.doc_term_matrix
             )
         else:
-            self.components_ = ctf_idf(document_topic_matrix, doc_term_matrix)
+            self.components_ = ctf_idf(
+                document_topic_matrix, self.doc_term_matrix
+            )
+        return self.components_
 
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -296,6 +304,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             if embeddings is None:
                 status.update("Encoding documents")
                 embeddings = self.encoder_.encode(raw_documents)
+                self.embeddings = embeddings
                 console.log("Encoding done.")
             status.update("Extracting terms")
             self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
@@ -309,10 +318,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.labels_ = self.clustering.fit_predict(reduced_embeddings)
             console.log("Clustering done.")
             status.update("Estimating parameters.")
-            self._estimate_parameters(
-                embeddings,
-                self.doc_term_matrix,
-            )
+            self.estimate_components(self.feature_importance)
             console.log("Parameter estimation done.")
             if self.n_reduce_to is not None:
                 n_topics = self.classes_.shape[0]
@@ -327,12 +333,12 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
                 status.update("Reestimating parameters.")
-                self._estimate_parameters(
-                    embeddings,
-                    self.doc_term_matrix,
-                )
+                self.estimate_components(self.feature_importance)
                 console.log("Reestimation done.")
         console.log("Model fitting done.")
+        self.doc_term_matrix = label_binarize(
+            self.labels_, classes=self.classes_
+        )
         return self.labels_
 
     def fit_transform(
