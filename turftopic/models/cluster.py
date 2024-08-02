@@ -1,3 +1,4 @@
+import warnings
 from datetime import datetime
 from typing import Literal, Optional, Union
 
@@ -12,7 +13,6 @@ from sklearn.metrics.pairwise import cosine_distances
 from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel, Encoder
-from turftopic.data import TopicData
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import (
     bayes_rule,
@@ -266,11 +266,20 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         ndarray of shape (n_documents)
             New cluster labels for documents.
         """
+        if not hasattr(self, "original_labels_"):
+            self.original_labels_ = self.labels_
         if reduction_method == "smallest":
             self.labels_ = self._merge_smallest(n_reduce_to)
         elif reduction_method == "agglomerative":
             self.labels_ = self._merge_agglomerative(n_reduce_to)
         return self.labels_
+
+    def reset_reduction(self):
+        if not hasattr(self, "original_labels_"):
+            warnings.warn("Topics have never been reduced, nothing to reset.")
+        else:
+            self.labels_ = self.original_labels_
+            self.estimate_components(self.feature_importance)
 
     def estimate_components(
         self,
@@ -376,10 +385,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 status.update(
                     f"Reducing topics from {n_topics} to {self.n_reduce_to}"
                 )
-                if self.reduction_method == "agglomerative":
-                    self.labels_ = self._merge_agglomerative(self.n_reduce_to)
-                else:
-                    self.labels_ = self._merge_smallest(self.n_reduce_to)
+                self.reduce_topics(self.n_reduce_to, self.reduction_method)
                 console.log(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
