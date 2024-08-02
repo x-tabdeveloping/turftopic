@@ -365,8 +365,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             if embeddings is None:
                 status.update("Encoding documents")
                 embeddings = self.encoder_.encode(raw_documents)
-                self.embeddings = embeddings
                 console.log("Encoding done.")
+            self.embeddings = embeddings
             status.update("Extracting terms")
             self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
