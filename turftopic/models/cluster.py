@@ -14,6 +14,7 @@ from sklearn.preprocessing import label_binarize
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import (
+    bayes_rule,
     cluster_centroid_distance,
     ctf_idf,
     soft_ctf_idf,
@@ -156,7 +157,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
         feature_importance: Literal[
-            "c-tf-idf", "soft-c-tf-idf", "centroid"
+            "c-tf-idf",
+            "soft-c-tf-idf",
+            "centroid",
+            "bayes",
         ] = "soft-c-tf-idf",
         n_reduce_to: Optional[int] = None,
         reduction_method: Literal[
@@ -166,7 +170,12 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
     ):
         self.encoder = encoder
         self.random_state = random_state
-        if feature_importance not in ["c-tf-idf", "soft-c-tf-idf", "centroid"]:
+        if feature_importance not in [
+            "c-tf-idf",
+            "soft-c-tf-idf",
+            "centroid",
+            "bayes",
+        ]:
             raise ValueError(feature_message)
         if isinstance(encoder, int):
             raise TypeError(integer_message)
@@ -255,6 +264,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 self.topic_vectors_,
                 self.vocab_embeddings,
                 metric="cosine",
+            )
+        elif self.feature_importance == "bayes":
+            self.components_ = bayes_rule(
+                document_topic_matrix, doc_term_matrix
             )
         else:
             self.components_ = ctf_idf(document_topic_matrix, doc_term_matrix)
@@ -368,6 +381,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                     )
                 elif self.feature_importance == "c-tf-idf":
                     components = ctf_idf(t_doc_topic_matrix, t_doc_term_matrix)
+            elif self.feature_importance == "bayes":
+                components = bayes_rule(t_doc_topic_matrix, t_doc_term_matrix)
             elif self.feature_importance == "centroid":
                 time_index = time_labels == i_timebin
                 t_topic_vectors = calculate_topic_vectors(
