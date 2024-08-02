@@ -239,12 +239,56 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             labels[labels == from_topic] = to_topic
         return labels
 
+    def reduce_topics(
+        self,
+        n_reduce_to: int,
+        reduction_method: Literal["smallest", "agglomerative"],
+    ) -> np.ndarray:
+        """Reduces the clustering to the desired amount with the given method.
+
+        Parameters
+        ----------
+        n_reduce_to: int, default None
+            Number of topics to reduce topics to.
+            The specified reduction method will be used to merge them.
+            By default, topics are not merged.
+        reduction_method: 'agglomerative', 'smallest'
+            Method used to reduce the number of topics post-hoc.
+            When 'agglomerative', BERTopic's topic reduction method is used,
+            where topic vectors are hierarchically clustered.
+            When 'smallest', the smallest topic gets merged into the closest
+            non-outlier cluster until the desired number
+            is achieved similarly to Top2Vec.
+
+        Returns
+        -------
+        ndarray of shape (n_documents)
+            New cluster labels for documents.
+        """
+        if reduction_method == "smallest":
+            self.labels_ = self._merge_smallest(n_reduce_to)
+        elif reduction_method == "agglomerative":
+            self.labels_ = self._merge_agglomerative(n_reduce_to)
+        return self.labels_
+
     def estimate_components(
         self,
         feature_importance: Literal[
-            "centroid", "soft_ctf_idf", "bayes", "c-tf-idf"
+            "centroid", "soft-c-tf-idf", "bayes", "c-tf-idf"
         ],
     ) -> np.array:
+        """Estimates feature importances based on a fitted clustering.
+
+        Parameters
+        ----------
+        feature_importance: {'centroid', 'soft-c-tf-idf', 'bayes' 'c-tf-idf'}
+            Estimation method.
+
+        Returns
+        -------
+        ndarray of shape (n_components, n_vocab)
+            Topic-term matrix.
+        """
         clusters = np.unique(self.labels_)
         self.classes_ = np.sort(clusters)
         self.topic_sizes_ = np.array(
