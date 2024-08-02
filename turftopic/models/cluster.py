@@ -275,6 +275,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         return self.labels_
 
     def reset_reduction(self):
+        """Resets topic reductions to the original clustering."""
         if not hasattr(self, "original_labels_"):
             warnings.warn("Topics have never been reduced, nothing to reset.")
         else:
