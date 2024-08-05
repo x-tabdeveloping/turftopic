@@ -1,13 +1,11 @@
 import numpy as np
 import scipy.sparse as spr
-from sklearn.metrics import pairwise_distances
-from sklearn.preprocessing import normalize
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 def cluster_centroid_distance(
     cluster_centroids: np.ndarray,
     vocab_embeddings: np.ndarray,
-    metric="cosine",
 ) -> np.ndarray:
     """Computes feature importances based on distances between
     topic vectors (cluster centroids) and term embeddings
@@ -18,25 +16,21 @@ def cluster_centroid_distance(
         Coordinates of cluster centroids of shape (n_topics, embedding_size)
     vocab_embeddings: np.ndarray
         Term embeddings of shape (vocab_size, embedding_size)
-    metric: str, defaul 'cosine'
-        Metric used to compute distance from centroid.
-        See documentation for sklearn.metrics.pairwise.distance_metrics
-        for valid values.
 
     Returns
     -------
     ndarray of shape (n_topics, vocab_size)
         Term importance matrix.
     """
-    distances = pairwise_distances(
-        cluster_centroids, vocab_embeddings, metric=metric
+    n_components = cluster_centroids.shape[0]
+    n_vocab = vocab_embeddings.shape[0]
+    components = np.full((n_components, n_vocab), np.nan)
+    valid_centroids = np.all(np.isfinite(cluster_centroids), axis=1)
+    similarities = cosine_similarity(
+        cluster_centroids[valid_centroids], vocab_embeddings
     )
-    similarities = -distances / np.max(distances)
-    # Z-score transformation
-    similarities = (similarities - np.mean(similarities)) / np.std(
-        similarities
-    )
-    return similarities
+    components[valid_centroids, :] = similarities
+    return components
 
 
 def soft_ctf_idf(
@@ -88,6 +82,7 @@ def ctf_idf(
     components = []
     overall_freq = np.ravel(np.asarray(doc_term_matrix.sum(axis=0)))
     average = overall_freq.sum() / n_topics
+    overall_freq[overall_freq == 0] = np.finfo(float).eps
     for i_topic in range(n_topics):
         freq = np.ravel(
             np.asarray(doc_term_matrix[labels == i_topic].sum(axis=0))
@@ -120,12 +115,14 @@ def bayes_rule(
     eps = np.finfo(float).eps
     p_w = np.squeeze(np.asarray(doc_term_matrix.sum(axis=0)))
     p_w = p_w / p_w.sum()
+    p_w[p_w <= 0] = eps
     p_t = doc_topic_matrix.sum(axis=0)
     p_t = p_t / p_t.sum()
     term_importance = doc_topic_matrix.T @ doc_term_matrix
     overall_in_topic = np.abs(term_importance).sum(axis=1)
-    p_wt = (term_importance.T / (overall_in_topic + eps)).T
-    p_wt = normalize(p_wt, norm="l1", axis=1)
+    overall_in_topic[overall_in_topic <= 0] = eps
+    p_wt = (term_importance.T / (overall_in_topic)).T
+    p_wt /= p_wt.sum(axis=1)[:, None]
     p_tw = (p_wt.T * p_t).T / p_w
-    p_tw = normalize(p_tw, axis=0, norm="l1")
+    p_tw /= np.nansum(p_tw, axis=0)
     return p_tw

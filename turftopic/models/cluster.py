@@ -203,6 +203,22 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self.n_reduce_to = n_reduce_to
         self.reduction_method = reduction_method
 
+    def _calculate_topic_vectors(
+        self, is_in_slice: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        label_to_idx = {label: idx for idx, label in enumerate(self.classes_)}
+        n_topics = len(self.classes_)
+        n_dims = self.embeddings.shape[1]
+        topic_vectors = np.full((n_topics, n_dims), np.nan)
+        for label in np.unique(self.labels_):
+            doc_idx = self.labels_ == label
+            if is_in_slice is not None:
+                doc_idx = doc_idx & is_in_slice
+            topic_vectors[label_to_idx[label], :] = np.mean(
+                self.embeddings[doc_idx], axis=0
+            )
+        return topic_vectors
+
     def _merge_agglomerative(self, n_reduce_to: int) -> np.ndarray:
         n_topics = self.components_.shape[0]
         res = {old_label: old_label for old_label in self.classes_}
@@ -311,9 +327,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self.topic_sizes_ = np.array(
             [np.sum(self.labels_ == label) for label in self.classes_]
         )
-        self.topic_vectors_ = calculate_topic_vectors(
-            self.labels_, self.embeddings
-        )
+        self.topic_vectors_ = self._calculate_topic_vectors()
         document_topic_matrix = label_binarize(
             self.labels_, classes=self.classes_
         )
@@ -329,7 +343,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.components_ = cluster_centroid_distance(
                 self.topic_vectors_,
                 self.vocab_embeddings,
-                metric="cosine",
             )
         elif self.feature_importance == "bayes":
             self.components_ = bayes_rule(
@@ -394,7 +407,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 self.estimate_components(self.feature_importance)
                 console.log("Reestimation done.")
         console.log("Model fitting done.")
-        self.doc_term_matrix = label_binarize(
+        self.doc_topic_matrix = label_binarize(
             self.labels_, classes=self.classes_
         )
         return self.labels_
@@ -404,6 +417,56 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
     ):
         labels = self.fit_predict(raw_documents, y, embeddings)
         return label_binarize(labels, classes=self.classes_)
+
+    def estimate_temporal_components(
+        self,
+        time_labels,
+        time_bin_edges,
+        feature_importance: Literal[
+            "c-tf-idf", "soft-c-tf-idf", "centroid", "bayes"
+        ],
+    ):
+        n_comp, n_vocab = self.components_.shape
+        n_bins = len(self.time_bin_edges) - 1
+        self.temporal_components_ = np.full(
+            (n_bins, n_comp, n_vocab),
+            np.nan,
+            dtype=self.components_.dtype,
+        )
+        self.temporal_importance_ = np.zeros((n_bins, n_comp))
+        for i_timebin in np.unique(time_labels):
+            topic_importances = self.doc_topic_matrix[
+                time_labels == i_timebin
+            ].sum(axis=0)
+            if not topic_importances.sum() == 0:
+                topic_importances = topic_importances / topic_importances.sum()
+            self.temporal_importance_[i_timebin, :] = topic_importances
+            t_dtm = self.doc_term_matrix[time_labels == i_timebin]
+            t_doc_topic = self.doc_topic_matrix[time_labels == i_timebin]
+            if feature_importance == "c-tf-idf":
+                self.temporal_components_[i_timebin] = ctf_idf(
+                    t_doc_topic, t_dtm
+                )
+            elif feature_importance == "soft-c-tf-idf":
+                self.temporal_components_[i_timebin] = soft_ctf_idf(
+                    t_doc_topic, t_dtm
+                )
+            elif feature_importance == "bayes":
+                self.temporal_components_[i_timebin] = bayes_rule(
+                    t_doc_topic, t_dtm
+                )
+            elif feature_importance == "centroid":
+                t_topic_vectors = self._calculate_topic_vectors(
+                    time_labels == i_timebin,
+                )
+                components = cluster_centroid_distance(
+                    t_topic_vectors,
+                    self.vocab_embeddings,
+                )
+                mask_terms = t_dtm.sum(axis=0).astype(np.float64)
+                mask_terms = np.squeeze(np.asarray(mask_terms))
+                components[:, mask_terms == 0] = np.nan
+                self.temporal_components_[i_timebin] = components
 
     def fit_transform_dynamic(
         self,
@@ -431,42 +494,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self.temporal_importance_ = np.zeros((n_bins, n_comp))
         if embeddings is None:
             embeddings = self.encoder_.encode(raw_documents)
-        for i_timebin in np.unique(time_labels):
-            topic_importances = doc_topic_matrix[time_labels == i_timebin].sum(
-                axis=0
-            )
-            topic_importances = topic_importances / topic_importances.sum()
-            t_doc_term_matrix = self.doc_term_matrix[time_labels == i_timebin]
-            t_doc_topic_matrix = doc_topic_matrix[time_labels == i_timebin]
-            if "c-tf-idf" in self.feature_importance:
-                if self.feature_importance == "soft-c-tf-idf":
-                    components = soft_ctf_idf(
-                        t_doc_topic_matrix, t_doc_term_matrix
-                    )
-                elif self.feature_importance == "c-tf-idf":
-                    components = ctf_idf(t_doc_topic_matrix, t_doc_term_matrix)
-            elif self.feature_importance == "bayes":
-                components = bayes_rule(t_doc_topic_matrix, t_doc_term_matrix)
-            elif self.feature_importance == "centroid":
-                time_index = time_labels == i_timebin
-                t_topic_vectors = calculate_topic_vectors(
-                    self.labels_,
-                    embeddings,
-                    time_index,
-                )
-                topic_mask = np.isnan(t_topic_vectors).all(
-                    axis=1, keepdims=True
-                )
-                t_topic_vectors[:] = 0
-                components = cluster_centroid_distance(
-                    t_topic_vectors,
-                    self.vocab_embeddings,
-                    metric="cosine",
-                )
-                components *= topic_mask
-                mask_terms = t_doc_term_matrix.sum(axis=0).astype(np.float64)
-                mask_terms[mask_terms == 0] = np.nan
-                components *= mask_terms
-            self.temporal_components_[i_timebin] = components
-            self.temporal_importance_[i_timebin] = topic_importances
+        self.embeddings = embeddings
+        self.estimate_temporal_components(
+            time_labels, self.time_bin_edges, self.feature_importance
+        )
         return doc_topic_matrix
