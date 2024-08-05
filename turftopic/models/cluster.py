@@ -14,12 +14,9 @@ from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
-from turftopic.feature_importance import (
-    bayes_rule,
-    cluster_centroid_distance,
-    ctf_idf,
-    soft_ctf_idf,
-)
+from turftopic.feature_importance import (bayes_rule,
+                                          cluster_centroid_distance, ctf_idf,
+                                          soft_ctf_idf)
 from turftopic.vectorizer import default_vectorizer
 
 integer_message = """
@@ -331,11 +328,11 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         document_topic_matrix = label_binarize(
             self.labels_, classes=self.classes_
         )
-        if self.feature_importance == "soft-c-tf-idf":
+        if feature_importance == "soft-c-tf-idf":
             self.components_ = soft_ctf_idf(
                 document_topic_matrix, self.doc_term_matrix
             )  # type: ignore
-        elif self.feature_importance == "centroid":
+        elif feature_importance == "centroid":
             if not hasattr(self, "vocab_embeddings"):
                 self.vocab_embeddings = self.encoder_.encode(
                     self.vectorizer.get_feature_names_out()
@@ -344,7 +341,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 self.topic_vectors_,
                 self.vocab_embeddings,
             )
-        elif self.feature_importance == "bayes":
+        elif feature_importance == "bayes":
             self.components_ = bayes_rule(
                 document_topic_matrix, self.doc_term_matrix
             )
