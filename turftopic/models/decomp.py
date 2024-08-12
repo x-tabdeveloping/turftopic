@@ -7,6 +7,7 @@ from sklearn.base import TransformerMixin
 from sklearn.decomposition import FastICA
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.preprocessing import scale
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.vectorizer import default_vectorizer
@@ -42,6 +43,10 @@ class SemanticSignalSeparation(ContextualModel):
         If not specified, FastICA is used.
     max_iter: int, default 200
         Maximum number of iterations for ICA.
+    feature_importance: "strong" or "extreme", default "strong"
+        Indiciates whether 'strong' words (words that are specific to the topic)
+        or 'extreme' words (words that are most extreme in the topic) should
+        describe topics.
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
     """
@@ -55,10 +60,12 @@ class SemanticSignalSeparation(ContextualModel):
         vectorizer: Optional[CountVectorizer] = None,
         decomposition: Optional[TransformerMixin] = None,
         max_iter: int = 200,
+        feature_importance: Literal["strong", "extreme"] = "strong",
         random_state: Optional[int] = None,
     ):
         self.n_components = n_components
         self.encoder = encoder
+        self.feature_importance = feature_importance
         if isinstance(encoder, str):
             self.encoder_ = SentenceTransformer(encoder)
         else:
@@ -97,8 +104,28 @@ class SemanticSignalSeparation(ContextualModel):
             status.update("Estimating term importances")
             vocab_topic = self.decomposition.transform(vocab_embeddings)
             self.components_ = vocab_topic.T
+            self.original_components = self.components_
+            if self.feature_importance == "strong":
+                self.reweight_strong()
             console.log("Model fitting done.")
         return doc_topic
+
+    def reweight_strong(self):
+        """Reweights words so that only the strongest components for a word
+        has a value.
+        """
+        n_topics, n_vocab = self.components_.shape
+        mean_component = np.mean(self.components_, axis=1)
+        for i_vocab in range(n_vocab):
+            word_rep = self.components_[:, i_vocab]
+            min_topic = np.argmin(word_rep)
+            max_topic = np.argmax(word_rep)
+            for i_topic in range(n_topics):
+                if i_topic not in (min_topic, max_topic):
+                    self.components_[i_topic, i_vocab] = mean_component[
+                        i_topic
+                    ]
+        return self
 
     def transform(
         self, raw_documents, embeddings: Optional[np.ndarray] = None
@@ -211,8 +238,8 @@ class SemanticSignalSeparation(ContextualModel):
                 raise ValueError(
                     f"{topic_y} is not a valid topic name or index."
                 ) from e
-        x = self.components_[topic_x]
-        y = self.components_[topic_y]
+        x = self.original_components[topic_x]
+        y = self.original_components[topic_y]
         vocab = self.get_vocab()
         points = np.array(list(zip(x, y)))
         xx, yy = np.meshgrid(
