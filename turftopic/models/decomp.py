@@ -6,8 +6,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
 from sklearn.decomposition import FastICA
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import euclidean_distances
-from sklearn.preprocessing import scale
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.vectorizer import default_vectorizer
@@ -111,20 +110,14 @@ class SemanticSignalSeparation(ContextualModel):
         return doc_topic
 
     def reweight_strong(self):
-        """Reweights words so that only the strongest components for a word
-        has a value.
+        """Reweights words based on their angle in ICA-space to the axis
+        base vectors.
         """
-        n_topics, n_vocab = self.components_.shape
-        mean_component = np.mean(self.components_, axis=1)
-        for i_vocab in range(n_vocab):
-            word_rep = self.components_[:, i_vocab]
-            min_topic = np.argmin(word_rep)
-            max_topic = np.argmax(word_rep)
-            for i_topic in range(n_topics):
-                if i_topic not in (min_topic, max_topic):
-                    self.components_[i_topic, i_vocab] = mean_component[
-                        i_topic
-                    ]
+        word_vectors = self.components_.T
+        n_topics = self.components_.shape[0]
+        axis_vectors = np.eye(n_topics)
+        cosine_components = cosine_similarity(axis_vectors, word_vectors)
+        self.components_ = cosine_components
         return self
 
     def transform(
