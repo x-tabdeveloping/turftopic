@@ -42,10 +42,9 @@ class SemanticSignalSeparation(ContextualModel):
         If not specified, FastICA is used.
     max_iter: int, default 200
         Maximum number of iterations for ICA.
-    feature_importance: "strong" or "extreme", default "strong"
-        Indiciates whether 'strong' words (words that are specific to the topic)
-        or 'extreme' words (words that are most extreme in the topic) should
-        describe topics.
+    feature_importance: "axial", "angular" or "combined", default "combined"
+        Defines whether the word's position on an axis ('axial'), it's angle to the axis ('angular')
+        or their combination ('combined') should determine the word's importance for a topic.
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
     """
@@ -59,7 +58,9 @@ class SemanticSignalSeparation(ContextualModel):
         vectorizer: Optional[CountVectorizer] = None,
         decomposition: Optional[TransformerMixin] = None,
         max_iter: int = 200,
-        feature_importance: Literal["strong", "extreme"] = "strong",
+        feature_importance: Literal[
+            "axial", "angular", "combined"
+        ] = "combined",
         random_state: Optional[int] = None,
     ):
         self.n_components = n_components
@@ -82,6 +83,20 @@ class SemanticSignalSeparation(ContextualModel):
         else:
             self.decomposition = decomposition
 
+    def estimate_components(
+        self, feature_importance: Literal["axial", "angular", "combined"]
+    ) -> np.ndarray:
+        """Reestimates components based on the chosen feature_importance method."""
+        if feature_importance == "axial":
+            self.components_ = self.axial_components_
+        elif feature_importance == "angular":
+            self.components_ = self.angular_components_
+        elif feature_importance == "combined":
+            self.components_ = (
+                np.square(self.axial_components_) * self.angular_components_
+            )
+        return self.components_
+
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
@@ -102,23 +117,29 @@ class SemanticSignalSeparation(ContextualModel):
             console.log("Vocabulary encoded.")
             status.update("Estimating term importances")
             vocab_topic = self.decomposition.transform(vocab_embeddings)
-            self.components_ = vocab_topic.T
-            self.original_components = self.components_
-            if self.feature_importance == "strong":
-                self.reweight_strong()
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
             console.log("Model fitting done.")
         return doc_topic
 
-    def reweight_strong(self):
+    @property
+    def angular_components_(self):
         """Reweights words based on their angle in ICA-space to the axis
         base vectors.
         """
-        word_vectors = self.components_.T
-        n_topics = self.components_.shape[0]
+        word_vectors = self.axial_components_.T
+        n_topics = self.axial_components_.shape[0]
         axis_vectors = np.eye(n_topics)
         cosine_components = cosine_similarity(axis_vectors, word_vectors)
-        self.components_ = cosine_components
-        return self
+        return cosine_components
 
     def transform(
         self, raw_documents, embeddings: Optional[np.ndarray] = None
@@ -231,8 +252,8 @@ class SemanticSignalSeparation(ContextualModel):
                 raise ValueError(
                     f"{topic_y} is not a valid topic name or index."
                 ) from e
-        x = self.original_components[topic_x]
-        y = self.original_components[topic_y]
+        x = self.axial_components_[topic_x]
+        y = self.axial_components_[topic_y]
         vocab = self.get_vocab()
         points = np.array(list(zip(x, y)))
         xx, yy = np.meshgrid(
