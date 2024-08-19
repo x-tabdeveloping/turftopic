@@ -7,6 +7,7 @@ from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.cluster import OPTICS, AgglomerativeClustering
+from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import cosine_distances
@@ -300,7 +301,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         feature_importance: Literal[
             "centroid", "soft-c-tf-idf", "bayes", "c-tf-idf"
         ],
-    ) -> np.array:
+    ) -> np.ndarray:
         """Estimates feature importances based on a fitted clustering.
 
         Parameters
@@ -319,6 +320,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         ndarray of shape (n_components, n_vocab)
             Topic-term matrix.
         """
+        if getattr(self, "labels_", None) is None:
+            raise NotFittedError(
+                "The model has not been fitted yet, please fit the model before estimating temporal components."
+            )
         clusters = np.unique(self.labels_)
         self.classes_ = np.sort(clusters)
         self.topic_sizes_ = np.array(
@@ -422,8 +427,31 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         feature_importance: Literal[
             "c-tf-idf", "soft-c-tf-idf", "centroid", "bayes"
         ],
-    ):
+    ) -> np.ndarray:
+        """Estimates temporal components based on a fitted topic model.
+
+        Parameters
+        ----------
+        feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
+            Method for estimating term importances.
+            'centroid' uses distances from cluster centroid similarly
+            to Top2Vec.
+            'c-tf-idf' uses BERTopic's c-tf-idf.
+            'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
+            be very similar to 'c-tf-idf'.
+            'bayes' uses Bayes' rule.
+
+        Returns
+        -------
+        ndarray of shape (n_time_bins, n_components, n_vocab)
+            Temporal topic-term matrix.
+        """
+        if getattr(self, "components_", None) is None:
+            raise NotFittedError(
+                "The model has not been fitted yet, please fit the model before estimating temporal components."
+            )
         n_comp, n_vocab = self.components_.shape
+        self.time_bin_edges = time_bin_edges
         n_bins = len(self.time_bin_edges) - 1
         self.temporal_components_ = np.full(
             (n_bins, n_comp, n_vocab),
@@ -464,6 +492,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 mask_terms = np.squeeze(np.asarray(mask_terms))
                 components[:, mask_terms == 0] = np.nan
                 self.temporal_components_[i_timebin] = components
+        return self.temporal_components_
 
     def fit_transform_dynamic(
         self,
