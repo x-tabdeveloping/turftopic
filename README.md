@@ -34,20 +34,17 @@ model.hierarchy.divide_children(n_subtopics=3)
 print(model.hierarchy)
 ```
 
-<div style="background-color: #F5F5F5; padding: 10px; padding-left: 20px; padding-right: 20px;">
-<tt style="font-size: 11pt">
-<b>Root </b><br>
-├── <b style="color: blue">0</b>: windows, dos, os, disk, card, drivers, file, pc, files, microsoft <br>
-│   ├── <b style="color: magenta">0.0</b>: dos, file, disk, files, program, windows, disks, shareware, norton, memory <br>
-│   ├── <b style="color: magenta">0.1</b>: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform <br>
-│   └── <b style="color: magenta">0.2</b>: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati <br>
-└── <b style="color: blue">1</b>: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs <br>
-.    ├── <b style="color: magenta">1.0</b>: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers <br>
-.    ├── <b style="color: magenta">1.1</b>: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions <br>
-.    └── <b style="color: magenta">1.2</b>: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion <br>
-</tt>
-</div>
-
+```
+Root
+├── windows, dos, os, disk, card, drivers, file, pc, files, microsoft
+│   ├── 0.0: dos, file, disk, files, program, windows, disks, shareware, norton, memory
+│   ├── 0.1: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform
+│   └── 0.2: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati
+└── 1: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs
+.    ├── 1.0: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers
+.    ├── 1.1: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions
+.    └── 1.2: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion
+```
 
 #### FASTopic *(Experimental)*
 
