@@ -116,6 +116,20 @@ class TopicNode:
     document_topic_vector: Optional[np.ndarray] = None
     children: Optional[list[TopicNode]] = None
 
+    @property
+    def components_(self) -> np.ndarray:
+        if self.children is None:
+            raise ValueError("Current node is a leaf, no components.")
+        return np.stack([child.word_importance for child in self.children])
+
+    @property
+    def doc_topic_matrix(self) -> np.ndarray:
+        if self.children is None:
+            raise ValueError("Current node is a leaf, no doc_topic_matrix.")
+        return np.stack(
+            [child.document_topic_vector for child in self.children]
+        ).T
+
     @classmethod
     def create_root(
         cls,
@@ -145,6 +159,14 @@ class TopicNode:
             document_topic_vector=None,
             children=children,
         )
+
+    def set_path(self, path: tuple[int]):
+        """Sets path for current node and all children accordingly."""
+        self.path = path
+        if self.children is None:
+            return
+        for i_child, child in enumerate(self.children):
+            child.set_path((*self.path, i_child))
 
     @property
     def level(self) -> int:
@@ -275,3 +297,29 @@ class TopicNode:
     def plot_tree(self):
         """Plots hierarchy as an interactive tree in Plotly."""
         return _tree_plot(self)
+
+    def join(self, *subtopics: int, **kwargs):
+        slot = min(subtopics)
+        max_subtopics = max(subtopics)
+        if len(self.children) < (max_subtopics - 1):
+            raise ValueError(
+                "These subtopics don't exist on the current node."
+            )
+        if slot < 0:
+            raise ValueError(
+                "Outlier topics (-1) cannot be merged with other topics."
+            )
+        if self.children is None:
+            raise ValueError(
+                "Current Node is a leaf, children can't be joined."
+            )
+        try:
+            self.children[slot] = self.model.join_subtopics(
+                subtopics, self, **kwargs
+            )
+            self.set_path(self.path)
+        except AttributeError as e:
+            raise AttributeError(
+                "Looks like your model is not an agglomerative hierarchical model."
+            ) from e
+        return self
