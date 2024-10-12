@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.sparse as spr
 from sklearn.metrics import pairwise_distances
+from sklearn.neighbors import KernelDensity
 
 
 def cluster_centroid_distance(
@@ -36,6 +37,33 @@ def cluster_centroid_distance(
         similarities
     )
     return similarities
+
+
+def cluster_kernel_density(
+    document_embeddings: np.ndarray,
+    vocab_embeddings: np.ndarray,
+    cluster_labels: np.ndarray,
+    classes: np.ndarray,
+) -> np.ndarray:
+    """Computes feature importances based on a kernel density estimation
+    model of documents in a given cluster.
+
+    Parameters
+    ----------
+    Returns
+    -------
+    ndarray of shape (n_topics, vocab_size)
+        Term importance matrix.
+    """
+    components = []
+    for label in classes:
+        densities = KernelDensity().fit(
+            document_embeddings[cluster_labels == label]
+        )
+        word_probs = densities.score_samples(vocab_embeddings)
+        components.append(word_probs)
+    components = np.stack(components)
+    return components
 
 
 def soft_ctf_idf(

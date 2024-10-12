@@ -13,11 +13,9 @@ from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
-from turftopic.feature_importance import (
-    cluster_centroid_distance,
-    ctf_idf,
-    soft_ctf_idf,
-)
+from turftopic.feature_importance import (cluster_centroid_distance,
+                                          cluster_kernel_density, ctf_idf,
+                                          soft_ctf_idf)
 from turftopic.vectorizer import default_vectorizer
 
 integer_message = """
@@ -36,7 +34,7 @@ ClusteringTopicModel(n_reduce_to=10)
 """
 
 feature_message = """
-feature_importance must be one of 'soft-c-tf-idf', 'c-tf-idf', 'centroid'
+feature_importance must be one of 'soft-c-tf-idf', 'c-tf-idf', 'centroid', 'density'
 """
 
 
@@ -125,10 +123,12 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         Clustering method to use for finding topics.
         Defaults to OPTICS with 25 minimum cluster size.
         To imitate the behavior of BERTopic or Top2Vec you should use HDBSCAN.
-    feature_importance: 'soft-c-tf-idf', 'c-tf-idf' or 'centroid', default 'soft-c-tf-idf'
+    feature_importance: 'soft-c-tf-idf', 'c-tf-idf', 'centroid' or 'density' default 'soft-c-tf-idf'
         Method for estimating term importances.
         'centroid' uses distances from cluster centroid similarly
         to Top2Vec.
+        'density' estimates kernel densities for each cluster and calculates
+        word embedding log-probabilities in each cluster.
         'c-tf-idf' uses BERTopic's c-tf-idf.
         'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
         be very similar to 'c-tf-idf'.
@@ -156,7 +156,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
         feature_importance: Literal[
-            "c-tf-idf", "soft-c-tf-idf", "centroid"
+            "c-tf-idf",
+            "soft-c-tf-idf",
+            "centroid",
+            "density",
         ] = "soft-c-tf-idf",
         n_reduce_to: Optional[int] = None,
         reduction_method: Literal[
@@ -166,7 +169,12 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
     ):
         self.encoder = encoder
         self.random_state = random_state
-        if feature_importance not in ["c-tf-idf", "soft-c-tf-idf", "centroid"]:
+        if feature_importance not in [
+            "c-tf-idf",
+            "soft-c-tf-idf",
+            "centroid",
+            "density",
+        ]:
             raise ValueError(feature_message)
         if isinstance(encoder, int):
             raise TypeError(integer_message)
@@ -188,12 +196,18 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             )
         else:
             self.dimensionality_reduction = dimensionality_reduction
+        if (feature_importance == "density") and not hasattr(
+            self.dimensionality_reduction, "transform"
+        ):
+            raise ValueError(
+                "Density-based term importance estimation can only be used with dimensionality reduction methods that have a transform() method. Consider using UMAP or PCA."
+            )
         self.feature_importance = feature_importance
         self.n_reduce_to = n_reduce_to
         self.reduction_method = reduction_method
 
     def _merge_agglomerative(self, n_reduce_to: int) -> np.ndarray:
-        n_topics = self.components_.shape[0]
+        n_topics = self.topic_vectors_.shape[0]
         res = {old_label: old_label for old_label in self.classes_}
         if n_topics <= n_reduce_to:
             return self.labels_
@@ -229,35 +243,71 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             labels[labels == from_topic] = to_topic
         return labels
 
-    def _estimate_parameters(
-        self,
-        embeddings: np.ndarray,
-        doc_term_matrix: np.ndarray,
-    ):
+    def _calculate_topic_vectors(self, embeddings: np.ndarray):
         clusters = np.unique(self.labels_)
         self.classes_ = np.sort(clusters)
         self.topic_sizes_ = np.array(
             [np.sum(self.labels_ == label) for label in self.classes_]
         )
         self.topic_vectors_ = calculate_topic_vectors(self.labels_, embeddings)
-        self.vocab_embeddings = self.encoder_.encode(
-            self.vectorizer.get_feature_names_out()
-        )  # type: ignore
+
+    def estimate_parameters(
+        self,
+        feature_importance: Literal[
+            "c-tf-idf", "soft-c-tf-idf", "centroid", "density", None
+        ] = None,
+        status=None,
+    ):
+        """Estimates parameters with the given feature importance method."""
+        if feature_importance is None:
+            feature_importance = self.feature_importance
+        self._calculate_topic_vectors(self.embeddings_)
+        if self.feature_importance in ["centroid", "density"]:
+            if getattr(self, "vocab_embeddings", None) is None:
+                if status is not None:
+                    status.update("Encoding vocabulary.")
+                self.vocab_embeddings = self.encoder_.encode(
+                    self.vectorizer.get_feature_names_out()
+                )  # type: ignore
         document_topic_matrix = label_binarize(
             self.labels_, classes=self.classes_
         )
         if self.feature_importance == "soft-c-tf-idf":
+            if status is not None:
+                status.update("Calculating soft-ctf-idf scores")
             self.components_ = soft_ctf_idf(
-                document_topic_matrix, doc_term_matrix
+                document_topic_matrix, self.doc_term_matrix
             )  # type: ignore
         elif self.feature_importance == "centroid":
+            if status is not None:
+                status.update(
+                    "Calculating word distance from cluster centroids."
+                )
             self.components_ = cluster_centroid_distance(
                 self.topic_vectors_,
                 self.vocab_embeddings,
                 metric="cosine",
             )
+        elif self.feature_importance == "density":
+            if status is not None:
+                status.update(
+                    "Calculating word probabilities with density estimation."
+                )
+            reduced_vocab_embeddings = self.dimensionality_reduction.transform(
+                self.vocab_embeddings
+            )
+            self.components_ = cluster_kernel_density(
+                self.reduced_embeddings_,
+                reduced_vocab_embeddings,
+                self.labels_,
+                self.classes_,
+            )
         else:
-            self.components_ = ctf_idf(document_topic_matrix, doc_term_matrix)
+            if status is not None:
+                status.update("Calculating ctf-idf scores")
+            self.components_ = ctf_idf(
+                document_topic_matrix, self.doc_term_matrix
+            )
 
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -285,22 +335,22 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 embeddings = self.encoder_.encode(raw_documents)
                 console.log("Encoding done.")
             status.update("Extracting terms")
+            self.embeddings_ = embeddings
             self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
             status.update("Reducing Dimensionality")
-            reduced_embeddings = self.dimensionality_reduction.fit_transform(
-                embeddings
+            self.reduced_embeddings_ = (
+                self.dimensionality_reduction.fit_transform(embeddings)
             )
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
-            self.labels_ = self.clustering.fit_predict(reduced_embeddings)
-            console.log("Clustering done.")
-            status.update("Estimating parameters.")
-            self._estimate_parameters(
-                embeddings,
-                self.doc_term_matrix,
+            self.labels_ = self.clustering.fit_predict(
+                self.reduced_embeddings_
             )
-            console.log("Parameter estimation done.")
+            console.log("Clustering done.")
+            status.update("Calculating topic vectors")
+            self._calculate_topic_vectors(embeddings)
+            console.log("Topic vectors calculated.")
             if self.n_reduce_to is not None:
                 n_topics = self.classes_.shape[0]
                 status.update(
@@ -313,12 +363,9 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 console.log(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
-                status.update("Reestimating parameters.")
-                self._estimate_parameters(
-                    embeddings,
-                    self.doc_term_matrix,
-                )
-                console.log("Reestimation done.")
+            status.update("Estimating parameters.")
+            self.estimate_parameters(status=status)
+            console.log("Parameter estimation done.")
         console.log("Model fitting done.")
         return self.labels_
 
