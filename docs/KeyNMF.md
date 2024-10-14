@@ -109,6 +109,51 @@ keyword_matrix = model.extract_keywords(corpus)
 model.fit(None, keywords=keyword_matrix)
 ```
 
+## Asymmetric and Instruction-tuned Embedding Models
+
+Some embedding models can be used together with prompting, or encode queries and passages differently.
+This is important for KeyNMF, as it is explicitly based on keyword retrieval, and its performance can be substantially enhanced by using asymmetric or prompted embeddings.
+Microsoft's E5 models are, for instance, all prompted by default, and it would be detrimental to performance not to do so yourself.
+
+In these cases, you're better off NOT passing a string to Turftopic models, but explicitly loading the model using `sentence-transformers`.
+
+Here's an example of using instruct models for keyword retrieval with KeyNMF.
+In this case, documents will serve as the queries and words as the passages:
+
+```python
+from turftopic import KeyNMF
+from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer(
+    "intfloat/multilingual-e5-large-instruct",
+    prompts={
+        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
+        "passage": "Passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
+```
+
+And a regular, asymmetric example:
+
+```python
+encoder = SentenceTransformer(
+    "intfloat/e5-large-v2",
+    prompts={
+        "query": "query: "
+        "passage": "passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
+```
+
+Setting the default prompt to `query` is especially important, when you are precomputing embeddings, as `query` should always be your default prompt to embed documents with.
+
+
 ## Dynamic Topic Modeling
 
 KeyNMF is also capable of modeling topics over time.

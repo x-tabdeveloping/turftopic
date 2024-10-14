@@ -14,7 +14,7 @@ from turftopic.base import ContextualModel, Encoder
 from turftopic.data import TopicData
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.hierarchical import TopicNode
-from turftopic.models._keynmf import KeywordExtractor, KeywordNMF
+from turftopic.models._keynmf import KeywordNMF, SBertKeywordExtractor
 from turftopic.models.wnmf import weighted_nmf
 from turftopic.vectorizer import default_vectorizer
 
@@ -75,7 +75,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self.model = KeywordNMF(
             n_components=n_components, seed=random_state, top_n=self.top_n
         )
-        self.extractor = KeywordExtractor(
+        self.extractor = SBertKeywordExtractor(
             top_n=self.top_n, vectorizer=self.vectorizer, encoder=self.encoder_
         )
 
@@ -269,12 +269,14 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         min_df = self.vectorizer.min_df
         max_df = self.vectorizer.max_df
         if (min_df != 1) or (max_df != 1.0):
-            warnings.warn(f"""When applying partial fitting, the vectorizer is fitted batch-wise in KeyNMF.
+            warnings.warn(
+                f"""When applying partial fitting, the vectorizer is fitted batch-wise in KeyNMF.
             You have a vectorizer with min_df={min_df}, and max_df={max_df}.
             If you continue with these settings, all tokens might get filtered out.
             We recommend setting min_df=1 and max_df=1.0 for online fitting.
             `model = KeyNMF(10, vectorizer=CountVectorizer(min_df=1, max_df=1.0)`
-            """)
+            """
+            )
         if keywords is None and raw_documents is None:
             raise ValueError(
                 "You have to pass either keywords or raw_documents."
