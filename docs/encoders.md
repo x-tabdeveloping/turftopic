@@ -62,6 +62,23 @@ encoder = SentenceTransformer(
 model = KeyNMF(10, encoder=encoder)
 ```
 
+## Performance tips
+
+From `sentence-transformers` version `3.2.0` you can significantly speed up some models by using
+the `onnx` backend instead of regular torch.
+
+```
+pip install sentence-transformers[onnx, onnx-gpu]
+```
+
+```python
+from turftopic import SemanticSignalSeparation
+from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer("all-MiniLM-L6-v2", backend="onnx")
+
+model = SemanticSignalSeparation(10, encoder=encoder)
+```
 
 ## External Embeddings
 
