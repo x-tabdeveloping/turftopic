@@ -67,7 +67,7 @@ def fit_timeslice(
     return W, Ht.T, n_iter
 
 
-class KeywordExtractor:
+class SBertKeywordExtractor:
     def __init__(
         self, top_n: int, encoder: Encoder, vectorizer: CountVectorizer
     ):
@@ -78,13 +78,26 @@ class KeywordExtractor:
         self.term_embeddings: Optional[np.ndarray] = None
 
     @property
+    def is_encoder_promptable(self) -> bool:
+        prompts = getattr(self.encoder, "prompts", None)
+        if prompts is None:
+            return False
+        if ("query" in prompts) and ("passage" in prompts):
+            return True
+
+    @property
     def n_vocab(self) -> int:
         return len(self.key_to_index)
 
     def _add_terms(self, new_terms: list[str]):
         for term in new_terms:
             self.key_to_index[term] = self.n_vocab
-        term_encodings = self.encoder.encode(new_terms)
+        if not self.is_encoder_promptable:
+            term_encodings = self.encoder.encode(new_terms)
+        else:
+            term_encodings = self.encoder.encode(
+                new_terms, prompt_name="passage"
+            )
         if self.term_embeddings is not None:
             self.term_embeddings = np.concatenate(
                 (self.term_embeddings, term_encodings), axis=0
@@ -100,7 +113,12 @@ class KeywordExtractor:
         if not len(documents):
             return []
         if embeddings is None:
-            embeddings = self.encoder.encode(documents)
+            if not self.is_encoder_promptable:
+                embeddings = self.encoder.encode(documents)
+            else:
+                embeddings = self.encoder.encode(
+                    documents, prompt_name="query"
+                )
         if len(embeddings) != len(documents):
             raise ValueError(
                 "Number of documents doesn't match number of embeddings."
