@@ -57,7 +57,7 @@ def cluster_kernel_density(
     """
     components = []
     for label in classes:
-        densities = KernelDensity().fit(
+        densities = KernelDensity(bandwidth="scott").fit(
             document_embeddings[cluster_labels == label]
         )
         word_probs = densities.score_samples(vocab_embeddings)
