@@ -286,6 +286,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.labels_ = self._merge_smallest(n_reduce_to)
         elif reduction_method == "agglomerative":
             self.labels_ = self._merge_agglomerative(n_reduce_to)
+        self.estimate_components(self.feature_importance)
         return self.labels_
 
     def reset_reduction(self):
