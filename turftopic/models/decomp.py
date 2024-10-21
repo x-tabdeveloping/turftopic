@@ -104,19 +104,19 @@ class SemanticSignalSeparation(ContextualModel):
         with console.status("Fitting model") as status:
             if embeddings is None:
                 status.update("Encoding documents")
-                embeddings = self.encoder_.encode(raw_documents)
+                self.embeddings = self.encoder_.encode(raw_documents)
                 console.log("Documents encoded.")
             status.update("Decomposing embeddings")
-            doc_topic = self.decomposition.fit_transform(embeddings)
+            doc_topic = self.decomposition.fit_transform(self.embeddings)
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
             console.log("Term extraction done.")
             status.update("Encoding vocabulary")
-            vocab_embeddings = self.encoder_.encode(vocab)
+            self.vocab_embeddings = self.encoder_.encode(vocab)
             console.log("Vocabulary encoded.")
             status.update("Estimating term importances")
-            vocab_topic = self.decomposition.transform(vocab_embeddings)
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
             self.axial_components_ = vocab_topic.T
             if self.feature_importance == "axial":
                 self.components_ = self.axial_components_
@@ -129,6 +129,84 @@ class SemanticSignalSeparation(ContextualModel):
                 )
             console.log("Model fitting done.")
         return doc_topic
+
+    def refit_transform(
+        self,
+        n_components: Optional[int] = None,
+        max_iter: Optional[int] = None,
+        random_state: Optional[int] = None,
+    ):
+        """Refits model with the given parameters.
+        This is significantly faster than fitting a new model from scratch.
+
+        Parameters
+        ----------
+        n_components: int, default None
+            Number of topics.
+        max_iter: int, default None
+            Maximum number of iterations for ICA.
+        random_state: int, default None
+            Random state to use so that results are exactly reproducible.
+
+        Returns
+        -------
+        ndarray of shape (n_documents, n_topics)
+            Document-topic matrix.
+        """
+        n_components = (
+            n_components if n_components is not None else self.n_components
+        )
+        max_iter = max_iter if max_iter is not None else self.max_iter
+        random_state = (
+            random_state if random_state is not None else self.random_state
+        )
+        self.decomposition = FastICA(
+            n_components, max_iter=max_iter, random_state=random_state
+        )
+        console = Console()
+        with console.status("Refitting model") as status:
+            status.update("Decomposing embeddings")
+            doc_topic = self.decomposition.fit_transform(self.embeddings)
+            console.log("Decomposition done.")
+            status.update("Estimating term importances")
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
+            console.log("Model fitting done.")
+        return doc_topic
+
+    def refit(
+        self,
+        n_components: Optional[int] = None,
+        max_iter: Optional[int] = None,
+        random_state: Optional[int] = None,
+    ):
+        """Refits model with the given parameters.
+        This is significantly faster than fitting a new model from scratch.
+
+        Parameters
+        ----------
+        n_components: int, default None
+            Number of topics.
+        max_iter: int, default None
+            Maximum number of iterations for ICA.
+        random_state: int, default None
+            Random state to use so that results are exactly reproducible.
+
+        Returns
+        -------
+        Refitted model.
+        """
+        self.refit_transform(n_components, max_iter, random_state)
+        return self
 
     @property
     def angular_components_(self):
