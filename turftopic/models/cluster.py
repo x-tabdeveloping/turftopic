@@ -347,6 +347,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         ndarray of shape (n_components, n_vocab)
             Topic-term matrix.
         """
+        self.topic_names_ = None
         if getattr(self, "labels_", None) is None:
             raise NotFittedError(
                 "The model has not been fitted yet, please fit the model before estimating temporal components."

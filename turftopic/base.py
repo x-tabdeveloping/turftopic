@@ -308,8 +308,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     @property
     def topic_names(self) -> list[str]:
         """Names of the topics based on the highest scoring 4 terms."""
-        if hasattr(self, "_topic_names"):
-            return list(self.topic_names)
+        topic_names = getattr(self, "topic_names_", None)
+        if topic_names is not None:
+            return list(topic_names)
         topic_desc = self.get_topics(top_k=4)
         names = []
         for topic_id, terms in topic_desc:
