@@ -289,6 +289,32 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self.estimate_components(self.feature_importance)
         return self.labels_
 
+    def join_topics(self, topic_ids: list[int]):
+        """Joins given topic together into one topic and reestimates term importances.
+
+        Example:
+        ```python
+        model.join_topics([0,3,2])
+        ```
+
+        Parameters
+        ----------
+        topic_ids: list[int]
+            Topic IDs to join together.
+            The new topic will get the lowest ID.
+        """
+        topic_ids = sorted(topic_ids)
+        new_topic = topic_ids[0]
+        new_labels = []
+        self.original_labels_ = self.labels_
+        for label in self.labels_:
+            if label in topic_ids:
+                new_labels.append(new_topic)
+            else:
+                new_labels.append(label)
+        self.labels_ = np.array(new_labels)
+        self.estimate_components(self.feature_importance)
+
     def reset_reduction(self):
         """Resets topic reductions to the original clustering."""
         if not hasattr(self, "original_labels_"):
