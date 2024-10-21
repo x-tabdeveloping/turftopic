@@ -11,14 +11,8 @@ from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.decomposition import PCA
 
-from turftopic import (
-    GMM,
-    AutoEncodingTopicModel,
-    ClusteringTopicModel,
-    FASTopic,
-    KeyNMF,
-    SemanticSignalSeparation,
-)
+from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
+                       FASTopic, KeyNMF, SemanticSignalSeparation)
 
 
 def batched(iterable, n: int):
@@ -154,3 +148,17 @@ def test_hierarchical():
     model.hierarchy.divide_children(3)
     model.hierarchy[0][0].divide(3)
     repr = str(model.hierarchy)
+
+
+def test_naming():
+    model = KeyNMF(2).fit(texts, embeddings=embeddings)
+    topic_names = ["Topic 1", "Topic 2"]
+    model.rename_topics(topic_names)
+    assert topic_names == model.topic_names
+    model.rename_topics(
+        {
+            topic_id: topic_name
+            for topic_id, topic_name in enumerate(topic_names)
+        }
+    )
+    assert topic_names == model.topic_names

@@ -308,12 +308,48 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     @property
     def topic_names(self) -> list[str]:
         """Names of the topics based on the highest scoring 4 terms."""
+        if hasattr(self, "_topic_names"):
+            return list(self.topic_names)
         topic_desc = self.get_topics(top_k=4)
         names = []
         for topic_id, terms in topic_desc:
             concat_words = "_".join([word for word, importance in terms])
             names.append(f"{topic_id}_{concat_words}")
         return names
+
+    def rename_topics(self, names: list[str] | dict[int, str]) -> None:
+        """Rename topics in a model manually.
+
+        Examples:
+        ```python
+        model.rename_topics(["Automobiles", "Telephones"])
+        # Or:
+        model.rename_topics({-1: "Outliers", 2: "Christianity"})
+        ```
+
+        Parameters
+        ----------
+        names: list[str] or dict[int,str]
+            Should be a list of topic names, or a mapping of topic IDs to names.
+        """
+        if isinstance(names, dict):
+            topic_names = self.topic_names
+            for topic_id, topic_name in names.items():
+                try:
+                    topic_id = list(self.classes_).index(topic_id)
+                except AttributeError:
+                    pass
+                topic_names[topic_id] = topic_name
+            self.topic_names_ = topic_names
+        else:
+            names = list(names)
+            n_given = len(names)
+            n_topics = self.components_.shape[0]
+            if n_topics != n_given:
+                raise ValueError(
+                    f"Number of topics ({n_topics}) doesn't match the length of the given topic name list ({n_given})."
+                )
+            self.topic_names_ = names
 
     def _topic_distribution(
         self, text=None, topic_dist=None, top_k: int = 10
