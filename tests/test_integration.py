@@ -162,3 +162,23 @@ def test_naming():
         }
     )
     assert topic_names == model.topic_names
+
+
+def test_topic_joining():
+    model = ClusteringTopicModel(
+        dimensionality_reduction=PCA(2),
+        clustering=KMeans(5),
+        feature_importance="c-tf-idf",
+        encoder=trf,
+        reduction_method="smallest",
+    )
+    model.fit(texts, embeddings=embeddings)
+    model.join_topics([0, 1, 2])
+    assert list(model.classes_) == [0, 3, 4]
+
+
+def test_refitting():
+    model = SemanticSignalSeparation(10)
+    model.fit(texts, embeddings=embeddings)
+    model.refit(20)
+    assert model.components_.shape[0] == 20
