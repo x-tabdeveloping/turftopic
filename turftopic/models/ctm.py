@@ -213,9 +213,7 @@ class AutoEncodingTopicModel(ContextualModel):
             seed = self.random_state or random.randint(0, 10_000)
             torch.manual_seed(seed)
             pyro.set_rng_seed(seed)
-            device = torch.device(
-                "cuda:0" if torch.cuda.is_available() else "cpu"
-            )
+            device = torch.device("cpu")
             pyro.clear_param_store()
             contextualized_size = embeddings.shape[1]
             if self.combined:

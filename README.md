@@ -7,7 +7,7 @@
 ## Features
  - Novel transformer-based topic models:
    - Semantic Signal Separation - S³ 🧭
-   - KeyNMF 🔑 (paper in progress ⏳)
+   - KeyNMF 🔑 
    - GMM :gem: (paper soon)
  - Implementations of other transformer-based topic models
    - Clustering Topic Models: BERTopic and Top2Vec
@@ -20,42 +20,29 @@
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-### New in version 0.5.0
+### New in version 0.6.0
 
-#### Hierarchical KeyNMF
+#### Prompting Embedding Models
 
-You can now subdivide topics in KeyNMF at will.
+KeyNMF and clustering topic models can now efficiently utilise asymmetric and instruction-finetuned embedding models.
+This, in combination with the right embedding model, can enhance performance significantly.
 
 ```python
 from turftopic import KeyNMF
+from sentence_transformers import SentenceTransformer
 
-model = KeyNMF(2, top_n=15, random_state=42).fit(corpus)
-model.hierarchy.divide_children(n_subtopics=3)
-print(model.hierarchy)
+encoder = SentenceTransformer(
+    "intfloat/multilingual-e5-large-instruct",
+    prompts={
+        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
+        "passage": "Passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
 ```
 
-```
-Root
-├── windows, dos, os, disk, card, drivers, file, pc, files, microsoft
-│   ├── 0.0: dos, file, disk, files, program, windows, disks, shareware, norton, memory
-│   ├── 0.1: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform
-│   └── 0.2: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati
-└── 1: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs
-.    ├── 1.0: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers
-.    ├── 1.1: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions
-.    └── 1.2: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion
-```
-
-#### FASTopic *(Experimental)*
-
-You can now use [FASTopic](https://github.com/BobXWu/FASTopic) inside Turftopic.
-
-```python
-from turftopic import FASTopic
-
-model = FASTopic(10).fit(corpus)
-model.print_topics()
-```
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
@@ -184,5 +171,5 @@ Alternatively you can use the [Figures API](https://x-tabdeveloping.github.io/to
  - Grootendorst, M. (2022, March 11). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. arXiv.org. https://arxiv.org/abs/2203.05794
  - Angelov, D. (2020, August 19). Top2VEC: Distributed representations of topics. arXiv.org. https://arxiv.org/abs/2008.09470
  - Bianchi, F., Terragni, S., & Hovy, D. (2020, April 8). Pre-training is a Hot Topic: Contextualized Document Embeddings Improve Topic Coherence. arXiv.org. https://arxiv.org/abs/2004.03974
- - Bianchi, F., Terragni, S., Hovy, D., Nozza, D., & Fersini, E. (2021). Cross-lingual Contextualized Topic Models with Zero-shot Learning. In Proceedings of the 16th Conference of the European 
- - Chapter of the Association for Computational Linguistics: Main Volume (pp. 1676–1683). Association for Computational Linguistics.
+ - Bianchi, F., Terragni, S., Hovy, D., Nozza, D., & Fersini, E. (2021). Cross-lingual Contextualized Topic Models with Zero-shot Learning. In Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume (pp. 1676–1683). Association for Computational Linguistics.
+ - Kristensen-McLachlan, R. D., Hicke, R. M. M., Kardos, M., & Thunø, M. (2024, October 16). Context is Key(NMF): Modelling Topical Information Dynamics in Chinese Diaspora Media. arXiv.org. https://arxiv.org/abs/2410.12791
