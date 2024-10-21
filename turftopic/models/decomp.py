@@ -101,8 +101,9 @@ class SemanticSignalSeparation(ContextualModel):
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
         console = Console()
+        self.embeddings = embeddings
         with console.status("Fitting model") as status:
-            if embeddings is None:
+            if self.embeddings is None:
                 status.update("Encoding documents")
                 self.embeddings = self.encoder_.encode(raw_documents)
                 console.log("Documents encoded.")
