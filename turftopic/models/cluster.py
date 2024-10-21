@@ -1,6 +1,6 @@
 import warnings
 from datetime import datetime
-from typing import Iterable, Literal, Optional, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 from rich.console import Console
@@ -18,7 +18,6 @@ from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import (bayes_rule,
                                           cluster_centroid_distance, ctf_idf,
                                           soft_ctf_idf)
-from turftopic.hierarchical import TopicNode
 from turftopic.vectorizer import default_vectorizer
 
 integer_message = """
@@ -231,12 +230,11 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             ]
         )
         old_labels = [label for label in self.classes_ if label != -1]
-        clustering = AgglomerativeClustering(
+        new_labels = AgglomerativeClustering(
             n_clusters=n_reduce_to,
             metric="cosine",
             linkage="average",
-        )
-        new_labels = clustering.fit_predict(interesting_topic_vectors)
+        ).fit_predict(interesting_topic_vectors)
         res = {}
         if -1 in self.classes_:
             res[-1] = -1
@@ -255,58 +253,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         for from_topic, to_topic in merge_inst:
             labels[labels == from_topic] = to_topic
         return labels
-
-    def join_subtopics(
-        self, subtopics: Iterable[int], hierarchy: Optional[TopicNode] = None
-    ) -> TopicNode:
-        """Joins subtopics in a topic hierarchy and returns the joint TopicNode.
-        > Note that this method does not alter the underlying hierarchy!
-        > You will need to use the join() method of a hierarchy for that.
-
-        Parameters
-        ----------
-        subtopics: iterable of int
-            Indices of subtopics to be joint.
-        hierarchy: TopicNode, default None
-            Hierarchy to join subtopics in, defaults to the root hierarchy of the model.
-
-        Returns
-        -------
-        TopicNode
-            New topic made up of the joint subtopics.
-        """
-        if hierarchy is None:
-            hierarchy = self.hierarchy
-        subtopics = list(set(subtopics))
-        slot = min(subtopics)
-        max_subtopics = max(subtopics)
-        if len(self.children) < (max_subtopics - 1):
-            raise ValueError(
-                "These subtopics don't exist on the current node."
-            )
-        if slot < 0:
-            raise ValueError(
-                "Outlier topics (-1) cannot be merged with other topics."
-            )
-        if self.children is None:
-            raise ValueError(
-                "Current Node is a leaf, children can't be joined."
-            )
-        path = (*hierarchy.path, slot)
-        children = [self.hierarchy[sub] for sub in subtopics]
-        doc_topic_vector = self.hierarchy.doc_topic_matrix[:, subtopics].sum(
-            axis=1
-        )
-        rest = [
-            doc_topic_vector
-            for i_topic, doc_topic_vector in enumerate(
-                self.hierarchy.doc_topic_matrix.T
-            )
-            if i_topic not in subtopics
-        ]
-        doc_topic_matrix = np.stack([doc_topic_vector, rest]).T
-        # TODO
-        pass
 
     def reduce_topics(
         self,
@@ -340,7 +286,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.labels_ = self._merge_smallest(n_reduce_to)
         elif reduction_method == "agglomerative":
             self.labels_ = self._merge_agglomerative(n_reduce_to)
-        self.estimate_components(self.feature_importance)
         return self.labels_
 
     def reset_reduction(self):
@@ -381,10 +326,6 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             )
         clusters = np.unique(self.labels_)
         self.classes_ = np.sort(clusters)
-        if -1 in self.classes_:
-            # Putting outliers in the last position, so that when you index things,
-            # it works.
-            self.classes_ = np.array([*self.classes_[1:], -1])
         self.topic_sizes_ = np.array(
             [np.sum(self.labels_ == label) for label in self.classes_]
         )
