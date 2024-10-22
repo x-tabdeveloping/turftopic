@@ -318,7 +318,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             names.append(f"{topic_id}_{concat_words}")
         return names
 
-    def rename_topics(self, names: list[str] | dict[int, str]) -> None:
+    def rename_topics(self, names: Union[list[str], dict[int, str]]) -> None:
         """Rename topics in a model manually.
 
         Examples:
