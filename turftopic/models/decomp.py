@@ -154,6 +154,7 @@ class SemanticSignalSeparation(ContextualModel):
         ndarray of shape (n_documents, n_topics)
             Document-topic matrix.
         """
+        self.topic_names_ = None
         n_components = (
             n_components if n_components is not None else self.n_components
         )
