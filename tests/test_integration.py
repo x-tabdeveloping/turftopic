@@ -12,7 +12,7 @@ from sklearn.datasets import fetch_20newsgroups
 from sklearn.decomposition import PCA
 
 from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
-                       FASTopic, KeyNMF, SemanticSignalSeparation)
+                       FASTopic, KeyNMF, SemanticSignalSeparation, load_model)
 
 
 def batched(iterable, n: int):
@@ -182,3 +182,11 @@ def test_refitting():
     model.fit(texts, embeddings=embeddings)
     model.refit(20)
     assert model.components_.shape[0] == 20
+
+
+def test_serialization():
+    model = SemanticSignalSeparation(10)
+    model.fit(texts, embeddings=embeddings)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        model.to_disk(tmp_dir)
+        model = load_model(tmp_dir)
