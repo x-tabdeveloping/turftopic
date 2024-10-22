@@ -5,6 +5,7 @@ from turftopic.models.decomp import SemanticSignalSeparation
 from turftopic.models.fastopic import FASTopic
 from turftopic.models.gmm import GMM
 from turftopic.models.keynmf import KeyNMF
+from turftopic.serialization import load_model
 
 try:
     from turftopic.models.ctm import AutoEncodingTopicModel
@@ -20,4 +21,5 @@ __all__ = [
     "AutoEncodingTopicModel",
     "ContextualModel",
     "FASTopic",
+    "load_model",
 ]
