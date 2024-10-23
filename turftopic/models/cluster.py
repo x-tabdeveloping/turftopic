@@ -286,9 +286,36 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.labels_ = self._merge_smallest(n_reduce_to)
         elif reduction_method == "agglomerative":
             self.labels_ = self._merge_agglomerative(n_reduce_to)
+        self.estimate_components(self.feature_importance)
         return self.labels_
 
-    def reset_reduction(self):
+    def join_topics(self, topic_ids: list[int]):
+        """Joins given topic together into one topic and reestimates term importances.
+
+        Example:
+        ```python
+        model.join_topics([0,3,2])
+        ```
+
+        Parameters
+        ----------
+        topic_ids: list[int]
+            Topic IDs to join together.
+            The new topic will get the lowest ID.
+        """
+        topic_ids = sorted(topic_ids)
+        new_topic = topic_ids[0]
+        new_labels = []
+        self.original_labels_ = self.labels_
+        for label in self.labels_:
+            if label in topic_ids:
+                new_labels.append(new_topic)
+            else:
+                new_labels.append(label)
+        self.labels_ = np.array(new_labels)
+        self.estimate_components(self.feature_importance)
+
+    def reset_topics(self):
         """Resets topic reductions to the original clustering."""
         if not hasattr(self, "original_labels_"):
             warnings.warn("Topics have never been reduced, nothing to reset.")
@@ -320,6 +347,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         ndarray of shape (n_components, n_vocab)
             Topic-term matrix.
         """
+        self.topic_names_ = None
         if getattr(self, "labels_", None) is None:
             raise NotFittedError(
                 "The model has not been fitted yet, please fit the model before estimating temporal components."

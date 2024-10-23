@@ -11,14 +11,8 @@ from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.decomposition import PCA
 
-from turftopic import (
-    GMM,
-    AutoEncodingTopicModel,
-    ClusteringTopicModel,
-    FASTopic,
-    KeyNMF,
-    SemanticSignalSeparation,
-)
+from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
+                       FASTopic, KeyNMF, SemanticSignalSeparation, load_model)
 
 
 def batched(iterable, n: int):
@@ -154,3 +148,45 @@ def test_hierarchical():
     model.hierarchy.divide_children(3)
     model.hierarchy[0][0].divide(3)
     repr = str(model.hierarchy)
+
+
+def test_naming():
+    model = KeyNMF(2).fit(texts, embeddings=embeddings)
+    topic_names = ["Topic 1", "Topic 2"]
+    model.rename_topics(topic_names)
+    assert topic_names == model.topic_names
+    model.rename_topics(
+        {
+            topic_id: topic_name
+            for topic_id, topic_name in enumerate(topic_names)
+        }
+    )
+    assert topic_names == model.topic_names
+
+
+def test_topic_joining():
+    model = ClusteringTopicModel(
+        dimensionality_reduction=PCA(2),
+        clustering=KMeans(5),
+        feature_importance="c-tf-idf",
+        encoder=trf,
+        reduction_method="smallest",
+    )
+    model.fit(texts, embeddings=embeddings)
+    model.join_topics([0, 1, 2])
+    assert list(model.classes_) == [0, 3, 4]
+
+
+def test_refitting():
+    model = SemanticSignalSeparation(10)
+    model.fit(texts, embeddings=embeddings)
+    model.refit(20)
+    assert model.components_.shape[0] == 20
+
+
+def test_serialization():
+    model = SemanticSignalSeparation(10)
+    model.fit(texts, embeddings=embeddings)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        model.to_disk(tmp_dir)
+        model = load_model(tmp_dir)

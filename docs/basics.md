@@ -236,6 +236,18 @@ latex_table: str = model.export_topics(format="latex")
 md_table: str = model.export_representative_documents(0, corpus, document_topic_matrix, format="markdown")
 ```
 
+### Naming topics
+
+You can manually name topics in Turftopic models after having interpreted them.
+If you find a more fitting name for a topic, feel free to rename it in your model.
+
+```python
+from turftopic import SemanticSignalSeparation
+
+model = SemanticSignalSeparation(10).fit(corpus)
+model.rename_topics({0: "New name for topic 0", 5: "New name for topic 5"})
+```
+
 ### Visualization
 
 Turftopic does not come with built-in visualization utilities, [topicwizard](https://github.com/x-tabdeveloping/topicwizard), a package for interactive topic model interpretation is fully compatible with Turftopic models.

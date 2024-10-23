@@ -6,7 +6,7 @@ line-length=79
 
 [tool.poetry]
 name = "turftopic"
-version = "0.6.0"
+version = "0.7.0"
 description = "Topic modeling with contextual representations from sentence transformers."
 authors = ["Márton Kardos <power.up1163@gmail.com>"]
 license = "MIT"
@@ -20,6 +20,8 @@ sentence-transformers = ">=2.2.0"
 torch = "^2.1.0"
 scipy = "^1.10.0"
 rich = "^13.6.0"
+huggingface-hub = "^0.23.2"
+joblib = "^1.2.0"
 pyro-ppl = { version = "^1.8.0", optional = true }
 mkdocs = { version = "^1.5.2", optional = true }
 mkdocs-material = { version = "^9.5.12", optional = true }

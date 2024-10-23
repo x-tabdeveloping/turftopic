@@ -1,7 +1,12 @@
+import json
+import tempfile
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, Iterable, List, Optional, Tuple, Union
 
+import joblib
 import numpy as np
+from huggingface_hub import HfApi
 from rich.console import Console
 from rich.table import Table
 from sentence_transformers import SentenceTransformer
@@ -10,6 +15,7 @@ from sklearn.exceptions import NotFittedError
 
 from turftopic.data import TopicData
 from turftopic.encoders import ExternalEncoder
+from turftopic.serialization import create_readme, get_package_versions
 from turftopic.utils import export_table
 
 
@@ -308,12 +314,49 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
     @property
     def topic_names(self) -> list[str]:
         """Names of the topics based on the highest scoring 4 terms."""
+        topic_names = getattr(self, "topic_names_", None)
+        if topic_names is not None:
+            return list(topic_names)
         topic_desc = self.get_topics(top_k=4)
         names = []
         for topic_id, terms in topic_desc:
             concat_words = "_".join([word for word, importance in terms])
             names.append(f"{topic_id}_{concat_words}")
         return names
+
+    def rename_topics(self, names: Union[list[str], dict[int, str]]) -> None:
+        """Rename topics in a model manually.
+
+        Examples:
+        ```python
+        model.rename_topics(["Automobiles", "Telephones"])
+        # Or:
+        model.rename_topics({-1: "Outliers", 2: "Christianity"})
+        ```
+
+        Parameters
+        ----------
+        names: list[str] or dict[int,str]
+            Should be a list of topic names, or a mapping of topic IDs to names.
+        """
+        if isinstance(names, dict):
+            topic_names = self.topic_names
+            for topic_id, topic_name in names.items():
+                try:
+                    topic_id = list(self.classes_).index(topic_id)
+                except AttributeError:
+                    pass
+                topic_names[topic_id] = topic_name
+            self.topic_names_ = topic_names
+        else:
+            names = list(names)
+            n_given = len(names)
+            n_topics = self.components_.shape[0]
+            if n_topics != n_given:
+                raise ValueError(
+                    f"Number of topics ({n_topics}) doesn't match the length of the given topic name list ({n_given})."
+                )
+            self.topic_names_ = names
 
     def _topic_distribution(
         self, text=None, topic_dist=None, top_k: int = 10
@@ -518,3 +561,39 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             "topic_names": self.topic_names,
         }
         return res
+
+    def to_disk(self, out_dir: Union[Path, str]):
+        """Persists model to directory on your machine.
+
+        Parameters
+        ----------
+        out_dir: Path | str
+            Directory to save the model to.
+        """
+        out_dir = Path(out_dir)
+        out_dir.mkdir(exist_ok=True)
+        package_versions = get_package_versions()
+        with out_dir.joinpath("package_versions.json").open("w") as ver_file:
+            ver_file.write(json.dumps(package_versions))
+        joblib.dump(self, out_dir.joinpath("model.joblib"))
+
+    def push_to_hub(self, repo_id: str):
+        """Uploads model to HuggingFace Hub
+
+        Parameters
+        ----------
+        repo_id: str
+            Repository to upload the model to.
+        """
+        api = HfApi()
+        api.create_repo(repo_id, exist_ok=True)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            readme_path = Path(tmp_dir).joinpath("README.md")
+            with readme_path.open("w") as readme_file:
+                readme_file.write(create_readme(self, repo_id))
+            self.to_disk(tmp_dir)
+            api.upload_folder(
+                folder_path=tmp_dir,
+                repo_id=repo_id,
+                repo_type="model",
+            )
