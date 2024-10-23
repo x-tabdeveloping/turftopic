@@ -1,4 +1,4 @@
-# GMM
+# GMM (Gaussian Mixture Model)
 
 GMM is a generative probabilistic model over the contextual embeddings.
 The model assumes that contextual embeddings are generated from a mixture of underlying Gaussian components.
@@ -33,7 +33,7 @@ A document-topic-matrix ($T$) is built from the likelihoods of each component gi
 ??? info "Click to see formula"
     - For document $i$ and topic $z$ the matrix entry will be: $T_{iz} = p(\rho_i|\mu_z, \Sigma_z)$
 
-### 3. Soft c-TF-IDF
+### Soft c-TF-IDF
 
 Term importances for the discovered Gaussian components are estimated post-hoc using a technique called __Soft c-TF-IDF__,
 an extension of __c-TF-IDF__, that can be used with continuous labels.

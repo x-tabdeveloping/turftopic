@@ -54,18 +54,18 @@ for epoch in range(5):
 You can pretrain a topic model on a large corpus and then finetune it on a novel corpus the model has not seen before.
 This will morph the model's topics to the corpus at hand.
 
-In this example I will load a pretrained KeyNMF model from disk. (see [Persistance](persistance.md))
+In this example I will load a pretrained KeyNMF model from disk. (see [Model Loading and Saving](persistance.md))
 
 ```python
-import joblib
+from turftopic import load_model
 
-model = joblib.load("pretrained_keynmf.joblib")
+model = load_model("pretrained_keynmf_model")
 
 new_corpus: list[str] = [...]
 # Finetune the model to the new corpus
 model.partial_fit(new_corpus)
 
-joblib.dump(model, "finetuned_keynmf.joblib")
+model.to_disk("finetuned_model/")
 ```
 
 ## Precomputed Embeddings

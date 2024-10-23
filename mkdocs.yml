@@ -8,7 +8,8 @@ nav:
     - Dynamic Topic Modeling: dynamic.md
     - Online Topic Modeling: online.md
     - Hierarchical Topic Modeling: hierarchical.md
-    - Model Persistence: persistence.md
+    - Modifying and Finetuning Models: finetuning.md
+    - Saving and Loading Models: persistence.md
   - Models:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md
