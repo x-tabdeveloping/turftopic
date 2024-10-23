@@ -20,27 +20,57 @@
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-### New in version 0.6.0
+### New in version 0.7.0
 
-#### Prompting Embedding Models
+#### Component re-estimation, refitting and topic merging
 
-KeyNMF and clustering topic models can now efficiently utilise asymmetric and instruction-finetuned embedding models.
-This, in combination with the right embedding model, can enhance performance significantly.
+Some models can now easily be modified after being trained in an efficient manner,
+without having to recompute all attributes from scratch.
+This is especially significant for clustering models and $S^3$.
 
 ```python
-from turftopic import KeyNMF
-from sentence_transformers import SentenceTransformer
+from turftopic import SemanticSignalSeparation, ClusteringTopicModel
 
-encoder = SentenceTransformer(
-    "intfloat/multilingual-e5-large-instruct",
-    prompts={
-        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
-        "passage": "Passage: "
-    },
-    # Make sure to set default prompt to query!
-    default_prompt_name="query",
-)
-model = KeyNMF(10, encoder=encoder)
+s3_model = SemanticSignalSeparation(5, feature_importance="combined").fit(corpus)
+# Re-estimating term importances
+s3_model.estimate_components(feature_importance="angular")
+# Refitting S^3 with a different number of topics (very fast)
+s3_model.refit(n_components=10, random_seed=42)
+
+clustering_model = ClusteringTopicModel().fit(corpus)
+# Reduces number of topics automatically with a given method
+clustering_model.reduce_topics(n_reduce_to=20, reduction_method="smallest")
+# Merge topics manually
+clustering_model.join_topics([0,3,4,5])
+# Resets original topics
+clustering_model.reset_topics()
+# Re-estimates term importances based on a different method
+clustering_model.estimate_components(feature_importance="centroid")
+```
+
+#### Manual topic naming
+
+You can now manually label topics in all models in Turftopic.
+
+```python
+# you can specify a dict mapping IDs to names
+model.rename_topics({0: "New name for topic 0", 5: "New name for topic 5"})
+# or a list of topic names
+model.rename_topics([f"Topic {i}" for i in range(10)])
+```
+
+#### Saving, loading and publishing to HF Hub
+
+You can now load, save and publish models with dedicated functionality.
+
+```python
+from turftopic import load_model
+
+model.to_disk("out_folder/")
+model = load_model("out_folder/")
+
+model.push_to_hub("your_user/model_name")
+model = load_model("your_user/model_name")
 ```
 
 
