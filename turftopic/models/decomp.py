@@ -11,6 +11,12 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from turftopic.base import ContextualModel, Encoder
 from turftopic.vectorizer import default_vectorizer
 
+NOT_MATCHING_ERROR = (
+    "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
+    + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
+    + "Try to initialize the model with the encoder you used for computing the embeddings."
+)
+
 
 class SemanticSignalSeparation(ContextualModel):
     """Separates the embedding matrix into 'semantic signals' with
@@ -115,6 +121,13 @@ class SemanticSignalSeparation(ContextualModel):
             console.log("Term extraction done.")
             status.update("Encoding vocabulary")
             self.vocab_embeddings = self.encoder_.encode(vocab)
+            if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=self.embeddings.shape[1],
+                        n_word_dims=self.vocab_embeddings.shape[1],
+                    )
+                )
             console.log("Vocabulary encoded.")
             status.update("Estimating term importances")
             vocab_topic = self.decomposition.transform(self.vocab_embeddings)
