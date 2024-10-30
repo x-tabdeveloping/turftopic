@@ -39,6 +39,12 @@ feature_message = """
 feature_importance must be one of 'soft-c-tf-idf', 'c-tf-idf', 'centroid'
 """
 
+NOT_MATCHING_ERROR = (
+    "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
+    + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
+    + "Try to initialize the model with the encoder you used for computing the embeddings."
+)
+
 
 def smallest_hierarchical_join(
     topic_vectors: np.ndarray,
@@ -370,6 +376,16 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 self.vocab_embeddings = self.encoder_.encode(
                     self.vectorizer.get_feature_names_out()
                 )  # type: ignore
+                if (
+                    self.vocab_embeddings.shape[1]
+                    != self.topic_vectors_.shape[1]
+                ):
+                    raise ValueError(
+                        NOT_MATCHING_ERROR.format(
+                            n_dims=self.topic_vectors_.shape[1],
+                            n_word_dims=self.vocab_embeddings.shape[1],
+                        )
+                    )
             self.components_ = cluster_centroid_distance(
                 self.topic_vectors_,
                 self.vocab_embeddings,

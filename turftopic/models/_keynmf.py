@@ -16,6 +16,12 @@ from sklearn.utils.validation import check_non_negative
 
 from turftopic.base import Encoder
 
+NOT_MATCHING_ERROR = (
+    "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
+    + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
+    + "Try to initialize the model with the encoder you used for computing the embeddings."
+)
+
 
 def batched(iterable, n: int) -> Iterable[list[str]]:
     "Batch data into tuples of length n. The last batch may be shorter."
@@ -143,6 +149,13 @@ class SBertKeywordExtractor:
                 self.term_embeddings[self.key_to_index[term]]
                 for term in batch_vocab[important_terms]
             ]
+            if self.term_embeddings.shape[1] != embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=embeddings.shape[1],
+                        n_word_dims=self.term_embeddings.shape[1],
+                    )
+                )
             sim = cosine_similarity(embedding, word_embeddings).astype(
                 np.float64
             )
