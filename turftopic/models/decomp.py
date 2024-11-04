@@ -145,7 +145,7 @@ class SemanticSignalSeparation(ContextualModel):
             console.log("Model fitting done.")
         return doc_topic
 
-    def name_topics(self, namer: TopicNamer) -> list[str]:
+    def _rename_automatic(self, namer: TopicNamer) -> list[str]:
         """Names topics with a topic namer in the model.
 
         Parameters

@@ -84,19 +84,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
                 terms.append(list(vocab[highest]))
         return terms
 
-    def name_topics(self, namer: TopicNamer) -> list[str]:
-        """Names topics with a topic namer in the model.
-
-        Parameters
-        ----------
-        namer: TopicNamer
-            A Topic namer model to name topics with.
-
-        Returns
-        -------
-        list[str]
-            List of topic names.
-        """
+    def _rename_automatic(self, namer: TopicNamer) -> list[str]:
         self.topic_names_ = namer.name_topics(self._top_terms())
         return self.topic_names_
 
@@ -366,14 +354,19 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
             names.append(f"{topic_id}_{concat_words}")
         return names
 
-    def rename_topics(self, names: Union[list[str], dict[int, str]]) -> None:
-        """Rename topics in a model manually.
+    def rename_topics(
+        self, names: Union[list[str], dict[int, str], TopicNamer]
+    ) -> None:
+        """Rename topics in a model manually or automatically, using a namer.
 
         Examples:
         ```python
         model.rename_topics(["Automobiles", "Telephones"])
         # Or:
         model.rename_topics({-1: "Outliers", 2: "Christianity"})
+        # Or:
+        namer = OpenAITopicNamer()
+        model.rename_topics(namer)
         ```
 
         Parameters
@@ -381,7 +374,9 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         names: list[str] or dict[int,str]
             Should be a list of topic names, or a mapping of topic IDs to names.
         """
-        if isinstance(names, dict):
+        if isinstance(names, TopicNamer):
+            self._rename_automatic(names)
+        elif isinstance(names, dict):
             topic_names = self.topic_names
             for topic_id, topic_name in names.items():
                 try:
