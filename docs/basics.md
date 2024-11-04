@@ -170,6 +170,7 @@ document_topic_matrix = model.transform(new_documents, embeddings=None)
  > Some models have additional optimizations going on when using `fit_transform()`, and the `fit()` method typically uses `fit_transform()` in the background.
 
 
+
 ## Interpreting Models
 
 Turftopic comes with a number of pretty printing utilities for interpreting the models.
@@ -236,7 +237,7 @@ latex_table: str = model.export_topics(format="latex")
 md_table: str = model.export_representative_documents(0, corpus, document_topic_matrix, format="markdown")
 ```
 
-### Naming topics
+### Manual topic naming
 
 You can manually name topics in Turftopic models after having interpreted them.
 If you find a more fitting name for a topic, feel free to rename it in your model.
@@ -246,7 +247,38 @@ from turftopic import SemanticSignalSeparation
 
 model = SemanticSignalSeparation(10).fit(corpus)
 model.rename_topics({0: "New name for topic 0", 5: "New name for topic 5"})
+
 ```
+
+### Automated topic naming
+
+You can also use large language models, or other NLP techniques to assign human-readable names to topics.
+Here is an example of using ChatGPT to generate topic names from the highest ranking keywords.
+
+Read more about namer models [here](namers.md).
+
+```python
+from turftopic import KeyNMF
+from turftopic.namers import OpenAITopicNamer
+
+namer = OpenAITopicNamer("gpt-4o-mini")
+model.rename_topics(namer)
+
+model.print_topics()
+```
+
+| Topic ID | Topic Name | Highest Ranking |
+| - | - | - |
+| 0 | Operating Systems and Software  | windows, dos, os, ms, microsoft, unix, nt, memory, program, apps |
+| 1 | Atheism and Belief Systems | atheism, atheist, atheists, belief, religion, religious, theists, beliefs, believe, faith |
+| 2 | Computer Architecture and Performance | motherboard, ram, memory, cpu, bios, isa, speed, 486, bus, performance |
+| 3 | Storage Technologies | disk, drive, scsi, drives, disks, floppy, ide, dos, controller, boot |
+| 4 | Moral Philosophy and Ethics | morality, moral, objective, immoral, morals, subjective, morally, society, animals, species |
+| 5 | Christian Faith and Beliefs | christian, bible, christians, god, christianity, religion, jesus, faith, religious, biblical |
+| 6 | Serial Modem Connectivity | modem, port, serial, modems, ports, uart, pc, connect, fax, 9600 |
+| 7 | Graphics Card Drivers | card, drivers, monitor, vga, driver, cards, ati, graphics, diamond, monitors |
+| 8 | Windows File Management | file, files, ftp, bmp, windows, program, directory, bitmap, win3, zip |
+| 9 | Printer Font Management | printer, print, fonts, printing, font, printers, hp, driver, deskjet, prints |
 
 ### Visualization
 
