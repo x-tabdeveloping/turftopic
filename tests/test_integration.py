@@ -7,15 +7,12 @@ import numpy as np
 import pandas as pd
 import pytest
 from sentence_transformers import SentenceTransformer
+from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_20newsgroups
+from sklearn.decomposition import PCA
 
-from turftopic import (
-    GMM,
-    AutoEncodingTopicModel,
-    ClusteringTopicModel,
-    KeyNMF,
-    SemanticSignalSeparation,
-)
+from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
+                       FASTopic, KeyNMF, SemanticSignalSeparation, load_model)
 
 
 def batched(iterable, n: int):
@@ -55,53 +52,47 @@ embeddings = np.asarray(trf.encode(texts))
 timestamps = generate_dates(n_dates=len(texts))
 
 models = [
-    GMM(5, encoder=trf),
-    SemanticSignalSeparation(5, encoder=trf),
-    KeyNMF(5, encoder=trf),
+    GMM(3, encoder=trf),
+    SemanticSignalSeparation(3, encoder=trf),
+    KeyNMF(3, encoder=trf),
     ClusteringTopicModel(
-        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(3),
         feature_importance="c-tf-idf",
         encoder=trf,
         reduction_method="agglomerative",
     ),
     ClusteringTopicModel(
-        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(3),
         feature_importance="centroid",
         encoder=trf,
         reduction_method="smallest",
     ),
-    AutoEncodingTopicModel(5, combined=True),
+    AutoEncodingTopicModel(3, combined=True),
+    FASTopic(3, batch_size=None),
 ]
 
 dynamic_models = [
-    GMM(5, encoder=trf),
+    GMM(3, encoder=trf),
     ClusteringTopicModel(
-        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(3),
         feature_importance="centroid",
         encoder=trf,
         reduction_method="smallest",
     ),
     ClusteringTopicModel(
-        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(3),
         feature_importance="soft-c-tf-idf",
         encoder=trf,
         reduction_method="smallest",
     ),
-    KeyNMF(5, encoder=trf),
+    KeyNMF(3, encoder=trf),
 ]
 
-online_models = [KeyNMF(5, encoder=trf)]
-
-
-@pytest.mark.parametrize("model", models)
-def test_fit_export_table(model):
-    doc_topic_matrix = model.fit_transform(texts, embeddings=embeddings)
-    table = model.export_topics(format="csv")
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        out_path = Path(tmpdirname).joinpath("topics.csv")
-        with out_path.open("w") as out_file:
-            out_file.write(table)
-        df = pd.read_csv(out_path)
+online_models = [KeyNMF(3, encoder=trf)]
 
 
 @pytest.mark.parametrize("model", dynamic_models)
@@ -133,3 +124,69 @@ def test_fit_online(model):
         with out_path.open("w") as out_file:
             out_file.write(table)
         df = pd.read_csv(out_path)
+
+
+@pytest.mark.parametrize("model", models)
+def test_prepare_topic_data_export_table(model):
+    topic_data = model.prepare_topic_data(texts, embeddings=embeddings)
+    for key, value in topic_data.items():
+        # We allow transform() to be None for transductive models
+        if key == "transform":
+            continue
+        if value is None:
+            raise TypeError(f"Field {key} is None in topic_data.")
+    table = model.export_topics(format="csv")
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        out_path = Path(tmpdirname).joinpath("topics.csv")
+        with out_path.open("w") as out_file:
+            out_file.write(table)
+        df = pd.read_csv(out_path)
+
+
+def test_hierarchical():
+    model = KeyNMF(2).fit(texts, embeddings=embeddings)
+    model.hierarchy.divide_children(3)
+    model.hierarchy[0][0].divide(3)
+    repr = str(model.hierarchy)
+
+
+def test_naming():
+    model = KeyNMF(2).fit(texts, embeddings=embeddings)
+    topic_names = ["Topic 1", "Topic 2"]
+    model.rename_topics(topic_names)
+    assert topic_names == model.topic_names
+    model.rename_topics(
+        {
+            topic_id: topic_name
+            for topic_id, topic_name in enumerate(topic_names)
+        }
+    )
+    assert topic_names == model.topic_names
+
+
+def test_topic_joining():
+    model = ClusteringTopicModel(
+        dimensionality_reduction=PCA(2),
+        clustering=KMeans(5),
+        feature_importance="c-tf-idf",
+        encoder=trf,
+        reduction_method="smallest",
+    )
+    model.fit(texts, embeddings=embeddings)
+    model.join_topics([0, 1, 2])
+    assert list(model.classes_) == [0, 3, 4]
+
+
+def test_refitting():
+    model = SemanticSignalSeparation(10)
+    model.fit(texts, embeddings=embeddings)
+    model.refit(20)
+    assert model.components_.shape[0] == 20
+
+
+def test_serialization():
+    model = SemanticSignalSeparation(10)
+    model.fit(texts, embeddings=embeddings)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        model.to_disk(tmp_dir)
+        model = load_model(tmp_dir)

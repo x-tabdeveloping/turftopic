@@ -6,10 +6,16 @@ from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
 from sklearn.decomposition import FastICA
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import euclidean_distances
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.vectorizer import default_vectorizer
+
+NOT_MATCHING_ERROR = (
+    "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
+    + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
+    + "Try to initialize the model with the encoder you used for computing the embeddings."
+)
 
 
 class SemanticSignalSeparation(ContextualModel):
@@ -42,6 +48,9 @@ class SemanticSignalSeparation(ContextualModel):
         If not specified, FastICA is used.
     max_iter: int, default 200
         Maximum number of iterations for ICA.
+    feature_importance: "axial", "angular" or "combined", default "combined"
+        Defines whether the word's position on an axis ('axial'), it's angle to the axis ('angular')
+        or their combination ('combined') should determine the word's importance for a topic.
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
     """
@@ -55,10 +64,14 @@ class SemanticSignalSeparation(ContextualModel):
         vectorizer: Optional[CountVectorizer] = None,
         decomposition: Optional[TransformerMixin] = None,
         max_iter: int = 200,
+        feature_importance: Literal[
+            "axial", "angular", "combined"
+        ] = "combined",
         random_state: Optional[int] = None,
     ):
         self.n_components = n_components
         self.encoder = encoder
+        self.feature_importance = feature_importance
         if isinstance(encoder, str):
             self.encoder_ = SentenceTransformer(encoder)
         else:
@@ -76,29 +89,150 @@ class SemanticSignalSeparation(ContextualModel):
         else:
             self.decomposition = decomposition
 
+    def estimate_components(
+        self, feature_importance: Literal["axial", "angular", "combined"]
+    ) -> np.ndarray:
+        """Reestimates components based on the chosen feature_importance method."""
+        if feature_importance == "axial":
+            self.components_ = self.axial_components_
+        elif feature_importance == "angular":
+            self.components_ = self.angular_components_
+        elif feature_importance == "combined":
+            self.components_ = (
+                np.square(self.axial_components_) * self.angular_components_
+            )
+        return self.components_
+
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
         console = Console()
+        self.embeddings = embeddings
         with console.status("Fitting model") as status:
-            if embeddings is None:
+            if self.embeddings is None:
                 status.update("Encoding documents")
-                embeddings = self.encoder_.encode(raw_documents)
+                self.embeddings = self.encoder_.encode(raw_documents)
                 console.log("Documents encoded.")
             status.update("Decomposing embeddings")
-            doc_topic = self.decomposition.fit_transform(embeddings)
+            doc_topic = self.decomposition.fit_transform(self.embeddings)
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
             console.log("Term extraction done.")
             status.update("Encoding vocabulary")
-            vocab_embeddings = self.encoder_.encode(vocab)
+            self.vocab_embeddings = self.encoder_.encode(vocab)
+            if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=self.embeddings.shape[1],
+                        n_word_dims=self.vocab_embeddings.shape[1],
+                    )
+                )
             console.log("Vocabulary encoded.")
             status.update("Estimating term importances")
-            vocab_topic = self.decomposition.transform(vocab_embeddings)
-            self.components_ = vocab_topic.T
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
             console.log("Model fitting done.")
         return doc_topic
+
+    def refit_transform(
+        self,
+        n_components: Optional[int] = None,
+        max_iter: Optional[int] = None,
+        random_state: Optional[int] = None,
+    ):
+        """Refits model with the given parameters.
+        This is significantly faster than fitting a new model from scratch.
+
+        Parameters
+        ----------
+        n_components: int, default None
+            Number of topics.
+        max_iter: int, default None
+            Maximum number of iterations for ICA.
+        random_state: int, default None
+            Random state to use so that results are exactly reproducible.
+
+        Returns
+        -------
+        ndarray of shape (n_documents, n_topics)
+            Document-topic matrix.
+        """
+        self.topic_names_ = None
+        n_components = (
+            n_components if n_components is not None else self.n_components
+        )
+        max_iter = max_iter if max_iter is not None else self.max_iter
+        random_state = (
+            random_state if random_state is not None else self.random_state
+        )
+        self.decomposition = FastICA(
+            n_components, max_iter=max_iter, random_state=random_state
+        )
+        console = Console()
+        with console.status("Refitting model") as status:
+            status.update("Decomposing embeddings")
+            doc_topic = self.decomposition.fit_transform(self.embeddings)
+            console.log("Decomposition done.")
+            status.update("Estimating term importances")
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
+            console.log("Model fitting done.")
+        return doc_topic
+
+    def refit(
+        self,
+        n_components: Optional[int] = None,
+        max_iter: Optional[int] = None,
+        random_state: Optional[int] = None,
+    ):
+        """Refits model with the given parameters.
+        This is significantly faster than fitting a new model from scratch.
+
+        Parameters
+        ----------
+        n_components: int, default None
+            Number of topics.
+        max_iter: int, default None
+            Maximum number of iterations for ICA.
+        random_state: int, default None
+            Random state to use so that results are exactly reproducible.
+
+        Returns
+        -------
+        Refitted model.
+        """
+        self.refit_transform(n_components, max_iter, random_state)
+        return self
+
+    @property
+    def angular_components_(self):
+        """Reweights words based on their angle in ICA-space to the axis
+        base vectors.
+        """
+        word_vectors = self.axial_components_.T
+        n_topics = self.axial_components_.shape[0]
+        axis_vectors = np.eye(n_topics)
+        cosine_components = cosine_similarity(axis_vectors, word_vectors)
+        return cosine_components
 
     def transform(
         self, raw_documents, embeddings: Optional[np.ndarray] = None
@@ -211,8 +345,8 @@ class SemanticSignalSeparation(ContextualModel):
                 raise ValueError(
                     f"{topic_y} is not a valid topic name or index."
                 ) from e
-        x = self.components_[topic_x]
-        y = self.components_[topic_y]
+        x = self.axial_components_[topic_x]
+        y = self.axial_components_[topic_y]
         vocab = self.get_vocab()
         points = np.array(list(zip(x, y)))
         xx, yy = np.meshgrid(

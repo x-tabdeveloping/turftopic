@@ -1,16 +1,13 @@
 import itertools
+import warnings
 from datetime import datetime
 from typing import Iterable, Optional
 
 import numpy as np
 import scipy.sparse as spr
 from sklearn.base import clone
-from sklearn.decomposition._nmf import (
-    NMF,
-    MiniBatchNMF,
-    _initialize_nmf,
-    _update_coordinate_descent,
-)
+from sklearn.decomposition._nmf import (NMF, MiniBatchNMF, _initialize_nmf,
+                                        _update_coordinate_descent)
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -18,6 +15,12 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_non_negative
 
 from turftopic.base import Encoder
+
+NOT_MATCHING_ERROR = (
+    "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
+    + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
+    + "Try to initialize the model with the encoder you used for computing the embeddings."
+)
 
 
 def batched(iterable, n: int) -> Iterable[list[str]]:
@@ -70,7 +73,7 @@ def fit_timeslice(
     return W, Ht.T, n_iter
 
 
-class KeywordExtractor:
+class SBertKeywordExtractor:
     def __init__(
         self, top_n: int, encoder: Encoder, vectorizer: CountVectorizer
     ):
@@ -81,13 +84,26 @@ class KeywordExtractor:
         self.term_embeddings: Optional[np.ndarray] = None
 
     @property
+    def is_encoder_promptable(self) -> bool:
+        prompts = getattr(self.encoder, "prompts", None)
+        if prompts is None:
+            return False
+        if ("query" in prompts) and ("passage" in prompts):
+            return True
+
+    @property
     def n_vocab(self) -> int:
         return len(self.key_to_index)
 
     def _add_terms(self, new_terms: list[str]):
         for term in new_terms:
             self.key_to_index[term] = self.n_vocab
-        term_encodings = self.encoder.encode(new_terms)
+        if not self.is_encoder_promptable:
+            term_encodings = self.encoder.encode(new_terms)
+        else:
+            term_encodings = self.encoder.encode(
+                new_terms, prompt_name="passage"
+            )
         if self.term_embeddings is not None:
             self.term_embeddings = np.concatenate(
                 (self.term_embeddings, term_encodings), axis=0
@@ -103,7 +119,12 @@ class KeywordExtractor:
         if not len(documents):
             return []
         if embeddings is None:
-            embeddings = self.encoder.encode(documents)
+            if not self.is_encoder_promptable:
+                embeddings = self.encoder.encode(documents)
+            else:
+                embeddings = self.encoder.encode(
+                    documents, prompt_name="query"
+                )
         if len(embeddings) != len(documents):
             raise ValueError(
                 "Number of documents doesn't match number of embeddings."
@@ -123,11 +144,18 @@ class KeywordExtractor:
             if not np.any(mask):
                 keywords.append(dict())
                 continue
-            important_terms = np.squeeze(np.asarray(mask))
+            important_terms = np.ravel(np.asarray(mask))
             word_embeddings = [
                 self.term_embeddings[self.key_to_index[term]]
                 for term in batch_vocab[important_terms]
             ]
+            if self.term_embeddings.shape[1] != embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=embeddings.shape[1],
+                        n_word_dims=self.term_embeddings.shape[1],
+                    )
+                )
             sim = cosine_similarity(embedding, word_embeddings).astype(
                 np.float64
             )
@@ -241,13 +269,19 @@ class KeywordNMF:
 
     def partial_fit(self, keyword_batch: list[dict[str, float]]):
         X = self.vectorize(keyword_batch, fitting=True)
-        check_non_negative(X, "NMF (input X)")
-        self._add_word_components(X)
-        W, _ = _initialize_nmf(X, self.n_components, random_state=self.seed)
-        _minibatchnmf = MiniBatchNMF(
-            self.n_components, init="custom", random_state=self.seed
-        ).partial_fit(X, W=W, H=self.components)
-        self.components = _minibatchnmf.components_.astype(X.dtype)
+        try:
+            check_non_negative(X, "NMF (input X)")
+            self._add_word_components(X)
+            W, _ = _initialize_nmf(
+                X, self.n_components, random_state=self.seed
+            )
+            _minibatchnmf = MiniBatchNMF(
+                self.n_components, init="custom", random_state=self.seed
+            ).partial_fit(X, W=W, H=self.components)
+            self.components = _minibatchnmf.components_.astype(X.dtype)
+        except ValueError as e:
+            warnings.warn(f"Batch failed with error: {e}, skipping.")
+            return self
         return self
 
     def fit_transform_dynamic(

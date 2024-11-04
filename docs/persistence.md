@@ -1,25 +1,34 @@
-# Model Persistence
+# Saving and loading models
 
-Similarly to scikit-learn we primarily recommend that you use the `joblib` package for efficiently serializing Turftopic models.
+### Saving locally
 
-```bash
-pip install joblib
-```
-
-Make sure at all times that the Python environment producing the models has the same versions or similar of the essential packages as the recieving end.
-Otherwise problems might occur at deserialization.
-
-> It is also recommended that you do not embed custom code in models you intend to persist (custom vectorizers/encoder models).
-
+Turftopic models can now be saved to disk using the `to_disk()` method of models:
 
 ```python
-from turftopic import GMM
+from turftopic import SemanticSignalSeparation
 
-model = GMM(10).fit(corpus)
+model = SemanticSignalSeparation(10).fit(corpus)
+model.to_disk("./local_directory/")
+```
 
-# Saving a model
-joblib.dump(model, "gmm_10.joblib")
+### Publishing models
 
-# Loading a model
-model = joblib.load("gmm_10.joblib")
+Models can also be pushed to HuggingFace repositories.
+This way, others can also easily access and modify topic models you've trained.
+
+```python
+# The repository name is, of course, arbitrary but descriptive
+model.push_to_hub("your_user/s3_20-newsgroups_10-topics")
+```
+
+### Loading models
+
+You can load models from either the Hub or disk using the `load_model()` function:
+
+```python
+from turftopic import load_model
+
+model = load_model("./local_directory/")
+# or from hub
+model = load_model("your_user/s3_20-newsgroups_10-topics")
 ```

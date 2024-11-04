@@ -19,42 +19,42 @@ model.fit(corpus)
 model.print_topics()
 ```
 
-## Keyword Extraction
+## How does KeyNMF work?
 
-The first step of the process is gaining enhanced representations of documents by using contextual embeddings.
-Both the documents and the vocabulary get encoded with the same sentence encoder.
-Keywords are assigned to each document based on the cosine similarity of the document embedding to the embedded words in the document.
-Only the top K words with positive cosine similarity to the document are kept.
-These keywords are then arranged into a document-term importance matrix where each column represents a keyword that was encountered in at least one document,
-and each row is a document. The entries in the matrix are the cosine similarities of the given keyword to the document in semantic space.
+### Keyword Extraction
 
-- For each document $d$:
-    1. Let $x_d$ be the document's embedding produced with the encoder model.
-    2. For each word $w$ in the document $d$:
-        1. Let $v_w$ be the word's embedding produced with the encoder model.
-        2. Calculate cosine similarity between word and document
+KeyNMF discovers topics based on the importances of keywords for a given document.
+This is done by embedding words in a document, and then extracting the cosine similarities of documents to words using a transformer-model.
+Only the `top_n` keywords with positive similarity are kept.
+
+??? info "Click to see formula"
+    - For each document $d$:
+        1. Let $x_d$ be the document's embedding produced with the encoder model.
+        2. For each word $w$ in the document $d$:
+            1. Let $v_w$ be the word's embedding produced with the encoder model.
+            2. Calculate cosine similarity between word and document
+
+            $$
+            \text{sim}(d, w) = \frac{x_d \cdot v_w}{||x_d|| \cdot ||v_w||}
+            $$
+
+        3. Let $K_d$ be the set of $N$ keywords with the highest cosine similarity to document $d$.
 
         $$
-        \text{sim}(d, w) = \frac{x_d \cdot v_w}{||x_d|| \cdot ||v_w||}
+        K_d = \text{argmax}_{K^*} \sum_{w \in K^*}\text{sim}(d,w)\text{, where }
+        |K_d| = N\text{, and } \\
+        w \in d
         $$
 
-    3. Let $K_d$ be the set of $N$ keywords with the highest cosine similarity to document $d$.
+    - Arrange positive keyword similarities into a keyword matrix $M$ where the rows represent documents, and columns represent unique keywords.
 
-    $$
-    K_d = \text{argmax}_{K^*} \sum_{w \in K^*}\text{sim}(d,w)\text{, where }
-    |K_d| = N\text{, and } \\
-    w \in d
-    $$
-
-- Arrange positive keyword similarities into a keyword matrix $M$ where the rows represent documents, and columns represent unique keywords.
-
-    $$
-    M_{dw} = 
-    \begin{cases}
-    \text{sim}(d,w), & \text{if } w \in K_d \text{ and } \text{sim}(d,w) > 0 \\
-    0, & \text{otherwise}.
-    \end{cases}
-    $$
+        $$
+        M_{dw} = 
+        \begin{cases}
+        \text{sim}(d,w), & \text{if } w \in K_d \text{ and } \text{sim}(d,w) > 0 \\
+        0, & \text{otherwise}.
+        \end{cases}
+        $$
 
 You can do this step manually if you want to precompute the keyword matrix.
 Keywords are represented as dictionaries mapping words to keyword importances.
@@ -78,19 +78,22 @@ keyword_matrix = model.extract_keywords(corpus)
 model.fit(None, keywords=keyword_matrix)
 ```
 
-## Topic Discovery
+### Topic Discovery
 
 Topics in this matrix are then discovered using Non-negative Matrix Factorization.
 Essentially the model tries to discover underlying dimensions/factors along which most of the variance in term importance
 can be explained.
 
-- Decompose $M$ with non-negative matrix factorization: $M \approx WH$, where $W$ is the document-topic matrix, and $H$ is the topic-term matrix. Non-negative Matrix Factorization is done with the coordinate-descent algorithm, minimizing square loss:
+??? info "Click to see formula"
 
-    $$
-    L(W,H) = ||M - WH||^2
-    $$
+    - Decompose $M$ with non-negative matrix factorization: $M \approx WH$, where $W$ is the document-topic matrix, and $H$ is the topic-term matrix. Non-negative Matrix Factorization is done with the coordinate-descent algorithm, minimizing square loss:
 
-You can fit KeyNMF on the raw corpus, with precomputed embeddings or with precomputed keywords.
+        $$
+        L(W,H) = ||M - WH||^2
+        $$
+
+    You can fit KeyNMF on the raw corpus, with precomputed embeddings or with precomputed keywords.
+
 ```python
 # Fitting just on the corpus
 model.fit(corpus)
@@ -109,21 +112,68 @@ keyword_matrix = model.extract_keywords(corpus)
 model.fit(None, keywords=keyword_matrix)
 ```
 
-## Dynamic Topic Modeling
+### Asymmetric and Instruction-tuned Embedding Models
+
+Some embedding models can be used together with prompting, or encode queries and passages differently.
+This is important for KeyNMF, as it is explicitly based on keyword retrieval, and its performance can be substantially enhanced by using asymmetric or prompted embeddings.
+Microsoft's E5 models are, for instance, all prompted by default, and it would be detrimental to performance not to do so yourself.
+
+In these cases, you're better off NOT passing a string to Turftopic models, but explicitly loading the model using `sentence-transformers`.
+
+Here's an example of using instruct models for keyword retrieval with KeyNMF.
+In this case, documents will serve as the queries and words as the passages:
+
+```python
+from turftopic import KeyNMF
+from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer(
+    "intfloat/multilingual-e5-large-instruct",
+    prompts={
+        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
+        "passage": "Passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
+```
+
+And a regular, asymmetric example:
+
+```python
+encoder = SentenceTransformer(
+    "intfloat/e5-large-v2",
+    prompts={
+        "query": "query: "
+        "passage": "passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
+```
+
+Setting the default prompt to `query` is especially important, when you are precomputing embeddings, as `query` should always be your default prompt to embed documents with.
+
+
+### Dynamic Topic Modeling
 
 KeyNMF is also capable of modeling topics over time.
 This happens by fitting a KeyNMF model first on the entire corpus, then
 fitting individual topic-term matrices using coordinate descent based on the document-topic and document-term matrices in the given time slices.
 
-1. Compute keyword matrix $M$ for the whole corpus.
-2. Decompose $M$ with non-negative matrix factorization: $M \approx WH$.
-3. For each time slice $t$:
-    1. Let $W_t$ be the document-topic proportions for documents in time slice $t$, and $M_t$ be the keyword matrix for words in time slice $t$.
-    2. Obtain the topic-term matrix for the time slice, by minimizing square loss using coordinate descent and fixing $W_t$:
+??? info "Click to see formula"
 
-    $$
-    H_t = \text{argmin}_{H^{*}} ||M_t - W_t H^{*}||^2
-    $$
+    1. Compute keyword matrix $M$ for the whole corpus.
+    2. Decompose $M$ with non-negative matrix factorization: $M \approx WH$.
+    3. For each time slice $t$:
+        1. Let $W_t$ be the document-topic proportions for documents in time slice $t$, and $M_t$ be the keyword matrix for words in time slice $t$.
+        2. Obtain the topic-term matrix for the time slice, by minimizing square loss using coordinate descent and fixing $W_t$:
+
+        $$
+        H_t = \text{argmin}_{H^{*}} ||M_t - W_t H^{*}||^2
+        $$
 
 Here's an example of using KeyNMF in a dynamic modeling setting:
 
@@ -155,12 +205,7 @@ model.print_topics_over_time()
 | - | - | - | - | - | - |
 | 2012 12 06 - 2013 11 10 | genocide, yugoslavia, karadzic, facts, cnn | cnn, russia, chechnya, prince, merkel | france, cnn, francois, hollande, bike | tennis, tournament, wimbledon, grass, courts | beckham, soccer, retired, david, learn |
 | 2013 11 10 - 2014 10 14 | keith, stones, richards, musician, author | georgia, russia, conflict, 2008, cnn | civil, rights, hear, why, should | cnn, kidneys, traffickers, organ, nepal | ronaldo, cristiano, goalscorer, soccer, player |
-| 2014 10 14 - 2015 09 18 | ethiopia, brew, coffee, birthplace, anderson | climate, sutter, countries, snapchat, injustice | women, guatemala, murder, country, worst | cnn, climate, oklahoma, women, topics | sweden, parental, dads, advantage, leave |
-| 2015 09 18 - 2016 08 22 | snow, ice, winter, storm, pets | climate, crisis, drought, outbreaks, syrian | women, vulnerabilities, frontlines, countries, marcelas | cnn, warming, climate, sutter, theresa | sutter, band, paris, fans, crowd |
-| 2016 08 22 - 2017 07 26 | derby, epsom, sporting, race, spectacle | overdoses, heroin, deaths, macron, emmanuel | fear, died, indigenous, people, arthur | siblings, amnesia, palombo, racial, mh370 | bobbi, measles, raped, camp, rape |
-| 2017 07 26 - 2018 06 30 | her, percussionist, drums, she, deported | novichok, hurricane, hospital, deaths, breathing | women, day, celebrate, taliban, international | abuse, harassment, cnn, women, pilgrimage | maradona, argentina, history, jadon, rape |
-| 2018 06 30 - 2019 06 03 | athletes, teammates, celtics, white, racism | pope, archbishop, francis, vigano, resignation | racism, athletes, teammates, celtics, white | golf, iceland, volcanoes, atlantic, ocean | rape, sudanese, racist, women, soldiers |
-| 2019 06 03 - 2020 05 07 | esports, climate, ice, racers, culver | esports, coronavirus, pandemic, football, teams | racers, women, compete, zone, bery | serena, stadium, sasha, final, naomi | kobe, bryant, greatest, basketball, influence |
+|  |  | ... |  |  |  |
 | 2020 05 07 - 2021 04 10 | olympics, beijing, xinjiang, ioc, boycott | covid, vaccine, coronavirus, pandemic, vaccination | olympic, japan, medalist, canceled, tokyo | djokovic, novak, tennis, federer, masterclass | ronaldo, cristiano, messi, juventus, barcelona |
 | 2021 04 10 - 2022 03 16 | olympics, tokyo, athletes, beijing, medal | covid, pandemic, vaccine, vaccinated, coronavirus | olympic, athletes, ioc, medal, athlete | djokovic, novak, tennis, wimbledon, federer | ronaldo, cristiano, messi, manchester, scored |
 
@@ -180,11 +225,11 @@ model.plot_topics_over_time(top_k=5)
 ```
 
 <figure>
-  <img src="../images/dynamic_keynmf.png" width="80%" style="margin-left: auto;margin-right: auto;">
+  <img src="../images/dynamic_keynmf.png" width="50%" style="margin-left: auto;margin-right: auto;">
   <figcaption>Topics over time on a Figure</figcaption>
 </figure>
 
-## Online Topic Modeling
+### Online Topic Modeling
 
 KeyNMF can also be fitted in an online manner.
 This is done by fitting NMF with batches of data instead of the whole dataset at once.
@@ -309,19 +354,46 @@ for batch in batched(zip(corpus, timestamps)):
     model.partial_fit_dynamic(text_batch, timestamps=ts_batch, bins=bins)
 ```
 
-## Considerations
+### Hierarchical Topic Modeling
 
-### Strengths
+When you suspect that subtopics might be present in the topics you find with the model, KeyNMF can be used to discover topics further down the hierarchy.
 
- - Stability, Robustness and Quality: KeyNMF extracts very clean topics even when a lot of noise is present in the corpus, and the model's performance remains relatively stable across domains.
- - Scalability: The model can be fitted in an online fashion, and we recommend that you choose KeyNMF when the number of documents is large (over 100 000).
- - Fail Safe and Adjustable: Since the modelling process consists of multiple easily separable steps it is easy to repeat one if something goes wrong. This also makes it an ideal choice for production usage.
- - Can capture multiple topics in a document.
+This is done by utilising a special case of **weighted NMF**, where documents are weighted by how high they score on the parent topic.
 
-### Weaknesses
+??? info "Click to see formula"
+    1. Decompose keyword matrix $M \approx WH$
+    2. To find subtopics in topic $j$, define document weights $w$ as the $j$th column of $W$.
+    3. Estimate subcomponents with **wNMF** $M \approx \mathring{W} \mathring{H}$ with document weight $w$
+        1. Initialise $\mathring{H}$ and  $\mathring{W}$ randomly.
+        2. Perform multiplicative updates until convergence. <br>
+            $\mathring{W}^T = \mathring{W}^T \odot \frac{\mathring{H} \cdot (M^T \odot w)}{\mathring{H} \cdot \mathring{H}^T \cdot (\mathring{W}^T \odot w)}$ <br>
+            $\mathring{H}^T = \mathring{H}^T \odot \frac{ (M^T \odot w)\cdot \mathring{W}}{\mathring{H}^T \cdot (\mathring{W}^T \odot w) \cdot \mathring{W}}$
+    4. To sufficiently differentiate the subcomponents from each other a pseudo-c-tf-idf weighting scheme is applied to $\mathring{H}$:
+        1. $\mathring{H} = \mathring{H}_{ij} \odot ln(1 + \frac{A}{1+\sum_k \mathring{H}_{kj}})$, where $A$ is the average of all elements in $\mathring{H}$
 
- - Lack of Nuance: Since only the top K keywords are considered and used for topic extraction some of the nuances, especially in long texts might get lost. We therefore recommend that you scale K with the average length of the texts you're working with. For tweets it might be worth it to scale it down to 5, while with longer documents, a larger number (let's say 50) might be advisable.
- - Practitioners have to choose the number of topics a priori.
+To create a hierarchical model, you can use the `hierarchy` property of the model.
+
+```python
+# This divides each of the topics in the model to 3 subtopics.
+model.hierarchy.divide_children(n_subtopics=3)
+print(model.hierarchy)
+```
+
+<div style="background-color: #F5F5F5; padding: 10px; padding-left: 20px; padding-right: 20px;">
+<tt style="font-size: 11pt">
+<b>Root </b><br>
+├── <b style="color: blue">0</b>: windows, dos, os, disk, card, drivers, file, pc, files, microsoft <br>
+│   ├── <b style="color: magenta">0.0</b>: dos, file, disk, files, program, windows, disks, shareware, norton, memory <br>
+│   ├── <b style="color: magenta">0.1</b>: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform <br>
+│   └── <b style="color: magenta">0.2</b>: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati <br>
+└── <b style="color: blue">1</b>: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs <br>
+.    ├── <b style="color: magenta">1.0</b>: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers <br>
+.    ├── <b style="color: magenta">1.1</b>: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions <br>
+.    └── <b style="color: magenta">1.2</b>: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion <br>
+</tt>
+</div>
+
+For a detailed tutorial on hierarchical modeling click [here](hierarchical.md).
 
 ## API Reference
 
