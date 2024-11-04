@@ -107,7 +107,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
         show_negative: bool = False,
     ) -> list[list[str]]:
         columns = ["Topic ID"]
-        if hasattr(self, "topic_names_"):
+        if getattr(self, "topic_names_", None):
             columns.append("Topic Name")
         columns.append("Highest Ranking")
         if show_negative:
@@ -146,7 +146,7 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
                 concat_positive = ", ".join([word for word in vocab[highest]])
                 concat_negative = ", ".join([word for word in vocab[lowest]])
             row = [f"{topic_id}"]
-            if hasattr(self, "topic_names_"):
+            if getattr(self, "topic_names_", None):
                 row.append(self.topic_names_[i_topic])
             row.append(f"{concat_positive}")
             if show_negative:
