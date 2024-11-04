@@ -56,20 +56,6 @@ This has a number of implications, most notably:
 
 Turftopic, similarly to Clustering models might not contain some model specific utilites, that CTM boasts.
 
-## Considerations
-
-### Strengths
-
- - Topic Proportions: Autoencoding models can capture multiple topics in a document and can therefore capture nuances that other models might not be able to.
- - Online Learning: You can fit these models in an online way as they use minibatch learning. (WARNING: This is not yet implemented in Turftopic)
-
-### Weaknesses
-
- - Low Quality and Sensitivity to Noise: The quality of topics tends to be lower than with other models. Noise might get into topic description, there might be overlap between topics, and there might be topics that are hard to interpret. Other models typically outperform autoencoding models.
- - Curse of Dimensionality: The number of parameters in these models is typically very high. This makes inference difficult and might result in poor convergence, and very slow inference.
- - Black Box: Since the mapping to parameter space is learned by a neural network, the model is very black box in nature and it's hard to know why and what it learns.
-
-
 ## API Reference
 
 ::: turftopic.models.ctm.AutoEncodingTopicModel

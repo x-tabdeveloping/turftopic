@@ -21,6 +21,65 @@ model = GMM(10, encoder="paraphrase-multilingual-MiniLM-L12-v2")
 Different encoders have different performance and model sizes.
 To make an informed choice about which embedding model you should be using check out the [Massive Text Embedding Benchmark](https://huggingface.co/blog/mteb).
 
+## Asymmetric and Instruction-tuned Embedding Models
+
+Some embedding models can be used together with prompting, or encode queries and passages differently.
+Microsoft's E5 models are, for instance, all prompted by default, and it would be detrimental to performance not to do so yourself.
+
+In these cases, you're better off NOT passing a string to Turftopic models, but explicitly loading the model using `sentence-transformers`.
+
+Here's an example of using instruct models for keyword retrieval with KeyNMF.
+In this case, documents will serve as the queries and words as the passages:
+
+```python
+from turftopic import KeyNMF
+from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer(
+    "intfloat/multilingual-e5-large-instruct",
+    prompts={
+        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
+        "passage": "Passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
+```
+
+And a regular, asymmetric example:
+
+```python
+encoder = SentenceTransformer(
+    "intfloat/e5-large-v2",
+    prompts={
+        "query": "query: "
+        "passage": "passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
+```
+
+## Performance tips
+
+From `sentence-transformers` version `3.2.0` you can significantly speed up some models by using
+the `onnx` backend instead of regular torch.
+
+```
+pip install sentence-transformers[onnx, onnx-gpu]
+```
+
+```python
+from turftopic import SemanticSignalSeparation
+from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer("all-MiniLM-L6-v2", backend="onnx")
+
+model = SemanticSignalSeparation(10, encoder=encoder)
+```
+
 ## External Embeddings
 
 If you do not have the computational resources to run embedding models on your own infrastructure, you can also use high quality 3rd party embeddings.
@@ -33,11 +92,3 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.
 :::turftopic.encoders.OpenAIEmbeddings
 
 :::turftopic.encoders.VoyageEmbeddings
-
-## E5 Embeddings
-
-Most E5 models expect the input to be prefixed with something like `"query: "` (see the [multilingual-e5-small](https://huggingface.co/intfloat/multilingual-e5-small) model card).  
-In instructional E5 models, it is also possible to add an instruction, following the format `f"Instruct: {task_description} \nQuery: {document}"` (see the [multilingual-e5-large-instruct](https://huggingface.co/intfloat/multilingual-e5-large-instruct) model card).  
-In Turftopic, E5 embeddings including the prefixing is handled by the `E5Encoder`.
-
-:::turftopic.encoders.E5Encoder

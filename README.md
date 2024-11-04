@@ -7,11 +7,12 @@
 ## Features
  - Novel transformer-based topic models:
    - Semantic Signal Separation - S³ 🧭
-   - KeyNMF 🔑 (paper in progress ⏳)
+   - KeyNMF 🔑 
    - GMM :gem: (paper soon)
- - Implementations of existing transformer-based topic models
+ - Implementations of other transformer-based topic models
    - Clustering Topic Models: BERTopic and Top2Vec
    - Autoencoding Topic Models: CombinedTM and ZeroShotTM
+   - FASTopic
  - Streamlined scikit-learn compatible API 🛠️
  - Easy topic interpretation 🔍
  - Dynamic Topic Modeling 📈 (GMM, ClusteringTopicModel and KeyNMF)
@@ -19,42 +20,58 @@
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-### New in version 0.4.0
+### New in version 0.7.0
 
-#### Online KeyNMF
+#### Component re-estimation, refitting and topic merging
 
-You can now online fit and finetune KeyNMF as you wish!
+Some models can now easily be modified after being trained in an efficient manner,
+without having to recompute all attributes from scratch.
+This is especially significant for clustering models and $S^3$.
 
 ```python
-from itertools import batched
-from turftopic import KeyNMF
+from turftopic import SemanticSignalSeparation, ClusteringTopicModel
 
-model = KeyNMF(10, top_n=5)
+s3_model = SemanticSignalSeparation(5, feature_importance="combined").fit(corpus)
+# Re-estimating term importances
+s3_model.estimate_components(feature_importance="angular")
+# Refitting S^3 with a different number of topics (very fast)
+s3_model.refit(n_components=10, random_seed=42)
 
-corpus = ["some string", "etc", ...]
-for batch in batched(corpus, 200):
-    batch = list(batch)
-    model.partial_fit(batch)
+clustering_model = ClusteringTopicModel().fit(corpus)
+# Reduces number of topics automatically with a given method
+clustering_model.reduce_topics(n_reduce_to=20, reduction_method="smallest")
+# Merge topics manually
+clustering_model.join_topics([0,3,4,5])
+# Resets original topics
+clustering_model.reset_topics()
+# Re-estimates term importances based on a different method
+clustering_model.estimate_components(feature_importance="centroid")
 ```
 
-#### $S^3$ Concept Compasses
+#### Manual topic naming
 
-You can now produce a compass of concepts along two semantic axes using $S^3$.
+You can now manually label topics in all models in Turftopic.
 
-<table>
-  <tr>
-   <td>
-    
 ```python
-model = SemanticSignalSeparation(10).fit(corpus)
-fig = model.concept_compass(topic_x=1, topic_y=4)
-fig.show()
+# you can specify a dict mapping IDs to names
+model.rename_topics({0: "New name for topic 0", 5: "New name for topic 5"})
+# or a list of topic names
+model.rename_topics([f"Topic {i}" for i in range(10)])
 ```
 
-   </td>
-   <td><img src="./docs/images/arxiv_ml_compass.png" width="350" style="margin-left: auto;margin-right: auto;"></td>
-  </tr>
-</table>
+#### Saving, loading and publishing to HF Hub
+
+You can now load, save and publish models with dedicated functionality.
+
+```python
+from turftopic import load_model
+
+model.to_disk("out_folder/")
+model = load_model("out_folder/")
+
+model.push_to_hub("your_user/model_name")
+model = load_model("your_user/model_name")
+```
 
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
@@ -180,8 +197,9 @@ Alternatively you can use the [Figures API](https://x-tabdeveloping.github.io/to
 
 ## References
 - Kardos, M., Kostkan, J., Vermillet, A., Nielbo, K., Enevoldsen, K., & Rocca, R. (2024, June 13). $S^3$ - Semantic Signal separation. arXiv.org. https://arxiv.org/abs/2406.09556
+- Wu, X., Nguyen, T., Zhang, D. C., Wang, W. Y., & Luu, A. T. (2024). FASTopic: A Fast, Adaptive, Stable, and Transferable Topic Modeling Paradigm. ArXiv Preprint ArXiv:2405.17978.
  - Grootendorst, M. (2022, March 11). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. arXiv.org. https://arxiv.org/abs/2203.05794
  - Angelov, D. (2020, August 19). Top2VEC: Distributed representations of topics. arXiv.org. https://arxiv.org/abs/2008.09470
  - Bianchi, F., Terragni, S., & Hovy, D. (2020, April 8). Pre-training is a Hot Topic: Contextualized Document Embeddings Improve Topic Coherence. arXiv.org. https://arxiv.org/abs/2004.03974
- - Bianchi, F., Terragni, S., Hovy, D., Nozza, D., & Fersini, E. (2021). Cross-lingual Contextualized Topic Models with Zero-shot Learning. In Proceedings of the 16th Conference of the European 
- - Chapter of the Association for Computational Linguistics: Main Volume (pp. 1676–1683). Association for Computational Linguistics.
+ - Bianchi, F., Terragni, S., Hovy, D., Nozza, D., & Fersini, E. (2021). Cross-lingual Contextualized Topic Models with Zero-shot Learning. In Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume (pp. 1676–1683). Association for Computational Linguistics.
+ - Kristensen-McLachlan, R. D., Hicke, R. M. M., Kardos, M., & Thunø, M. (2024, October 16). Context is Key(NMF): Modelling Topical Information Dynamics in Chinese Diaspora Media. arXiv.org. https://arxiv.org/abs/2410.12791

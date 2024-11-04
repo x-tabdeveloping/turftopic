@@ -27,7 +27,7 @@ Here's a model that uses E5 large as the embedding model, and only learns words 
 from turftopic import SemanticSignalSeparation
 from sklearn.feature_extraction.text import CountVectorizer
 
-model = SemanticSignalSeparation(10, encoder="intfloat/e5-large-v2", vectorizer=CountVectorizer(min_df=20))
+model = SemanticSignalSeparation(10, encoder="all-MiniLM-L6-v2", vectorizer=CountVectorizer(min_df=20))
 ```
 
 You can also use external models for encoding, here's an example with [OpenAI's embedding models](encoders.md#external_embeddings):
@@ -60,6 +60,67 @@ corpus: list[str] = ["this is a a document", "this is yet another document", ...
 model.fit(corpus)
 ```
 
+## Prompting Embedding Models
+
+Some embedding models can be used together with prompting, or encode queries and passages differently.
+This can significantly influence performance, especially in the case of models that are based on retrieval ([KeyNMF](KeyNMF.md)) or clustering ([ClusteringTopicModel](clustering.md)).
+Microsoft's E5 models are, for instance all prompted by default, and it would be detrimental to performance not to do so yourself.
+
+In these cases, you're better off NOT passing a string to Turftopic models, but explicitly loading the model using `sentence-transformers`.
+
+Here's an example for clustering models:
+```python
+from turftopic import ClusteringTopicModel
+from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer(
+    "intfloat/multilingual-e5-large-instruct",
+    prompts={
+        "query": "Instruct: Cluster documents according to the topic they are about. Query: "
+        "passage": "Passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = ClusteringTopicModel(encoder=encoder)
+```
+
+You can also use instruct models for keyword retrieval with KeyNMF.
+In this case, documents will serve as the queries and words as the passages:
+
+```python
+from turftopic import KeyNMF
+from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer(
+    "intfloat/multilingual-e5-large-instruct",
+    prompts={
+        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
+        "passage": "Passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
+```
+
+When using KeyNMF with E5, make sure to specify the prompts even if you're not using instruct models:
+
+```python
+encoder = SentenceTransformer(
+    "intfloat/e5-large-v2",
+    prompts={
+        "query": "query: "
+        "passage": "passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
+```
+
+Setting the default prompt to `query` is especially important, when you are precomputing embeddings, as `query` should always be your default prompt to embed documents with.
+
 ## Precomputing Embeddings
 
 In order to cut down on costs/computational load when fitting multiple models in a row, you might want to encode the documents before fitting a model.
@@ -78,7 +139,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from turftopic import GMM, ClusteringTopicModel
 
-encoder = SentenceTransformer("intfloat/e5-large-v2")
+encoder = SentenceTransformer("intfloat/e5-large-v2", prompts={"query": "query: ", "passage": "passage: "}, default_prompt_name="query")
 
 corpus: list[str] = ["this is a a document", "this is yet another document", ...]
 embeddings = np.asarray(encoder.encode(corpus))
@@ -173,6 +234,18 @@ csv_table: str = model.export_topic_distribution("something something", format="
 latex_table: str = model.export_topics(format="latex")
 
 md_table: str = model.export_representative_documents(0, corpus, document_topic_matrix, format="markdown")
+```
+
+### Naming topics
+
+You can manually name topics in Turftopic models after having interpreted them.
+If you find a more fitting name for a topic, feel free to rename it in your model.
+
+```python
+from turftopic import SemanticSignalSeparation
+
+model = SemanticSignalSeparation(10).fit(corpus)
+model.rename_topics({0: "New name for topic 0", 5: "New name for topic 5"})
 ```
 
 ### Visualization
