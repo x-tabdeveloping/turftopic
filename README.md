@@ -5,74 +5,45 @@
 
 
 ## Features
- - Novel transformer-based topic models:
+ - Implementations of transformer-based topic models:
    - Semantic Signal Separation - S³ 🧭
    - KeyNMF 🔑 
-   - GMM :gem: (paper soon)
- - Implementations of other transformer-based topic models
+   - GMM :gem:
    - Clustering Topic Models: BERTopic and Top2Vec
    - Autoencoding Topic Models: CombinedTM and ZeroShotTM
    - FASTopic
+ - Dynamic, Online and Hierarchical Topic Modeling 
  - Streamlined scikit-learn compatible API 🛠️
  - Easy topic interpretation 🔍
- - Dynamic Topic Modeling 📈 (GMM, ClusteringTopicModel and KeyNMF)
+ - Automated topic naming with LLMs
  - Visualization with [topicwizard](https://github.com/x-tabdeveloping/topicwizard) 🖌️
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-### New in version 0.7.0
+### New in version 0.8.0
 
-#### Component re-estimation, refitting and topic merging
+#### Automated Topic Naming
 
-Some models can now easily be modified after being trained in an efficient manner,
-without having to recompute all attributes from scratch.
-This is especially significant for clustering models and $S^3$.
+Turftopic now allows you to automatically assign human readable names to topics using LLMs or n-gram retrieval!
 
 ```python
-from turftopic import SemanticSignalSeparation, ClusteringTopicModel
+from turftopic import KeyNMF
+from turftopic.namers import OpenAITopicNamer
 
-s3_model = SemanticSignalSeparation(5, feature_importance="combined").fit(corpus)
-# Re-estimating term importances
-s3_model.estimate_components(feature_importance="angular")
-# Refitting S^3 with a different number of topics (very fast)
-s3_model.refit(n_components=10, random_seed=42)
+model = KeyNMF(10).fit(corpus)
 
-clustering_model = ClusteringTopicModel().fit(corpus)
-# Reduces number of topics automatically with a given method
-clustering_model.reduce_topics(n_reduce_to=20, reduction_method="smallest")
-# Merge topics manually
-clustering_model.join_topics([0,3,4,5])
-# Resets original topics
-clustering_model.reset_topics()
-# Re-estimates term importances based on a different method
-clustering_model.estimate_components(feature_importance="centroid")
+namer = OpenAITopicNamer("gpt-4o-mini")
+model.rename_topics(namer)
+model.print_topics()
 ```
 
-#### Manual topic naming
-
-You can now manually label topics in all models in Turftopic.
-
-```python
-# you can specify a dict mapping IDs to names
-model.rename_topics({0: "New name for topic 0", 5: "New name for topic 5"})
-# or a list of topic names
-model.rename_topics([f"Topic {i}" for i in range(10)])
-```
-
-#### Saving, loading and publishing to HF Hub
-
-You can now load, save and publish models with dedicated functionality.
-
-```python
-from turftopic import load_model
-
-model.to_disk("out_folder/")
-model = load_model("out_folder/")
-
-model.push_to_hub("your_user/model_name")
-model = load_model("your_user/model_name")
-```
-
+| Topic ID | Topic Name | Highest Ranking |
+| - | - | - |
+| 0 | Operating Systems and Software  | windows, dos, os, ms, microsoft, unix, nt, memory, program, apps |
+| 1 | Atheism and Belief Systems | atheism, atheist, atheists, belief, religion, religious, theists, beliefs, believe, faith |
+| 2 | Computer Architecture and Performance | motherboard, ram, memory, cpu, bios, isa, speed, 486, bus, performance |
+| 3 | Storage Technologies | disk, drive, scsi, drives, disks, floppy, ide, dos, controller, boot |
+| | ... |
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
