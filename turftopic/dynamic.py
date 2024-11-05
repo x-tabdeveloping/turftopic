@@ -1,6 +1,7 @@
+import itertools
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union
+from typing import Any, Iterable, Optional, Union
 
 import numpy as np
 from rich.console import Console
@@ -273,7 +274,12 @@ class DynamicTopicModel(ABC):
         table = self._topics_over_time(top_k, show_scores, date_format)
         return export_table(table, format=format)
 
-    def plot_topics_over_time(self, top_k: int = 6):
+    def plot_topics_over_time(
+        self,
+        top_k: int = 6,
+        color_discrete_sequence: Optional[Iterable[str]] = None,
+        color_discrete_map: Optional[dict[str, str]] = None,
+    ):
         """Displays topics over time in the fitted dynamic model on a dynamic HTML figure.
 
         > You will need to `pip install plotly` to use this method.
@@ -282,6 +288,18 @@ class DynamicTopicModel(ABC):
         ----------
         top_k: int, default 6
             Number of top words per topic to display on the figure.
+        color_discrete_sequence: Iterable[str], default None
+            Color palette to use in the plot.
+            Example:
+
+            ```python
+            import plotly.express as px
+            model.plot_topics_over_time(color_discrete_sequence=px.colors.qualitative.Light24)
+            ```
+
+        color_discrete_map: dict[str, str], default None
+            Topic names mapped to the colors that should
+            be associated with them.
 
         Returns
         -------
@@ -296,6 +314,15 @@ class DynamicTopicModel(ABC):
             raise ModuleNotFoundError(
                 "Please install plotly if you intend to use plots in Turftopic."
             ) from e
+        if color_discrete_sequence is not None:
+            topic_colors = itertools.cycle(color_discrete_sequence)
+        elif color_discrete_map is not None:
+            topic_colors = [
+                color_discrete_map[topic_name]
+                for topic_name in self.topic_names
+            ]
+        else:
+            topic_colors = px.colors.qualitative.Dark24
         fig = go.Figure()
         vocab = self.get_vocab()
         n_topics = self.temporal_components_.shape[1]
@@ -303,7 +330,9 @@ class DynamicTopicModel(ABC):
             topic_names = self.topic_names
         except AttributeError:
             topic_names = [f"Topic {i}" for i in range(n_topics)]
-        for i_topic, topic_imp_t in enumerate(self.temporal_importance_.T):
+        for trace_color, (i_topic, topic_imp_t) in zip(
+            topic_colors, enumerate(self.temporal_importance_.T)
+        ):
             component_over_time = self.temporal_components_[:, i_topic, :]
             name_over_time = []
             for component in component_over_time:
@@ -326,6 +355,7 @@ class DynamicTopicModel(ABC):
                     marker=dict(
                         line=dict(width=2, color="black"),
                         size=14,
+                        color=trace_color,
                     ),
                     line=dict(width=3),
                 )
