@@ -9,6 +9,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from turftopic.base import ContextualModel, Encoder
+from turftopic.namers.base import TopicNamer
 from turftopic.vectorizer import default_vectorizer
 
 NOT_MATCHING_ERROR = (
@@ -143,6 +144,27 @@ class SemanticSignalSeparation(ContextualModel):
                 )
             console.log("Model fitting done.")
         return doc_topic
+
+    def _rename_automatic(self, namer: TopicNamer) -> list[str]:
+        """Names topics with a topic namer in the model.
+
+        Parameters
+        ----------
+        namer: TopicNamer
+            A Topic namer model to name topics with.
+
+        Returns
+        -------
+        list[str]
+            List of topic names.
+        """
+        positive_names = namer.name_topics(self._top_terms())
+        negative_names = namer.name_topics(self._top_terms(positive=False))
+        names = []
+        for positive, negative in zip(positive_names, negative_names):
+            names.append(f"{positive}/{negative}")
+        self.topic_names_ = names
+        return self.topic_names_
 
     def refit_transform(
         self,
