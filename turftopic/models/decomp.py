@@ -482,3 +482,57 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
         fig = fig.add_hline(y=0, line_color="black", line_width=4)
         fig = fig.add_vline(x=0, line_color="black", line_width=4)
         return fig
+
+    def plot_topics_over_time(self, top_k: int = 6):
+        try:
+            import plotly.graph_objects as go
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+        fig = go.Figure()
+        vocab = self.get_vocab()
+        n_topics = self.temporal_components_.shape[1]
+        try:
+            topic_names = self.topic_names
+        except AttributeError:
+            topic_names = [f"Topic {i}" for i in range(n_topics)]
+        for i_topic, topic_imp_t in enumerate(self.temporal_importance_.T):
+            component_over_time = self.temporal_components_[:, i_topic, :]
+            name_over_time = []
+            for component, importance in zip(component_over_time, topic_imp_t):
+                if importance > 0:
+                    top = np.argpartition(-component, top_k)[:top_k]
+                else:
+                    top = np.argpartition(component, top_k)[:top_k]
+                values = component[top]
+                if np.all(values == 0) or np.all(np.isnan(values)):
+                    name_over_time.append("<not present>")
+                    continue
+                top = top[np.argsort(-values)]
+                name_over_time.append(", ".join(vocab[top]))
+            times = self.time_bin_edges[:-1]
+            fig.add_trace(
+                go.Scatter(
+                    x=times,
+                    y=topic_imp_t,
+                    mode="markers+lines",
+                    text=name_over_time,
+                    name=topic_names[i_topic],
+                    hovertemplate="<b>%{text}</b>",
+                    marker=dict(
+                        line=dict(width=2, color="black"),
+                        size=14,
+                    ),
+                    line=dict(width=3),
+                )
+            )
+        fig.add_hline(y=0, line_dash="dash", opacity=0.5)
+        fig.update_layout(
+            template="plotly_white",
+            hoverlabel=dict(font_size=16, bgcolor="white"),
+            hovermode="x",
+        )
+        fig.update_xaxes(title="Time Slice Start")
+        fig.update_yaxes(title="Topic Importance")
+        return fig
