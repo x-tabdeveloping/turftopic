@@ -133,6 +133,29 @@ model.print_topic_distribution(
 
 </center>
 
+#### Automated Topic Naming
+
+Turftopic now allows you to automatically assign human readable names to topics using LLMs or n-gram retrieval!
+
+```python
+from turftopic import KeyNMF
+from turftopic.namers import OpenAITopicNamer
+
+model = KeyNMF(10).fit(corpus)
+
+namer = OpenAITopicNamer("gpt-4o-mini")
+model.rename_topics(namer)
+model.print_topics()
+```
+
+| Topic ID | Topic Name | Highest Ranking |
+| - | - | - |
+| 0 | Operating Systems and Software  | windows, dos, os, ms, microsoft, unix, nt, memory, program, apps |
+| 1 | Atheism and Belief Systems | atheism, atheist, atheists, belief, religion, religious, theists, beliefs, believe, faith |
+| 2 | Computer Architecture and Performance | motherboard, ram, memory, cpu, bios, isa, speed, 486, bus, performance |
+| 3 | Storage Technologies | disk, drive, scsi, drives, disks, floppy, ide, dos, controller, boot |
+| | ... |
+
 ### Visualization
 
 Turftopic does not come with built-in visualization utilities, [topicwizard](https://github.com/x-tabdeveloping/topicwizard), an interactive topic model visualization library, is compatible with all models from Turftopic.
