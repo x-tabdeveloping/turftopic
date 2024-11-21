@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, Optional, Union
 
 import numpy as np
@@ -5,14 +6,17 @@ from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
 from sklearn.decomposition import FastICA
+from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from turftopic.base import ContextualModel, Encoder
+from turftopic.dynamic import DynamicTopicModel
 from turftopic.vectorizer import default_vectorizer
 
 
-class SemanticSignalSeparation(ContextualModel):
+class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
     """Separates the embedding matrix into 'semantic signals' with
     component analysis methods.
     Topics are assumed to be dimensions of semantics.
@@ -95,6 +99,16 @@ class SemanticSignalSeparation(ContextualModel):
             self.components_ = (
                 np.square(self.axial_components_) * self.angular_components_
             )
+        if hasattr(self, "axial_temporal_components_"):
+            if feature_importance == "axial":
+                self.temporal_components_ = self.axial_temporal_components_
+            elif feature_importance == "angular":
+                self.temporal_components_ = self.angular_temporal_components_
+            elif feature_importance == "combined":
+                self.temporal_components_ = (
+                    np.square(self.axial_temporal_components_)
+                    * self.angular_temporal_components_
+                )
         return self.components_
 
     def fit_transform(
@@ -154,6 +168,7 @@ class SemanticSignalSeparation(ContextualModel):
         ndarray of shape (n_documents, n_topics)
             Document-topic matrix.
         """
+        self.n_components = n_components
         self.topic_names_ = None
         n_components = (
             n_components if n_components is not None else self.n_components
@@ -185,6 +200,86 @@ class SemanticSignalSeparation(ContextualModel):
             console.log("Model fitting done.")
         return doc_topic
 
+    def fit_transform_dynamic(
+        self,
+        raw_documents,
+        timestamps: list[datetime],
+        embeddings: Optional[np.ndarray] = None,
+        bins: Union[int, list[datetime]] = 10,
+    ) -> np.ndarray:
+        document_topic_matrix = self.fit_transform(
+            raw_documents, embeddings=embeddings
+        )
+        time_labels, self.time_bin_edges = self.bin_timestamps(
+            timestamps, bins
+        )
+        n_comp, n_vocab = self.components_.shape
+        n_bins = len(self.time_bin_edges) - 1
+        self.temporal_components_ = np.full(
+            (n_bins, n_comp, n_vocab),
+            np.nan,
+            dtype=self.components_.dtype,
+        )
+        self.temporal_importance_ = np.zeros((n_bins, n_comp))
+        whitened_embeddings = np.copy(self.embeddings)
+        if getattr(self.decomposition, "whiten"):
+            whitened_embeddings -= self.decomposition.mean_
+        # doc_topic = np.dot(X, self.components_.T)
+        for i_timebin in np.unique(time_labels):
+            topic_importances = document_topic_matrix[
+                time_labels == i_timebin
+            ].mean(axis=0)
+            self.temporal_importance_[i_timebin, :] = topic_importances
+            t_doc_topic = document_topic_matrix[time_labels == i_timebin]
+            t_embeddings = whitened_embeddings[time_labels == i_timebin]
+            linreg = LinearRegression().fit(t_embeddings, t_doc_topic)
+            self.axial_temporal_components_[i_timebin, :, :] = np.dot(
+                self.vocab_embeddings, linreg.coef_.T
+            ).T
+        return document_topic_matrix
+
+    def refit_transform_dynamic(
+        self,
+        timestamps: list[datetime],
+        bins: Union[int, list[datetime]] = 10,
+        n_components: Optional[int] = None,
+        max_iter: Optional[int] = None,
+        random_state: Optional[int] = None,
+    ):
+        """Refits $S^3$ to be a dynamic model."""
+        document_topic_matrix = self.refit_transform(
+            n_components=n_components,
+            max_iter=max_iter,
+            random_state=random_state,
+        )
+        time_labels, self.time_bin_edges = self.bin_timestamps(
+            timestamps, bins
+        )
+        n_comp, n_vocab = self.components_.shape
+        n_bins = len(self.time_bin_edges) - 1
+        self.temporal_components_ = np.full(
+            (n_bins, n_comp, n_vocab),
+            np.nan,
+            dtype=self.components_.dtype,
+        )
+        self.temporal_importance_ = np.zeros((n_bins, n_comp))
+        whitened_embeddings = np.copy(self.embeddings)
+        if getattr(self.decomposition, "whiten"):
+            whitened_embeddings -= self.decomposition.mean_
+        # doc_topic = np.dot(X, self.components_.T)
+        for i_timebin in np.unique(time_labels):
+            topic_importances = document_topic_matrix[
+                time_labels == i_timebin
+            ].mean(axis=0)
+            self.temporal_importance_[i_timebin, :] = topic_importances
+            t_doc_topic = document_topic_matrix[time_labels == i_timebin]
+            t_embeddings = whitened_embeddings[time_labels == i_timebin]
+            linreg = LinearRegression().fit(t_embeddings, t_doc_topic)
+            self.axial_temporal_components_[i_timebin, :, :] = np.dot(
+                self.vocab_embeddings, linreg.coef_.T
+            ).T
+        return document_topic_matrix
+
     def refit(
         self,
         n_components: Optional[int] = None,
@@ -215,11 +310,29 @@ class SemanticSignalSeparation(ContextualModel):
         """Reweights words based on their angle in ICA-space to the axis
         base vectors.
         """
+        if not hasattr(self, "axial_components_"):
+            raise NotFittedError("Model has not been fitted yet.")
         word_vectors = self.axial_components_.T
         n_topics = self.axial_components_.shape[0]
         axis_vectors = np.eye(n_topics)
         cosine_components = cosine_similarity(axis_vectors, word_vectors)
         return cosine_components
+
+    @property
+    def angular_temporal_components_(self):
+        """Reweights words based on their angle in ICA-space to the axis
+        base vectors in a dynamic model.
+        """
+        if not hasattr(self, "axial_temporal_components_"):
+            raise NotFittedError("Model has not been fitted dynamically.")
+        components = []
+        for axial_components in self.axial_temporal_components_:
+            word_vectors = axial_components.T
+            n_topics = axial_components.shape[0]
+            axis_vectors = np.eye(n_topics)
+            cosine_components = cosine_similarity(axis_vectors, word_vectors)
+            components.append(cosine_components)
+        return np.stack(components)
 
     def transform(
         self, raw_documents, embeddings: Optional[np.ndarray] = None
