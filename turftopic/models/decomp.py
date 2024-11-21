@@ -501,10 +501,9 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
             component_over_time = self.temporal_components_[:, i_topic, :]
             name_over_time = []
             for component, importance in zip(component_over_time, topic_imp_t):
-                if importance > 0:
-                    top = np.argpartition(-component, top_k)[:top_k]
-                else:
-                    top = np.argpartition(component, top_k)[:top_k]
+                if importance < 0:
+                    component = -component
+                top = np.argpartition(-component, top_k)[:top_k]
                 values = component[top]
                 if np.all(values == 0) or np.all(np.isnan(values)):
                     name_over_time.append("<not present>")
@@ -536,3 +535,57 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
         fig.update_xaxes(title="Time Slice Start")
         fig.update_yaxes(title="Topic Importance")
         return fig
+
+    def _topics_over_time(
+        self,
+        top_k: int = 5,
+        show_scores: bool = False,
+        date_format: str = "%Y %m %d",
+    ) -> list[list[str]]:
+        temporal_components = self.temporal_components_
+        slices = self.get_time_slices()
+        slice_names = []
+        for start_dt, end_dt in slices:
+            start_str = start_dt.strftime(date_format)
+            end_str = end_dt.strftime(date_format)
+            slice_names.append(f"{start_str} - {end_str}")
+        n_topics = self.temporal_components_.shape[1]
+        try:
+            topic_names = self.topic_names
+        except AttributeError:
+            topic_names = [f"Topic {i}" for i in range(n_topics)]
+        columns = []
+        rows = []
+        columns.append("Time Slice")
+        for topic in topic_names:
+            columns.append(topic)
+        for slice_name, components, weights in zip(
+            slice_names, temporal_components, self.temporal_importance_
+        ):
+            fields = []
+            fields.append(slice_name)
+            vocab = self.get_vocab()
+            for component, weight in zip(components, weights):
+                if np.all(component == 0) or np.all(np.isnan(component)):
+                    fields.append("Topic not present.")
+                    continue
+                if weight < 0:
+                    component = -component
+                top = np.argpartition(-component, top_k)[:top_k]
+                importance = component[top]
+                top = top[np.argsort(-importance)]
+                top = top[importance != 0]
+                scores = component[top]
+                words = vocab[top]
+                if show_scores:
+                    concat_words = ", ".join(
+                        [
+                            f"{word}({importance:.2f})"
+                            for word, importance in zip(words, scores)
+                        ]
+                    )
+                else:
+                    concat_words = ", ".join([word for word in words])
+                fields.append(concat_words)
+            rows.append(fields)
+        return [columns, *rows]
