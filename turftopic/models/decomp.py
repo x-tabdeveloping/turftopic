@@ -215,7 +215,7 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
         )
         n_comp, n_vocab = self.components_.shape
         n_bins = len(self.time_bin_edges) - 1
-        self.temporal_components_ = np.full(
+        self.axial_temporal_components_ = np.full(
             (n_bins, n_comp, n_vocab),
             np.nan,
             dtype=self.components_.dtype,
@@ -236,6 +236,7 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
             self.axial_temporal_components_[i_timebin, :, :] = np.dot(
                 self.vocab_embeddings, linreg.coef_.T
             ).T
+        self.estimate_components(self.feature_importance)
         return document_topic_matrix
 
     def refit_transform_dynamic(
@@ -257,7 +258,7 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
         )
         n_comp, n_vocab = self.components_.shape
         n_bins = len(self.time_bin_edges) - 1
-        self.temporal_components_ = np.full(
+        self.axial_temporal_components_ = np.full(
             (n_bins, n_comp, n_vocab),
             np.nan,
             dtype=self.components_.dtype,
@@ -278,6 +279,7 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
             self.axial_temporal_components_[i_timebin, :, :] = np.dot(
                 self.vocab_embeddings, linreg.coef_.T
             ).T
+        self.estimate_components(self.feature_importance)
         return document_topic_matrix
 
     def refit(
