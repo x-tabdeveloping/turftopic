@@ -13,7 +13,14 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
+from turftopic.namers.base import TopicNamer
 from turftopic.vectorizer import default_vectorizer
+
+NOT_MATCHING_ERROR = (
+    "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
+    + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
+    + "Try to initialize the model with the encoder you used for computing the embeddings."
+)
 
 
 class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
@@ -129,6 +136,13 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
             console.log("Term extraction done.")
             status.update("Encoding vocabulary")
             self.vocab_embeddings = self.encoder_.encode(vocab)
+            if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=self.embeddings.shape[1],
+                        n_word_dims=self.vocab_embeddings.shape[1],
+                    )
+                )
             console.log("Vocabulary encoded.")
             status.update("Estimating term importances")
             vocab_topic = self.decomposition.transform(self.vocab_embeddings)
@@ -144,6 +158,27 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
                 )
             console.log("Model fitting done.")
         return doc_topic
+
+    def _rename_automatic(self, namer: TopicNamer) -> list[str]:
+        """Names topics with a topic namer in the model.
+
+        Parameters
+        ----------
+        namer: TopicNamer
+            A Topic namer model to name topics with.
+
+        Returns
+        -------
+        list[str]
+            List of topic names.
+        """
+        positive_names = namer.name_topics(self._top_terms())
+        negative_names = namer.name_topics(self._top_terms(positive=False))
+        names = []
+        for positive, negative in zip(positive_names, negative_names):
+            names.append(f"{positive}/{negative}")
+        self.topic_names_ = names
+        return self.topic_names_
 
     def refit_transform(
         self,

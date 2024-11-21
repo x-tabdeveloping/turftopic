@@ -19,6 +19,7 @@ nav:
     - Autoencoding Models: ctm.md
     - FASTopic: FASTopic.md
   - Encoders: encoders.md
+  - Namers: namers.md
 theme:
   name: material
   logo: images/logo.svg
