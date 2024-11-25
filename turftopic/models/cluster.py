@@ -10,7 +10,7 @@ import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
-from sklearn.cluster import OPTICS, AgglomerativeClustering
+from sklearn.cluster import HDBSCAN, AgglomerativeClustering
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.manifold import TSNE
@@ -198,12 +198,18 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         else:
             self.vectorizer = vectorizer
         if clustering is None:
-            self.clustering = OPTICS(min_samples=25)
+            self.clustering = HDBSCAN(
+                min_samples=15,
+                min_cluster_size=25,
+            )
         else:
             self.clustering = clustering
         if dimensionality_reduction is None:
             self.dimensionality_reduction = TSNE(
-                n_components=2, metric="cosine", random_state=random_state
+                n_components=2,
+                metric="cosine",
+                perplexity=15,
+                random_state=random_state,
             )
         else:
             self.dimensionality_reduction = dimensionality_reduction
