@@ -199,7 +199,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.vectorizer = vectorizer
         if clustering is None:
             self.clustering = HDBSCAN(
-                min_samples=15,
+                min_samples=10,
                 min_cluster_size=25,
             )
         else:
