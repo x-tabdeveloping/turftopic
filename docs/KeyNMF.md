@@ -221,12 +221,12 @@ pip install plotly
 ```
 
 ```python
-model.plot_topics_over_time(top_k=5)
+model.plot_topics_over_time()
 ```
 
 <figure>
-  <img src="../images/dynamic_keynmf.png" width="50%" style="margin-left: auto;margin-right: auto;">
-  <figcaption>Topics over time on a Figure</figcaption>
+  <iframe src="../images/dynamic_keynmf.html", title="Topics over time", style="height:800px;width:1000px;padding:0px;border:none;"></iframe>
+  <figcaption> Topics over time in a Dynamic KeyNMF model. </figcaption>
 </figure>
 
 ### Online Topic Modeling

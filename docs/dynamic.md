@@ -11,6 +11,7 @@ In Turftopic you can currently use three different topic models for modeling top
 1. [ClusteringTopicModel](clustering.md), where an overall model is fitted on the whole corpus, and then term importances are estimated over time slices.
 2. [GMM](GMM.md), similarly to clustering models, term importances are reestimated per time slice
 3. [KeyNMF](KeyNMF.md), an overall decomposition is done, then using coordinate descent, topic-term-matrices are recalculated based on document-topic importances in the given time slice.
+4. [SemanticSignalSeparation](s3.md), a global model is fitted and then local models are inferred using linear regression from embeddings and document-topic signals in a given time-slice.
 
 ## Usage
 
@@ -18,7 +19,7 @@ Dynamic topic models in Turftopic have a unified interface.
 To fit a dynamic topic model you will need a corpus, that has been annotated with timestamps.
 The timestamps need to be Python `datetime` objects, but pandas `Timestamp` object are also supported.
 
-Models that have dynamic modeling capabilities (`KeyNMF`, `GMM` and `ClusteringTopicModel`) have a `fit_transform_dynamic()` method, that fits the model on the corpus over time.
+Models that have dynamic modeling capabilities (`KeyNMF`, `GMM`, `SemanticSignalSeparation` and `ClusteringTopicModel`) have a `fit_transform_dynamic()` method, that fits the model on the corpus over time.
 
 ```python
 from datetime import datetime
@@ -69,12 +70,12 @@ pip install plotly
 ```
 
 ```python
-model.plot_topics_over_time(top_k=5)
+model.plot_topics_over_time()
 ```
 
 <figure>
-  <img src="../images/dynamic_keynmf.png" width="80%" style="margin-left: auto;margin-right: auto;">
-  <figcaption>Topics over time on a Figure</figcaption>
+  <iframe src="../images/dynamic_keynmf.html", title="Topics over time", style="height:800px;width:1000px;padding:0px;border:none;"></iframe>
+  <figcaption> Topics over time in a Dynamic KeyNMF model. </figcaption>
 </figure>
 
 ## API reference

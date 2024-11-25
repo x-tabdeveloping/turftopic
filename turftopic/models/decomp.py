@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, Optional, Union
 
 import numpy as np
@@ -5,10 +6,13 @@ from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
 from sklearn.decomposition import FastICA
+from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from turftopic.base import ContextualModel, Encoder
+from turftopic.dynamic import DynamicTopicModel
 from turftopic.namers.base import TopicNamer
 from turftopic.vectorizer import default_vectorizer
 
@@ -19,7 +23,7 @@ NOT_MATCHING_ERROR = (
 )
 
 
-class SemanticSignalSeparation(ContextualModel):
+class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
     """Separates the embedding matrix into 'semantic signals' with
     component analysis methods.
     Topics are assumed to be dimensions of semantics.
@@ -102,6 +106,16 @@ class SemanticSignalSeparation(ContextualModel):
             self.components_ = (
                 np.square(self.axial_components_) * self.angular_components_
             )
+        if hasattr(self, "axial_temporal_components_"):
+            if feature_importance == "axial":
+                self.temporal_components_ = self.axial_temporal_components_
+            elif feature_importance == "angular":
+                self.temporal_components_ = self.angular_temporal_components_
+            elif feature_importance == "combined":
+                self.temporal_components_ = (
+                    np.square(self.axial_temporal_components_)
+                    * self.angular_temporal_components_
+                )
         return self.components_
 
     def fit_transform(
@@ -189,6 +203,7 @@ class SemanticSignalSeparation(ContextualModel):
         ndarray of shape (n_documents, n_topics)
             Document-topic matrix.
         """
+        self.n_components = n_components
         self.topic_names_ = None
         n_components = (
             n_components if n_components is not None else self.n_components
@@ -220,6 +235,88 @@ class SemanticSignalSeparation(ContextualModel):
             console.log("Model fitting done.")
         return doc_topic
 
+    def fit_transform_dynamic(
+        self,
+        raw_documents,
+        timestamps: list[datetime],
+        embeddings: Optional[np.ndarray] = None,
+        bins: Union[int, list[datetime]] = 10,
+    ) -> np.ndarray:
+        document_topic_matrix = self.fit_transform(
+            raw_documents, embeddings=embeddings
+        )
+        time_labels, self.time_bin_edges = self.bin_timestamps(
+            timestamps, bins
+        )
+        n_comp, n_vocab = self.components_.shape
+        n_bins = len(self.time_bin_edges) - 1
+        self.axial_temporal_components_ = np.full(
+            (n_bins, n_comp, n_vocab),
+            np.nan,
+            dtype=self.components_.dtype,
+        )
+        self.temporal_importance_ = np.zeros((n_bins, n_comp))
+        whitened_embeddings = np.copy(self.embeddings)
+        if getattr(self.decomposition, "whiten"):
+            whitened_embeddings -= self.decomposition.mean_
+        # doc_topic = np.dot(X, self.components_.T)
+        for i_timebin in np.unique(time_labels):
+            topic_importances = document_topic_matrix[
+                time_labels == i_timebin
+            ].mean(axis=0)
+            self.temporal_importance_[i_timebin, :] = topic_importances
+            t_doc_topic = document_topic_matrix[time_labels == i_timebin]
+            t_embeddings = whitened_embeddings[time_labels == i_timebin]
+            linreg = LinearRegression().fit(t_embeddings, t_doc_topic)
+            self.axial_temporal_components_[i_timebin, :, :] = np.dot(
+                self.vocab_embeddings, linreg.coef_.T
+            ).T
+        self.estimate_components(self.feature_importance)
+        return document_topic_matrix
+
+    def refit_transform_dynamic(
+        self,
+        timestamps: list[datetime],
+        bins: Union[int, list[datetime]] = 10,
+        n_components: Optional[int] = None,
+        max_iter: Optional[int] = None,
+        random_state: Optional[int] = None,
+    ):
+        """Refits $S^3$ to be a dynamic model."""
+        document_topic_matrix = self.refit_transform(
+            n_components=n_components,
+            max_iter=max_iter,
+            random_state=random_state,
+        )
+        time_labels, self.time_bin_edges = self.bin_timestamps(
+            timestamps, bins
+        )
+        n_comp, n_vocab = self.components_.shape
+        n_bins = len(self.time_bin_edges) - 1
+        self.axial_temporal_components_ = np.full(
+            (n_bins, n_comp, n_vocab),
+            np.nan,
+            dtype=self.components_.dtype,
+        )
+        self.temporal_importance_ = np.zeros((n_bins, n_comp))
+        whitened_embeddings = np.copy(self.embeddings)
+        if getattr(self.decomposition, "whiten"):
+            whitened_embeddings -= self.decomposition.mean_
+        # doc_topic = np.dot(X, self.components_.T)
+        for i_timebin in np.unique(time_labels):
+            topic_importances = document_topic_matrix[
+                time_labels == i_timebin
+            ].mean(axis=0)
+            self.temporal_importance_[i_timebin, :] = topic_importances
+            t_doc_topic = document_topic_matrix[time_labels == i_timebin]
+            t_embeddings = whitened_embeddings[time_labels == i_timebin]
+            linreg = LinearRegression().fit(t_embeddings, t_doc_topic)
+            self.axial_temporal_components_[i_timebin, :, :] = np.dot(
+                self.vocab_embeddings, linreg.coef_.T
+            ).T
+        self.estimate_components(self.feature_importance)
+        return document_topic_matrix
+
     def refit(
         self,
         n_components: Optional[int] = None,
@@ -250,11 +347,29 @@ class SemanticSignalSeparation(ContextualModel):
         """Reweights words based on their angle in ICA-space to the axis
         base vectors.
         """
+        if not hasattr(self, "axial_components_"):
+            raise NotFittedError("Model has not been fitted yet.")
         word_vectors = self.axial_components_.T
         n_topics = self.axial_components_.shape[0]
         axis_vectors = np.eye(n_topics)
         cosine_components = cosine_similarity(axis_vectors, word_vectors)
         return cosine_components
+
+    @property
+    def angular_temporal_components_(self):
+        """Reweights words based on their angle in ICA-space to the axis
+        base vectors in a dynamic model.
+        """
+        if not hasattr(self, "axial_temporal_components_"):
+            raise NotFittedError("Model has not been fitted dynamically.")
+        components = []
+        for axial_components in self.axial_temporal_components_:
+            word_vectors = axial_components.T
+            n_topics = axial_components.shape[0]
+            axis_vectors = np.eye(n_topics)
+            cosine_components = cosine_similarity(axis_vectors, word_vectors)
+            components.append(cosine_components)
+        return np.stack(components)
 
     def transform(
         self, raw_documents, embeddings: Optional[np.ndarray] = None
@@ -402,3 +517,110 @@ class SemanticSignalSeparation(ContextualModel):
         fig = fig.add_hline(y=0, line_color="black", line_width=4)
         fig = fig.add_vline(x=0, line_color="black", line_width=4)
         return fig
+
+    def plot_topics_over_time(self, top_k: int = 6):
+        try:
+            import plotly.graph_objects as go
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+        fig = go.Figure()
+        vocab = self.get_vocab()
+        n_topics = self.temporal_components_.shape[1]
+        try:
+            topic_names = self.topic_names
+        except AttributeError:
+            topic_names = [f"Topic {i}" for i in range(n_topics)]
+        for i_topic, topic_imp_t in enumerate(self.temporal_importance_.T):
+            component_over_time = self.temporal_components_[:, i_topic, :]
+            name_over_time = []
+            for component, importance in zip(component_over_time, topic_imp_t):
+                if importance < 0:
+                    component = -component
+                top = np.argpartition(-component, top_k)[:top_k]
+                values = component[top]
+                if np.all(values == 0) or np.all(np.isnan(values)):
+                    name_over_time.append("<not present>")
+                    continue
+                top = top[np.argsort(-values)]
+                name_over_time.append(", ".join(vocab[top]))
+            times = self.time_bin_edges[:-1]
+            fig.add_trace(
+                go.Scatter(
+                    x=times,
+                    y=topic_imp_t,
+                    mode="markers+lines",
+                    text=name_over_time,
+                    name=topic_names[i_topic],
+                    hovertemplate="<b>%{text}</b>",
+                    marker=dict(
+                        line=dict(width=2, color="black"),
+                        size=14,
+                    ),
+                    line=dict(width=3),
+                )
+            )
+        fig.add_hline(y=0, line_dash="dash", opacity=0.5)
+        fig.update_layout(
+            template="plotly_white",
+            hoverlabel=dict(font_size=16, bgcolor="white"),
+            hovermode="x",
+        )
+        fig.update_xaxes(title="Time Slice Start")
+        fig.update_yaxes(title="Topic Importance")
+        return fig
+
+    def _topics_over_time(
+        self,
+        top_k: int = 5,
+        show_scores: bool = False,
+        date_format: str = "%Y %m %d",
+    ) -> list[list[str]]:
+        temporal_components = self.temporal_components_
+        slices = self.get_time_slices()
+        slice_names = []
+        for start_dt, end_dt in slices:
+            start_str = start_dt.strftime(date_format)
+            end_str = end_dt.strftime(date_format)
+            slice_names.append(f"{start_str} - {end_str}")
+        n_topics = self.temporal_components_.shape[1]
+        try:
+            topic_names = self.topic_names
+        except AttributeError:
+            topic_names = [f"Topic {i}" for i in range(n_topics)]
+        columns = []
+        rows = []
+        columns.append("Time Slice")
+        for topic in topic_names:
+            columns.append(topic)
+        for slice_name, components, weights in zip(
+            slice_names, temporal_components, self.temporal_importance_
+        ):
+            fields = []
+            fields.append(slice_name)
+            vocab = self.get_vocab()
+            for component, weight in zip(components, weights):
+                if np.all(component == 0) or np.all(np.isnan(component)):
+                    fields.append("Topic not present.")
+                    continue
+                if weight < 0:
+                    component = -component
+                top = np.argpartition(-component, top_k)[:top_k]
+                importance = component[top]
+                top = top[np.argsort(-importance)]
+                top = top[importance != 0]
+                scores = component[top]
+                words = vocab[top]
+                if show_scores:
+                    concat_words = ", ".join(
+                        [
+                            f"{word}({importance:.2f})"
+                            for word, importance in zip(words, scores)
+                        ]
+                    )
+                else:
+                    concat_words = ", ".join([word for word in words])
+                fields.append(concat_words)
+            rows.append(fields)
+        return [columns, *rows]

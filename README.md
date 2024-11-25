@@ -20,30 +20,20 @@
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-### New in version 0.8.0
+### New in version 0.9.0
 
-#### Automated Topic Naming
+#### Dynamic S³ 🧭
 
-Turftopic now allows you to automatically assign human readable names to topics using LLMs or n-gram retrieval!
-
+You can now use Semantic Signal Separation in a dynamic fashion.
+This allows you to investigate how semantic axes fluctuate over time, and how their content changes.
 ```python
-from turftopic import KeyNMF
-from turftopic.namers import OpenAITopicNamer
+from turftopic import SemanticSignalSeparation
 
-model = KeyNMF(10).fit(corpus)
+model = SemanticSignalSeparation(10).fit_dynamic(corpus, timestamps=ts, bins=10)
 
-namer = OpenAITopicNamer("gpt-4o-mini")
-model.rename_topics(namer)
-model.print_topics()
+model.plot_topics_over_time()
 ```
 
-| Topic ID | Topic Name | Highest Ranking |
-| - | - | - |
-| 0 | Operating Systems and Software  | windows, dos, os, ms, microsoft, unix, nt, memory, program, apps |
-| 1 | Atheism and Belief Systems | atheism, atheist, atheists, belief, religion, religious, theists, beliefs, believe, faith |
-| 2 | Computer Architecture and Performance | motherboard, ram, memory, cpu, bios, isa, speed, 486, bus, performance |
-| 3 | Storage Technologies | disk, drive, scsi, drives, disks, floppy, ide, dos, controller, boot |
-| | ... |
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
@@ -142,6 +132,29 @@ model.print_topic_distribution(
 | 11_graphics_software_program_3d           |  0.00 |
 
 </center>
+
+#### Automated Topic Naming
+
+Turftopic now allows you to automatically assign human readable names to topics using LLMs or n-gram retrieval!
+
+```python
+from turftopic import KeyNMF
+from turftopic.namers import OpenAITopicNamer
+
+model = KeyNMF(10).fit(corpus)
+
+namer = OpenAITopicNamer("gpt-4o-mini")
+model.rename_topics(namer)
+model.print_topics()
+```
+
+| Topic ID | Topic Name | Highest Ranking |
+| - | - | - |
+| 0 | Operating Systems and Software  | windows, dos, os, ms, microsoft, unix, nt, memory, program, apps |
+| 1 | Atheism and Belief Systems | atheism, atheist, atheists, belief, religion, religious, theists, beliefs, believe, faith |
+| 2 | Computer Architecture and Performance | motherboard, ram, memory, cpu, bios, isa, speed, 486, bus, performance |
+| 3 | Storage Technologies | disk, drive, scsi, drives, disks, floppy, ide, dos, controller, boot |
+| | ... |
 
 ### Visualization
 
