@@ -174,6 +174,33 @@ To reset topics to the original clustering, use the `reset_topics()` method:
 model.reset_topics()
 ```
 
+### Visualization
+
+You can interactively explore clusters using `datamapplot` directly in Turftopic!
+You will first have to install `datamapplot` for this to work.
+
+```python
+from turftopic import ClusteringTopicModel
+from turftopic.namers import OpenAITopicNamer
+
+model = ClusteringTopicModel(feature_importance="centroid").fit(corpus)
+
+namer = OpenAITopicNamer("gpt-4o-mini")
+model.rename_topics(namer)
+
+fig = model.plot_clusters_datamapplot()
+fig.save("clusters_visualization.html")
+fig
+```
+!!! info
+    If you are not running Turftopic from a Jupyter notebook, make sure to call `fig.show()`. This will open up a new browser tab with the interactive figure.
+
+<figure>
+  <iframe src="../images/cluster_datamapplot.html", title="Cluster visualization", style="height:800px;width:800px;padding:0px;border:none;"></iframe>
+  <figcaption> Interactive figure to explore cluster structure in a clustering topic model. </figcaption>
+</figure>
+
+
 ### Manual Topic Merging
 
 You can also manually merge topics using the `join_topics()` method.

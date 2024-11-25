@@ -20,6 +20,31 @@
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
+### New in version 0.10.0
+
+You can interactively explore clusters using `datamapplot` directly in Turftopic!
+You will first have to install `datamapplot` for this to work.
+
+```python
+from turftopic import ClusteringTopicModel
+from turftopic.namers import OpenAITopicNamer
+
+model = ClusteringTopicModel(feature_importance="centroid").fit(corpus)
+
+namer = OpenAITopicNamer("gpt-4o-mini")
+model.rename_topics(namer)
+
+fig = model.plot_clusters_datamapplot()
+fig.save("clusters_visualization.html")
+fig
+```
+> If you are not running Turftopic from a Jupyter notebook, make sure to call `fig.show()`. This will open up a new browser tab with the interactive figure.
+
+<figure>
+  <img src="docs/images/cluster_datamapplot.png" width="70%" style="margin-left: auto;margin-right: auto;">
+  <figcaption>Interactive figure to explore cluster structure in a clustering topic model.</figcaption>
+</figure>
+
 ### New in version 0.9.0
 
 #### Dynamic S³ 🧭
