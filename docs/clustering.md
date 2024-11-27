@@ -18,13 +18,20 @@ that the other libraries boast.
 from sklearn.manifold import TSNE
 from turftopic import ClusteringTopicModel
 
-model = ClusteringTopicModel(clustering=TSNE())
+model = ClusteringTopicModel(dimensionality_reduction=TSNE())
 ```
 
 It is common practice to reduce the dimensionality of the embeddings before clustering them.
 This is to avoid the curse of dimensionality, an issue, which many clustering models are affected by.
-Dimensionality reduction by default is done with scikit-learn's **TSNE** implementation in Turftopic,
+Dimensionality reduction by default is done with **TSNE** in Turftopic,
 but users are free to specify the model that will be used for dimensionality reduction.
+
+!!! tip "Use openTSNE for better performance!"
+    By default, a scikit-learn implementation is used, but if you have the openTSNE package installed on your system, Turftopic will automatically use it.
+    You can potentially speed up your clustering topic models by multiple orders of magnitude.
+    ```bash
+    pip install opentsne
+    ```
 
 ??? note "What reduction model should I choose?"
     Our knowledge about the impacts of choice of dimensionality reduction is limited, and has not yet been explored in the literature.
@@ -33,14 +40,14 @@ but users are free to specify the model that will be used for dimensionality red
 ### Clustering
 
 ```python
-from sklearn.cluster import OPTICS
+from sklearn.cluster import HDBSCAN
 from turftopic import ClusteringTopicModel
 
-model = ClusteringTopicModel(clustering=OPTICS())
+model = ClusteringTopicModel(clustering=HDBSCAN())
 ```
 
 After reducing the dimensionality of the embeddings, they are clustered with a clustering model.
-As HDBSCAN  has only been part of scikit-learn since version 1.3.0, Turftopic uses **OPTICS** as its default.
+Turftopic uses **HDBSCAN** as its default.
 
 ??? note "What clustering model should I choose?"
     Some clustering models are capable of discovering the number of clusters in the data (HDBSCAN, DBSCAN, OPTICS, etc.).
