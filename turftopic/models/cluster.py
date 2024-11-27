@@ -13,7 +13,6 @@ from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.cluster import HDBSCAN, AgglomerativeClustering
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import cosine_distances
 from sklearn.preprocessing import label_binarize, scale
 
@@ -97,6 +96,24 @@ def calculate_topic_vectors(
         centroids.append(centroid)
     centroids = np.stack(centroids)
     return centroids
+
+
+def build_tsne(*args, **kwargs):
+    try:
+        from openTSNE import TSNE
+
+        model = TSNE(*args, **kwargs)
+        model.fit_transform = model.fit
+        return model
+    except ModuleNotFoundError:
+        from sklearn.manifold import TSNE
+
+        warnings.warn(
+            """OpenTSNE is not installed, default scikit-learn implementation will be used.
+        Your model could potentially run orders of magnitudes faster by installing openTSNE.
+        """
+        )
+        return TSNE(*args, **kwargs)
 
 
 class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
@@ -205,7 +222,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         else:
             self.clustering = clustering
         if dimensionality_reduction is None:
-            self.dimensionality_reduction = TSNE(
+            self.dimensionality_reduction = build_tsne(
                 n_components=2,
                 metric="cosine",
                 perplexity=15,
