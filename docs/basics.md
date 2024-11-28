@@ -284,8 +284,12 @@ model.print_topics()
 
 #### Datamapplot *(clustering models only)*
 
-You can interactively explore clusters using `datamapplot` directly in Turftopic!
-You will first have to install `datamapplot` for this to work.
+You can interactively explore clusters using [datamapplot](https://github.com/TutteInstitute/datamapplot) directly in Turftopic!
+You will first have to install `datamapplot` for this to work:
+
+```bash
+pip install turftopic[datamapplot]
+```
 
 ```python
 from turftopic import ClusteringTopicModel
@@ -307,7 +311,6 @@ fig
   <iframe src="../images/cluster_datamapplot.html", title="Cluster visualization", style="height:800px;width:800px;padding:0px;border:none;"></iframe>
   <figcaption> Interactive figure to explore cluster structure in a clustering topic model. </figcaption>
 </figure>
-
 
 
 #### topicwizard
