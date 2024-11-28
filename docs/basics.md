@@ -312,7 +312,7 @@ fig
 
 #### topicwizard
 
-Turftopic does not come with built-in visualization utilities, [topicwizard](https://github.com/x-tabdeveloping/topicwizard), a package for interactive topic model interpretation is fully compatible with Turftopic models.
+Turftopic integrates with [topicwizard](https://github.com/x-tabdeveloping/topicwizard), a package for interactive topic visualization.
 
 ```bash
 pip install topic-wizard
