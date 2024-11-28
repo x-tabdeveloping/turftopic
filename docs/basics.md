@@ -282,7 +282,40 @@ model.print_topics()
 
 ### Visualization
 
-Turftopic does not come with built-in visualization utilities, [topicwizard](https://github.com/x-tabdeveloping/topicwizard), a package for interactive topic model interpretation is fully compatible with Turftopic models.
+#### Datamapplot *(clustering models only)*
+
+You can interactively explore clusters using [datamapplot](https://github.com/TutteInstitute/datamapplot) directly in Turftopic!
+You will first have to install `datamapplot` for this to work:
+
+```bash
+pip install turftopic[datamapplot]
+```
+
+```python
+from turftopic import ClusteringTopicModel
+from turftopic.namers import OpenAITopicNamer
+
+model = ClusteringTopicModel(feature_importance="centroid").fit(corpus)
+
+namer = OpenAITopicNamer("gpt-4o-mini")
+model.rename_topics(namer)
+
+fig = model.plot_clusters_datamapplot()
+fig.save("clusters_visualization.html")
+fig
+```
+!!! info
+    If you are not running Turftopic from a Jupyter notebook, make sure to call `fig.show()`. This will open up a new browser tab with the interactive figure.
+
+<figure>
+  <iframe src="../images/cluster_datamapplot.html", title="Cluster visualization", style="height:800px;width:800px;padding:0px;border:none;"></iframe>
+  <figcaption> Interactive figure to explore cluster structure in a clustering topic model. </figcaption>
+</figure>
+
+
+#### topicwizard
+
+Turftopic integrates with [topicwizard](https://github.com/x-tabdeveloping/topicwizard), a package for interactive topic visualization.
 
 ```bash
 pip install topic-wizard

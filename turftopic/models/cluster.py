@@ -1,17 +1,20 @@
+import tempfile
+import time
 import warnings
+import webbrowser
 from datetime import datetime
+from pathlib import Path
 from typing import Literal, Optional, Union
 
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
-from sklearn.cluster import OPTICS, AgglomerativeClustering
+from sklearn.cluster import HDBSCAN, AgglomerativeClustering
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import cosine_distances
-from sklearn.preprocessing import label_binarize
+from sklearn.preprocessing import label_binarize, scale
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
@@ -93,6 +96,24 @@ def calculate_topic_vectors(
         centroids.append(centroid)
     centroids = np.stack(centroids)
     return centroids
+
+
+def build_tsne(*args, **kwargs):
+    try:
+        from openTSNE import TSNE
+
+        model = TSNE(*args, **kwargs)
+        model.fit_transform = model.fit
+        return model
+    except ModuleNotFoundError:
+        from sklearn.manifold import TSNE
+
+        warnings.warn(
+            """OpenTSNE is not installed, default scikit-learn implementation will be used.
+        Your model could potentially run orders of magnitudes faster by installing openTSNE.
+        """
+        )
+        return TSNE(*args, **kwargs)
 
 
 class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
@@ -194,12 +215,18 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         else:
             self.vectorizer = vectorizer
         if clustering is None:
-            self.clustering = OPTICS(min_samples=25)
+            self.clustering = HDBSCAN(
+                min_samples=10,
+                min_cluster_size=25,
+            )
         else:
             self.clustering = clustering
         if dimensionality_reduction is None:
-            self.dimensionality_reduction = TSNE(
-                n_components=2, metric="cosine", random_state=random_state
+            self.dimensionality_reduction = build_tsne(
+                n_components=2,
+                metric="cosine",
+                perplexity=15,
+                random_state=random_state,
             )
         else:
             self.dimensionality_reduction = dimensionality_reduction
@@ -288,6 +315,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         """
         if not hasattr(self, "original_labels_"):
             self.original_labels_ = self.labels_
+            self.original_names_ = self.topic_names
+            self.original_classes_ = self.classes_
         if reduction_method == "smallest":
             self.labels_ = self._merge_smallest(n_reduce_to)
         elif reduction_method == "agglomerative":
@@ -313,6 +342,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         new_topic = topic_ids[0]
         new_labels = []
         self.original_labels_ = self.labels_
+        self.original_names_ = self.topic_names
+        self.original_classes_ = self.classes_
         for label in self.labels_:
             if label in topic_ids:
                 new_labels.append(new_topic)
@@ -327,6 +358,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             warnings.warn("Topics have never been reduced, nothing to reset.")
         else:
             self.labels_ = self.original_labels_
+            self.topic_names_ = self.original_names_
             self.estimate_components(self.feature_importance)
 
     def estimate_components(
@@ -430,12 +462,12 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
             status.update("Reducing Dimensionality")
-            reduced_embeddings = self.dimensionality_reduction.fit_transform(
-                embeddings
+            self.reduced_embeddings = (
+                self.dimensionality_reduction.fit_transform(embeddings)
             )
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
-            self.labels_ = self.clustering.fit_predict(reduced_embeddings)
+            self.labels_ = self.clustering.fit_predict(self.reduced_embeddings)
             console.log("Clustering done.")
             status.update("Estimating parameters.")
             self.estimate_components(self.feature_importance)
@@ -569,3 +601,40 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             time_labels, self.time_bin_edges, self.feature_importance
         )
         return doc_topic_matrix
+
+    @staticmethod
+    def _labels_to_indices(labels, classes):
+        n_classes = len(classes)
+        class_to_index = dict(zip(classes, np.arange(n_classes)))
+        return np.array([class_to_index[label] for label in labels])
+
+    def plot_clusters_datamapplot(
+        self, dimensions: tuple[int, int] = (0, 1), *args, **kwargs
+    ):
+        try:
+            import datamapplot
+        except ModuleNotFoundError as e:
+            raise ModuleNotFoundError(
+                "You need to install datamapplot to be able to use plot_clusters_datamapplot()."
+            ) from e
+        coordinates = self.reduced_embeddings[:, dimensions]
+        coordinates = scale(coordinates) * 4
+        indices = self._labels_to_indices(self.labels_, self.classes_)
+        labels = np.array(self.topic_names)[indices]
+        if -1 in self.classes_:
+            i_outlier = np.where(self.classes_ == -1)[0][0]
+            kwargs["noise_label"] = self.topic_names[i_outlier]
+        plot = datamapplot.create_interactive_plot(
+            coordinates, labels, *args, **kwargs
+        )
+
+        def show_fig():
+            with tempfile.TemporaryDirectory() as temp_dir:
+                file_name = Path(temp_dir).joinpath("fig.html")
+                plot.save(file_name)
+                webbrowser.open("file://" + str(file_name.absolute()), new=2)
+                time.sleep(2)
+
+        plot.show = show_fig
+        plot.write_html = plot.save
+        return plot

@@ -18,29 +18,36 @@ that the other libraries boast.
 from sklearn.manifold import TSNE
 from turftopic import ClusteringTopicModel
 
-model = ClusteringTopicModel(clustering=TSNE())
+model = ClusteringTopicModel(dimensionality_reduction=TSNE())
 ```
 
 It is common practice to reduce the dimensionality of the embeddings before clustering them.
 This is to avoid the curse of dimensionality, an issue, which many clustering models are affected by.
-Dimensionality reduction by default is done with scikit-learn's **TSNE** implementation in Turftopic,
+Dimensionality reduction by default is done with [**TSNE**](https://scikit-learn.org/stable/modules/manifold.html#t-distributed-stochastic-neighbor-embedding-t-sne) in Turftopic,
 but users are free to specify the model that will be used for dimensionality reduction.
+
+!!! tip "Use openTSNE for better performance!"
+    By default, a scikit-learn implementation is used, but if you have the [openTSNE](https://github.com/pavlin-policar/openTSNE) package installed on your system, Turftopic will automatically use it.
+    You can potentially speed up your clustering topic models by multiple orders of magnitude.
+    ```bash
+    pip install turftopic[opentsne]
+    ```
 
 ??? note "What reduction model should I choose?"
     Our knowledge about the impacts of choice of dimensionality reduction is limited, and has not yet been explored in the literature.
-    Top2Vec and BERTopic both use UMAP, which has a number of desirable properties over alternatives (arranging data points into cluster-like structures, better preservation of global structure than TSNE, speed).
+    Top2Vec and BERTopic both use [UMAP](https://umap-learn.readthedocs.io/en/latest/basic_usage.html), which has a number of desirable properties over alternatives (arranging data points into cluster-like structures, better preservation of global structure than TSNE, speed).
 
 ### Clustering
 
 ```python
-from sklearn.cluster import OPTICS
+from sklearn.cluster import HDBSCAN
 from turftopic import ClusteringTopicModel
 
-model = ClusteringTopicModel(clustering=OPTICS())
+model = ClusteringTopicModel(clustering=HDBSCAN())
 ```
 
 After reducing the dimensionality of the embeddings, they are clustered with a clustering model.
-As HDBSCAN  has only been part of scikit-learn since version 1.3.0, Turftopic uses **OPTICS** as its default.
+Turftopic uses [**HDBSCAN**](https://scikit-learn.org/stable/modules/clustering.html#hdbscan) as its default.
 
 ??? note "What clustering model should I choose?"
     Some clustering models are capable of discovering the number of clusters in the data (HDBSCAN, DBSCAN, OPTICS, etc.).
@@ -173,6 +180,37 @@ To reset topics to the original clustering, use the `reset_topics()` method:
 ```python
 model.reset_topics()
 ```
+
+### Visualization
+
+You can interactively explore clusters using [datamapplot](https://github.com/TutteInstitute/datamapplot) directly in Turftopic!
+You will first have to install `datamapplot` for this to work:
+
+```bash
+pip install turftopic[datamapplot]
+```
+
+```python
+from turftopic import ClusteringTopicModel
+from turftopic.namers import OpenAITopicNamer
+
+model = ClusteringTopicModel(feature_importance="centroid").fit(corpus)
+
+namer = OpenAITopicNamer("gpt-4o-mini")
+model.rename_topics(namer)
+
+fig = model.plot_clusters_datamapplot()
+fig.save("clusters_visualization.html")
+fig
+```
+!!! info
+    If you are not running Turftopic from a Jupyter notebook, make sure to call `fig.show()`. This will open up a new browser tab with the interactive figure.
+
+<figure>
+  <iframe src="../images/cluster_datamapplot.html", title="Cluster visualization", style="height:800px;width:800px;padding:0px;border:none;"></iframe>
+  <figcaption> Interactive figure to explore cluster structure in a clustering topic model. </figcaption>
+</figure>
+
 
 ### Manual Topic Merging
 
