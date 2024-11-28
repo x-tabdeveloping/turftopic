@@ -29,7 +29,8 @@ You will first have to install `datamapplot` for this to work.
 from turftopic import ClusteringTopicModel
 from turftopic.namers import OpenAITopicNamer
 
-model = ClusteringTopicModel(feature_importance="centroid").fit(corpus)
+model = ClusteringTopicModel(feature_importance="centroid")
+model.fit(corpus)
 
 namer = OpenAITopicNamer("gpt-4o-mini")
 model.rename_topics(namer)
