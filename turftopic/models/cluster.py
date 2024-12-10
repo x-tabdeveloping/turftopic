@@ -20,7 +20,7 @@ from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import (bayes_rule,
                                           cluster_centroid_distance, ctf_idf,
-                                          soft_ctf_idf)
+                                          fighting_words, soft_ctf_idf)
 from turftopic.vectorizer import default_vectorizer
 
 integer_message = """
@@ -39,7 +39,7 @@ ClusteringTopicModel(n_reduce_to=10)
 """
 
 feature_message = """
-feature_importance must be one of 'soft-c-tf-idf', 'c-tf-idf', 'centroid'
+feature_importance must be one of 'soft-c-tf-idf', 'c-tf-idf', 'centroid', 'fighting_words'
 """
 
 NOT_MATCHING_ERROR = (
@@ -152,14 +152,14 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         Clustering method to use for finding topics.
         Defaults to OPTICS with 25 minimum cluster size.
         To imitate the behavior of BERTopic or Top2Vec you should use HDBSCAN.
-    feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
+    feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'fighting-words', 'centroid'}, default 'soft-c-tf-idf'
         Method for estimating term importances.
         'centroid' uses distances from cluster centroid similarly
         to Top2Vec.
         'c-tf-idf' uses BERTopic's c-tf-idf.
         'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
         be very similar to 'c-tf-idf'.
-        'bayes' uses Bayes' rule.
+        'fighting-words', uses the fighting-words algorithm (a Bayesian probabilistic model).
     n_reduce_to: int, default None
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
@@ -188,6 +188,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             "soft-c-tf-idf",
             "centroid",
             "bayes",
+            "fighting-words",
         ] = "soft-c-tf-idf",
         n_reduce_to: Optional[int] = None,
         reduction_method: Literal[
@@ -202,6 +203,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             "soft-c-tf-idf",
             "centroid",
             "bayes",
+            "fighting-words",
         ]:
             raise ValueError(feature_message)
         if isinstance(encoder, int):
@@ -364,21 +366,21 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
     def estimate_components(
         self,
         feature_importance: Literal[
-            "centroid", "soft-c-tf-idf", "bayes", "c-tf-idf"
+            "centroid", "soft-c-tf-idf", "bayes", "c-tf-idf", "fighting-words"
         ],
     ) -> np.ndarray:
         """Estimates feature importances based on a fitted clustering.
 
         Parameters
         ----------
-        feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
+        feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid', 'fighting-words'}, default 'soft-c-tf-idf'
             Method for estimating term importances.
             'centroid' uses distances from cluster centroid similarly
             to Top2Vec.
             'c-tf-idf' uses BERTopic's c-tf-idf.
             'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
             be very similar to 'c-tf-idf'.
-            'bayes' uses Bayes' rule.
+            'fighting-words', uses the fighting-words algorithm (a Bayesian probabilistic model).
 
         Returns
         -------
@@ -424,6 +426,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             )
         elif feature_importance == "bayes":
             self.components_ = bayes_rule(
+                document_topic_matrix, self.doc_term_matrix
+            )
+        elif feature_importance == "fighting-words":
+            self.components_ = fighting_words(
                 document_topic_matrix, self.doc_term_matrix
             )
         else:
@@ -554,6 +560,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 )
             elif feature_importance == "bayes":
                 self.temporal_components_[i_timebin] = bayes_rule(
+                    t_doc_topic, t_dtm
+                )
+            elif feature_importance == "fighting-words":
+                self.temporal_components_[i_timebin] = fighting_words(
                     t_doc_topic, t_dtm
                 )
             elif feature_importance == "centroid":
