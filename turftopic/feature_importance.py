@@ -1,6 +1,11 @@
+from __future__ import annotations
+
+from typing import Literal
+
 import numpy as np
 import scipy.sparse as spr
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import scale
 
 
 def cluster_centroid_distance(
@@ -126,3 +131,89 @@ def bayes_rule(
     p_tw = (p_wt.T * p_t).T / p_w
     p_tw /= np.nansum(p_tw, axis=0)
     return p_tw
+
+
+def fighting_words(
+    doc_topic_matrix: np.ndarray,
+    doc_term_matrix: spr.csr_matrix,
+    prior: float | Literal["corpus"] = "corpus",
+) -> np.ndarray:
+    """Computes feature importance using the *Fighting Words* algorithm.
+
+    Parameters
+    ----------
+    doc_topic_matrix: np.ndarray
+        Document-topic matrix of shape (n_documents, n_topics)
+    doc_term_matrix: np.ndarray
+        Document-term matrix of shape (n_documents, vocab_size)
+    prior: float or "corpus", default "corpus"
+        Dirichlet prior to use. When a float, it indicates the alpha
+        parameter of a symmetric Dirichlet, if "corpus",
+        word frequencies from the background corpus are used.
+    Returns
+    -------
+    ndarray of shape (n_topics, vocab_size)
+        Term importance matrix.
+    """
+    labels = np.argmax(doc_topic_matrix, axis=1)
+    n_topics = doc_topic_matrix.shape[1]
+    n_vocab = doc_term_matrix.shape[1]
+    components = []
+    if prior == "corpus":
+        priors = np.ravel(np.asarray(doc_term_matrix.sum(axis=0)))
+    else:
+        priors = np.full(n_vocab, prior)
+    a0 = np.sum(priors)  # prior * n_vocab
+    for i_topic in range(n_topics):
+        topic_freq = np.ravel(
+            np.asarray(doc_term_matrix[labels == i_topic].sum(axis=0))
+        )
+        rest_freq = np.ravel(
+            np.asarray(doc_term_matrix[labels != i_topic].sum(axis=0))
+        )
+        n1 = np.sum(topic_freq)
+        n2 = np.sum(rest_freq)
+        topic_logodds = np.log(
+            (topic_freq + priors) / (n1 + a0 - topic_freq - priors)
+        )
+        rest_logodds = np.log(
+            (rest_freq + priors) / (n2 + a0 - rest_freq - priors)
+        )
+        delta = topic_logodds - rest_logodds
+        delta_var = 1 / (topic_freq + priors) + 1 / (rest_freq + priors)
+        zscore = delta / np.sqrt(delta_var)
+        components.append(zscore)
+    return np.stack(components)
+
+
+def semantic_difference(
+    doc_topic_matrix: np.ndarray,
+    embeddings: np.ndarray,
+    vocab_embeddings: np.ndarray,
+) -> np.ndarray:
+    """Computes feature importances based on semantic differences
+    between one group and the rest.
+
+    Parameters
+    ----------
+    doc_topic_matrix: np.ndarray
+        Document-topic matrix of shape (n_documents, n_topics)
+    embeddings: np.ndarray
+        Document embeddingsof shape (n_documents, embedding_size).
+    vocab_embeddings: np.ndarray
+        Term embeddings of shape (vocab_size, embedding_size)
+
+    Returns
+    -------
+    ndarray of shape (n_topics, vocab_size)
+        Term importance matrix.
+    """
+    labels = np.argmax(doc_topic_matrix, axis=1)
+    unique_labels = np.sort(np.unique(labels))
+    components = []
+    for label in unique_labels:
+        mean_diff = np.mean(embeddings[label == labels], axis=0) - np.mean(
+            embeddings[label != labels], axis=0
+        )
+        components.append(np.dot(vocab_embeddings, mean_diff))
+    return scale(np.stack(components), axis=1)
