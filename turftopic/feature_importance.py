@@ -5,6 +5,7 @@ from typing import Literal
 import numpy as np
 import scipy.sparse as spr
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import scale
 
 
 def cluster_centroid_distance(
@@ -183,3 +184,36 @@ def fighting_words(
         zscore = delta / np.sqrt(delta_var)
         components.append(zscore)
     return np.stack(components)
+
+
+def semantic_difference(
+    doc_topic_matrix: np.ndarray,
+    embeddings: np.ndarray,
+    vocab_embeddings: np.ndarray,
+) -> np.ndarray:
+    """Computes feature importances based on semantic differences
+    between one group and the rest.
+
+    Parameters
+    ----------
+    doc_topic_matrix: np.ndarray
+        Document-topic matrix of shape (n_documents, n_topics)
+    embeddings: np.ndarray
+        Document embeddingsof shape (n_documents, embedding_size).
+    vocab_embeddings: np.ndarray
+        Term embeddings of shape (vocab_size, embedding_size)
+
+    Returns
+    -------
+    ndarray of shape (n_topics, vocab_size)
+        Term importance matrix.
+    """
+    labels = np.argmax(doc_topic_matrix, axis=1)
+    unique_labels = np.sort(np.unique(labels))
+    components = []
+    for label in unique_labels:
+        mean_diff = np.mean(embeddings[label == labels], axis=0) - np.mean(
+            embeddings[label != labels], axis=0
+        )
+        components.append(np.dot(vocab_embeddings, mean_diff))
+    return scale(np.stack(components), axis=1)
