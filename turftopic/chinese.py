@@ -8,7 +8,7 @@ try:
     import jieba
 except ModuleNotFoundError as e:
     raise ModuleNotFoundError(
-        "Jieba is not installed on your machine, please pip install jieba before using Chinese models in Turftopic."
+        "Jieba is not installed on your machine, please run `pip install turftopic[jieba]` before using Chinese models in Turftopic."
     ) from e
 
 
