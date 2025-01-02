@@ -1,6 +1,6 @@
 import warnings
 from datetime import datetime
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 import scipy.sparse as spr
@@ -47,6 +47,8 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         Number of keywords to extract for each document.
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
+    metric: "cosine" or "dot", default "cosine"
+        Similarity metric to use for keyword extraction.
     """
 
     def __init__(
@@ -58,10 +60,12 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         vectorizer: Optional[CountVectorizer] = None,
         top_n: int = 25,
         random_state: Optional[int] = None,
+        metric: Literal["cosine", "dot"] = "cosine",
     ):
         self.random_state = random_state
         self.n_components = n_components
         self.top_n = top_n
+        self.metric = metric
         self.encoder = encoder
         self._has_custom_vectorizer = vectorizer is not None
         if isinstance(encoder, str):
@@ -76,7 +80,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             n_components=n_components, seed=random_state, top_n=self.top_n
         )
         self.extractor = SBertKeywordExtractor(
-            top_n=self.top_n, vectorizer=self.vectorizer, encoder=self.encoder_
+            top_n=self.top_n,
+            vectorizer=self.vectorizer,
+            encoder=self.encoder_,
+            metric=self.metric,
         )
 
     def extract_keywords(
