@@ -13,7 +13,7 @@ except ModuleNotFoundError as e:
 
 
 def tokenize_zh(text: str):
-    # Remove nonalpha characters
+    # Remove nonalphanumeric characters
     text = re.sub(r"\W*", "", text)
     # Tokenize text
     tokens = jieba.lcut(text)
@@ -1105,7 +1105,6 @@ class ChineseCountVectorizer(CountVectorizer):
         if stop_words == "chinese":
             stop_words = chinese_stop_words
         super().__init__(
-            self,
             input=input,
             encoding=encoding,
             decode_error=decode_error,
