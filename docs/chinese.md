@@ -5,10 +5,16 @@ To offset for the complexity introduced by this, we include a submodule in Turft
 
 There are two steps in the topic modeling pipeline that need to be altered in order for models to be usable with Chinese.
 
+
 ## Tokenization
 
 Turftopic uses the [jieba](https://github.com/fxsjy/jieba) tokenizer for tokenizing Chinese text.
 We include a Chinese version of `CountVectorizer` that uses Jieba by default, and has an optionally applicable Chinese stop word list.
+
+You will have to install `jieba` for this to work:
+```bash
+pip install turftopic[jieba]
+```
 
 ```python
 from turftopic.chinese import ChineseCountVectorizer
