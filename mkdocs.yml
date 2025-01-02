@@ -10,6 +10,7 @@ nav:
     - Hierarchical Topic Modeling: hierarchical.md
     - Modifying and Finetuning Models: finetuning.md
     - Saving and Loading Models: persistence.md
+    - Chinese Topic Modeling: chinese.md
   - Models:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md
