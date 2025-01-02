@@ -20,7 +20,32 @@
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-### New in version 0.10.0
+## New in version 0.11.0: Chinese Topic Modeling :cn:
+
+You can now readily apply Turftopic models to Chinese topic modeling thanks to newly added utilities.
+
+```bash
+pip install turftopic[jieba]
+```
+
+```python
+from turftopic import KeyNMF
+from turftopic.chinese import default_chinese_vectorizer
+
+model = KeyNMF(10, vectorizer=default_chinese_vectorizer(), encoder="BAAI/bge-small-zh-v1.5")
+model.fit(corpus)
+
+model.print_topics()
+```
+| Topic ID | Highest Ranking |
+| - | - |
+| 0 | 消息, 时间, 科技, 媒体报道, 美国, 据, 国外, 讯, 宣布, 称 |
+| 1 | 体育讯, 新浪, 球员, 球队, 赛季, 火箭, nba, 已经, 主场, 时间 |
+| 2 | 记者, 本报讯, 昨日, 获悉, 新华网, 基金, 通讯员, 采访, 男子, 昨天 |
+| 3 | 股, 下跌, 上涨, 震荡, 板块, 大盘, 股指, 涨幅, 沪, 反弹 |
+| | ... |
+
+### New in version 0.10.0: Datamapplot cluster visualization
 
 You can interactively explore clusters using `datamapplot` directly in Turftopic!
 You will first have to install `datamapplot` for this to work.
@@ -45,20 +70,6 @@ fig
   <img src="docs/images/cluster_datamapplot.png" width="70%" style="margin-left: auto;margin-right: auto;">
   <figcaption>Interactive figure to explore cluster structure in a clustering topic model.</figcaption>
 </figure>
-
-### New in version 0.9.0
-
-#### Dynamic S³ 🧭
-
-You can now use Semantic Signal Separation in a dynamic fashion.
-This allows you to investigate how semantic axes fluctuate over time, and how their content changes.
-```python
-from turftopic import SemanticSignalSeparation
-
-model = SemanticSignalSeparation(10).fit_dynamic(corpus, timestamps=ts, bins=10)
-
-model.plot_topics_over_time()
-```
 
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
