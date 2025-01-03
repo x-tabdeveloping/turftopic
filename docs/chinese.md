@@ -3,8 +3,27 @@
 Topic modeling in Chinese is a substantially different endeavour from doing it in Indo-European languages, such as English.
 To offset for the complexity introduced by this, we include a submodule in Turftopic for Chinese topic modeling.
 
-There are two steps in the topic modeling pipeline that need to be altered in order for models to be usable with Chinese.
+We will need to alter both the vectorizer and the encoder model in our topic model.
 
+## Data
+
+For this demonstration I will use the ThuNews corpus from the Chinese MTEB.
+You will need to install `datasets` to be able to download the dataset.
+
+```python
+import itertools
+import random
+
+from datasets import load_dataset
+
+# Loads the dataset
+ds = load_dataset("C-MTEB/ThuNewsClusteringP2P", split="test")
+# Wrangles the dataset from a list of lists to a single list
+corpus = list(itertools.chain.from_iterable(ds["sentences"]))
+# Subsampling the corpus so that the script runs faster
+random.seed(42)
+corpus = random.sample(corpus, 10000)
+```
 
 ## Tokenization
 
