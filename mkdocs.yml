@@ -12,6 +12,7 @@ nav:
     - Saving and Loading Models: persistence.md
   - Tutorials:
     - Topic Modeling in Chinese: chinese.md
+    - Keyphrase-based Topic Modeling: keyphrase.md
   - Models:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md
