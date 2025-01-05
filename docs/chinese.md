@@ -36,7 +36,7 @@ pip install turftopic[jieba]
 ```
 
 ```python
-from turftopic.chinese import ChineseCountVectorizer
+from turftopic.vectorizers.chinese import ChineseCountVectorizer
 
 vectorizer = ChineseCountVectorizer(min_df=10, stop_words="chinese")
 ```
