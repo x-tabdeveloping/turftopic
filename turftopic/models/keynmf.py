@@ -16,7 +16,7 @@ from turftopic.dynamic import DynamicTopicModel
 from turftopic.hierarchical import TopicNode
 from turftopic.models._keynmf import KeywordNMF, SBertKeywordExtractor
 from turftopic.models.wnmf import weighted_nmf
-from turftopic.vectorizer import default_vectorizer
+from turftopic.vectorizers.default import default_vectorizer
 
 
 class KeyNMF(ContextualModel, DynamicTopicModel):
