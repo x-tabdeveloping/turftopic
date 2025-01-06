@@ -14,7 +14,13 @@ except ModuleNotFoundError as e:
 
 
 class NounPhraseCountVectorizer(CountVectorizer):
-    """Extracts Noun phrases from text using SpaCy."""
+    """Extracts Noun phrases from text using SpaCy.
+
+    Parameters
+    ----------
+    nlp: spacy.Language or str, default "en_core_web_sm"
+        A Spacy pipeline or its name.
+    """
 
     def __init__(
         self,
@@ -81,7 +87,13 @@ class NounPhraseCountVectorizer(CountVectorizer):
 
 
 class LemmaCountVectorizer(CountVectorizer):
-    """Extracts lemmata from text using SpaCy."""
+    """Extracts lemmata from text using SpaCy.
+
+    Parameters
+    ----------
+    nlp: spacy.Language or str, default "en_core_web_sm"
+        A Spacy pipeline or its name.
+    """
 
     def __init__(
         self,
