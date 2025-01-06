@@ -1,4 +1,3 @@
-import itertools
 import re
 from typing import Union
 
@@ -10,7 +9,7 @@ try:
     from spacy.language import Language
 except ModuleNotFoundError as e:
     raise ModuleNotFoundError(
-        "Jieba is not installed on your machine, please run `pip install turftopic[jieba]` before using Chinese models in Turftopic."
+        "SpaCy is not installed on your machine, please run `pip install turftopic[spacy]` before using SpaCy tokenizers."
     ) from e
 
 
