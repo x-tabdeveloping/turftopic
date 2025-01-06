@@ -10,9 +10,6 @@ nav:
     - Hierarchical Topic Modeling: hierarchical.md
     - Modifying and Finetuning Models: finetuning.md
     - Saving and Loading Models: persistence.md
-  - Tutorials:
-    - Topic Modeling in Chinese: chinese.md
-    - Keyphrase-based Topic Modeling: keyphrase.md
   - Models:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md
@@ -22,6 +19,7 @@ nav:
     - Autoencoding Models: ctm.md
     - FASTopic: FASTopic.md
   - Encoders: encoders.md
+  - Vectorizers: vectorizers.md
   - Namers: namers.md
 theme:
   name: material
