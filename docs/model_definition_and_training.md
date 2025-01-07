@@ -1,52 +1,143 @@
 # Defining and Training Topic Models
 
-To get started using Turftopic you will need to load and fit a topic model.
-This page provides more in-depth information on how to do these.
+In order to start modeling your corpora, you will need to define a topic model.
+There are a wide array of available models in Turftopic that all have their unique behaviour.
+On the other hand all models will need to have certain components, and have attributes you can adjust to your needs.
+This page provides a guide on how to define models, train them, and use them for inference.
+
+<figure>
+  <img src="../images/topic_modeling_pipeline.png" width="800px" style="margin-left: auto;margin-right: auto;">
+  <figcaption>Components of a Topic Modeling Pipeline</figcaption>
+</figure>
+
+
+## Defining a Model
+
+### 1. [Topic Model](../models.md)
+ In order to initialize a model, you will first need to make a choice about which **topic model** you'd like to use.
+You might want to have a look at the [Models](models.md) page in order to make an informed choice about the topic model you intend to train.
+
+Here are some examples of models you can load and use in the package:
+
+<table>
+<tr>
+<td> Model </td> <td> Example Definition </td>
+</tr>
+<tr>
+<td>
+
+<a href="https://x-tabdeveloping.github.io/turftopic/KeyNMF/">KeyNMF</a>
+
+</td>
+<td>
 
 ```python
 from turftopic import KeyNMF
 
-model = KeyNMF(20).fit(corpus)
+model = KeyNMF(n_components=10, top_n=15)
 ```
 
-## Important Attributes
+</td>
+</tr>
+<tr>
+<td>
 
-In Turftopic all models have a vectorizer and an encoder component, which you can specify when initializing a model.
+<a href="https://x-tabdeveloping.github.io/turftopic/clustering/">ClusteringTopicModel</a>
 
-1. The __vectorizer__ is used to turn documents into Bag-of-Words representations and learning the vocabulary. The default used in the package is sklearn's `CountVectorizer`.
-1. The __encoder__ is used to encode documents, and optionally the vocabulary into contextual representations. This will most frequently be a Sentence Transformer. The default in Turftopic is `all-MiniLM-L6-v2`, a very lightweight English model.
+</td>
+<td>
 
-You can use any of the built-in encoders in Turftopic to encode your documents, or any sentence transformer from the HuggingFace Hub.
-This allows you to use embeddings of different quality and computational efficiency for different purposes.
+```python
+from turftopic import ClusteringTopicModel
 
-Here's a model that uses E5 large as the embedding model, and only learns words that occur in at least 20 documents.
+model = ClusteringTopicModel(n_reduce_to=10, feature_importance="centroid")
+```
+
+</td>
+</tr>
+<tr>
+<td>
+
+<a href="https://x-tabdeveloping.github.io/turftopic/s3/">SemanticSignalSeparation</a>
+
+</td>
+<td>
 
 ```python
 from turftopic import SemanticSignalSeparation
-from sklearn.feature_extraction.text import CountVectorizer
 
-model = SemanticSignalSeparation(10, encoder="all-MiniLM-L6-v2", vectorizer=CountVectorizer(min_df=20))
+model = SemanticSignalSeparation(n_components=10, feature_importance="combined")
 ```
 
-You can also use external models for encoding, here's an example with [OpenAI's embedding models](encoders.md#external_embeddings):
+</td>
+</tr>
+</table>
+
+### 2. [Vectorizer](../vectorizers.md)
+
+In Turftopic, all Models have a vectorizer component, which is responsible for extracting word content from documents in the corpus.
+This means, that a vectorizer also determines which words will be part of the model's vocabulary.
+For a more detailed explanation, see the [Vectorizers](../vectorizers.md) page
+
+The default is scikit-learn's CountVectorizer:
 
 ```python
-from turftopic import GMM
-from turftopic.encoders import OpenAIEmbeddings
-
-model = GMM(10, encoder=OpenAIEmbeddings("text-embedding-3-large"))
-```
-
-If you intend to, you can also use n-grams as features instead of words:
-
-```python
-from turftopic import GMM
 from sklearn.feature_extraction.text import CountVectorizer
 
-model = GMM(10, vectorizer=CountVectorizer(ngram_range=(2,4)))
+default_vectorizer = CountVectorizer(min_df=10, stop_words="english")
 ```
 
-## Fitting Models
+You can add a custom vectorizer to a topic model upon initializing it,
+thereby getting different behaviours. You can for instance use noun-phrases in your model instead of words by using NounPhraseCountVectorizer:
+
+```bash
+pip install turftopic[spacy]
+python -m spacy download "en_core_web_sm"
+```
+
+```python
+from turftopic import KeyNMF
+from turftopic.vectorizers.spacy import NounPhraseCountVectorizer
+
+model = KeyNMF(10, vectorizer=NounPhraseCountVectorizer())
+```
+
+### 3. [Encoder](../encoders.md)
+
+Since all models in Turftopic rely on contextual embeddings, you will need to specify a contextual embedding model to use.
+The default is [`all-MiniLM-L6-v2`](sentence-transformers/all-MiniLM-L6-v2), which is a very fast and reasonably performant embedding model for English.
+You might, however want to use custom embeddings, either because your corpus is not in English, or because you need higher speed or performance.
+See a detailed guide on Encoders [here](../encoders.md).
+
+Similar to a vectorizer, you can add an encoder to a topic model upon initializing it.
+
+```python
+from turftopic import KeyNMF
+from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer("parahprase-multilingual-MiniLM-L12-v2")
+model = KeyNMF(10, encoder=encoder)
+```
+
+### 4. [Namer](../namers.md) (*optional*)
+
+A Namer is an optional part of your topic modeling pipeline, that can automatically assign human-readable names to topics.
+Namers are technically **not part of your topic model**, and should be used *after training*.
+See a detailed guide [here](../namers.md).
+
+```python
+from turftopic import KeyNMF
+from turftopic.namers import LLMTopicNamer
+
+model = KeyNMF(10).fit(corpus)
+namer = LLMTopicNamer("HuggingFaceTB/SmolLM2-1.7B-Instruct")
+
+model.rename_topics(namer)
+```
+
+## Training and Inference
+
+### Model Training
 
 All models in Turftopic have a `fit()` method, that takes a textual corpus in the form of an iterable of strings.
 
@@ -58,68 +149,7 @@ corpus: list[str] = ["this is a a document", "this is yet another document", ...
 model.fit(corpus)
 ```
 
-## Prompting Embedding Models
-
-Some embedding models can be used together with prompting, or encode queries and passages differently.
-This can significantly influence performance, especially in the case of models that are based on retrieval ([KeyNMF](KeyNMF.md)) or clustering ([ClusteringTopicModel](clustering.md)).
-Microsoft's E5 models are, for instance all prompted by default, and it would be detrimental to performance not to do so yourself.
-
-In these cases, you're better off NOT passing a string to Turftopic models, but explicitly loading the model using `sentence-transformers`.
-
-Here's an example for clustering models:
-```python
-from turftopic import ClusteringTopicModel
-from sentence_transformers import SentenceTransformer
-
-encoder = SentenceTransformer(
-    "intfloat/multilingual-e5-large-instruct",
-    prompts={
-        "query": "Instruct: Cluster documents according to the topic they are about. Query: "
-        "passage": "Passage: "
-    },
-    # Make sure to set default prompt to query!
-    default_prompt_name="query",
-)
-model = ClusteringTopicModel(encoder=encoder)
-```
-
-You can also use instruct models for keyword retrieval with KeyNMF.
-In this case, documents will serve as the queries and words as the passages:
-
-```python
-from turftopic import KeyNMF
-from sentence_transformers import SentenceTransformer
-
-encoder = SentenceTransformer(
-    "intfloat/multilingual-e5-large-instruct",
-    prompts={
-        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
-        "passage": "Passage: "
-    },
-    # Make sure to set default prompt to query!
-    default_prompt_name="query",
-)
-model = KeyNMF(10, encoder=encoder)
-```
-
-When using KeyNMF with E5, make sure to specify the prompts even if you're not using instruct models:
-
-```python
-encoder = SentenceTransformer(
-    "intfloat/e5-large-v2",
-    prompts={
-        "query": "query: "
-        "passage": "passage: "
-    },
-    # Make sure to set default prompt to query!
-    default_prompt_name="query",
-)
-model = KeyNMF(10, encoder=encoder)
-```
-
-Setting the default prompt to `query` is especially important, when you are precomputing embeddings, as `query` should always be your default prompt to embed documents with.
-
-## Precomputing Embeddings
+### Precomputing Embeddings
 
 In order to cut down on costs/computational load when fitting multiple models in a row, you might want to encode the documents before fitting a model.
 Encoding the corpus is the heaviest part of the process and you can spare yourself a lot of time by only doing it once.
@@ -147,9 +177,15 @@ gmm = GMM(10, encoder=encoder).fit(corpus, embeddings=embeddings)
 clustering = ClusteringTopicModel(encoder=encoder).fit(corpus, embeddings=embeddings)
 ```
 
-## Inference
+### Inference
 
+Some models in Turftopic are capable of estimating topic importance scores for documents in your corpus.
 In order to get the importance of each topic for the documents in the corpus, you might want to use `fit_transform()` instead of `fit()`
+
+!!! warning
+    Note that using `fit()` and `transform()` in succession is not the same as using `fit_transform()` and the later should be preferred under all circumstances.
+    For one, not all models have a `transform()` method, but `fit_transform()` is also way more efficient, as documents don't have to be encoded twice.
+    Some models have additional optimizations going on when using `fit_transform()`, and the `fit()` method typically uses `fit_transform()` in the background.
 
 ```python
 document_topic_matrix = model.fit_transform(corpus)
@@ -163,9 +199,6 @@ You can infer topical content for new documents with a fitted model using the `t
 document_topic_matrix = model.transform(new_documents, embeddings=None)
 ```
 
- > Note that using `fit()` and `transform()` in succession is not the same as using `fit_transform()` and the later should be preferred under all circumstances.
- > For one, not all models have a `transform()` method, but `fit_transform()` is also way more efficient, as documents don't have to be encoded twice.
- > Some models have additional optimizations going on when using `fit_transform()`, and the `fit()` method typically uses `fit_transform()` in the background.
 
 
 
