@@ -101,3 +101,18 @@ model.print_topics()
 | 18 | 3, 10, 4, 5, 日电, 6, 2, 后, 发生, 7 |
 | 19 | 目前, 元, 笔记本, 产品, 一款, 售价, 液晶电视, 价格, 处理器, 推出 |
 
+
+#### Reference
+
+Kristensen-McLachlan, R. D., Hicke, R. M. M., Kardos, M., & Thunø, M. (2024, October 16). Context is Key(NMF): *Modelling Topical Information Dynamics in Chinese Diaspora Media.* arXiv.org. https://arxiv.org/abs/2410.12791
+```bibtex
+@misc{kristensenmclachlan2024contextkeynmfmodellingtopical,
+      title={Context is Key(NMF): Modelling Topical Information Dynamics in Chinese Diaspora Media}, 
+      author={Ross Deans Kristensen-McLachlan and Rebecca M. M. Hicke and Márton Kardos and Mette Thunø},
+      year={2024},
+      eprint={2410.12791},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2410.12791}, 
+}
+```
