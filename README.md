@@ -53,7 +53,11 @@ Turftopic now also comes with a Chinese vectorizer for easier use.
 from turftopic import KeyNMF
 from turftopic.vectorizers.chinese import default_chinese_vectorizer
 
-model = KeyNMF(10, vectorizer=default_chinese_vectorizer(), encoder="BAAI/bge-small-zh-v1.5")
+model = KeyNMF(
+    n_components=10,
+    vectorizer=default_chinese_vectorizer(),
+    encoder="BAAI/bge-small-zh-v1.5"
+)
 model.fit(corpus)
 
 model.print_topics()
