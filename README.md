@@ -16,21 +16,42 @@
  - Streamlined scikit-learn compatible API 🛠️
  - Easy topic interpretation 🔍
  - Automated topic naming with LLMs
+ - Topic modeling with keyphrases :key:
+ - Lemmatization and Stemming
  - Visualization with [topicwizard](https://github.com/x-tabdeveloping/topicwizard) 🖌️
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-## New in version 0.11.0: Chinese Topic Modeling :cn:
+## New in version 0.11.0: Vectorizers Module
 
-You can now readily apply Turftopic models to Chinese topic modeling thanks to newly added utilities.
-
-```bash
-pip install turftopic[jieba]
-```
+You can now use a set of custom vectorizers for topic modeling over **phrases**, as well as **lemmata** and **stems**.
 
 ```python
 from turftopic import KeyNMF
-from turftopic.chinese import default_chinese_vectorizer
+from turftopic.vectorizers.spacy import NounPhraseCountVectorizer
+
+model = KeyNMF(
+    n_components=10,
+    vectorizer=NounPhraseCountVectorizer("en_core_web_sm"),
+)
+model.fit(corpus)
+model.print_topics()
+```
+
+| Topic ID | Highest Ranking |
+| - | - |
+| 0 | atheists, atheism, atheist, belief, beliefs, theists, faith, gods, christians, abortion |
+| 1 | alt atheism, usenet alt atheism resources, usenet alt atheism introduction, alt atheism faq, newsgroup alt atheism, atheism faq resource txt, alt atheism groups, atheism, atheism faq intro txt, atheist resources |
+| 2 | religion, christianity, faith, beliefs, religions, christian, belief, science, cult, justification |
+| 3 | fanaticism, theism, fanatism, all fanatism, theists, strong theism, strong atheism, fanatics, precisely some theists, all theism |
+| 4 | religion foundation darwin fish bumper stickers, darwin fish, atheism, 3d plastic fish, fish symbol, atheist books, atheist organizations, negative atheism, positive atheism, atheism index |
+| | ... |
+
+Turftopic now also comes with a Chinese vectorizer for easier use.
+
+```python
+from turftopic import KeyNMF
+from turftopic.vectorizers.chinese import default_chinese_vectorizer
 
 model = KeyNMF(10, vectorizer=default_chinese_vectorizer(), encoder="BAAI/bge-small-zh-v1.5")
 model.fit(corpus)
@@ -44,32 +65,6 @@ model.print_topics()
 | 2 | 记者, 本报讯, 昨日, 获悉, 新华网, 基金, 通讯员, 采访, 男子, 昨天 |
 | 3 | 股, 下跌, 上涨, 震荡, 板块, 大盘, 股指, 涨幅, 沪, 反弹 |
 | | ... |
-
-### New in version 0.10.0: Datamapplot cluster visualization
-
-You can interactively explore clusters using `datamapplot` directly in Turftopic!
-You will first have to install `datamapplot` for this to work.
-
-```python
-from turftopic import ClusteringTopicModel
-from turftopic.namers import OpenAITopicNamer
-
-model = ClusteringTopicModel(feature_importance="centroid")
-model.fit(corpus)
-
-namer = OpenAITopicNamer("gpt-4o-mini")
-model.rename_topics(namer)
-
-fig = model.plot_clusters_datamapplot()
-fig.save("clusters_visualization.html")
-fig
-```
-> If you are not running Turftopic from a Jupyter notebook, make sure to call `fig.show()`. This will open up a new browser tab with the interactive figure.
-
-<figure>
-  <img src="docs/images/cluster_datamapplot.png" width="70%" style="margin-left: auto;margin-right: auto;">
-  <figcaption>Interactive figure to explore cluster structure in a clustering topic model.</figcaption>
-</figure>
 
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
