@@ -40,35 +40,23 @@ model.print_topics()
 
 | Topic ID | Highest Ranking |
 | - | - |
-| 0 | atheists, atheism, atheist, belief, beliefs, theists, faith, gods, christians, abortion |
-| 1 | alt atheism, usenet alt atheism resources, usenet alt atheism introduction, alt atheism faq, newsgroup alt atheism, atheism faq resource txt, alt atheism groups, atheism, atheism faq intro txt, atheist resources |
-| 2 | religion, christianity, faith, beliefs, religions, christian, belief, science, cult, justification |
+| | ... |
 | 3 | fanaticism, theism, fanatism, all fanatism, theists, strong theism, strong atheism, fanatics, precisely some theists, all theism |
 | 4 | religion foundation darwin fish bumper stickers, darwin fish, atheism, 3d plastic fish, fish symbol, atheist books, atheist organizations, negative atheism, positive atheism, atheism index |
 | | ... |
 
-Turftopic now also comes with a Chinese vectorizer for easier use.
+Turftopic now also comes with a **Chinese vectorizer** for easier use, as well as a generalist **multilingual vectorizer**.
 
 ```python
-from turftopic import KeyNMF
 from turftopic.vectorizers.chinese import default_chinese_vectorizer
+from turftopic.vectorizers.spacy import TokenCountVectorizer
 
-model = KeyNMF(
-    n_components=10,
-    vectorizer=default_chinese_vectorizer(),
-    encoder="BAAI/bge-small-zh-v1.5"
-)
-model.fit(corpus)
+chinese_vectorizer = default_chinese_vectorizer()
+arabic_vectorizer = TokenCountVectorizer("ar", remove_stopwords=True)
+danish_vectorizer = TokenCountVectorizer("da", remove_stopwords=True)
+...
 
-model.print_topics()
 ```
-| Topic ID | Highest Ranking |
-| - | - |
-| 0 | 消息, 时间, 科技, 媒体报道, 美国, 据, 国外, 讯, 宣布, 称 |
-| 1 | 体育讯, 新浪, 球员, 球队, 赛季, 火箭, nba, 已经, 主场, 时间 |
-| 2 | 记者, 本报讯, 昨日, 获悉, 新华网, 基金, 通讯员, 采访, 男子, 昨天 |
-| 3 | 股, 下跌, 上涨, 震荡, 板块, 大盘, 股指, 涨幅, 沪, 反弹 |
-| | ... |
 
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
