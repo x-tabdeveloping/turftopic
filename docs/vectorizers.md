@@ -113,7 +113,7 @@ Since the same word can appear in multiple forms in a piece of text, one can som
 
 ### Extracting lemmata with `LemmaCountVectorizer`
 
-Similarly to `NounPhraseCountVectorizer`, `LemmaCountVectorizer` relies on a SpaCy pipeline for extracting lemmas from a piece of text.
+Similarly to `NounPhraseCountVectorizer`, `LemmaCountVectorizer` relies on a [SpaCy](spacy.io) pipeline for extracting lemmas from a piece of text.
 This means you will have to install SpaCy and a SpaCy pipeline to be able to use it.
 
 ```bash
@@ -173,11 +173,48 @@ model.print_topics()
 | 4 | atheist, theist, belief, asimov, philosoph, mytholog, strong, faq, agnostic, weak |
 | | | ... |
 
-## Chinese Vectorizer
+## Non-English Vectorization
+
+You may find that, especially with non-Indo-European languages, `CountVectorizer` does not perform that well.
+In these cases we recommend that you use a vectorizer with its own language-specific tokenization rules and stop-word list:
+
+### Vectorizing Any Language with `TokenCountVectorizer`
+
+The [SpaCy](spacy.io) package includes language-specific tokenization and stop-word rules for just about any language.
+We provide a vectorizer that you can use with the language of your choice.
+
+```bash
+pip install turftopic[spacy]
+```
+
+!!! note
+    Note that you do not have to install any SpaCy pipelines for this to work.
+    No pipelines or models will be loaded with `TokenCountVectorizer` only a language-specific tokenizer.
+
+```python
+from turftopic import KeyNMF
+from turftopic.vectorizers.spacy import TokenCountVectorizer
+
+# CountVectorizer for Arabic
+vectorizer = TokenCountVectorizer("ar", min_df=10)
+
+model = KeyNMF(
+    n_components=10,
+    vectorizer=vectorizer,
+    encoder="Omartificial-Intelligence-Space/Arabic-MiniLM-L12-v2-all-nli-triplet"
+)
+model.fit(corpus)
+
+```
+
+### Extracting Chinese Tokens with `ChineseCountVectorizer`
 
 The Chinese language does not separate tokens by whitespace, unlike most Indo-European languages.
 You thus need to use special tokenization rules for Chinese.
 Turftopic provides tools for Chinese tokenization via the [Jieba](https://github.com/fxsjy/jieba) package.
+
+!!! note
+    We recommend that you use Jieba over SpaCy for topic modeling with Chinese.
 
 You will need to install the package in order to be able to use our Chinese vectorizer.
 
@@ -212,6 +249,8 @@ model.print_topics()
 :::turftopic.vectorizers.spacy.NounPhraseCountVectorizer
 
 :::turftopic.vectorizers.spacy.LemmaCountVectorizer
+
+:::turftopic.vectorizers.spacy.TokenCountVectorizer
 
 :::turftopic.vectorizers.snowball.StemmingCountVectorizer
 

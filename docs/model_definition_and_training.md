@@ -19,59 +19,29 @@ You might want to have a look at the [Models](models.md) page in order to make a
 
 Here are some examples of models you can load and use in the package:
 
-<table>
-<tr>
-<td> Model </td> <td> Example Definition </td>
-</tr>
-<tr>
-<td>
+=== "KeyNMF"
 
-<a href="https://x-tabdeveloping.github.io/turftopic/KeyNMF/">KeyNMF</a>
+    ```python
+    from turftopic import KeyNMF
 
-</td>
-<td>
+    model = KeyNMF(n_components=10, top_n=15)
+    ```
 
-```python
-from turftopic import KeyNMF
+=== "ClusteringTopicModel"
 
-model = KeyNMF(n_components=10, top_n=15)
-```
+    ```python
+    from turftopic import ClusteringTopicModel
 
-</td>
-</tr>
-<tr>
-<td>
+    model = ClusteringTopicModel(n_reduce_to=10, feature_importance="centroid")
+    ```
 
-<a href="https://x-tabdeveloping.github.io/turftopic/clustering/">ClusteringTopicModel</a>
+=== "SemanticSignalSeparation"
 
-</td>
-<td>
+    ```python
+    from turftopic import SemanticSignalSeparation
 
-```python
-from turftopic import ClusteringTopicModel
-
-model = ClusteringTopicModel(n_reduce_to=10, feature_importance="centroid")
-```
-
-</td>
-</tr>
-<tr>
-<td>
-
-<a href="https://x-tabdeveloping.github.io/turftopic/s3/">SemanticSignalSeparation</a>
-
-</td>
-<td>
-
-```python
-from turftopic import SemanticSignalSeparation
-
-model = SemanticSignalSeparation(n_components=10, feature_importance="combined")
-```
-
-</td>
-</tr>
-</table>
+    model = SemanticSignalSeparation(n_components=10, feature_importance="combined")
+    ```
 
 ### 2. [Vectorizer](../vectorizers.md)
 
@@ -88,19 +58,73 @@ default_vectorizer = CountVectorizer(min_df=10, stop_words="english")
 ```
 
 You can add a custom vectorizer to a topic model upon initializing it,
-thereby getting different behaviours. You can for instance use noun-phrases in your model instead of words by using NounPhraseCountVectorizer:
+thereby getting different behaviours. You can for instance use noun-phrases in your model instead of words by using `NounPhraseCountVectorizer` or estimate parameters for lemmas by using `LemmaCountVectorizer`
 
-```bash
-pip install turftopic[spacy]
-python -m spacy download "en_core_web_sm"
-```
 
-```python
-from turftopic import KeyNMF
-from turftopic.vectorizers.spacy import NounPhraseCountVectorizer
+=== "Noun Phrase Extraction"
 
-model = KeyNMF(10, vectorizer=NounPhraseCountVectorizer())
-```
+    ```bash
+    pip install turftopic[spacy]
+    python -m spacy download "en_core_web_sm"
+    ```
+
+    ```python
+    from turftopic import KeyNMF
+    from turftopic.vectorizers.spacy import NounPhraseCountVectorizer
+
+    model = KeyNMF(10, vectorizer=NounPhraseCountVectorizer("en_core_web_sm"))
+    model.fit(corpus)
+    model.print_topics()
+    ```
+
+    | Topic ID | Highest Ranking |
+    | - | - |
+    | | ... |
+    | 3 | fanaticism, theism, fanatism, all fanatism, theists, strong theism, strong atheism, fanatics, precisely some theists, all theism |
+    | 4 | religion foundation darwin fish bumper stickers, darwin fish, atheism, 3d plastic fish, fish symbol, atheist books, atheist organizations, negative atheism, positive atheism, atheism index |
+    | | ... |
+
+
+=== "Lemma Extraction"
+
+    ```bash
+    pip install turftopic[spacy]
+    python -m spacy download "en_core_web_sm"
+    ```
+
+    ```python
+    from turftopic import KeyNMF
+    from turftopic.vectorizers.spacy import LemmaCountVectorizer
+
+    model = KeyNMF(10, vectorizer=LemmaCountVectorizer("en_core_web_sm"))
+    model.fit(corpus)
+    model.print_topics()
+    ```
+
+    | Topic ID | Highest Ranking |
+    | - | - |
+    | 0 | atheist, theist, belief, christians, agnostic, christian, mythology, asimov, abortion, read |
+    | 1 | morality, moral, immoral, objective, society, animal, natural, societal, murder, morally |
+    | | ... |
+
+
+=== "Multilingual Tokenization (Arabic example)"
+
+    ```python
+    from turftopic import KeyNMF
+    from turftopic.vectorizers.spacy import TokenCountVectorizer
+
+    # CountVectorizer for Arabic
+    vectorizer = TokenCountVectorizer("ar", min_df=10)
+
+    model = KeyNMF(
+        n_components=10,
+        vectorizer=vectorizer,
+        encoder="Omartificial-Intelligence-Space/Arabic-MiniLM-L12-v2-all-nli-triplet"
+    )
+    model.fit(corpus)
+
+    ```
 
 ### 3. [Encoder](../encoders.md)
 
@@ -125,15 +149,35 @@ A Namer is an optional part of your topic modeling pipeline, that can automatica
 Namers are technically **not part of your topic model**, and should be used *after training*.
 See a detailed guide [here](../namers.md).
 
-```python
-from turftopic import KeyNMF
-from turftopic.namers import LLMTopicNamer
+=== "LLM from HuggingFace"
+    ```python
+    from turftopic import KeyNMF
+    from turftopic.namers import LLMTopicNamer
 
-model = KeyNMF(10).fit(corpus)
-namer = LLMTopicNamer("HuggingFaceTB/SmolLM2-1.7B-Instruct")
+    model = KeyNMF(10).fit(corpus)
+    namer = LLMTopicNamer("HuggingFaceTB/SmolLM2-1.7B-Instruct")
 
-model.rename_topics(namer)
-```
+    model.rename_topics(namer)
+    ```
+
+=== "ChatGPT"
+    ```bash
+    pip install openai
+    export OPENAI_API_KEY="sk-<your key goes here>"
+    ```
+    ```python
+    from turftopic.namers import OpenAITopicNamer
+
+    namer = OpenAITopicNamer("gpt-4o-mini")
+    model.rename_topics(namer)
+    model.print_topics()
+    ```
+
+    | Topic ID | Topic Name | Highest Ranking |
+    | - | - | - |
+    | 0 | Operating Systems and Software  | windows, dos, os, ms, microsoft, unix, nt, memory, program, apps |
+    | 1 | Atheism and Belief Systems | atheism, atheist, atheists, belief, religion, religious, theists, beliefs, believe, faith |
+    | | ... |
 
 ## Training and Inference
 

@@ -60,6 +60,8 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - toc:
       toc_depth: 2
   - pymdownx.arithmatex:
