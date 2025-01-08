@@ -14,7 +14,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic.base import ContextualModel, Encoder
-from turftopic.vectorizer import default_vectorizer
+from turftopic.vectorizers.default import default_vectorizer
 
 
 class EncoderNetwork(nn.Module):

@@ -16,48 +16,46 @@
  - Streamlined scikit-learn compatible API 🛠️
  - Easy topic interpretation 🔍
  - Automated topic naming with LLMs
+ - Topic modeling with keyphrases :key:
+ - Lemmatization and Stemming
  - Visualization with [topicwizard](https://github.com/x-tabdeveloping/topicwizard) 🖌️
 
 > This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
-### New in version 0.10.0
+## New in version 0.11.0: Vectorizers Module
 
-You can interactively explore clusters using `datamapplot` directly in Turftopic!
-You will first have to install `datamapplot` for this to work.
+You can now use a set of custom vectorizers for topic modeling over **phrases**, as well as **lemmata** and **stems**.
 
 ```python
-from turftopic import ClusteringTopicModel
-from turftopic.namers import OpenAITopicNamer
+from turftopic import KeyNMF
+from turftopic.vectorizers.spacy import NounPhraseCountVectorizer
 
-model = ClusteringTopicModel(feature_importance="centroid")
+model = KeyNMF(
+    n_components=10,
+    vectorizer=NounPhraseCountVectorizer("en_core_web_sm"),
+)
 model.fit(corpus)
-
-namer = OpenAITopicNamer("gpt-4o-mini")
-model.rename_topics(namer)
-
-fig = model.plot_clusters_datamapplot()
-fig.save("clusters_visualization.html")
-fig
+model.print_topics()
 ```
-> If you are not running Turftopic from a Jupyter notebook, make sure to call `fig.show()`. This will open up a new browser tab with the interactive figure.
 
-<figure>
-  <img src="docs/images/cluster_datamapplot.png" width="70%" style="margin-left: auto;margin-right: auto;">
-  <figcaption>Interactive figure to explore cluster structure in a clustering topic model.</figcaption>
-</figure>
+| Topic ID | Highest Ranking |
+| - | - |
+| | ... |
+| 3 | fanaticism, theism, fanatism, all fanatism, theists, strong theism, strong atheism, fanatics, precisely some theists, all theism |
+| 4 | religion foundation darwin fish bumper stickers, darwin fish, atheism, 3d plastic fish, fish symbol, atheist books, atheist organizations, negative atheism, positive atheism, atheism index |
+| | ... |
 
-### New in version 0.9.0
+Turftopic now also comes with a **Chinese vectorizer** for easier use, as well as a generalist **multilingual vectorizer**.
 
-#### Dynamic S³ 🧭
-
-You can now use Semantic Signal Separation in a dynamic fashion.
-This allows you to investigate how semantic axes fluctuate over time, and how their content changes.
 ```python
-from turftopic import SemanticSignalSeparation
+from turftopic.vectorizers.chinese import default_chinese_vectorizer
+from turftopic.vectorizers.spacy import TokenCountVectorizer
 
-model = SemanticSignalSeparation(10).fit_dynamic(corpus, timestamps=ts, bins=10)
+chinese_vectorizer = default_chinese_vectorizer()
+arabic_vectorizer = TokenCountVectorizer("ar", remove_stopwords=True)
+danish_vectorizer = TokenCountVectorizer("da", remove_stopwords=True)
+...
 
-model.plot_topics_over_time()
 ```
 
 

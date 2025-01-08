@@ -21,7 +21,7 @@ from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import (bayes_rule,
                                           cluster_centroid_distance, ctf_idf,
                                           soft_ctf_idf)
-from turftopic.vectorizer import default_vectorizer
+from turftopic.vectorizers.default import default_vectorizer
 
 integer_message = """
 You tried to pass an integer to ClusteringTopicModel as its first argument.

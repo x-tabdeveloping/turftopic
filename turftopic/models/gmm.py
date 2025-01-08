@@ -12,7 +12,7 @@ from sklearn.pipeline import Pipeline, make_pipeline
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import soft_ctf_idf
-from turftopic.vectorizer import default_vectorizer
+from turftopic.vectorizers.default import default_vectorizer
 
 
 class GMM(ContextualModel, DynamicTopicModel):

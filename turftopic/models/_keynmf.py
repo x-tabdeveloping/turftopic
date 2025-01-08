@@ -1,7 +1,7 @@
 import itertools
 import warnings
 from datetime import datetime
-from typing import Iterable, Optional
+from typing import Iterable, Literal, Optional
 
 import numpy as np
 import scipy.sparse as spr
@@ -75,13 +75,18 @@ def fit_timeslice(
 
 class SBertKeywordExtractor:
     def __init__(
-        self, top_n: int, encoder: Encoder, vectorizer: CountVectorizer
+        self,
+        top_n: int,
+        encoder: Encoder,
+        vectorizer: CountVectorizer,
+        metric: Literal["cosine", "dot"],
     ):
         self.top_n = top_n
         self.encoder = encoder
         self.vectorizer = vectorizer
         self.key_to_index: dict[str, int] = {}
         self.term_embeddings: Optional[np.ndarray] = None
+        self.metric = metric
 
     @property
     def is_encoder_promptable(self) -> bool:
@@ -156,10 +161,15 @@ class SBertKeywordExtractor:
                         n_word_dims=self.term_embeddings.shape[1],
                     )
                 )
-            sim = cosine_similarity(embedding, word_embeddings).astype(
-                np.float64
-            )
-            sim = np.ravel(sim)
+            if self.metric == "cosine":
+                sim = cosine_similarity(embedding, word_embeddings).astype(
+                    np.float64
+                )
+                sim = np.ravel(sim)
+            else:
+                sim = np.dot(word_embeddings, embedding[0]).T.astype(
+                    np.float64
+                )
             kth = min(self.top_n, len(sim) - 1)
             top = np.argpartition(-sim, kth)[:kth]
             top_words = batch_vocab[important_terms][top]

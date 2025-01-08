@@ -14,7 +14,7 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.namers.base import TopicNamer
-from turftopic.vectorizer import default_vectorizer
+from turftopic.vectorizers.default import default_vectorizer
 
 NOT_MATCHING_ERROR = (
     "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
