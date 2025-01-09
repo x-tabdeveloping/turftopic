@@ -20,7 +20,6 @@
  - Lemmatization and Stemming
  - Visualization with [topicwizard](https://github.com/x-tabdeveloping/topicwizard) 🖌️
 
-> This package is still work in progress and scientific papers on some of the novel methods are currently undergoing peer-review. If you use this package and you encounter any problem, let us know by opening relevant issues.
 
 ## New in version 0.11.0: Vectorizers Module
 
