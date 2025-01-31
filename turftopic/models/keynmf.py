@@ -13,7 +13,7 @@ from sklearn.preprocessing import normalize
 from turftopic.base import ContextualModel, Encoder
 from turftopic.data import TopicData
 from turftopic.dynamic import DynamicTopicModel
-from turftopic.hierarchical import TopicNode
+from turftopic.hierarchical import DivisibleTopicNode
 from turftopic.models._keynmf import KeywordNMF, SBertKeywordExtractor
 from turftopic.models.wnmf import weighted_nmf
 from turftopic.vectorizers.default import default_vectorizer
@@ -121,9 +121,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
 
     def divide_topic(
         self,
-        node: TopicNode,
+        node: DivisibleTopicNode,
         n_subtopics: int,
-    ) -> list[TopicNode]:
+    ) -> list[DivisibleTopicNode]:
         document_term_matrix = getattr(self, "document_term_matrix", None)
         if document_term_matrix is None:
             raise ValueError(
@@ -142,7 +142,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         for i, component, doc_topic_vector in zip(
             range(n_subtopics), subcomponents, sub_doc_topic.T
         ):
-            sub = TopicNode(
+            sub = DivisibleTopicNode(
                 self,
                 path=(*node.path, i),
                 word_importance=component,
@@ -192,7 +192,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             console.log("Model fitting done.")
         self.document_topic_matrix = doc_topic_matrix
         self.document_term_matrix = self.model.vectorize(keywords)
-        self.hierarchy = TopicNode.create_root(
+        self.hierarchy = DivisibleTopicNode.create_root(
             self, self.components_, self.document_topic_matrix
         )
         return doc_topic_matrix
@@ -328,7 +328,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             document_term_matrix = self.model.vectorize(keywords)
         self.document_topic_matrix = doc_topic_matrix
         self.document_term_matrix = document_term_matrix
-        self.hierarchy = TopicNode.create_root(
+        self.hierarchy = DivisibleTopicNode.create_root(
             self, self.components_, self.document_topic_matrix
         )
         res = TopicData(
@@ -442,7 +442,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self.components_ = self.model.components
         self.document_topic_matrix = doc_topic_matrix
         self.document_term_matrix = self.model.vectorize(keywords)
-        self.hierarchy = TopicNode.create_root(
+        self.hierarchy = DivisibleTopicNode.create_root(
             self, self.components_, self.document_topic_matrix
         )
         return doc_topic_matrix

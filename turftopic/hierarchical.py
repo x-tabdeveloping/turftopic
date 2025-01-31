@@ -6,6 +6,7 @@ from typing import Any, Optional
 import numpy as np
 from rich.console import Console
 from rich.tree import Tree
+from scipy.cluster.hierarchy import ClusterNode, to_tree
 
 from turftopic.base import ContextualModel
 
@@ -138,7 +139,7 @@ class TopicNode:
                     children=None,
                 )
             )
-        return TopicNode(
+        return cls(
             model,
             path=(),
             word_importance=None,
@@ -164,9 +165,7 @@ class TopicNode:
         list[tuple[str, float]]
             List of word, importance pairs.
         """
-        if (self.word_importance is None) or (
-            self.document_topic_vector
-        ) is None:
+        if self.word_importance is None:
             return []
         idx = np.argpartition(-self.word_importance, top_k)[:top_k]
         order = np.argsort(-self.word_importance[idx])
@@ -226,15 +225,24 @@ class TopicNode:
     def __repr__(self):
         return str(self)
 
-    def clear(self):
-        """Deletes children of the given node."""
-        self.children = None
-        return self
-
     def __getitem__(self, index: int):
         if self.children is None:
             raise IndexError("Current node is a leaf and has not children.")
         return self.children[index]
+
+    def plot_tree(self):
+        """Plots hierarchy as an interactive tree in Plotly."""
+        return _tree_plot(self)
+
+
+@dataclass
+class DivisibleTopicNode(TopicNode):
+    """Node for a topic in a topic hierarchy that can be subdivided."""
+
+    def clear(self):
+        """Deletes children of the given node."""
+        self.children = None
+        return self
 
     def divide(self, n_subtopics: int, **kwargs):
         """Divides current node into smaller subtopics.
@@ -271,7 +279,3 @@ class TopicNode:
         for child in self.children:
             child.divide(n_subtopics, **kwargs)
         return self
-
-    def plot_tree(self):
-        """Plots hierarchy as an interactive tree in Plotly."""
-        return _tree_plot(self)
