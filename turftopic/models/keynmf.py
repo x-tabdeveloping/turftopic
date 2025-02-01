@@ -99,6 +99,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self,
         batch_or_document: Union[str, list[str]],
         embeddings: Optional[np.ndarray] = None,
+        fitting: bool = True,
     ) -> list[dict[str, float]]:
         """Extracts keywords from a document or a batch of documents.
 
@@ -115,6 +116,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             batch_or_document,
             embeddings=embeddings,
             seed_embedding=self.seed_embedding,
+            fitting=fitting,
         )
 
     def vectorize(
@@ -260,7 +262,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             )
         if keywords is None:
             keywords = self.extract_keywords(
-                list(raw_documents), embeddings=embeddings
+                list(raw_documents),
+                embeddings=embeddings,
+                fitting=False,
             )
         return self.model.transform(keywords)
 

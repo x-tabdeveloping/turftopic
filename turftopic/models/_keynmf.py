@@ -121,6 +121,7 @@ class SBertKeywordExtractor:
         documents: list[str],
         embeddings: Optional[np.ndarray] = None,
         seed_embedding: Optional[np.ndarray] = None,
+        fitting: bool = True,
     ) -> list[dict[str, float]]:
         if not len(documents):
             return []
@@ -136,9 +137,11 @@ class SBertKeywordExtractor:
                 "Number of documents doesn't match number of embeddings."
             )
         keywords = []
-        vectorizer = clone(self.vectorizer)
-        document_term_matrix = vectorizer.fit_transform(documents)
-        batch_vocab = vectorizer.get_feature_names_out()
+        if fitting:
+            document_term_matrix = self.vectorizer.fit_transform(documents)
+        else:
+            document_term_matrix = self.vectorizer.transform(documents)
+        batch_vocab = self.vectorizer.get_feature_names_out()
         new_terms = list(set(batch_vocab) - set(self.key_to_index.keys()))
         if len(new_terms):
             self._add_terms(new_terms)
