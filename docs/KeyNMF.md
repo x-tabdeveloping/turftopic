@@ -8,20 +8,30 @@ while taking inspiration from classical matrix-decomposition approaches for extr
   <figcaption>Schematic overview of KeyNMF</figcaption>
 </figure>
 
+
 Here's an example of how you can fit and interpret a KeyNMF model in the easiest way.
 
 ```python
 from turftopic import KeyNMF
 
-model = KeyNMF(10, top_n=6)
+model = KeyNMF(10, encoder="paraphrase-MiniLM-L3-v2")
 model.fit(corpus)
 
 model.print_topics()
 ```
 
+!!! question "Which Embedding model should I use"
+    - You should probably use KeyNMF with a `paraphrase-` type embedding model. These seem to perform best in most tasks. Some examples include:
+        - [paraphrase-MiniLM-L3-v2](https://huggingface.co/sentence-transformers/paraphrase-MiniLM-L3-v2) - Absolutely tiny :mouse: 
+        - [paraphrase-mpnet-base-v2](https://huggingface.co/sentence-transformers/paraphrase-mpnet-base-v2) - High performance :star2:
+        - [paraphrase-multilingual-mpnet-base-v2](https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2) - Multilingual, high-performance :earth_americas: :star2:
+    - KeyNMF works remarkably well with static models, which are incredibly fast, even on your laptop:
+        - [sentence-transformers/static-retrieval-mrl-en-v1](https://huggingface.co/sentence-transformers/static-retrieval-mrl-en-v1) - Blazing Fast :zap: 
+        - [sentence-transformers/static-similarity-mrl-multilingual-v1](https://huggingface.co/sentence-transformers/static-similarity-mrl-multilingual-v1) - Multilingual, Blazing Fast :earth_americas: :zap: 
+
 ## How does KeyNMF work?
 
-### Keyword Extraction
+#### Keyword Extraction
 
 KeyNMF discovers topics based on the importances of keywords for a given document.
 This is done by embedding words in a document, and then extracting the cosine similarities of documents to words using a transformer-model.
@@ -78,7 +88,7 @@ keyword_matrix = model.extract_keywords(corpus)
 model.fit(None, keywords=keyword_matrix)
 ```
 
-### Topic Discovery
+#### Topic Discovery
 
 Topics in this matrix are then discovered using Non-negative Matrix Factorization.
 Essentially the model tries to discover underlying dimensions/factors along which most of the variance in term importance
@@ -94,70 +104,89 @@ can be explained.
 
     You can fit KeyNMF on the raw corpus, with precomputed embeddings or with precomputed keywords.
 
-```python
-# Fitting just on the corpus
-model.fit(corpus)
 
-# Fitting with precomputed embeddings
-from sentence_transformers import SentenceTransformer
+=== "Fitting on a corpus"
+    ```python
+    model.fit(corpus)
+    ```
 
-trf = SentenceTransformer("all-MiniLM-L6-v2")
-embeddings = trf.encode(corpus)
+=== "Pre-computed embeddings"
+    ```python
+    from sentence_transformers import SentenceTransformer
 
-model = KeyNMF(10, encoder=trf)
-model.fit(corpus, embeddings=embeddings)
+    trf = SentenceTransformer("all-MiniLM-L6-v2")
+    embeddings = trf.encode(corpus)
 
-# Fitting with precomputed keyword matrix
-keyword_matrix = model.extract_keywords(corpus)
-model.fit(None, keywords=keyword_matrix)
-```
+    model = KeyNMF(10, encoder=trf)
+    model.fit(corpus, embeddings=embeddings)
+    ```
+=== "Pre-computed keyword matrix"
+    ```python
+    keyword_matrix = model.extract_keywords(corpus)
+    model.fit(None, keywords=keyword_matrix)
+    ```
 
-### Asymmetric and Instruction-tuned Embedding Models
+## Seeded Topic Modeling
 
-Some embedding models can be used together with prompting, or encode queries and passages differently.
-This is important for KeyNMF, as it is explicitly based on keyword retrieval, and its performance can be substantially enhanced by using asymmetric or prompted embeddings.
-Microsoft's E5 models are, for instance, all prompted by default, and it would be detrimental to performance not to do so yourself.
+When investigating a set of documents, you might already have an idea about what aspects you would like to explore.
+In KeyNMF, you can describe this aspect, from which you want to investigate your corpus, using a free-text seed-phrase,
+which will then be used to only extract topics, which are relevant to your research question.
 
-In these cases, you're better off NOT passing a string to Turftopic models, but explicitly loading the model using `sentence-transformers`.
+??? info "How is this done?"
 
-Here's an example of using instruct models for keyword retrieval with KeyNMF.
-In this case, documents will serve as the queries and words as the passages:
+    KeyNMF encodes the seed phrase into a seed-embedding.
+    Word importance scores in a document get weighted by their similarity to the seed-embedding.
+
+    - Embed seed-phrase into a seed-embedding: $s$
+    - When extracting keywords from a document:
+        1. Let $x_d$ be the document's embedding produced with the encoder model.
+        2. Let the document's relevance be $r_d = \text{sim}(d,w)$
+        3. For each word $w$:
+            1. Let the word's importance in the keyword matrix be: $\text{sim}(d, w) \cdot r_d$ if $r_d > 0$, otherwise $0$
 
 ```python
 from turftopic import KeyNMF
-from sentence_transformers import SentenceTransformer
 
-encoder = SentenceTransformer(
-    "intfloat/multilingual-e5-large-instruct",
-    prompts={
-        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
-        "passage": "Passage: "
-    },
-    # Make sure to set default prompt to query!
-    default_prompt_name="query",
-)
-model = KeyNMF(10, encoder=encoder)
+model = KeyNMF(5, seed_phrase="<your seed phrase>")
+model.fit(corpus)
+
+model.print_topics()
 ```
 
-And a regular, asymmetric example:
 
-```python
-encoder = SentenceTransformer(
-    "intfloat/e5-large-v2",
-    prompts={
-        "query": "query: "
-        "passage": "passage: "
-    },
-    # Make sure to set default prompt to query!
-    default_prompt_name="query",
-)
-model = KeyNMF(10, encoder=encoder)
-```
+=== "`'Is the death penalty moral?'`"
 
-Setting the default prompt to `query` is especially important, when you are precomputing embeddings, as `query` should always be your default prompt to embed documents with.
+    | Topic ID | Highest Ranking |
+    | - | - |
+    | 0 | morality, moral, immoral, morals, objective, morally, animals, society, species, behavior |
+    | 1 | armenian, armenians, genocide, armenia, turkish, turks, soviet, massacre, azerbaijan, kurdish |
+    | 2 | murder, punishment, death, innocent, penalty, kill, crime, moral, criminals, executed |
+    | 3 | gun, guns, firearms, crime, handgun, firearm, weapons, handguns, law, criminals |
+    | 4 | jews, israeli, israel, god, jewish, christians, sin, christian, palestinians, christianity |
+
+=== "`'Evidence for the existence of god'`"
+
+    | Topic ID | Highest Ranking |
+    | - | - |
+    | 0 | atheist, atheists, religion, religious, theists, beliefs, christianity, christian, religions, agnostic |
+    | 1 | bible, christians, christian, christianity, church, scripture, religion, jesus, faith, biblical |
+    | 2 | god, existence, exist, exists, universe, creation, argument, creator, believe, life |
+    | 3 | believe, faith, belief, evidence, blindly, believing, gods, believed, beliefs, convince |
+    | 4 | atheism, atheists, agnosticism, belief, arguments, believe, existence, alt, believing, argument |
+
+=== "`'Operating system kernels'`"
+
+    | Topic ID | Highest Ranking |
+    | - | - |
+    | 0 | windows, dos, os, microsoft, ms, apps, pc, nt, file, shareware |
+    | 1 | ram, motherboard, card, monitor, memory, cpu, vga, mhz, bios, intel |
+    | 2 | unix, os, linux, intel, systems, programming, applications, compiler, software, platform |
+    | 3 | disk, scsi, disks, drive, floppy, drives, dos, controller, cd, boot |
+    | 4 | software, mac, hardware, ibm, graphics, apple, computer, pc, modem, program |
 
 
-### Dynamic Topic Modeling
+
+## Dynamic Topic Modeling
 
 KeyNMF is also capable of modeling topics over time.
 This happens by fitting a KeyNMF model first on the entire corpus, then
@@ -229,7 +258,48 @@ model.plot_topics_over_time()
   <figcaption> Topics over time in a Dynamic KeyNMF model. </figcaption>
 </figure>
 
-### Online Topic Modeling
+## Hierarchical Topic Modeling
+
+When you suspect that subtopics might be present in the topics you find with the model, KeyNMF can be used to discover topics further down the hierarchy.
+
+This is done by utilising a special case of **weighted NMF**, where documents are weighted by how high they score on the parent topic.
+
+??? info "Click to see formula"
+    1. Decompose keyword matrix $M \approx WH$
+    2. To find subtopics in topic $j$, define document weights $w$ as the $j$th column of $W$.
+    3. Estimate subcomponents with **wNMF** $M \approx \mathring{W} \mathring{H}$ with document weight $w$
+        1. Initialise $\mathring{H}$ and  $\mathring{W}$ randomly.
+        2. Perform multiplicative updates until convergence. <br>
+            $\mathring{W}^T = \mathring{W}^T \odot \frac{\mathring{H} \cdot (M^T \odot w)}{\mathring{H} \cdot \mathring{H}^T \cdot (\mathring{W}^T \odot w)}$ <br>
+            $\mathring{H}^T = \mathring{H}^T \odot \frac{ (M^T \odot w)\cdot \mathring{W}}{\mathring{H}^T \cdot (\mathring{W}^T \odot w) \cdot \mathring{W}}$
+    4. To sufficiently differentiate the subcomponents from each other a pseudo-c-tf-idf weighting scheme is applied to $\mathring{H}$:
+        1. $\mathring{H} = \mathring{H}_{ij} \odot ln(1 + \frac{A}{1+\sum_k \mathring{H}_{kj}})$, where $A$ is the average of all elements in $\mathring{H}$
+
+To create a hierarchical model, you can use the `hierarchy` property of the model.
+
+```python
+# This divides each of the topics in the model to 3 subtopics.
+model.hierarchy.divide_children(n_subtopics=3)
+print(model.hierarchy)
+```
+
+<div style="background-color: #F5F5F5; padding: 10px; padding-left: 20px; padding-right: 20px;">
+<tt style="font-size: 11pt">
+<b>Root </b><br>
+├── <b style="color: blue">0</b>: windows, dos, os, disk, card, drivers, file, pc, files, microsoft <br>
+│   ├── <b style="color: magenta">0.0</b>: dos, file, disk, files, program, windows, disks, shareware, norton, memory <br>
+│   ├── <b style="color: magenta">0.1</b>: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform <br>
+│   └── <b style="color: magenta">0.2</b>: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati <br>
+└── <b style="color: blue">1</b>: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs <br>
+.    ├── <b style="color: magenta">1.0</b>: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers <br>
+.    ├── <b style="color: magenta">1.1</b>: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions <br>
+.    └── <b style="color: magenta">1.2</b>: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion <br>
+</tt>
+</div>
+
+For a detailed tutorial on hierarchical modeling click [here](hierarchical.md).
+
+## Online Topic Modeling
 
 KeyNMF can also be fitted in an online manner.
 This is done by fitting NMF with batches of data instead of the whole dataset at once.
@@ -326,7 +396,7 @@ for epoch in range(5):
         model.partial_fit(keywords=keyword_batch)
 ```
 
-#### Dynamic Online Topic Modeling
+### Dynamic Online Topic Modeling
 
 KeyNMF can be online fitted in a dynamic manner as well.
 This is useful when you have large corpora of text over time, or when you want to fit the model on future information flowing in
@@ -354,46 +424,49 @@ for batch in batched(zip(corpus, timestamps)):
     model.partial_fit_dynamic(text_batch, timestamps=ts_batch, bins=bins)
 ```
 
-### Hierarchical Topic Modeling
+## Asymmetric and Instruction-tuned Embedding Models
 
-When you suspect that subtopics might be present in the topics you find with the model, KeyNMF can be used to discover topics further down the hierarchy.
+Some embedding models can be used together with prompting, or encode queries and passages differently.
+This is important for KeyNMF, as it is explicitly based on keyword retrieval, and its performance can be substantially enhanced by using asymmetric or prompted embeddings.
+Microsoft's E5 models are, for instance, all prompted by default, and it would be detrimental to performance not to do so yourself.
 
-This is done by utilising a special case of **weighted NMF**, where documents are weighted by how high they score on the parent topic.
+In these cases, you're better off NOT passing a string to Turftopic models, but explicitly loading the model using `sentence-transformers`.
 
-??? info "Click to see formula"
-    1. Decompose keyword matrix $M \approx WH$
-    2. To find subtopics in topic $j$, define document weights $w$ as the $j$th column of $W$.
-    3. Estimate subcomponents with **wNMF** $M \approx \mathring{W} \mathring{H}$ with document weight $w$
-        1. Initialise $\mathring{H}$ and  $\mathring{W}$ randomly.
-        2. Perform multiplicative updates until convergence. <br>
-            $\mathring{W}^T = \mathring{W}^T \odot \frac{\mathring{H} \cdot (M^T \odot w)}{\mathring{H} \cdot \mathring{H}^T \cdot (\mathring{W}^T \odot w)}$ <br>
-            $\mathring{H}^T = \mathring{H}^T \odot \frac{ (M^T \odot w)\cdot \mathring{W}}{\mathring{H}^T \cdot (\mathring{W}^T \odot w) \cdot \mathring{W}}$
-    4. To sufficiently differentiate the subcomponents from each other a pseudo-c-tf-idf weighting scheme is applied to $\mathring{H}$:
-        1. $\mathring{H} = \mathring{H}_{ij} \odot ln(1 + \frac{A}{1+\sum_k \mathring{H}_{kj}})$, where $A$ is the average of all elements in $\mathring{H}$
-
-To create a hierarchical model, you can use the `hierarchy` property of the model.
+Here's an example of using instruct models for keyword retrieval with KeyNMF.
+In this case, documents will serve as the queries and words as the passages:
 
 ```python
-# This divides each of the topics in the model to 3 subtopics.
-model.hierarchy.divide_children(n_subtopics=3)
-print(model.hierarchy)
+from turftopic import KeyNMF
+from sentence_transformers import SentenceTransformer
+
+encoder = SentenceTransformer(
+    "intfloat/multilingual-e5-large-instruct",
+    prompts={
+        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
+        "passage": "Passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
 ```
 
-<div style="background-color: #F5F5F5; padding: 10px; padding-left: 20px; padding-right: 20px;">
-<tt style="font-size: 11pt">
-<b>Root </b><br>
-├── <b style="color: blue">0</b>: windows, dos, os, disk, card, drivers, file, pc, files, microsoft <br>
-│   ├── <b style="color: magenta">0.0</b>: dos, file, disk, files, program, windows, disks, shareware, norton, memory <br>
-│   ├── <b style="color: magenta">0.1</b>: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform <br>
-│   └── <b style="color: magenta">0.2</b>: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati <br>
-└── <b style="color: blue">1</b>: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs <br>
-.    ├── <b style="color: magenta">1.0</b>: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers <br>
-.    ├── <b style="color: magenta">1.1</b>: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions <br>
-.    └── <b style="color: magenta">1.2</b>: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion <br>
-</tt>
-</div>
+And a regular, asymmetric example:
 
-For a detailed tutorial on hierarchical modeling click [here](hierarchical.md).
+```python
+encoder = SentenceTransformer(
+    "intfloat/e5-large-v2",
+    prompts={
+        "query": "query: "
+        "passage": "passage: "
+    },
+    # Make sure to set default prompt to query!
+    default_prompt_name="query",
+)
+model = KeyNMF(10, encoder=encoder)
+```
+
+Setting the default prompt to `query` is especially important, when you are precomputing embeddings, as `query` should always be your default prompt to embed documents with.
 
 ## API Reference
 
