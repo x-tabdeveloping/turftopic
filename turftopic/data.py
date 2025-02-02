@@ -53,7 +53,7 @@ class TopicData(Mapping, TopicContainer):
         document_topic_matrix: np.ndarray,
         topic_term_matrix: np.ndarray,
         document_representation: np.ndarray,
-        topic_names: list[str],
+        topic_names: Optional[list[str]] = None,
         classes: Optional[np.ndarray] = None,
         corpus: Optional[list[str]] = None,
         transform: Optional[Callable] = None,
