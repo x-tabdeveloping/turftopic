@@ -113,7 +113,7 @@ class TopicData(Mapping, TopicContainer):
             import topicwizard
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
-                "topicwizard is not installed on your system, you can install it by running pip install topic-wizard."
+                "topicwizard is not installed on your system, you can install it by running pip install turftopic[topic-wizard]."
             )
         return topicwizard.visualize(topic_data=self, **kwargs)
 
@@ -123,7 +123,7 @@ class TopicData(Mapping, TopicContainer):
             import topicwizard.figures
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
-                "topicwizard is not installed on your system, you can install it by running pip install topic-wizard."
+                "topicwizard is not installed on your system, you can install it by running pip install turftopic[topic-wizard]."
             )
 
         # Skip Group figures
