@@ -414,11 +414,6 @@ class TopicContainer(ABC):
                     "Please pass a topic distribution."
                 )
         topic_dist = np.squeeze(np.asarray(topic_dist))
-        topic_desc = self.get_topics(top_k=4)
-        topic_names = []
-        for topic_id, terms in topic_desc:
-            concat_words = "_".join([word for word, importance in terms])
-            topic_names.append(f"{topic_id}_{concat_words}")
         highest = np.argsort(-topic_dist)[:top_k]
         columns = []
         columns.append("Topic name")
@@ -426,7 +421,7 @@ class TopicContainer(ABC):
         rows = []
         for ind in highest:
             score = topic_dist[ind]
-            rows.append([topic_names[ind], f"{score:.2f}"])
+            rows.append([self.topic_names[ind], f"{score:.2f}"])
         return [columns, *rows]
 
     def print_topic_distribution(
@@ -475,3 +470,155 @@ class TopicContainer(ABC):
         """
         table = self._topic_distribution(text, topic_dist, top_k)
         return export_table(table, format=format)
+
+    def topics_df(
+        self,
+        top_k: int = 10,
+        show_scores: bool = False,
+        show_negative: Optional[bool] = None,
+    ):
+        """Extracts topics into a pandas dataframe.
+
+        Parameters
+        ----------
+        top_k: int, default 10
+            Number of top words to return for each topic.
+        show_scores: bool, default False
+            Indicates whether to show importance scores for each word.
+        show_negative: bool, default False
+            Indicates whether the most negative terms should also be displayed.
+        """
+        try:
+            import pandas as pd
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "You need to pip install pandas to be able to use dataframes."
+            )
+        columns, *rows = self._topics_table(top_k, show_scores, show_negative)
+        return pd.DataFrame(rows, columns=columns)
+
+    def representative_documents_df(
+        self,
+        topic_id,
+        raw_documents=None,
+        document_topic_matrix=None,
+        top_k=5,
+        show_negative: Optional[bool] = None,
+    ):
+        """Collects highest ranking documents in a topic to a dataframe.
+
+        Parameters
+        ----------
+        topic_id: int
+            ID of the topic to display.
+        raw_documents: list of str
+            List of documents to consider.
+        document_topic_matrix: ndarray of shape (n_documents, n_topics), optional
+            Document topic matrix to use. This is useful for transductive methods,
+            as they cannot infer topics from text.
+        top_k: int, default 5
+            Top K documents to show.
+        show_negative: bool, default False
+            Indicates whether lowest ranking documents should also be shown.
+        """
+        try:
+            import pandas as pd
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "You need to pip install pandas to be able to use dataframes."
+            )
+        if show_negative is None:
+            show_negative = self.has_negative_side
+        raw_documents = raw_documents or getattr(self, "corpus", None)
+        if raw_documents is None:
+            raise ValueError(
+                "No corpus was passed, can't search for representative documents."
+            )
+        document_topic_matrix = document_topic_matrix or getattr(
+            self, "document_topic_matrix", None
+        )
+        if document_topic_matrix is None:
+            try:
+                document_topic_matrix = self.transform(raw_documents)
+            except AttributeError:
+                raise ValueError(
+                    "Transductive methods cannot "
+                    "infer topical content in documents.\n"
+                    "Please pass a document_topic_matrix."
+                )
+        try:
+            topic_id = list(self.classes_).index(topic_id)
+        except AttributeError:
+            pass
+        kth = min(top_k, document_topic_matrix.shape[0] - 1)
+        highest = np.argpartition(-document_topic_matrix[:, topic_id], kth)[
+            :kth
+        ]
+        highest = highest[
+            np.argsort(-document_topic_matrix[highest, topic_id])
+        ]
+        scores = document_topic_matrix[highest, topic_id]
+        columns = [["Document", "Score"]]
+        rows = []
+        for document_id, score in zip(highest, scores):
+            doc = raw_documents[document_id]
+            rows.append([doc, score])
+        if show_negative:
+            lowest = np.argpartition(document_topic_matrix[:, topic_id], kth)[
+                :kth
+            ]
+            lowest = lowest[
+                np.argsort(document_topic_matrix[lowest, topic_id])
+            ]
+            lowest = lowest[::-1]
+            scores = document_topic_matrix[lowest, topic_id]
+            for document_id, score in zip(lowest, scores):
+                doc = raw_documents[document_id]
+                rows.append([doc, score])
+        return pd.DataFrame(rows, columns=columns)
+
+    def topic_distribution_df(
+        self, text=None, topic_dist=None, top_k: int = 10
+    ):
+        """Extracts topic distribution into a dataframe.
+
+        Parameters
+        ----------
+        text: str, optional
+            Text to infer topic distribution for.
+        topic_dist: ndarray of shape (n_topics), optional
+            Already inferred topic distribution for the text.
+            This is useful for transductive methods,
+            as they cannot infer topics from text.
+        top_k: int, default 10
+            Top K topics to show.
+        """
+        try:
+            import pandas as pd
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "You need to pip install pandas to be able to use dataframes."
+            )
+        if topic_dist is None:
+            if text is None:
+                raise ValueError(
+                    "You should either pass a text or a distribution."
+                )
+            try:
+                topic_dist = self.transform([text])
+            except AttributeError:
+                raise ValueError(
+                    "Transductive methods cannot "
+                    "infer topical content in documents.\n"
+                    "Please pass a topic distribution."
+                )
+        topic_dist = np.squeeze(np.asarray(topic_dist))
+        highest = np.argsort(-topic_dist)[:top_k]
+        columns = []
+        columns.append("Topic name")
+        columns.append("Score")
+        rows = []
+        for ind in highest:
+            score = topic_dist[ind]
+            rows.append([self.topic_names[ind], score])
+        return pd.DataFrame(rows, columns=columns)
