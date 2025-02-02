@@ -1,8 +1,10 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import partial
+from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple, Union
 
+import joblib
 import numpy as np
 from rich.console import Console
 from rich.table import Table
@@ -101,7 +103,7 @@ class TopicData(Mapping):
 
     @property
     def has_negative_side(self) -> bool:
-        return np.any(self.components < 0)
+        return np.any(self.topic_term_matrix < 0)
 
     def get_topics(
         self, top_k: int = 10
@@ -121,15 +123,15 @@ class TopicData(Mapping):
             topic ID and the top k words.
             Top k words are a list of (word, word_importance) pairs.
         """
-        n_topics = self.components_.shape[0]
+        n_topics = self.topic_term_matrix.shape[0]
         try:
             classes = self.classes_
         except AttributeError:
             classes = list(range(n_topics))
-        highest = np.argpartition(-self.components_, top_k)[:, :top_k]
+        highest = np.argpartition(-self.topic_term_matrix, top_k)[:, :top_k]
         top = []
         score = []
-        for component, high in zip(self.components_, highest):
+        for component, high in zip(self.topic_term_matrix, highest):
             importance = component[high]
             high = high[np.argsort(-importance)]
             score.append(component[high])
@@ -144,7 +146,7 @@ class TopicData(Mapping):
         self, top_k: int = 10, positive: bool = True
     ) -> list[list[str]]:
         terms = []
-        for component in self.components_:
+        for component in self.topic_term_matrix:
             lowest = np.argpartition(component, top_k)[:top_k]
             lowest = lowest[np.argsort(component[lowest])]
             highest = np.argpartition(-component, top_k)[:top_k]
@@ -177,9 +179,9 @@ class TopicData(Mapping):
         try:
             classes = self.classes_
         except AttributeError:
-            classes = list(range(self.components_.shape[0]))
+            classes = list(range(self.topic_term_matrix.shape[0]))
         for i_topic, (topic_id, component) in enumerate(
-            zip(classes, self.components_)
+            zip(classes, self.topic_term_matrix)
         ):
             highest = np.argpartition(-component, top_k)[:top_k]
             highest = highest[np.argsort(-component[highest])]
@@ -337,8 +339,6 @@ class TopicData(Mapping):
     def print_representative_documents(
         self,
         topic_id,
-        raw_documents,
-        document_topic_matrix=None,
         top_k=5,
         show_negative: bool = None,
     ):
@@ -348,11 +348,6 @@ class TopicData(Mapping):
         ----------
         topic_id: int
             ID of the topic to display.
-        raw_documents: list of str
-            List of documents to consider.
-        document_topic_matrix: ndarray of shape (n_documents, n_topics), optional
-            Document topic matrix to use. This is useful for transductive methods,
-            as they cannot infer topics from text.
         top_k: int, default 5
             Top K documents to show.
         show_negative: bool, default None
@@ -361,8 +356,6 @@ class TopicData(Mapping):
         """
         columns, *rows = self._representative_docs(
             topic_id,
-            raw_documents,
-            document_topic_matrix,
             top_k,
             show_negative,
         )
@@ -379,8 +372,6 @@ class TopicData(Mapping):
     def export_representative_documents(
         self,
         topic_id,
-        raw_documents,
-        document_topic_matrix=None,
         top_k=5,
         show_negative: Optional[bool] = None,
         format: str = "csv",
@@ -391,11 +382,6 @@ class TopicData(Mapping):
         ----------
         topic_id: int
             ID of the topic to display.
-        raw_documents: list of str
-            List of documents to consider.
-        document_topic_matrix: ndarray of shape (n_topics, n_topics), optional
-            Document topic matrix to use. This is useful for transductive methods,
-            as they cannot infer topics from text.
         top_k: int, default 5
             Top K documents to show.
         show_negative: bool, default False
@@ -406,8 +392,6 @@ class TopicData(Mapping):
         """
         table = self._highest_ranking_docs(
             topic_id,
-            raw_documents,
-            document_topic_matrix,
             top_k,
             show_negative,
         )
@@ -447,7 +431,7 @@ class TopicData(Mapping):
         else:
             names = list(names)
             n_given = len(names)
-            n_topics = self.components_.shape[0]
+            n_topics = self.topic_term_matrix.shape[0]
             if n_topics != n_given:
                 raise ValueError(
                     f"Number of topics ({n_topics}) doesn't match the length of the given topic name list ({n_given})."
@@ -555,3 +539,27 @@ class TopicData(Mapping):
                 figure_fn,
             )
         return module
+
+    @classmethod
+    def from_disk(cls, path: str | Path):
+        """Loads TopicData object from disk with Joblib.
+
+        Parameters
+        ----------
+        path: str or Path
+            Path to load the data from, e.g. "topic_data.joblib"
+        """
+        path = Path(path)
+        data = joblib.load(path)
+        return cls(**data)
+
+    def to_disk(self, path: str | Path):
+        """Saves TopicData object to disk.
+
+        Parameters
+        ----------
+        path: str or Path
+            Path to save the data to, e.g. "topic_data.joblib"
+        """
+        path = Path(path)
+        joblib.dump({**self}, path)
