@@ -271,7 +271,7 @@ class TopicContainer(ABC):
         raw_documents=None,
         document_topic_matrix=None,
         top_k=5,
-        show_negative: bool = False,
+        show_negative: Optional[bool] = None,
     ):
         """Pretty prints the highest ranking documents in a topic.
 
@@ -334,7 +334,7 @@ class TopicContainer(ABC):
             Specifies which format should be used.
             'csv', 'latex' and 'markdown' are supported.
         """
-        table = self._highest_ranking_docs(
+        table = self._representative_docs(
             topic_id,
             raw_documents,
             document_topic_matrix,
