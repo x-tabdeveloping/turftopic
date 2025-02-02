@@ -587,16 +587,21 @@ class ContextualModel(ABC, TransformerMixin, BaseEstimator):
                 corpus, embeddings=embeddings
             )
         dtm = self.vectorizer.transform(corpus)  # type: ignore
-        res: TopicData = {
-            "corpus": corpus,
-            "document_term_matrix": dtm,
-            "vocab": self.get_vocab(),
-            "document_topic_matrix": document_topic_matrix,
-            "document_representation": embeddings,
-            "topic_term_matrix": self.components_,  # type: ignore
-            "transform": getattr(self, "transform", None),
-            "topic_names": self.topic_names,
-        }
+        try:
+            classes = self.classes_
+        except AttributeError:
+            classes = list(range(self.components_.shape[0]))
+        res = TopicData(
+            corpus=corpus,
+            document_term_matrix=dtm,
+            vocab=self.get_vocab(),
+            document_topic_matrix=document_topic_matrix,
+            document_representation=embeddings,
+            topic_term_matrix=self.components_,  # type: ignore
+            transform=getattr(self, "transform", None),
+            topic_names=self.topic_names,
+            classes=classes,
+        )
         return res
 
     def to_disk(self, out_dir: Union[Path, str]):

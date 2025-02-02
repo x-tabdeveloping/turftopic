@@ -331,16 +331,16 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self.hierarchy = TopicNode.create_root(
             self, self.components_, self.document_topic_matrix
         )
-        res: TopicData = {
-            "corpus": corpus,
-            "document_term_matrix": document_term_matrix,
-            "vocab": self.get_vocab(),
-            "document_topic_matrix": doc_topic_matrix,
-            "document_representation": embeddings,
-            "topic_term_matrix": self.components_,  # type: ignore
-            "transform": getattr(self, "transform", None),
-            "topic_names": self.topic_names,
-        }
+        res = TopicData(
+            corpus=corpus,
+            document_term_matrix=document_term_matrix,
+            vocab=self.get_vocab(),
+            document_topic_matrix=doc_topic_matrix,
+            document_representation=embeddings,
+            topic_term_matrix=self.components_,  # type: ignore
+            transform=getattr(self, "transform", None),
+            topic_names=self.topic_names,
+        )
         return res
 
     def fit_transform_dynamic(
