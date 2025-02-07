@@ -298,7 +298,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
 
     def prepare_topic_data(
         self,
-        corpus: list[str],
+        corpus: Optional[list[str]],
         embeddings: Optional[np.ndarray] = None,
         keywords: Optional[list[dict[str, float]]] = None,
     ) -> TopicData:
@@ -340,6 +340,71 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             topic_term_matrix=self.components_,  # type: ignore
             transform=getattr(self, "transform", None),
             topic_names=self.topic_names,
+        )
+        return res
+
+    def prepare_dynamic_topic_data(
+        self,
+        corpus: Optional[list[str]],
+        timestamps: list[datetime],
+        embeddings: Optional[np.ndarray] = None,
+        bins: Union[int, list[datetime]] = 10,
+        keywords: Optional[list[dict[str, float]]] = None,
+    ):
+        if ((corpus is not None) and (keywords is not None)) and (
+            len(keywords) != len(corpus)
+        ):
+            raise ValueError(
+                "Length of keywords is not the same as length of the corpus"
+            )
+        if (corpus is None) and (keywords is None):
+            raise TypeError(
+                "You have to pass keywords or a corpus, but both are None."
+            )
+        if embeddings is None:
+            embeddings = self.encode_documents(corpus)
+        console = Console()
+        with console.status("Running KeyNMF") as status:
+            if embeddings is None:
+                embeddings = self.encode_documents(corpus)
+            if keywords is None:
+                status.update("Extracting keywords")
+                keywords = self.extract_keywords(corpus, embeddings=embeddings)
+                console.log("Keyword extraction done.")
+            if (corpus is not None) and (len(keywords) != len(corpus)):
+                raise ValueError(
+                    "length of keywords is not the same as length of the corpus"
+                )
+            status.update("Decomposing with NMF")
+            try:
+                doc_topic_matrix = self.model.transform(keywords)
+            except (NotFittedError, AttributeError):
+                doc_topic_matrix = self.fit_transform_dynamic(
+                    corpus,
+                    embeddings=embeddings,
+                    keywords=keywords,
+                    bins=bins,
+                    timestamps=timestamps,
+                )
+            console.log("Model fitting done.")
+            document_term_matrix = self.model.vectorize(keywords)
+        try:
+            classes = self.classes_
+        except AttributeError:
+            classes = list(range(self.components_.shape[0]))
+        res = TopicData(
+            corpus=corpus,
+            document_term_matrix=document_term_matrix,
+            vocab=self.get_vocab(),
+            document_topic_matrix=doc_topic_matrix,
+            document_representation=embeddings,
+            topic_term_matrix=self.components_,  # type: ignore
+            transform=getattr(self, "transform", None),
+            topic_names=self.topic_names,
+            classes=classes,
+            temporal_components=self.temporal_components_,
+            temporal_importance=self.temporal_importance_,
+            time_bin_edges=self.time_bin_edges,
         )
         return res
 
