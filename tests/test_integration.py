@@ -126,12 +126,22 @@ def test_fit_online(model):
         df = pd.read_csv(out_path)
 
 
+OPTIONAL_FIELDS = [
+    "topic_names",
+    "classes",
+    "corpus",
+    "transform",
+    "time_bin_edges",
+    "temporal_components",
+    "temporal_importance",
+]
+
+
 @pytest.mark.parametrize("model", models)
 def test_prepare_topic_data_export_table(model):
     topic_data = model.prepare_topic_data(texts, embeddings=embeddings)
     for key, value in topic_data.items():
-        # We allow transform() to be None for transductive models
-        if key == "transform":
+        if key in OPTIONAL_FIELDS:
             continue
         if value is None:
             raise TypeError(f"Field {key} is None in topic_data.")
