@@ -796,6 +796,31 @@ class TopicContainer(ABC):
         table = self._topics_over_time(top_k, show_scores, date_format)
         return export_table(table, format=format)
 
+    def topics_over_time_df(
+        self,
+        top_k: int = 5,
+        show_scores: bool = False,
+        format="csv",
+    ):
+        try:
+            import pandas as pd
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "You need to pip install pandas to be able to use dataframes."
+            )
+
+        def parse_time_slice(slice: str) -> tuple[datetime, datetime]:
+            date_format = "%Y %m %d"
+            start_date, end_date = slice.split(" - ")
+            return datetime.strptime(
+                start_date, date_format
+            ), datetime.strptime(end_date, date_format)
+
+        columns, *rows = self._topics_over_time(top_k, show_scores)
+        df = pd.DataFrame(rows, columns=columns)
+        df["Time Slice"] = df["Time Slice"].map(parse_time_slice)
+        return df
+
     def plot_topics_over_time(
         self,
         top_k: int = 6,
