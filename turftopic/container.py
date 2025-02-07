@@ -888,7 +888,7 @@ class TopicContainer(ABC):
         except AttributeError:
             topic_names = [f"Topic {i}" for i in range(n_topics)]
         for trace_color, (i_topic, topic_imp_t) in zip(
-            topic_colors, enumerate(temporal_importance.T)
+            itertools.cycle(topic_colors), enumerate(temporal_importance.T)
         ):
             component_over_time = temporal_components[:, i_topic, :]
             name_over_time = []
