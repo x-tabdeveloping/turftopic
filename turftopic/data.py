@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import datetime
 from functools import partial
 from pathlib import Path
 from typing import Callable, Optional
@@ -33,7 +34,7 @@ class TopicData(Mapping, TopicContainer):
     document_representation: ndarray of shape (n_documents, n_dimensions)
         Embedded representations for documents.
         Can also be a sparse BoW matrix for classical models.
-    topic_names: list of str
+    topic_names: list of str, default None
         Names or topic descriptions inferred for topics by the model.
     classes: np.ndarray, default None
         Topic IDs that might be different from 0-n_topics.
@@ -43,6 +44,12 @@ class TopicData(Mapping, TopicContainer):
     transform: (list[str]) -> ndarray, default None
         Function that transforms documents to document-topic matrices.
         Can be None in the case of transductive models.
+    time_bin_edges: list[datetime], default None
+        Edges of the time bins in a dynamic topic model.
+    temporal_components: np.ndarray (n_slices, n_topics, n_vocab), default None
+        Topic-term importances over time. Only relevant for dynamic topic models.
+    temporal_importance: np.ndarray (n_slices, n_topics), default None
+        Topic strength signal over time. Only relevant for dynamic topic models.
     """
 
     def __init__(
@@ -57,6 +64,9 @@ class TopicData(Mapping, TopicContainer):
         classes: Optional[np.ndarray] = None,
         corpus: Optional[list[str]] = None,
         transform: Optional[Callable] = None,
+        time_bin_edges: Optional[list[datetime]] = None,
+        temporal_components: Optional[np.ndarray] = None,
+        temporal_importance: Optional[np.ndarray] = None,
         **kwargs,
     ):
         self.corpus = corpus
@@ -68,6 +78,9 @@ class TopicData(Mapping, TopicContainer):
         self.transform = transform
         self.topic_names_ = topic_names
         self.classes = classes
+        self.time_bin_edges = time_bin_edges
+        self.temporal_components = temporal_components
+        self.temporal_importance = temporal_importance
         for key, value in kwargs:
             setattr(self, key, value)
         self._attributes = [
@@ -79,12 +92,31 @@ class TopicData(Mapping, TopicContainer):
             "document_representation",
             "transform",
             "topic_names",
+            "time_bin_edges",
+            "temporal_components",
+            "temporal_importance",
             *kwargs.keys(),
         ]
 
     @property
     def components_(self) -> np.ndarray:
         return self.topic_term_matrix
+
+    @property
+    def temporal_components_(self) -> np.ndarray:
+        if self.temporal_components is None:
+            raise AttributeError(
+                "Topic data does not contain dynamic information."
+            )
+        return self.temporal_components
+
+    @property
+    def temporal_importance_(self) -> np.ndarray:
+        if self.temporal_importance_ is None:
+            raise AttributeError(
+                "Topic data does not contain dynamic information."
+            )
+        return self.temporal_importance_
 
     @property
     def classes_(self) -> np.ndarray:
