@@ -112,11 +112,11 @@ class TopicData(Mapping, TopicContainer):
 
     @property
     def temporal_importance_(self) -> np.ndarray:
-        if self.temporal_importance_ is None:
+        if self.temporal_importance is None:
             raise AttributeError(
                 "Topic data does not contain dynamic information."
             )
-        return self.temporal_importance_
+        return self.temporal_importance
 
     @property
     def classes_(self) -> np.ndarray:
