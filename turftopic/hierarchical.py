@@ -117,6 +117,12 @@ class TopicNode:
     document_topic_vector: Optional[np.ndarray] = None
     children: Optional[list[TopicNode]] = None
 
+    @property
+    def classes_(self):
+        if self.children is None:
+            raise AttributeError("TopicNode doesn't have children.")
+        return np.array([child.path[-1] for child in self.children])
+
     @classmethod
     def create_root(
         cls,
@@ -225,10 +231,21 @@ class TopicNode:
     def __repr__(self):
         return str(self)
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, id_or_path: int | tuple[int, ...]):
         if self.children is None:
             raise IndexError("Current node is a leaf and has not children.")
-        return self.children[index]
+        if isinstance(id_or_path, int):
+            mapping = {
+                topic_class: i_topic
+                for i_topic, topic_class in enumerate(self.classes_)
+            }
+        else:
+            paths = [child.path for child in self.children]
+            mapping = {path: i_topic for i_topic, path in enumerate(paths)}
+        return self.children[mapping[id_or_path]]
+
+    def __iter__(self):
+        return iter(self.children)
 
     def plot_tree(self):
         """Plots hierarchy as an interactive tree in Plotly."""

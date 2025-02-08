@@ -235,18 +235,28 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self.reduction_method = reduction_method
 
     def _calculate_topic_vectors(
-        self, is_in_slice: Optional[np.ndarray] = None
+        self,
+        is_in_slice: Optional[np.ndarray] = None,
+        classes: Optional[np.ndarray] = None,
+        embeddings: Optional[np.ndarray] = None,
+        labels: Optional[np.ndarray] = None,
     ) -> np.ndarray:
-        label_to_idx = {label: idx for idx, label in enumerate(self.classes_)}
-        n_topics = len(self.classes_)
-        n_dims = self.embeddings.shape[1]
+        if classes is None:
+            classes = self.classes_
+        if embeddings is None:
+            embeddings = self.embeddings
+        if labels is None:
+            labels = self.labels_
+        label_to_idx = {label: idx for idx, label in enumerate(classes)}
+        n_topics = len(classes)
+        n_dims = embeddings.shape[1]
         topic_vectors = np.full((n_topics, n_dims), np.nan)
-        for label in np.unique(self.labels_):
-            doc_idx = self.labels_ == label
+        for label in np.unique(labels):
+            doc_idx = labels == label
             if is_in_slice is not None:
                 doc_idx = doc_idx & is_in_slice
             topic_vectors[label_to_idx[label], :] = np.mean(
-                self.embeddings[doc_idx], axis=0
+                embeddings[doc_idx], axis=0
             )
         return topic_vectors
 
@@ -558,7 +568,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 )
             elif feature_importance == "centroid":
                 t_topic_vectors = self._calculate_topic_vectors(
-                    time_labels == i_timebin,
+                    is_in_slice=time_labels == i_timebin,
                 )
                 components = cluster_centroid_distance(
                     t_topic_vectors,
