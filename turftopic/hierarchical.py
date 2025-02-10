@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Optional
 
 import numpy as np
 from rich.console import Console
 from rich.tree import Tree
-from scipy.cluster.hierarchy import ClusterNode, to_tree
 
 from turftopic.base import ContextualModel
 
@@ -34,43 +33,53 @@ def _tree_plot(hierarchy: TopicNode):
             "You will need to install plotly and igraph to use hierarchical plotting functionality."
         ) from e
 
-    def traverse(h, nodes, edges, parent=None):
-        nodes.append(h)
-        if parent is not None:
-            edges.append([parent._simple_desc, h._simple_desc])
-        if h.children is not None:
-            for child in h.children:
-                traverse(child, nodes, edges, parent=h)
-
-    def word_table(h):
+    def word_table(node):
         entries = []
-        words = h.get_words(top_k=10)
+        words = node.get_words(top_k=10)
         for word, imp in words:
             entries.append(f"<b>{word}</b>: <i>{imp:.2f}</i>")
         return " <br> ".join(entries)
 
+    def traverse(h, nodes, edges, tables, parent=None):
+        nodes.append(h)
+        tables.append(word_table(h))
+        if parent is not None:
+            edges.append([parent._path_str(), h._path_str()])
+        if h.children is not None:
+            for child in h.children:
+                traverse(child, nodes, edges, tables, parent=h)
+
     nodes = []
     edges = []
+    tables = []
     for child in hierarchy.children:
-        traverse(child, nodes, edges)
+        traverse(child, nodes, edges, tables)
     node_names = [node._simple_desc for node in nodes]
-    node_to_idx = {node_name: idx for idx, node_name in enumerate(node_names)}
+    node_ids = [node._path_str() for node in nodes]
+    node_to_idx = {node_id: idx for idx, node_id in enumerate(node_ids)}
     edges_idx = [
         [node_to_idx[start], node_to_idx[end]] for start, end in edges
     ]
-    tables = [word_table(node) for node in nodes]
     graph = ig.Graph(len(nodes), edges=edges_idx, directed=True)
     layout = graph.layout("rt")
     layout.rotate(-90)
     x, y = np.array(layout.coords).T
     xmin, xmax = np.min(x), np.max(x)
     xpad = (xmax - xmin) * 0.35
+    # Mapping root nodes to colors
+    color_scheme = px.colors.qualitative.Dark24
+    root_nodes = [str(node.path[0]) for node in nodes]
+    color_map = {
+        root_node: color_scheme[i % len(color_scheme)]
+        for i, root_node in enumerate(np.unique(root_nodes))
+    }
     fig = px.scatter(x=x, y=y, text=node_names, template="plotly_white")
     fig = fig.update_traces(
-        customdata=[[table] for table in tables],
+        customdata=np.array([[table] for table in tables]),
         hovertemplate="<b>%{text}</b> <br> <br> %{customdata[0]}",
+        marker=dict(color=[color_map[root_node] for root_node in root_nodes]),
     )
-    fig = fig.update_traces(marker=dict(size=20, color="rgba(0,0,0,0.2)"))
+    fig = fig.update_traces(marker=dict(size=20))
     fig = fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
     fig = fig.update_yaxes(showgrid=False, visible=False, zeroline=False)
     fig = fig.update_xaxes(
@@ -116,6 +125,9 @@ class TopicNode:
     word_importance: Optional[np.ndarray] = None
     document_topic_vector: Optional[np.ndarray] = None
     children: Optional[list[TopicNode]] = None
+
+    def _path_str(self):
+        return ".".join([str(level_id) for level_id in self.path])
 
     @property
     def classes_(self):
@@ -182,11 +194,10 @@ class TopicNode:
         """
         if self.word_importance is None:
             return []
-        idx = np.argpartition(-self.word_importance, top_k)[:top_k]
-        order = np.argsort(-self.word_importance[idx])
-        idx = idx[order]
-        imp = self.word_importance[idx]
-        words = self.model.get_vocab()[idx]
+        vocab = self.model.get_vocab()
+        most_important = np.argsort(-self.word_importance)[:top_k]
+        words = vocab[most_important]
+        imp = self.word_importance[most_important]
         return list(zip(words, imp))
 
     @property
@@ -196,7 +207,9 @@ class TopicNode:
         if not len(self.path):
             path = "Root"
         else:
-            path = ".".join([str(idx) for idx in self.path])
+            path = str(
+                self.path[-1]
+            )  # ".".join([str(idx) for idx in self.path])
         words = []
         for word, imp in self.get_words(top_k=10):
             words.append(word)
@@ -213,25 +226,46 @@ class TopicNode:
         if not len(self.path):
             path = "Root"
         else:
-            path = ".".join([str(idx) for idx in self.path])
+            path = str(
+                self.path[-1]
+            )  # ".".join([str(idx) for idx in self.path])
         words = []
         for word, imp in self.get_words(top_k=5):
             words.append(word)
         concat_words = ", ".join(words)
         return f"{path}: {concat_words}"
 
-    def _build_tree(self, tree: Tree = None, top_k: int = 10) -> Tree:
+    def _build_tree(
+        self,
+        tree: Tree = None,
+        top_k: int = 10,
+        max_depth: Optional[int] = None,
+    ) -> Tree:
         if tree is None:
             tree = Tree(self.description)
         else:
             tree = tree.add(self.description)
+        out_of_depth = (max_depth is not None) and (self.level >= max_depth)
+        if out_of_depth:
+            if self.children is not None:
+                tree.add("...")
+            return tree
         if self.children is not None:
             for child in self.children:
-                child._build_tree(tree)
+                child._build_tree(tree, max_depth=max_depth)
         return tree
 
+    def print_tree(
+        self,
+        top_k: int = 10,
+        max_depth: Optional[int] = None,
+    ) -> None:
+        tree = self._build_tree(top_k=top_k, max_depth=max_depth)
+        console = Console()
+        console.print(tree)
+
     def __str__(self):
-        tree = self._build_tree(top_k=10)
+        tree = self._build_tree(top_k=10, max_depth=3)
         console = Console()
         with console.capture() as capture:
             console.print(tree)
@@ -309,3 +343,13 @@ class DivisibleTopicNode(TopicNode):
         for child in self.children:
             child.divide(n_subtopics, **kwargs)
         return self
+
+    def __str__(self):
+        tree = self._build_tree(top_k=10, max_depth=3)
+        console = Console()
+        with console.capture() as capture:
+            console.print(tree)
+        return capture.get()
+
+    def __repr__(self):
+        return str(self)
