@@ -22,6 +22,10 @@ Encoder = Union[ExternalEncoder, SentenceTransformer]
 class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
     """Base class for contextual topic models in Turftopic."""
 
+    @property
+    def has_negative_side(self) -> bool:
+        return False
+
     def encode_documents(self, raw_documents: Iterable[str]) -> np.ndarray:
         """Encodes documents with the sentence encoder of the topic model.
 
@@ -149,6 +153,7 @@ class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
             transform=getattr(self, "transform", None),
             topic_names=self.topic_names,
             classes=classes,
+            has_negative_side=self.has_negative_side,
         )
         return res
 

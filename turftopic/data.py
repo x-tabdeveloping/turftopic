@@ -69,6 +69,7 @@ class TopicData(Mapping, TopicContainer):
         time_bin_edges: Optional[list[datetime]] = None,
         temporal_components: Optional[np.ndarray] = None,
         temporal_importance: Optional[np.ndarray] = None,
+        has_negative_side: bool = False,
         **kwargs,
     ):
         self.corpus = corpus
@@ -83,6 +84,7 @@ class TopicData(Mapping, TopicContainer):
         self.time_bin_edges = time_bin_edges
         self.temporal_components = temporal_components
         self.temporal_importance = temporal_importance
+        self._has_negative_side = has_negative_side
         for key, value in kwargs:
             setattr(self, key, value)
         self._attributes = [
@@ -97,6 +99,7 @@ class TopicData(Mapping, TopicContainer):
             "time_bin_edges",
             "temporal_components",
             "temporal_importance",
+            "has_negative_side",
             *kwargs.keys(),
         ]
 
@@ -200,3 +203,7 @@ class TopicData(Mapping, TopicContainer):
         """
         path = Path(path)
         joblib.dump({**self}, path)
+
+    @property
+    def has_negative_side(self) -> bool:
+        return self._has_negative_side
