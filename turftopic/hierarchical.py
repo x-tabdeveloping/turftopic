@@ -133,13 +133,16 @@ class TopicNode:
         """Creates root node from a topic models' components and topic importances in documents."""
         children = []
         n_components = components.shape[0]
-        for i, comp, doc_top in zip(
-            range(n_components), components, document_topic_matrix.T
+        classes = getattr(model, "classes_", None)
+        if classes is None:
+            classes = np.arange(n_components)
+        for topic_id, comp, doc_top in zip(
+            classes, components, document_topic_matrix.T
         ):
             children.append(
                 cls(
                     model,
-                    path=(i,),
+                    path=(topic_id,),
                     word_importance=comp,
                     document_topic_vector=doc_top,
                     children=None,
@@ -231,17 +234,15 @@ class TopicNode:
     def __repr__(self):
         return str(self)
 
-    def __getitem__(self, id_or_path: int | tuple[int, ...]):
+    def __getitem__(self, id_or_path: int):
         if self.children is None:
-            raise IndexError("Current node is a leaf and has not children.")
-        if isinstance(id_or_path, int):
-            mapping = {
-                topic_class: i_topic
-                for i_topic, topic_class in enumerate(self.classes_)
-            }
-        else:
-            paths = [child.path for child in self.children]
-            mapping = {path: i_topic for i_topic, path in enumerate(paths)}
+            raise IndexError(
+                "Current node is a leaf and does not have children."
+            )
+        mapping = {
+            topic_class: i_topic
+            for i_topic, topic_class in enumerate(self.classes_)
+        }
         return self.children[mapping[id_or_path]]
 
     def __iter__(self):
@@ -250,6 +251,12 @@ class TopicNode:
     def plot_tree(self):
         """Plots hierarchy as an interactive tree in Plotly."""
         return _tree_plot(self)
+
+    def _append_path(self, path_prefix: int):
+        self.path = (path_prefix, *self.path)
+        if self.children is not None:
+            for child in self.children:
+                child._append_path(path_prefix)
 
 
 @dataclass
