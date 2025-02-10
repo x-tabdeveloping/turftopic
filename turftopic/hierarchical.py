@@ -123,6 +123,12 @@ class TopicNode:
             raise AttributeError("TopicNode doesn't have children.")
         return np.array([child.path[-1] for child in self.children])
 
+    @property
+    def components_(self):
+        if self.children is None:
+            raise AttributeError("TopicNode doesn't have children.")
+        return np.stack([child.word_importance for child in self.children])
+
     @classmethod
     def create_root(
         cls,

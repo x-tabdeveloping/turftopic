@@ -1,11 +1,14 @@
+import typing
+import warnings
 from collections import Counter
-from typing import Sequence
+from typing import Optional, Sequence
 
 import numpy as np
 from scipy.cluster.hierarchy import linkage
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.preprocessing import label_binarize
 
+from turftopic.base import ContextualModel
 from turftopic.feature_importance import (bayes_rule,
                                           cluster_centroid_distance, ctf_idf,
                                           soft_ctf_idf)
@@ -17,6 +20,20 @@ NOT_MATCHING_ERROR = (
     + "Try to initialize the model with the encoder you used for computing the embeddings."
 )
 
+LinkageMethod = typing.Literal[
+    # Top2Vec's merging method
+    "smallest",
+    # Linkage methods from SciPy
+    "single",
+    "complete",
+    "average",
+    "centroid",
+    "median",
+    "ward",
+    "weighted",
+]
+VALID_LINKAGE_METHODS = list(typing.get_args(LinkageMethod))
+
 
 def smallest_linkage(
     n_reduce_to: int,
@@ -25,7 +42,7 @@ def smallest_linkage(
     classes: np.ndarray,
     metric: str = "cosine",
 ) -> np.ndarray:
-    """Iteratively joins smallest topics.
+    """Iteratively joins smallest topics based on Top2Vec's algorithm.
     Returns linkage matrix in scipy format
     (see [Scipy Docs](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html#scipy.cluster.hierarchy.linkage)).
     """
@@ -70,13 +87,51 @@ class ClusterNode(TopicNode):
     """Hierarchical Topic Node for clustering models.
     Supports merging topics based on a hierarchical merging strategy."""
 
-    def _join_children(self, to_join: Sequence[int], joint_id: int):
+    @classmethod
+    def create_root(cls, model: ContextualModel, labels: np.ndarray):
+        """Creates root node from a topic models' components and topic importances in documents."""
+        classes = np.sort(np.unique(labels))
+        document_topic_matrix = label_binarize(labels, classes=classes)
+        children = []
+        for topic_id, doc_top in zip(classes, document_topic_matrix.T):
+            children.append(
+                cls(
+                    model,
+                    path=(topic_id,),
+                    document_topic_vector=doc_top,
+                    children=None,
+                )
+            )
+        res = cls(
+            model,
+            path=(),
+            word_importance=None,
+            document_topic_vector=None,
+            children=children,
+        )
+        res.estimate_components()
+        return res
+
+    def join_topics(
+        self, to_join: Sequence[int], joint_id: Optional[int] = None
+    ):
+        """Joins a number of topics into a new topic with a given ID.
+
+        Parameters
+        ----------
+        to_join: Sequence of int
+            Children in the hierarchy to join (IDs indicate the last element of the path).
+        joint_id: int, default None
+            ID to give to the joint topic. By default, this will be the topic with the smallest ID.
+        """
         if self.children is None:
             raise TypeError("Node doesn't have children, can't merge.")
         if len(set(to_join)) < len(to_join):
             raise ValueError(
                 f"You can't join a cluster with itself: {to_join}"
             )
+        if joint_id is None:
+            joint_id = min(to_join)
         children = [self[i] for i in to_join]
         joint_membership = np.stack(
             [child.document_topic_vector for child in children]
@@ -91,13 +146,18 @@ class ClusterNode(TopicNode):
         )
         for child in joint_node:
             child._append_path(joint_id)
-        # joint_node._append_path(min_id)
         self.children = [
             child for child in self.children if child.path[-1] not in child_ids
         ] + [joint_node]
-        component_map = self.estimate_children_components()
+        component_map = self._estimate_children_components()
         for child in self.children:
             child.word_importance = component_map[child.path[-1]]
+
+    def estimate_components(self) -> np.ndarray:
+        component_map = self._estimate_children_components()
+        for child in self.children:
+            child.word_importance = component_map[child.path[-1]]
+        return self.components_
 
     @property
     def labels_(self) -> np.ndarray:
@@ -112,7 +172,7 @@ class ClusterNode(TopicNode):
             [self.children[label].path[-1] for label in labels if label != -1]
         )
 
-    def estimate_children_components(self) -> dict[int, np.ndarray]:
+    def _estimate_children_components(self) -> dict[int, np.ndarray]:
         """Estimates feature importances based on a fitted clustering."""
         clusters = np.unique(self.labels_)
         classes = np.sort(clusters)
@@ -158,13 +218,17 @@ class ClusterNode(TopicNode):
         classes = self.classes_
         max_class = len(classes[classes != -1])
         for i_cluster, (left, right, *_) in enumerate(linkage_matrix):
-            self._join_children(
+            self.join_topics(
                 [int(left), int(right)], int(max_class + i_cluster)
             )
 
     def _calculate_linkage(
         self, n_reduce_to: int, method: str = "average", metric: str = "cosine"
     ) -> np.ndarray:
+        if method not in VALID_LINKAGE_METHODS:
+            raise ValueError(
+                f"Linkage method has to be one of: {VALID_LINKAGE_METHODS}, but got {method} instead."
+            )
         classes = self.classes_
         labels = self.labels_
         topic_sizes = np.array([np.sum(labels == label) for label in classes])
@@ -190,7 +254,14 @@ class ClusterNode(TopicNode):
     def reduce_topics(
         self, n_reduce_to: int, method: str = "average", metric: str = "cosine"
     ):
+        n_topics = np.sum(self.classes_ != -1)
+        if n_topics <= n_reduce_to:
+            warnings.warn(
+                f"Number of clusters is already {n_topics} <= {n_reduce_to}, nothing to do."
+            )
+            return
         linkage_matrix = self._calculate_linkage(
             n_reduce_to, method=method, metric=metric
         )
+        self.linkage_matrix_ = linkage_matrix
         self._merge_clusters(linkage_matrix)

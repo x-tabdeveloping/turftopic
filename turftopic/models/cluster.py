@@ -21,6 +21,9 @@ from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import (bayes_rule,
                                           cluster_centroid_distance, ctf_idf,
                                           soft_ctf_idf)
+from turftopic.models._hierarchical_clusters import (VALID_LINKAGE_METHODS,
+                                                     ClusterNode,
+                                                     LinkageMethod)
 from turftopic.vectorizers.default import default_vectorizer
 
 integer_message = """
@@ -47,35 +50,6 @@ NOT_MATCHING_ERROR = (
     + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
     + "Try to initialize the model with the encoder you used for computing the embeddings."
 )
-
-
-def smallest_hierarchical_join(
-    topic_vectors: np.ndarray,
-    topic_sizes: np.ndarray,
-    classes_: np.ndarray,
-    n_to: int,
-) -> list[tuple]:
-    """Iteratively joins smallest topics."""
-    merge_inst = []
-    topic_vectors = np.copy(topic_vectors)
-    topic_sizes = np.copy(topic_sizes)
-    classes = list(classes_)
-    while len(classes) > n_to:
-        smallest = np.argmin(topic_sizes)
-        dist = cosine_distances(
-            np.atleast_2d(topic_vectors[smallest]), topic_vectors
-        )
-        closest = np.argsort(dist[0])[1]
-        merge_inst.append((classes[smallest], classes[closest]))
-        classes.pop(smallest)
-        topic_vectors[closest] = (
-            (topic_vectors[smallest] * topic_sizes[smallest])
-            + (topic_vectors[closest] * topic_sizes[closest])
-        ) / (topic_sizes[smallest] + topic_sizes[closest])
-        topic_vectors = np.delete(topic_vectors, smallest, axis=0)
-        topic_sizes[closest] = topic_sizes[closest] + topic_sizes[smallest]
-        topic_sizes = np.delete(topic_sizes, smallest, axis=0)
-    return merge_inst
 
 
 def calculate_topic_vectors(
@@ -164,7 +138,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
         By default, topics are not merged.
-    reduction_method: 'agglomerative', 'smallest'
+    reduction_method: LinkageMethod
         Method used to reduce the number of topics post-hoc.
         When 'agglomerative', BERTopic's topic reduction method is used,
         where topic vectors are hierarchically clustered.
@@ -190,9 +164,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             "bayes",
         ] = "soft-c-tf-idf",
         n_reduce_to: Optional[int] = None,
-        reduction_method: Literal[
-            "agglomerative", "smallest"
-        ] = "agglomerative",
+        reduction_method: LinkageMethod = "average",
         random_state: Optional[int] = None,
     ):
         self.encoder = encoder
@@ -232,6 +204,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.dimensionality_reduction = dimensionality_reduction
         self.feature_importance = feature_importance
         self.n_reduce_to = n_reduce_to
+        if reduction_method not in VALID_LINKAGE_METHODS:
+            raise ValueError(
+                f"Topic reduction method has to be one of: {VALID_LINKAGE_METHODS}, but got {reduction_method} instead."
+            )
         self.reduction_method = reduction_method
 
     def _calculate_topic_vectors(
@@ -260,47 +236,11 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             )
         return topic_vectors
 
-    def _merge_agglomerative(self, n_reduce_to: int) -> np.ndarray:
-        n_topics = self.components_.shape[0]
-        res = {old_label: old_label for old_label in self.classes_}
-        if n_topics <= n_reduce_to:
-            return self.labels_
-        interesting_topic_vectors = np.stack(
-            [
-                vec
-                for label, vec in zip(self.classes_, self.topic_vectors_)
-                if label != -1
-            ]
-        )
-        old_labels = [label for label in self.classes_ if label != -1]
-        new_labels = AgglomerativeClustering(
-            n_clusters=n_reduce_to,
-            metric="cosine",
-            linkage="average",
-        ).fit_predict(interesting_topic_vectors)
-        res = {}
-        if -1 in self.classes_:
-            res[-1] = -1
-        for i_old, i_new in zip(old_labels, new_labels):
-            res[i_old] = i_new
-        return np.array([res[label] for label in self.labels_])
-
-    def _merge_smallest(self, n_reduce_to: int):
-        merge_inst = smallest_hierarchical_join(
-            self.topic_vectors_[self.classes_ != -1],
-            self.topic_sizes_[self.classes_ != -1],
-            self.classes_[self.classes_ != -1],
-            n_reduce_to,
-        )
-        labels = np.copy(self.labels_)
-        for from_topic, to_topic in merge_inst:
-            labels[labels == from_topic] = to_topic
-        return labels
-
     def reduce_topics(
         self,
         n_reduce_to: int,
-        reduction_method: Literal["smallest", "agglomerative"],
+        reduction_method: Optional[LinkageMethod] = None,
+        metric: str = "cosine",
     ) -> np.ndarray:
         """Reduces the clustering to the desired amount with the given method.
 
@@ -327,120 +267,39 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.original_labels_ = self.labels_
             self.original_names_ = self.topic_names
             self.original_classes_ = self.classes_
-        if reduction_method == "smallest":
-            self.labels_ = self._merge_smallest(n_reduce_to)
-        elif reduction_method == "agglomerative":
-            self.labels_ = self._merge_agglomerative(n_reduce_to)
-        self.estimate_components(self.feature_importance)
+        if reduction_method is None:
+            reduction_method = self.reduction_method
+        self.hierarchy.reduce_topics(
+            n_reduce_to, method=reduction_method, metric=metric
+        )
         return self.labels_
 
-    def join_topics(self, topic_ids: list[int]):
-        """Joins given topic together into one topic and reestimates term importances.
+    @property
+    def classes_(self):
+        try:
+            return self.hierarchy.classes_
+        except AttributeError as e:
+            raise AttributeError(
+                "Model has not been fitted yet, and doesn't have classes_"
+            ) from e
 
-        Example:
-        ```python
-        model.join_topics([0,3,2])
-        ```
+    @property
+    def components_(self):
+        try:
+            return self.hierarchy.components_
+        except AttributeError as e:
+            raise AttributeError(
+                "Model has not been fitted yet, and doesn't have components_"
+            ) from e
 
-        Parameters
-        ----------
-        topic_ids: list[int]
-            Topic IDs to join together.
-            The new topic will get the lowest ID.
-        """
-        topic_ids = sorted(topic_ids)
-        new_topic = topic_ids[0]
-        new_labels = []
-        self.original_labels_ = self.labels_
-        self.original_names_ = self.topic_names
-        self.original_classes_ = self.classes_
-        for label in self.labels_:
-            if label in topic_ids:
-                new_labels.append(new_topic)
-            else:
-                new_labels.append(label)
-        self.labels_ = np.array(new_labels)
-        self.estimate_components(self.feature_importance)
-
-    def reset_topics(self):
-        """Resets topic reductions to the original clustering."""
-        if not hasattr(self, "original_labels_"):
-            warnings.warn("Topics have never been reduced, nothing to reset.")
-        else:
-            self.labels_ = self.original_labels_
-            self.topic_names_ = self.original_names_
-            self.estimate_components(self.feature_importance)
-
-    def estimate_components(
-        self,
-        feature_importance: Literal[
-            "centroid", "soft-c-tf-idf", "bayes", "c-tf-idf"
-        ],
-    ) -> np.ndarray:
-        """Estimates feature importances based on a fitted clustering.
-
-        Parameters
-        ----------
-        feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
-            Method for estimating term importances.
-            'centroid' uses distances from cluster centroid similarly
-            to Top2Vec.
-            'c-tf-idf' uses BERTopic's c-tf-idf.
-            'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
-            be very similar to 'c-tf-idf'.
-            'bayes' uses Bayes' rule.
-
-        Returns
-        -------
-        ndarray of shape (n_components, n_vocab)
-            Topic-term matrix.
-        """
-        self.topic_names_ = None
-        if getattr(self, "labels_", None) is None:
-            raise NotFittedError(
-                "The model has not been fitted yet, please fit the model before estimating temporal components."
-            )
-        clusters = np.unique(self.labels_)
-        self.classes_ = np.sort(clusters)
-        self.topic_sizes_ = np.array(
-            [np.sum(self.labels_ == label) for label in self.classes_]
-        )
-        self.topic_vectors_ = self._calculate_topic_vectors()
-        document_topic_matrix = label_binarize(
-            self.labels_, classes=self.classes_
-        )
-        if feature_importance == "soft-c-tf-idf":
-            self.components_ = soft_ctf_idf(
-                document_topic_matrix, self.doc_term_matrix
-            )  # type: ignore
-        elif feature_importance == "centroid":
-            if not hasattr(self, "vocab_embeddings"):
-                self.vocab_embeddings = self.encoder_.encode(
-                    self.vectorizer.get_feature_names_out()
-                )  # type: ignore
-                if (
-                    self.vocab_embeddings.shape[1]
-                    != self.topic_vectors_.shape[1]
-                ):
-                    raise ValueError(
-                        NOT_MATCHING_ERROR.format(
-                            n_dims=self.topic_vectors_.shape[1],
-                            n_word_dims=self.vocab_embeddings.shape[1],
-                        )
-                    )
-            self.components_ = cluster_centroid_distance(
-                self.topic_vectors_,
-                self.vocab_embeddings,
-            )
-        elif feature_importance == "bayes":
-            self.components_ = bayes_rule(
-                document_topic_matrix, self.doc_term_matrix
-            )
-        else:
-            self.components_ = ctf_idf(
-                document_topic_matrix, self.doc_term_matrix
-            )
-        return self.components_
+    @property
+    def labels_(self):
+        try:
+            return self.hierarchy.labels_
+        except AttributeError as e:
+            raise AttributeError(
+                "Model has not been fitted yet, and doesn't have labels_"
+            ) from e
 
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -477,10 +336,11 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             )
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
-            self.labels_ = self.clustering.fit_predict(self.reduced_embeddings)
+            labels = self.clustering.fit_predict(self.reduced_embeddings)
             console.log("Clustering done.")
             status.update("Estimating parameters.")
-            self.estimate_components(self.feature_importance)
+            # Initializing hierarchy
+            self.hierarchy = ClusterNode.create_root(self, labels=labels)
             console.log("Parameter estimation done.")
             if self.n_reduce_to is not None:
                 n_topics = self.classes_.shape[0]
@@ -491,13 +351,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 console.log(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
-                status.update("Reestimating parameters.")
-                self.estimate_components(self.feature_importance)
-                console.log("Reestimation done.")
         console.log("Model fitting done.")
-        self.doc_topic_matrix = label_binarize(
-            self.labels_, classes=self.classes_
-        )
         return self.labels_
 
     def fit_transform(
