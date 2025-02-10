@@ -4,16 +4,15 @@ import warnings
 import webbrowser
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal, Optional, Sequence, Union
 
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
-from sklearn.cluster import HDBSCAN, AgglomerativeClustering
+from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_distances
 from sklearn.preprocessing import label_binarize, scale
 
 from turftopic.base import ContextualModel, Encoder
@@ -304,6 +303,21 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
     @property
     def document_topic_matrix(self):
         return label_binarize(self.labels_, classes=self.classes_)
+
+    def join_topics(
+        self, to_join: Sequence[int], joint_id: Optional[int] = None
+    ):
+        """Joins the given topics in the cluster hierarchy to a single topic.
+
+        Parameters
+        ----------
+        to_join: Sequence of int
+            Topics to join together by ID.
+        joint_ids: int, default None
+            New ID for the joint cluster.
+            Default is the smallest ID of the topics to join.
+        """
+        self.hierarchy.join_topics(to_join, joint_id=joint_id)
 
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
