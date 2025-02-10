@@ -60,7 +60,7 @@ models = [
         clustering=KMeans(3),
         feature_importance="c-tf-idf",
         encoder=trf,
-        reduction_method="agglomerative",
+        reduction_method="average",
     ),
     ClusteringTopicModel(
         dimensionality_reduction=PCA(10),
@@ -134,6 +134,7 @@ OPTIONAL_FIELDS = [
     "time_bin_edges",
     "temporal_components",
     "temporal_importance",
+    "has_negative_side",
 ]
 
 
