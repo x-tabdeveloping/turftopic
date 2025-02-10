@@ -260,6 +260,16 @@ class TopicNode:
         top_k: int = 10,
         max_depth: Optional[int] = None,
     ) -> None:
+        """Print hierarchy in tree form.
+
+        Parameters
+        ----------
+        top_k: int, default 10
+            Number of words to print for each topic.
+        max_depth: int, default None
+            Maximum depth at which topics should be printed in the hierarchy.
+            If None, the entire hierarchy is printed.
+        """
         tree = self._build_tree(top_k=top_k, max_depth=max_depth)
         console = Console()
         console.print(tree)
@@ -297,6 +307,114 @@ class TopicNode:
         if self.children is not None:
             for child in self.children:
                 child._append_path(path_prefix)
+
+    def copy(self, deep: bool = True) -> TopicNode:
+        """Creates a copy of the given node.
+
+        Parameters
+        ----------
+        deep: bool, default True
+            Indicates whether the copy should be deep or shallow.
+            Deep copies are done recursively, while shallow copies only
+            contain references to the original children.
+
+        Returns
+        -------
+        Copy of original hierarchy.
+        """
+        if (self.children is None) or (not deep):
+            return type(self)(
+                model=self.model,
+                path=self.path,
+                children=self.children,
+                word_importance=self.word_importance,
+                document_topic_vector=self.document_topic_vector,
+            )
+        else:
+            children = [child.copy(deep=True) for child in self.children]
+            return type(self)(
+                model=self.model,
+                path=self.path,
+                children=children,
+                word_importance=self.word_importance,
+                document_topic_vector=self.document_topic_vector,
+            )
+
+    def cut(self, max_depth: int) -> TopicNode:
+        """Cuts hierarchy at a given depth, returns copy of the hierarchy with levels beyond max_depth removed.
+
+        Parameters
+        ----------
+        max_depth: int
+            Maximum level of nodes to keep.
+
+        Returns
+        -------
+        TopicNode
+            Hierarchy cut at the given level.
+            Contains a deep copy of the original nodes.
+        """
+        if (self.level >= max_depth) or (not self.children):
+            return type(self)(
+                model=self.model,
+                path=self.path,
+                children=None,
+                word_importance=self.word_importance,
+                document_topic_vector=self.document_topic_vector,
+            )
+        else:
+            children = [child.cut(max_depth) for child in self.children]
+            return type(self)(
+                model=self.model,
+                path=self.path,
+                children=children,
+                word_importance=self.word_importance,
+                document_topic_vector=self.document_topic_vector,
+            )
+
+    def collect_leaves(self) -> list[TopicNode]:
+        def _collect_leaves(node: TopicNode, leaves: list[TopicNode]):
+            if not node.children:
+                leaves.append(node.copy(deep=False))
+            else:
+                for child in node.children:
+                    _collect_leaves(child, leaves)
+
+        leaves = []
+        _collect_leaves(self, leaves)
+        return leaves
+
+    def flatten(self) -> TopicNode:
+        """Returns new hierarchy with only the leaves of the tree.
+
+        Returns
+        -------
+        TopicNode
+            Root node containing all leaves in a hierarchy.
+            Copies of the original nodes.
+        """
+        leaves = self.collect_leaves()
+        ids = [leaf.path[-1] for leaf in leaves]
+        # If the IDs are not unique, we label them from 0 to N
+        if len(set(ids)) != len(ids):
+            current = 0
+            new_ids = []
+            for node_id in ids:
+                if node_id != -1:
+                    new_ids.append(current)
+                    current += 1
+                else:
+                    new_ids.append(-1)
+            ids = new_ids
+        for leaf_id, leaf in zip(ids, leaves):
+            leaf.path = (*self.path, leaf_id)
+        return type(self)(
+            model=self.model,
+            path=self.path,
+            word_importance=self.word_importance,
+            document_topic_vector=self.document_topic_vector,
+            children=leaves,
+        )
 
 
 @dataclass
