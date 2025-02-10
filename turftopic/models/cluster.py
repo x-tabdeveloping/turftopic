@@ -301,6 +301,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 "Model has not been fitted yet, and doesn't have labels_"
             ) from e
 
+    @property
+    def document_topic_matrix(self):
+        return label_binarize(self.labels_, classes=self.classes_)
+
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
@@ -400,13 +404,13 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         )
         self.temporal_importance_ = np.zeros((n_bins, n_comp))
         for i_timebin in np.unique(time_labels):
-            topic_importances = self.doc_topic_matrix[
+            topic_importances = self.document_topic_matrix[
                 time_labels == i_timebin
             ].sum(axis=0)
             if not topic_importances.sum() == 0:
                 topic_importances = topic_importances / topic_importances.sum()
             self.temporal_importance_[i_timebin, :] = topic_importances
-            t_dtm = self.doc_term_matrix[time_labels == i_timebin]
+            t_dtm = self.document_topic_matrix[time_labels == i_timebin]
             t_doc_topic = self.doc_topic_matrix[time_labels == i_timebin]
             if feature_importance == "c-tf-idf":
                 self.temporal_components_[i_timebin] = ctf_idf(
