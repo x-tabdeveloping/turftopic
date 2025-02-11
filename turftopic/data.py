@@ -11,6 +11,7 @@ import joblib
 import numpy as np
 
 from turftopic.container import TopicContainer
+from turftopic.hierarchical import TopicNode
 
 
 @dataclass
@@ -52,6 +53,12 @@ class TopicData(Mapping, TopicContainer):
         Topic-term importances over time. Only relevant for dynamic topic models.
     temporal_importance: np.ndarray (n_slices, n_topics), default None
         Topic strength signal over time. Only relevant for dynamic topic models.
+    has_negative_side: bool, default False
+        Indicates whether the topic model's components are supposed to be interpreted in both directions.
+        e.g. in SemanticSignalSeparation, one is supposed to look at highest, but also lowest ranking words.
+        This is in contrast to KeyNMF for instance, where only positive word importance should be considered.
+    hierarchy: TopicNode, default None
+        Optional topic hierarchy for models that support hierarchical topic modeling.
     """
 
     def __init__(
@@ -70,6 +77,7 @@ class TopicData(Mapping, TopicContainer):
         temporal_components: Optional[np.ndarray] = None,
         temporal_importance: Optional[np.ndarray] = None,
         has_negative_side: bool = False,
+        hierarchy: Optional[TopicNode] = None,
         **kwargs,
     ):
         self.corpus = corpus
@@ -84,6 +92,7 @@ class TopicData(Mapping, TopicContainer):
         self.time_bin_edges = time_bin_edges
         self.temporal_components = temporal_components
         self.temporal_importance = temporal_importance
+        self.hierarchy = hierarchy
         self._has_negative_side = has_negative_side
         for key, value in kwargs:
             setattr(self, key, value)
@@ -100,6 +109,7 @@ class TopicData(Mapping, TopicContainer):
             "temporal_components",
             "temporal_importance",
             "has_negative_side",
+            "hierarchy",
             *kwargs.keys(),
         ]
 

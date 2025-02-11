@@ -135,6 +135,7 @@ OPTIONAL_FIELDS = [
     "temporal_components",
     "temporal_importance",
     "has_negative_side",
+    "hierarchy",
 ]
 
 
