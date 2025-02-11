@@ -340,6 +340,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             topic_term_matrix=self.components_,  # type: ignore
             transform=getattr(self, "transform", None),
             topic_names=self.topic_names,
+            hierarchy=getattr(self, "hierarchy", None),
         )
         return res
 

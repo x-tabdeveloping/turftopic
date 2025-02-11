@@ -154,6 +154,7 @@ class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
             topic_names=self.topic_names,
             classes=classes,
             has_negative_side=self.has_negative_side,
+            hierarchy=getattr(self, "hierarchy", None),
         )
         return res
 
