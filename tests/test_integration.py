@@ -172,6 +172,7 @@ def test_hierarchical_clustering():
         reduction_method="smallest",
         reduction_topic_representation="centroid",
     )
+    topic_data = model.prepare_topic_data(texts, embeddings=embeddings)
     assert model.components_.shape[0] == 5
     fig = model.hierarchy.plot_tree()
     print(model.hierarchy.cut(2))
