@@ -47,7 +47,7 @@ newsgroups = fetch_20newsgroups(
     remove=("headers", "footers", "quotes"),
 )
 texts = newsgroups.data
-trf = SentenceTransformer("all-MiniLM-L6-v2")
+trf = SentenceTransformer("paraphrase-MiniLM-L3-v2")
 embeddings = np.asarray(trf.encode(texts))
 timestamps = generate_dates(n_dates=len(texts))
 
@@ -159,6 +159,21 @@ def test_hierarchical():
     model.hierarchy.divide_children(3)
     model.hierarchy[0][0].divide(3)
     repr = str(model.hierarchy)
+
+
+def test_hierarchical_clustering():
+    model = ClusteringTopicModel(
+        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(20),
+        feature_importance="c-tf-idf",
+        encoder=trf,
+        reduction_method="smallest",
+        reduction_topic_representation="centroid",
+    )
+    assert model.components_.shape[0] == 5
+    fig = model.hierarchy.plot_tree()
+    print(model.hierarchy.cut(2))
 
 
 def test_naming():
