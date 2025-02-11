@@ -5,13 +5,15 @@ from dataclasses import dataclass
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 import joblib
 import numpy as np
 
 from turftopic.container import TopicContainer
-from turftopic.hierarchical import TopicNode
+
+if TYPE_CHECKING:
+    from turftopic.hierarchical import TopicNode
 
 
 @dataclass
