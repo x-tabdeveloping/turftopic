@@ -138,12 +138,9 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         The specified reduction method will be used to merge them.
         By default, topics are not merged.
     reduction_method: LinkageMethod
-        Method used to reduce the number of topics post-hoc.
-        When 'agglomerative', BERTopic's topic reduction method is used,
-        where topic vectors are hierarchically clustered.
-        When 'smallest', the smallest topic gets merged into the closest
-        non-outlier cluster until the desired number
-        is achieved similarly to Top2Vec.
+        Method used for hierarchically merging topics.
+        Could be "smallest", which is Top2Vec's default merging strategy, or
+        any of the linkage methods listed in [SciPy's documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html)
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
     """
@@ -249,13 +246,10 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             Number of topics to reduce topics to.
             The specified reduction method will be used to merge them.
             By default, topics are not merged.
-        reduction_method: 'agglomerative', 'smallest'
-            Method used to reduce the number of topics post-hoc.
-            When 'agglomerative', BERTopic's topic reduction method is used,
-            where topic vectors are hierarchically clustered.
-            When 'smallest', the smallest topic gets merged into the closest
-            non-outlier cluster until the desired number
-            is achieved similarly to Top2Vec.
+        reduction_method: LinkageMethod, default None
+            Method used for hierarchically merging topics.
+            Could be "smallest", which is Top2Vec's default merging strategy, or
+            any of the linkage methods listed in [SciPy's documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html)
 
         Returns
         -------
@@ -272,6 +266,17 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             n_reduce_to, method=reduction_method, metric=metric
         )
         return self.labels_
+
+    def reset_topics(self):
+        """Resets topics to the original cllustering."""
+        original_labels = getattr(self, "original_labels_", None)
+        if original_labels is None:
+            warnings.warn("Topics have never been reduced, nothing to reset.")
+        else:
+            self.hierarchy = ClusterNode.create_root(
+                self, labels=self.original_labels_
+            )
+            self.topic_names_ = self.original_names_
 
     @property
     def classes_(self):
