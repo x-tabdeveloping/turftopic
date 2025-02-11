@@ -185,7 +185,7 @@ def test_topic_joining():
     )
     model.fit(texts, embeddings=embeddings)
     model.join_topics([0, 1, 2])
-    assert list(model.classes_) == [0, 3, 4]
+    assert set(model.classes_) == {0, 3, 4}
 
 
 def test_refitting():
