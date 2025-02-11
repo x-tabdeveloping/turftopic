@@ -424,7 +424,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             if not topic_importances.sum() == 0:
                 topic_importances = topic_importances / topic_importances.sum()
             self.temporal_importance_[i_timebin, :] = topic_importances
-            t_dtm = self.document_topic_matrix[time_labels == i_timebin]
+            t_dtm = self.doc_term_matrix[time_labels == i_timebin]
             t_doc_topic = self.document_topic_matrix[time_labels == i_timebin]
             if feature_importance == "c-tf-idf":
                 self.temporal_components_[i_timebin] = ctf_idf(
