@@ -1,63 +1,72 @@
 # Model Overview
 
-In any use case it is important that practicioners understand the implications of their choices.
-This page is dedicated to giving an overview of the models in the package, so you can find the right one for your particular application.
-
-### What is a topic?
-
-Models in Turftopic provide answers to this question that can at large be assigned into two categories:
-
-1. A topic is a __dimension/factor of semantics__. 
- These models try to find the axes along which most of the variance in semantics can be explained.
- These include S³ and KeyNMF.
- A clear advantage of using these models is that they can capture multiple topics in a document and usually capture nuances in semantics better.
-2. A topic is a __cluster of documents__. These models conceptualize a topic as a group of documents that are closely related to each other.
- The advantage of using these models is that they are perhaps more aligned with human intuition about what a "topic" is.
- On the other hand, they can only capture nuances in topical content in documents to a limited extent.
-3. A topic is a __probability distribution__ of words. This conception is characteristic of autencoding models.
-
-### Document Representations
-
-All models in Turftopic at some point in the process use contextualized representations from transformers to learn topics.
-Documents, however have different representations internally, and this has an effect on how the models behave:
-
-1. In most models the documents are __directly represented by the embeddings__ (S³, Clustering, GMM).
- The advantage of this is that at no point in the process do we loose contextual information.
-2. In KeyNMF documents are represented with __keyword importances__. This means that some of the contextual nuances get lost in the process before topic discovery.
- As a result of this, KeyNMF models dimensions of semantics in word content, not the continuous semantic space.
- In practice this rarely presents a challenge, but topics in KeyNMF might be less interesting or novel than in other models, and might resemble classical topic models more.
-3. In Autoencoding Models _embeddings are only used in the encoder network_, but the models describe the generative process of __Bag-of-Words representations__.
- This is not ideal, as all too often contextual nuances get lost in the modeling process.
+Turftopic contains implementations of a number of contemporary topic models.
+Some of these models might be similar to each other in a lot of aspects, but they might be different in others.
+It is quite important that you choose the right topic model for your use case.
 
 <center>
 
-| Model | Conceptualization | #N Topics | Term Importance | Document Representation | Inference | Multilingual :globe_with_meridians: |
-| - | - | - | - | - | - | - |
-| [S³](s3.md) | Factor | Manual | Decomposition | Embedding | Inductive | :heavy_check_mark: |
-| [KeyNMF](KeyNMF.md) | Factor | Manual | Parameters | Keywords | Inductive | :x:  |
-| [GMM](GMM.md) | Mixture Component | Manual | c-TF-IDF | Embedding | Inductive | :heavy_check_mark: |
-| [Clustering Models](clustering.md) | Cluster | **Automatic** | c-TF-IDF/ <br> Centroid Proximity | Embedding | Transductive | :heavy_check_mark: |
-| [Autoencoding Models](ctm.md) | Probability Distribution | Manual | Parameters | Embedding + <br> BoW | Inductive | :heavy_check_mark:  |
+| :zap: Speed | :book: Long Documents | :elephant: Scalability | :nut_and_bolt: Flexibility |
+| - | - | - | - |
+| **[SemanticSignalSeparation](s3.md)** | **[KeyNMF](KeyNMF.md)** |  **[KeyNMF](KeyNMF.md)** | **[ClusteringTopicModel](ClusteringTopicModel.md)** |
 
-_Comparison of the models on a number of theoretical aspects_
+_Table 1: You should tailor your model choice to your needs_
 
 </center>
 
-### Inference
 
-Models in Turftopic use two different types of inference, which has a number of implications.
+<figure style="width: 50%; text-align: center; float: right;">
+  <img src="../images/docs_per_second.png">
+  <figcaption> Figure 1: Speed of Different Models on 20 Newsgroups <br> (Documents per Second; Higher is better) </figcaption>
+</figure>
 
-1. Most models are __inductive__. Meaning that they aim to recover some underlying structure which results in the observed data.
- Inductive models can be used for inference over novel data at any time.
-2. Clustering models that use HDBSCAN, DBSCAN or OPTICS are __transductive__. This means that the models have no theory of underlying semantic structures,
- but simply desdcribe the dataset at hand. This has the effect that direct inference on unseen documents is not possible.
+Different models will naturally be good at different things, because they conceptualize topics differently for instance:
 
-### Term Importance
 
-Term importances in different models are calculated differently.
+- `SemanticSignalSeparation`($S^3$) conceptualizes topics as **semantic axes**, along which topics are distributed
+- `ClusteringTopicModel` finds **clusters** of documents and treats those as topics
+- `KeyNMF` conceptualizes topics as **factors**, or looked at it from a different angle, it finds **clusters of words**
 
-1. Some models (KeyNMF, Autoencoding) __infer__ term importances, as they are model parameters.
-2. Other models (GMM, Clustering, $S^3$) use __post-hoc__ measures for determining term importance.
+You can find a detailed overview of how each of these models work in their respective tabs.
+
+Some models are also capable of being used in a dynamic context, some can be fitted online, some can detect the number of topics for you and some can detect topic hierarchies. You can find an overview of these features in Table 2 below.
+
+<figure style="width: 40%; text-align: center; float: left; margin-right: 8px">
+  <img src="../images/performance_20ng.png">
+  <figcaption> Figure 2: Models' Coherence and Diversity on 20 Newsgroups <br> (Higher is better) </figcaption>
+</figure>
+
+!!! warning
+    You should take the results presented here with a grain of salt. A more comprehensive and in-depth analysis can be found in [Kardos et al., 2024](https://arxiv.org/abs/2406.09556), though the general tendencies are similar.
+    Note that some topic models are also less stable than others, and they might require tweaking optimal results (like BERTopic), while others perform well out-of-the-box, but are not as flexible ($S^3$)
+
+The quality of the topics you can get out of your topic model can depend on a lot of things, including your choice of [vectorizer](../vectorizers.md) and [encoder model](../encoders.md).
+More rigorous evaluation regimes can be found in a number of studies on topic modeling.
+
+Two usual metrics to evaluate models by are *coherence* and *diversity*.
+These metrics indicate how easy it is to interpret the topics provided by the topic model.
+Good models typically balance these to metrics, and should produce highly coherent and diverse topics.
+On Figure 2 you can see how good different models are on these metrics on 20 Newsgroups.
+
+In general, the most balanced models are $S^3$, Clustering models with `centroid` feature importance, GMM and KeyNMF, while FASTopic excels at diversity.
+
+<br>
+
+<center>
+
+
+| Model | :1234: Multiple Topics per Document  | :hash: Detecting Number of Topics  | :chart_with_upwards_trend: Dynamic Modeling  | :evergreen_tree: Hierarchical Modeling  | :star: Inference over New Documents  | :globe_with_meridians: Cross-Lingual  | :ocean: Online Fitting  |
+| - | - | - | - | - | - | - | - |
+| **[KeyNMF](KeyNMF.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:  | :heavy_check_mark: |
+| **[SemanticSignalSeparation](s3.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
+| **[ClusteringTopicModel](clustering.md)** | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: |
+| **[GMM](GMM.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
+| **[AutoEncodingTopicModel](ctm.md)** | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :heavy_check_mark:  | :x: |
+| **[FASTopic](fastopic.md)** | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
+
+_Table 2: Comparison of the models based on their capabilities_
+
+</center>
 
 ## API Reference
 
