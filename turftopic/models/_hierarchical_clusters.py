@@ -232,20 +232,18 @@ class ClusterNode(TopicNode):
         classes = self.classes_
         labels = self.labels_
         topic_sizes = np.array([np.sum(labels == label) for label in classes])
-        topic_vectors = self.model._calculate_topic_vectors(
-            classes=classes, labels=labels
-        )
+        topic_representations = self.model.topic_representations
         if method == "smallest":
             return smallest_linkage(
                 n_reduce_to=n_reduce_to,
-                topic_vectors=topic_vectors,
+                topic_vectors=topic_representations,
                 topic_sizes=topic_sizes,
                 classes=classes,
                 metric=metric,
             )
         else:
             n_classes = len(classes[classes != -1])
-            topic_vectors = topic_vectors[classes != -1]
+            topic_vectors = topic_representations[classes != -1]
             n_reductions = n_classes - n_reduce_to
             return linkage(topic_vectors, method=method, metric=metric)[
                 :n_reductions

@@ -1,5 +1,6 @@
 import tempfile
 import time
+import typing
 import warnings
 import webbrowser
 from datetime import datetime
@@ -23,6 +24,7 @@ from turftopic.feature_importance import (bayes_rule,
 from turftopic.models._hierarchical_clusters import (VALID_LINKAGE_METHODS,
                                                      ClusterNode,
                                                      LinkageMethod)
+from turftopic.types import VALID_DISTANCE_METRICS, DistanceMetric
 from turftopic.vectorizers.default import default_vectorizer
 
 integer_message = """
@@ -40,9 +42,19 @@ the desired reduced number on initialization.
 ClusteringTopicModel(n_reduce_to=10)
 """
 
-feature_message = """
-feature_importance must be one of 'soft-c-tf-idf', 'c-tf-idf', 'centroid'
-"""
+WordImportance = Literal[
+    "soft-c-tf-idf",
+    "c-tf-idf",
+    "centroid",
+    "bayes",
+]
+VALID_WORD_IMPORTANCE = list(typing.get_args(WordImportance))
+
+TopicRepresentation = Literal[
+    "component",
+    "centroid",
+]
+VALID_TOPIC_REPRESENTATIONS = list(typing.get_args(TopicRepresentation))
 
 NOT_MATCHING_ERROR = (
     "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
@@ -125,7 +137,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         Clustering method to use for finding topics.
         Defaults to OPTICS with 25 minimum cluster size.
         To imitate the behavior of BERTopic or Top2Vec you should use HDBSCAN.
-    feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
+    feature_importance: WordImportance, default 'soft-c-tf-idf'
         Method for estimating term importances.
         'centroid' uses distances from cluster centroid similarly
         to Top2Vec.
@@ -137,10 +149,16 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
         By default, topics are not merged.
-    reduction_method: LinkageMethod
+    reduction_method: LinkageMethod, default 'average'
         Method used for hierarchically merging topics.
         Could be "smallest", which is Top2Vec's default merging strategy, or
         any of the linkage methods listed in [SciPy's documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html)
+    reduction_distance_metric: DistanceMetric, default 'cosine'
+        Distance metric to use for hierarchical topic reduction.
+    reduction_topic_representation: {'component', 'centroid'}, default 'component'
+        Topic representation used for hierarchical clustering.
+        If 'component' the topic-word importance scores will be used as topic vectors, (this is how it's done in BERTopic)
+        if 'centroid' the centroid vectors of clusters will be used as topic vectors (Top2Vec).
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
     """
@@ -153,25 +171,31 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
-        feature_importance: Literal[
-            "c-tf-idf",
-            "soft-c-tf-idf",
-            "centroid",
-            "bayes",
-        ] = "soft-c-tf-idf",
+        feature_importance: WordImportance = "soft-c-tf-idf",
         n_reduce_to: Optional[int] = None,
         reduction_method: LinkageMethod = "average",
+        reduction_distance_metric: DistanceMetric = "cosine",
+        reduction_topic_representation: TopicRepresentation = "component",
         random_state: Optional[int] = None,
     ):
         self.encoder = encoder
         self.random_state = random_state
-        if feature_importance not in [
-            "c-tf-idf",
-            "soft-c-tf-idf",
-            "centroid",
-            "bayes",
-        ]:
-            raise ValueError(feature_message)
+        if feature_importance not in VALID_WORD_IMPORTANCE:
+            raise ValueError(
+                f"feature_importance must be one of {VALID_WORD_IMPORTANCE} got {feature_importance} instead."
+            )
+        if reduction_method not in VALID_LINKAGE_METHODS:
+            raise ValueError(
+                f"Topic reduction method has to be one of: {VALID_LINKAGE_METHODS}, but got {reduction_method} instead."
+            )
+        if reduction_distance_metric not in VALID_DISTANCE_METRICS:
+            raise ValueError(
+                f"Distance metric should be one of: {VALID_DISTANCE_METRICS}, but got {reduction_distance_metric} instead."
+            )
+        if reduction_topic_representation not in VALID_TOPIC_REPRESENTATIONS:
+            raise ValueError(
+                f"Topic representation should be one of: {VALID_TOPIC_REPRESENTATIONS}, but got {reduction_topic_representation} instead."
+            )
         if isinstance(encoder, int):
             raise TypeError(integer_message)
         if isinstance(encoder, str):
@@ -199,12 +223,17 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         else:
             self.dimensionality_reduction = dimensionality_reduction
         self.feature_importance = feature_importance
+        self.reduction_distance_metric = reduction_distance_metric
+        self.reduction_topic_representation = reduction_topic_representation
         self.n_reduce_to = n_reduce_to
-        if reduction_method not in VALID_LINKAGE_METHODS:
-            raise ValueError(
-                f"Topic reduction method has to be one of: {VALID_LINKAGE_METHODS}, but got {reduction_method} instead."
-            )
         self.reduction_method = reduction_method
+
+    @property
+    def topic_representations(self) -> np.ndarray:
+        if self.reduction_topic_representation == "component":
+            return self.components_
+        else:
+            return self._calculate_topic_vectors()
 
     def _calculate_topic_vectors(
         self,
@@ -236,7 +265,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self,
         n_reduce_to: int,
         reduction_method: Optional[LinkageMethod] = None,
-        metric: str = "cosine",
+        metric: Optional[DistanceMetric] = None,
     ) -> np.ndarray:
         """Reduces the clustering to the desired amount with the given method.
 
@@ -250,6 +279,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             Method used for hierarchically merging topics.
             Could be "smallest", which is Top2Vec's default merging strategy, or
             any of the linkage methods listed in [SciPy's documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html)
+        reduction_distance_metric: DistanceMetric, default None
+            Distance metric to use for hierarchical topic reduction.
 
         Returns
         -------
@@ -262,6 +293,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             self.original_classes_ = self.classes_
         if reduction_method is None:
             reduction_method = self.reduction_method
+        if metric is None:
+            metric = self.reduction_distance_metric
         self.hierarchy.reduce_topics(
             n_reduce_to, method=reduction_method, metric=metric
         )
@@ -370,7 +403,11 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 status.update(
                     f"Reducing topics from {n_topics} to {self.n_reduce_to}"
                 )
-                self.reduce_topics(self.n_reduce_to, self.reduction_method)
+                self.reduce_topics(
+                    self.n_reduce_to,
+                    self.reduction_method,
+                    self.reduction_distance_metric,
+                )
                 console.log(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
