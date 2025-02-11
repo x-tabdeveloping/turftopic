@@ -145,7 +145,10 @@ class TopicData(Mapping, TopicContainer):
     def get_vocab(self) -> np.ndarray:
         return self.vocab
 
-    def visualize(self, **kwargs):
+    def visualize_topicwizard(self, **kwargs):
+        """Opens the topicwizard web app with which you can interactively investigate your model.
+        See [topicwizard's documentation](https://github.com/x-tabdeveloping/topicwizard) for more detail.
+        """
         try:
             import topicwizard
         except ModuleNotFoundError:
@@ -156,6 +159,17 @@ class TopicData(Mapping, TopicContainer):
 
     @property
     def figures(self):
+        """Container object for topicwizard figures that can be generated from this TopicData object.
+        You can use any of the interactive figures from the [Figures API](https://x-tabdeveloping.github.io/topicwizard/figures.html) in topicwizard.
+
+        For instance:
+        ```python
+        topic_data.figures.topic_barcharts()
+        # or
+        topic_data.figures.topic_wordclouds()
+        ```
+        See [topicwizard's documentation](https://github.com/x-tabdeveloping/topicwizard) for more detail.
+        """
         try:
             import topicwizard.figures
         except ModuleNotFoundError:
