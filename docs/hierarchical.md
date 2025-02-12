@@ -1,16 +1,27 @@
 # Hierarchical Topic Modeling
 
-> Note: Hierarchical topic modeling in Turftopic is still in its early stages, you can expect more visualization utilities, tools and models in the future :sparkles:
-
 You might expect some topics in your corpus to belong to a hierarchy of topics.
-Some models in Turftopic (currently only [KeyNMF](KeyNMF.md)) allow you to investigate hierarchical relations and build a taxonomy of topics in a corpus.
+Some models in Turftopic allow you to investigate hierarchical relations and build a taxonomy of topics in a corpus.
 
-## Divisive Hierarchical Modeling
+Models in Turftopic that can model hierarchical relations will have a `hierarchy` property, that you can manipulate and print/visualize:
 
-Currently Turftopic, in contrast with other topic modeling libraries only allows for hierarchical modeling in a divisive context.
-This means that topics can be divided into subtopics in a **top-down** manner.
-[KeyNMF](KeyNMF.md) does not discover a topic hierarchy automatically,
- but you can manually instruct the model to find subtopics in larger topics.
+```python
+from turftopic import ClusteringTopicModel
+
+model = ClusteringTopicModel(n_reduce_to=10).fit(corpus)
+# We cut at level 3 for plotting, since the hierarchy is very deep
+model.hierarchy.cut(3).plot_tree()
+```
+
+_Drag and click to zoom, hover to see word importance_
+
+<iframe src="../images/tree_plot.html", title="Topic hierarchy in a clustering model", style="height:800px;width:100%;padding:0px;border:none;"></iframe>
+
+
+## 1. Divisive/Top-down Hierarchical Modeling
+
+In divisive modeling, you start from larger structures, higher up in the hierarchy, and  divide topics into smaller sub-topics on-demand.
+This is how hierarchical modeling works in [KeyNMF](keynmf.md), which, by default does not discover a topic hierarchy, but you can divide topics to as many subtopics as you see fit.
 
 As a demonstration, let's load a corpus, that we know to have hierarchical themes.
 
@@ -78,30 +89,12 @@ model.hierarchy.divide_children(n_subtopics=3)
 │   ├── <b style="color: magenta">0.0</b>: dos, file, disk, files, program, windows, disks, shareware, norton, memory <br>
 │   ├── <b style="color: magenta">0.1</b>: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform <br>
 │   └── <b style="color: magenta">0.2</b>: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati <br>
-└── <b style="color: blue">1</b>: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs <br>
-.    ├── <b style="color: magenta">1.0</b>: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers <br>
-.    ├── <b style="color: magenta">1.1</b>: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions <br>
-.    └── <b style="color: magenta">1.2</b>: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion <br>
+...
 </tt>
 </div>
 
 As you can see, the model managed to identify meaningful subtopics of the two larger topics we found earlier.
-Topic 0 got divided into a topic mostly concerned with dos and windows, a topic on operating systems in general, and one about hardware,
-while Topic 1 contains a topic about newsgroups, one about atheism, and one about morality and christianity.
-
-You can also easily access nodes of the hierarchy by indexing it:
-```python
-model.hierarchy[0]
-```
-
-<div style="background-color: #F5F5F5; padding: 10px; padding-left: 20px; padding-right: 20px;">
-<tt style="font-size: 11pt">
-<b style="color: blue">0</b>: windows, dos, os, disk, card, drivers, file, pc, files, microsoft <br>
-├── <b style="color: magenta">0.0</b>: dos, file, disk, files, program, windows, disks, shareware, norton, memory <br>
-├── <b style="color: magenta">0.1</b>: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform <br>
-└── <b style="color: magenta">0.2</b>: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati <br>
-</tt>
-</div>
+Topic 0 got divided into a topic mostly concerned with dos and windows, a topic on operating systems in general, and one about hardware.
 
 You can also divide individual topics to a number of subtopics, by using the `divide()` method.
 Let us divide Topic 0.0 to 5 subtopics.
@@ -118,35 +111,58 @@ model.hierarchy
 │   ├── <b style="color: magenta">0.0</b>: dos, file, disk, files, program, windows, disks, shareware, norton, memory <br>
 │   │   ├── <b style="color: green">0.0.1</b>: file, files, ftp, bmp, program, windows, shareware, directory, bitmap, zip <br>
 │   │   ├── <b style="color: green">0.0.2</b>: os, windows, unix, microsoft, crash, apps, crashes, nt, pc, operating <br>
-│   │   ├── <b style="color: green">0.0.3</b>: disk, disks, floppy, drive, drives, scsi, boot, hd, norton, ide <br>
-│   │   ├── <b style="color: green">0.0.4</b>: dos, modem, command, ms, emm386, serial, commands, 386, drivers, batch <br>
-│   │   └── <b style="color: green">0.0.5</b>: printer, print, printing, fonts, font, postscript, hp, printers, output, driver <br>
-│   ├── <b style="color: magenta">0.1</b>: os, unix, windows, microsoft, apps, nt, ibm, ms, os2, platform <br>
-│   └── <b style="color: magenta">0.2</b>: card, drivers, monitor, driver, vga, ram, motherboard, cards, graphics, ati <br>
-└── <b style="color: blue">1</b>: atheism, atheist, atheists, religion, christians, religious, belief, christian, god, beliefs <br>
-.    ├── <b style="color: magenta">1.0</b>: atheism, alt, newsgroup, reading, faq, islam, questions, read, newsgroups, readers <br>
-.    ├── <b style="color: magenta">1.1</b>: atheists, atheist, belief, theists, beliefs, religious, religion, agnostic, gods, religions <br>
-.    └── <b style="color: magenta">1.2</b>: morality, bible, christian, christians, moral, christianity, biblical, immoral, god, religion <br>
+...
 </tt>
 </div>
 
-## Visualization
-You can visualize hierarchies in Turftopic by using the `plot_tree()` method of a topic hierarchy.
-The plot is interactive and you can zoom in or hover on individual topics to get an overview of the most important words.
+## 2. Agglomerative/Bottom-up Hierarchical Modeling
+
+In other models, hierarchies arise from starting from smaller, more specific topics, and then merging them together based on their similarity until a desired number of top-level topics are obtained.
+
+This is how it is done in [clustering topic models](clustering.md) like BERTopic and Top2Vec.
+Clustering models typically find a lot of topics, and it can help with interpretation to merge topics until you gain 10-20 top-level topics.
+
+You can either do this by default on a clustering model by setting `n_reduce_to` on initialization or you can do it manually with `reduce_topics()`.
+For more details, check our guide on [Clustering models](clustering.md).
 
 ```python
-model.hierarchy.plot_tree()
+from turftopic import ClusteringTopicModel
+
+model = ClusteringTopicModel(
+    n_reduce_to=10,
+    feature_importance="centroid",
+    reduction_method="smallest",
+    reduction_topic_representation="centroid",
+    reduction_distance_metric="cosine",
+)
+model.fit(corpus)
+
+print(model.hierarchy)
 ```
 
-<figure>
-  <img src="../images/hierarchy_tree.png" width="90%" style="margin-left: auto;margin-right: auto;">
-  <figcaption>Tree plot of the hierarchy.</figcaption>
-</figure>
+<div style="background-color: #F5F5F5; padding: 10px; padding-left: 20px; padding-right: 20px;">
+<tt style="font-size: 11pt">
+<b>Root</b>: <br>
+├── <b style="color:blue">-1</b>: documented, obsolete, et4000, concerns, dubious, embedded, hardware, xfree86, alternative, seeking<br>
+├── <b style="color:blue">20</b>: hitter, pitching, batting, hitters, pitchers, fielder, shortstop, inning, baseman, pitcher<br>
+├── <b style="color:blue">284</b>: nhl, goaltenders, canucks, sabres, hockey, bruins, puck, oilers, canadiens, flyers<br>
+│   ├── <b style="color:magenta">242</b>: sportschannel, espn, nbc, nhl, broadcasts, broadcasting, broadcast, mlb, cbs, cbc<br>
+│   │   ├── <b style="color:green">171</b>: stadium, tickets, mlb, ticket, sportschannel, mets, inning, nationals, schedule, cubs<br>
+│   │   │   └── ...<br>
+│   │   └── <b style="color:green">21</b>: sportschannel, nbc, espn, nhl, broadcasting, broadcasts, broadcast, hockey, cbc, cbs<br>
+│   └── <b style="color:magenta">236</b>: nhl, goaltenders, canucks, sabres, puck, oilers, andreychuk, bruins, goaltender, leafs<br>
+...
+</tt>
+</div>
 
 
 ## API reference
 
 ::: turftopic.hierarchical.TopicNode
+
+::: turftopic.hierarchical.DivisibleTopicNode
+
+::: turftopic.models._hierarchical_clusters.ClusterNode
 
 
 
