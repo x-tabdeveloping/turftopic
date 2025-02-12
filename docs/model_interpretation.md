@@ -267,3 +267,6 @@ See a our detailed guide about [Namers](../namers.md) to learn how you can use L
         model.rename_topics({0: "New name for topic 0", 5: "New name for topic 5"})
         ```
 
+## API Reference
+
+::: turftopic.container.TopicContainer
