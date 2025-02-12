@@ -261,6 +261,36 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             )
         return topic_vectors
 
+    def estimate_components(
+        self, feature_importance: Optional[WordImportance] = None
+    ) -> np.ndarray:
+        """Estimates feature importances based on a fitted clustering.
+
+        Parameters
+        ----------
+        feature_importance: WordImportance, default None
+            Method for estimating term importances.
+            'centroid' uses distances from cluster centroid similarly
+            to Top2Vec.
+            'c-tf-idf' uses BERTopic's c-tf-idf.
+            'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
+            be very similar to 'c-tf-idf'.
+            'bayes' uses Bayes' rule.
+
+        Returns
+        -------
+        ndarray of shape (n_components, n_vocab)
+            Topic-term matrix.
+        """
+        if feature_importance is not None:
+            if feature_importance not in VALID_WORD_IMPORTANCE:
+                raise ValueError(
+                    f"feature_importance must be one of {VALID_WORD_IMPORTANCE} got {feature_importance} instead."
+                )
+            self.feature_importance = feature_importance
+        self.hierarchy.estimate_components()
+        return self.components_
+
     def reduce_topics(
         self,
         n_reduce_to: int,
@@ -424,15 +454,13 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self,
         time_labels,
         time_bin_edges,
-        feature_importance: Literal[
-            "c-tf-idf", "soft-c-tf-idf", "centroid", "bayes"
-        ],
+        feature_importance: Optional[WordImportance] = None,
     ) -> np.ndarray:
         """Estimates temporal components based on a fitted topic model.
 
         Parameters
         ----------
-        feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
+        feature_importance: WordImportance, default None
             Method for estimating term importances.
             'centroid' uses distances from cluster centroid similarly
             to Top2Vec.
@@ -450,6 +478,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             raise NotFittedError(
                 "The model has not been fitted yet, please fit the model before estimating temporal components."
             )
+        if feature_importance is None:
+            feature_importance = self.feature_importance
         n_comp, n_vocab = self.components_.shape
         self.time_bin_edges = time_bin_edges
         n_bins = len(self.time_bin_edges) - 1
