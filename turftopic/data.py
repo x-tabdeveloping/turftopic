@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Callable, Optional
 
 import joblib
 import numpy as np
+from rich.console import Console
+from rich.tree import Tree
 
 from turftopic.container import TopicContainer
 
@@ -156,6 +158,26 @@ class TopicData(Mapping, TopicContainer):
 
     def get_vocab(self) -> np.ndarray:
         return self.vocab
+
+    def __str__(self):
+        console = Console()
+        with console.capture() as capture:
+            tree = Tree("TopicData")
+            for key, value in self.items():
+                if value is None:
+                    continue
+                if hasattr(value, "shape"):
+                    text = f"{key} {value.shape}"
+                elif hasattr(value, "__len__"):
+                    text = f"{key} ({len(value)})"
+                else:
+                    text = key
+                tree.add(text)
+            console.print(tree)
+        return capture.get()
+
+    def __repr__(self):
+        return str(self)
 
     def visualize_topicwizard(self, **kwargs):
         """Opens the topicwizard web app with which you can interactively investigate your model.
