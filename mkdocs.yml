@@ -6,12 +6,13 @@ nav:
     - Getting Started: index.md
     - Defining and Fitting Topic Models: model_definition_and_training.md
     - Interpreting and Visualizing Models: model_interpretation.md
-    - Modifying and Finetuning Models: finetuning.md
-    - Saving and Loading Models: persistence.md
     - Seeded Topic Modeling: seeded.md
     - Dynamic Topic Modeling: dynamic.md
     - Online Topic Modeling: online.md
     - Hierarchical Topic Modeling: hierarchical.md
+    - Modifying and Finetuning Models: finetuning.md
+    - Saving and Loading: persistence.md
+    - Using TopicData: topic_data.md
   - Models:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md

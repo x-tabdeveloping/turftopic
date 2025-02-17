@@ -182,22 +182,64 @@ See a detailed guide [here](../namers.md).
 ## Training and Inference
 
 ### Model Training
-
-All models in Turftopic have a `fit()` method, that takes a textual corpus in the form of an iterable of strings.
-
-Beware that the iterable has to be reusable, as models have to do multiple passes over the corpus.
+All models in Turftopic follow a scikit-learn API for fitting topic models.
+Every model in the library can be trained by passing a set of documents (a _corpus_) to the model.
+This has to be an `Iterable` type object, that has to be reusable as models will typically do multiple passes on the corpus.
 
 ```python
 corpus: list[str] = ["this is a a document", "this is yet another document", ...]
-
-model.fit(corpus)
 ```
+!!! quote "Fit your topic model"
+    === "`fit(raw_documents, embeddings=None)`"
+
+        `fit()` simply fits the topic model and returns the same model object fitted.
+        You can optionally pass a set of precomputed embeddings for the documents.
+
+        ```python
+        model.fit(corpus)
+        # or
+        model.fit(corpus, embeddings=embeddings)
+        ```
+
+    === "`fit_transform(raw_documents, embeddings=None)`"
+
+        `fit_transform()` not only trains the model but also returns topic-proportions in all documents in the corpus.
+        ```python
+        document_topic_matrix = model.fit_transform(corpus)
+        # or 
+        document_topic_matrix = model.fit_transform(corpus, embeddings=embeddings)
+        print(document_topic_matrix.shape)
+        # prints (n_documents, n_topics)
+        ```
+    === "`prepare_topic_data(corpus, embeddings=None)`"
+        
+        `prepare_topic_data()` not only fits the model (only if not already fitted), but also saves other aspects of topic inference, which makes it easier to then use this object for pretty printing and visualizing your models (see [Model Interpretation](model_interpretation.md))
+
+        ```python
+        topic_data = model.prepare_topic_data(corpus)
+        # print to see what attributes you can access.
+        print(topic_data)
+        ```
+        ```
+        TopicData
+        ├── corpus (1000)
+        ├── vocab (1746,)
+        ├── document_term_matrix (1000, 1746)
+        ├── topic_term_matrix (10, 1746)
+        ├── document_topic_matrix (1000, 10)
+        ├── document_representation (1000, 384)
+        ├── transform
+        ├── topic_names (10)
+        ├── has_negative_side
+        └── hierarchy
+        ```
+        See [Using TopicData](topic_data.md) for more detail.
+
 
 ### Precomputing Embeddings
 
 In order to cut down on costs/computational load when fitting multiple models in a row, you might want to encode the documents before fitting a model.
 Encoding the corpus is the heaviest part of the process and you can spare yourself a lot of time by only doing it once.
-
 Some models have to encode the vocabulary as well, this cannot be done before inference, as the models learn the vocabulary itself from the corpus.
 
 The `fit()` method of all models takes and `embeddings` argument, that allows you to pass a precooked embedding matrix along to fitting.

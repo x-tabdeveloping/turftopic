@@ -11,7 +11,7 @@ topic_data = model.prepare_topic_data(corpus)
 
 ## Topic Tables
 
-The easiest way you can investigate topics in your fitted model is to use the built-in pretty printing utilities, that you can call on every fitted model or `TopicData` object.
+The easiest way you can investigate topics in your fitted model is to use the built-in pretty printing utilities, that you can call on every fitted model or [`TopicData`](topic_data.md) object.
 
 !!! quote "Interpret your models with topic tables"
     === "Relevant Words"
@@ -127,7 +127,7 @@ pip install topic-wizard
 ### Web App
 
 The easiest way to investigate any topic model interactively is to use the topicwizard web app.
-You can launch the app either using a `TopicData` or a model object and a representative sample of documents.
+You can launch the app either using a [`TopicData`](topic_data.md) or a model object and a representative sample of documents.
 
 === "With `TopicData`"
 
@@ -148,7 +148,7 @@ You can launch the app either using a `TopicData` or a model object and a repres
 ### Figures
 
 You can also produce individual interactive figures using the [Figures API in topicwizard](https://x-tabdeveloping.github.io/topicwizard/figures.html).
-Almost all figures in the Figures API can be called on the `figures` submodule of any `TopicData` object.
+Almost all figures in the Figures API can be called on the `figures` submodule of any [`TopicData`](topic_data.md) object.
 
 !!! quote "Interpret your models using interactive figures"
     === "Topic Map"
