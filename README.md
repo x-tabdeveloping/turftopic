@@ -5,33 +5,14 @@
 
 
 ## Features
- - Implementations of transformer-based topic models:
-   - Semantic Signal Separation - S³ 🧭
-   - KeyNMF 🔑 
-   - GMM :gem:
-   - Clustering Topic Models: BERTopic and Top2Vec
-   - Autoencoding Topic Models: CombinedTM and ZeroShotTM
-   - FASTopic
- - Dynamic, Online and Hierarchical Topic Modeling 
- - Streamlined scikit-learn compatible API 🛠️
- - Easy topic interpretation 🔍
- - Automated topic naming with LLMs
- - Topic modeling with keyphrases :key:
- - Lemmatization and Stemming
- - Visualization with [topicwizard](https://github.com/x-tabdeveloping/topicwizard) 🖌️
+| | |
+| - | - |
+| Transformer-based Topic Models | :compass: S³, :key: KeyNMF,  :gem: GMM, Clustering Models, CTMs, FASTopic |
+| Models for all Scenarios | :chart_with_upwards_trend: Dynamic, :ocean: Online, :herb: Seeded, and :evergreen_tree: Hierarchical topic modeling |
+| Easy Interpretation | :bookmark_tabs: Pretty Printing, :bar_chart: Interactive Figures, :art: [topicwizard](https://github.com/x-tabdeveloping/topicwizard) compatible |
+| Topic Naming | :robot: LLMs, N-gram Retrieval, :wave: Manual |
+| Informative Topic Descriptions | :key: Keyphrases, Noun-phrases, Lemmatization, Stemming |
 
-## New in version 0.12.0: Seeded topic modeling
-
-You can now specify an aspect in KeyNMF from which you want to investigate your corpus by specifying a seed phrase.
-
-```python
-from turftopic import KeyNMF
-
-model = KeyNMF(5, seed_phrase="Is the death penalty moral?")
-model.fit(corpus)
-
-model.print_topics()
-```
 
 | Topic ID | Highest Ranking |
 | - | - |
