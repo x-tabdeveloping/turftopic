@@ -20,42 +20,26 @@
  - Lemmatization and Stemming
  - Visualization with [topicwizard](https://github.com/x-tabdeveloping/topicwizard) 🖌️
 
+## New in version 0.12.0: Seeded topic modeling
 
-## New in version 0.11.0: Vectorizers Module
-
-You can now use a set of custom vectorizers for topic modeling over **phrases**, as well as **lemmata** and **stems**.
+You can now specify an aspect in KeyNMF from which you want to investigate your corpus by specifying a seed phrase.
 
 ```python
 from turftopic import KeyNMF
-from turftopic.vectorizers.spacy import NounPhraseCountVectorizer
 
-model = KeyNMF(
-    n_components=10,
-    vectorizer=NounPhraseCountVectorizer("en_core_web_sm"),
-)
+model = KeyNMF(5, seed_phrase="Is the death penalty moral?")
 model.fit(corpus)
+
 model.print_topics()
 ```
 
 | Topic ID | Highest Ranking |
 | - | - |
-| | ... |
-| 3 | fanaticism, theism, fanatism, all fanatism, theists, strong theism, strong atheism, fanatics, precisely some theists, all theism |
-| 4 | religion foundation darwin fish bumper stickers, darwin fish, atheism, 3d plastic fish, fish symbol, atheist books, atheist organizations, negative atheism, positive atheism, atheism index |
-| | ... |
-
-Turftopic now also comes with a **Chinese vectorizer** for easier use, as well as a generalist **multilingual vectorizer**.
-
-```python
-from turftopic.vectorizers.chinese import default_chinese_vectorizer
-from turftopic.vectorizers.spacy import TokenCountVectorizer
-
-chinese_vectorizer = default_chinese_vectorizer()
-arabic_vectorizer = TokenCountVectorizer("ar", remove_stopwords=True)
-danish_vectorizer = TokenCountVectorizer("da", remove_stopwords=True)
-...
-
-```
+| 0 | morality, moral, immoral, morals, objective, morally, animals, society, species, behavior |
+| 1 | armenian, armenians, genocide, armenia, turkish, turks, soviet, massacre, azerbaijan, kurdish |
+| 2 | murder, punishment, death, innocent, penalty, kill, crime, moral, criminals, executed |
+| 3 | gun, guns, firearms, crime, handgun, firearm, weapons, handguns, law, criminals |
+| 4 | jews, israeli, israel, god, jewish, christians, sin, christian, palestinians, christianity |
 
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
@@ -177,6 +161,29 @@ model.print_topics()
 | 1 | Atheism and Belief Systems | atheism, atheist, atheists, belief, religion, religious, theists, beliefs, believe, faith |
 | 2 | Computer Architecture and Performance | motherboard, ram, memory, cpu, bios, isa, speed, 486, bus, performance |
 | 3 | Storage Technologies | disk, drive, scsi, drives, disks, floppy, ide, dos, controller, boot |
+| | ... |
+
+### Vectorizers Module
+
+You can use a set of custom vectorizers for topic modeling over **phrases**, as well as **lemmata** and **stems**.
+
+```python
+from turftopic import KeyNMF
+from turftopic.vectorizers.spacy import NounPhraseCountVectorizer
+
+model = KeyNMF(
+    n_components=10,
+    vectorizer=NounPhraseCountVectorizer("en_core_web_sm"),
+)
+model.fit(corpus)
+model.print_topics()
+```
+
+| Topic ID | Highest Ranking |
+| - | - |
+| | ... |
+| 3 | fanaticism, theism, fanatism, all fanatism, theists, strong theism, strong atheism, fanatics, precisely some theists, all theism |
+| 4 | religion foundation darwin fish bumper stickers, darwin fish, atheism, 3d plastic fish, fish symbol, atheist books, atheist organizations, negative atheism, positive atheism, atheism index |
 | | ... |
 
 ### Visualization

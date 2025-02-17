@@ -8,6 +8,7 @@ nav:
     - Interpreting and Visualizing Models: model_interpretation.md
     - Modifying and Finetuning Models: finetuning.md
     - Saving and Loading Models: persistence.md
+    - Seeded Topic Modeling: seeded.md
     - Dynamic Topic Modeling: dynamic.md
     - Online Topic Modeling: online.md
     - Hierarchical Topic Modeling: hierarchical.md
