@@ -120,6 +120,8 @@ class SBertKeywordExtractor:
         self,
         documents: list[str],
         embeddings: Optional[np.ndarray] = None,
+        seed_embedding: Optional[np.ndarray] = None,
+        fitting: bool = True,
     ) -> list[dict[str, float]]:
         if not len(documents):
             return []
@@ -135,13 +137,25 @@ class SBertKeywordExtractor:
                 "Number of documents doesn't match number of embeddings."
             )
         keywords = []
-        vectorizer = clone(self.vectorizer)
-        document_term_matrix = vectorizer.fit_transform(documents)
-        batch_vocab = vectorizer.get_feature_names_out()
+        if fitting:
+            document_term_matrix = self.vectorizer.fit_transform(documents)
+        else:
+            document_term_matrix = self.vectorizer.transform(documents)
+        batch_vocab = self.vectorizer.get_feature_names_out()
         new_terms = list(set(batch_vocab) - set(self.key_to_index.keys()))
         if len(new_terms):
             self._add_terms(new_terms)
         total = embeddings.shape[0]
+        # Relevance based on similarity to seed embedding
+        document_relevance = None
+        if seed_embedding is not None:
+            if self.metric == "cosine":
+                document_relevance = cosine_similarity(
+                    [seed_embedding], embeddings
+                )[0]
+            else:
+                document_relevance = np.dot(embeddings, seed_embedding)
+            document_relevance[document_relevance < 0] = 0
         for i in range(total):
             terms = document_term_matrix[i, :].todense()
             embedding = embeddings[i].reshape(1, -1)
@@ -162,14 +176,13 @@ class SBertKeywordExtractor:
                     )
                 )
             if self.metric == "cosine":
-                sim = cosine_similarity(embedding, word_embeddings).astype(
-                    np.float64
-                )
+                sim = cosine_similarity(embedding, word_embeddings)
                 sim = np.ravel(sim)
             else:
-                sim = np.dot(word_embeddings, embedding[0]).T.astype(
-                    np.float64
-                )
+                sim = np.dot(word_embeddings, embedding[0]).T
+            # If a seed is specified, we multiply by the document's relevance
+            if document_relevance is not None:
+                sim = document_relevance[i] * sim
             kth = min(self.top_n, len(sim) - 1)
             top = np.argpartition(-sim, kth)[:kth]
             top_words = batch_vocab[important_terms][top]

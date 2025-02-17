@@ -49,6 +49,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         Random state to use so that results are exactly reproducible.
     metric: "cosine" or "dot", default "cosine"
         Similarity metric to use for keyword extraction.
+    seed_phrase: str, default None
+        Describes an aspect of the corpus that the model should explore.
+        It can be a free-text query, such as
+        "Christian Denominations: Protestantism and Catholicism"
     """
 
     def __init__(
@@ -61,6 +65,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         top_n: int = 25,
         random_state: Optional[int] = None,
         metric: Literal["cosine", "dot"] = "cosine",
+        seed_phrase: Optional[str] = None,
     ):
         self.random_state = random_state
         self.n_components = n_components
@@ -85,11 +90,16 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             encoder=self.encoder_,
             metric=self.metric,
         )
+        self.seed_phrase = seed_phrase
+        self.seed_embedding = None
+        if self.seed_phrase is not None:
+            self.seed_embedding = self.encoder_.encode([self.seed_phrase])[0]
 
     def extract_keywords(
         self,
         batch_or_document: Union[str, list[str]],
         embeddings: Optional[np.ndarray] = None,
+        fitting: bool = True,
     ) -> list[dict[str, float]]:
         """Extracts keywords from a document or a batch of documents.
 
@@ -103,7 +113,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         if isinstance(batch_or_document, str):
             batch_or_document = [batch_or_document]
         return self.extractor.batch_extract_keywords(
-            batch_or_document, embeddings=embeddings
+            batch_or_document,
+            embeddings=embeddings,
+            seed_embedding=self.seed_embedding,
+            fitting=fitting,
         )
 
     def vectorize(
@@ -249,7 +262,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             )
         if keywords is None:
             keywords = self.extract_keywords(
-                list(raw_documents), embeddings=embeddings
+                list(raw_documents),
+                embeddings=embeddings,
+                fitting=False,
             )
         return self.model.transform(keywords)
 
