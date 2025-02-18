@@ -118,6 +118,10 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
                 )
         return self.components_
 
+    @property
+    def has_negative_side(self) -> bool:
+        return False
+
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:

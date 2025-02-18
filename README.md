@@ -5,41 +5,13 @@
 
 
 ## Features
- - Implementations of transformer-based topic models:
-   - Semantic Signal Separation - S³ 🧭
-   - KeyNMF 🔑 
-   - GMM :gem:
-   - Clustering Topic Models: BERTopic and Top2Vec
-   - Autoencoding Topic Models: CombinedTM and ZeroShotTM
-   - FASTopic
- - Dynamic, Online and Hierarchical Topic Modeling 
- - Streamlined scikit-learn compatible API 🛠️
- - Easy topic interpretation 🔍
- - Automated topic naming with LLMs
- - Topic modeling with keyphrases :key:
- - Lemmatization and Stemming
- - Visualization with [topicwizard](https://github.com/x-tabdeveloping/topicwizard) 🖌️
-
-## New in version 0.12.0: Seeded topic modeling
-
-You can now specify an aspect in KeyNMF from which you want to investigate your corpus by specifying a seed phrase.
-
-```python
-from turftopic import KeyNMF
-
-model = KeyNMF(5, seed_phrase="Is the death penalty moral?")
-model.fit(corpus)
-
-model.print_topics()
-```
-
-| Topic ID | Highest Ranking |
+| | |
 | - | - |
-| 0 | morality, moral, immoral, morals, objective, morally, animals, society, species, behavior |
-| 1 | armenian, armenians, genocide, armenia, turkish, turks, soviet, massacre, azerbaijan, kurdish |
-| 2 | murder, punishment, death, innocent, penalty, kill, crime, moral, criminals, executed |
-| 3 | gun, guns, firearms, crime, handgun, firearm, weapons, handguns, law, criminals |
-| 4 | jews, israeli, israel, god, jewish, christians, sin, christian, palestinians, christianity |
+| SOTA Transformer-based Topic Models | :compass: [S³](https://x-tabdeveloping.github.io/turftopic/s3/), :key: [KeyNMF](https://x-tabdeveloping.github.io/turftopic/KeyNMF/),  :gem: [GMM](https://x-tabdeveloping.github.io/turftopic/GMM/), [Clustering Models](https://x-tabdeveloping.github.io/turftopic/GMM/), [CTMs](https://x-tabdeveloping.github.io/turftopic/ctm/), [FASTopic](https://x-tabdeveloping.github.io/turftopic/FASTopic/) |
+| Models for all Scenarios | :chart_with_upwards_trend: [Dynamic](https://x-tabdeveloping.github.io/turftopic/dynamic/), :ocean: [Online](https://x-tabdeveloping.github.io/turftopic/online/), :herb: [Seeded](https://x-tabdeveloping.github.io/turftopic/seeded/), and :evergreen_tree: [Hierarchical](https://x-tabdeveloping.github.io/turftopic/hierarchical/) topic modeling |
+| [Easy Interpretation](https://x-tabdeveloping.github.io/turftopic/model_interpretation/) | :bookmark_tabs: Pretty Printing, :bar_chart: Interactive Figures, :art: [topicwizard](https://github.com/x-tabdeveloping/topicwizard) compatible |
+| [Topic Naming](https://x-tabdeveloping.github.io/turftopic/namers/) | :robot: LLM-based, N-gram Retrieval, :wave: Manual |
+| [Informative Topic Descriptions](https://x-tabdeveloping.github.io/turftopic/vectorizers/) | :key: Keyphrases, Noun-phrases, Lemmatization, Stemming |
 
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)

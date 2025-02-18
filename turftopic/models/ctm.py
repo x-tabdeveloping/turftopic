@@ -269,7 +269,7 @@ class AutoEncodingTopicModel(ContextualModel):
                 status.update(
                     f"Fitting model. Epoch [{epoch}/{self.n_epochs}], Loss [{running_loss}]"
                 )
-            self.components_ = self.model.beta()
+            self.components_ = np.array(self.model.beta())
             console.log("Model fitting done.")
         return self
 

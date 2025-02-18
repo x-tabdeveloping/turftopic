@@ -29,8 +29,7 @@ jobs:
         run: python3 -c "import sys; print(sys.version)"
 
       - name: Install dependencies
-        run: python3 -m pip install --upgrade turftopic[pyro-ppl] pandas pytest
-
+        run: python3 -m pip install --upgrade turftopic[pyro-ppl] pandas pytest plotly igraph
       - name: Run tests
         run: python3 -m pytest tests/
 

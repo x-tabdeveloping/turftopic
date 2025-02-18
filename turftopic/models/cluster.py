@@ -1,19 +1,19 @@
 import tempfile
 import time
+import typing
 import warnings
 import webbrowser
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal, Optional, Sequence, Union
 
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
-from sklearn.cluster import HDBSCAN, AgglomerativeClustering
+from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_distances
 from sklearn.preprocessing import label_binarize, scale
 
 from turftopic.base import ContextualModel, Encoder
@@ -21,6 +21,10 @@ from turftopic.dynamic import DynamicTopicModel
 from turftopic.feature_importance import (bayes_rule,
                                           cluster_centroid_distance, ctf_idf,
                                           soft_ctf_idf)
+from turftopic.models._hierarchical_clusters import (VALID_LINKAGE_METHODS,
+                                                     ClusterNode,
+                                                     LinkageMethod)
+from turftopic.types import VALID_DISTANCE_METRICS, DistanceMetric
 from turftopic.vectorizers.default import default_vectorizer
 
 integer_message = """
@@ -38,44 +42,25 @@ the desired reduced number on initialization.
 ClusteringTopicModel(n_reduce_to=10)
 """
 
-feature_message = """
-feature_importance must be one of 'soft-c-tf-idf', 'c-tf-idf', 'centroid'
-"""
+WordImportance = Literal[
+    "soft-c-tf-idf",
+    "c-tf-idf",
+    "centroid",
+    "bayes",
+]
+VALID_WORD_IMPORTANCE = list(typing.get_args(WordImportance))
+
+TopicRepresentation = Literal[
+    "component",
+    "centroid",
+]
+VALID_TOPIC_REPRESENTATIONS = list(typing.get_args(TopicRepresentation))
 
 NOT_MATCHING_ERROR = (
     "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
     + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
     + "Try to initialize the model with the encoder you used for computing the embeddings."
 )
-
-
-def smallest_hierarchical_join(
-    topic_vectors: np.ndarray,
-    topic_sizes: np.ndarray,
-    classes_: np.ndarray,
-    n_to: int,
-) -> list[tuple]:
-    """Iteratively joins smallest topics."""
-    merge_inst = []
-    topic_vectors = np.copy(topic_vectors)
-    topic_sizes = np.copy(topic_sizes)
-    classes = list(classes_)
-    while len(classes) > n_to:
-        smallest = np.argmin(topic_sizes)
-        dist = cosine_distances(
-            np.atleast_2d(topic_vectors[smallest]), topic_vectors
-        )
-        closest = np.argsort(dist[0])[1]
-        merge_inst.append((classes[smallest], classes[closest]))
-        classes.pop(smallest)
-        topic_vectors[closest] = (
-            (topic_vectors[smallest] * topic_sizes[smallest])
-            + (topic_vectors[closest] * topic_sizes[closest])
-        ) / (topic_sizes[smallest] + topic_sizes[closest])
-        topic_vectors = np.delete(topic_vectors, smallest, axis=0)
-        topic_sizes[closest] = topic_sizes[closest] + topic_sizes[smallest]
-        topic_sizes = np.delete(topic_sizes, smallest, axis=0)
-    return merge_inst
 
 
 def calculate_topic_vectors(
@@ -152,7 +137,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         Clustering method to use for finding topics.
         Defaults to OPTICS with 25 minimum cluster size.
         To imitate the behavior of BERTopic or Top2Vec you should use HDBSCAN.
-    feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
+    feature_importance: WordImportance, default 'soft-c-tf-idf'
         Method for estimating term importances.
         'centroid' uses distances from cluster centroid similarly
         to Top2Vec.
@@ -164,13 +149,16 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
         By default, topics are not merged.
-    reduction_method: 'agglomerative', 'smallest'
-        Method used to reduce the number of topics post-hoc.
-        When 'agglomerative', BERTopic's topic reduction method is used,
-        where topic vectors are hierarchically clustered.
-        When 'smallest', the smallest topic gets merged into the closest
-        non-outlier cluster until the desired number
-        is achieved similarly to Top2Vec.
+    reduction_method: LinkageMethod, default 'average'
+        Method used for hierarchically merging topics.
+        Could be "smallest", which is Top2Vec's default merging strategy, or
+        any of the linkage methods listed in [SciPy's documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html)
+    reduction_distance_metric: DistanceMetric, default 'cosine'
+        Distance metric to use for hierarchical topic reduction.
+    reduction_topic_representation: {'component', 'centroid'}, default 'component'
+        Topic representation used for hierarchical clustering.
+        If 'component' the topic-word importance scores will be used as topic vectors, (this is how it's done in BERTopic)
+        if 'centroid' the centroid vectors of clusters will be used as topic vectors (Top2Vec).
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
     """
@@ -183,27 +171,31 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
-        feature_importance: Literal[
-            "c-tf-idf",
-            "soft-c-tf-idf",
-            "centroid",
-            "bayes",
-        ] = "soft-c-tf-idf",
+        feature_importance: WordImportance = "soft-c-tf-idf",
         n_reduce_to: Optional[int] = None,
-        reduction_method: Literal[
-            "agglomerative", "smallest"
-        ] = "agglomerative",
+        reduction_method: LinkageMethod = "average",
+        reduction_distance_metric: DistanceMetric = "cosine",
+        reduction_topic_representation: TopicRepresentation = "component",
         random_state: Optional[int] = None,
     ):
         self.encoder = encoder
         self.random_state = random_state
-        if feature_importance not in [
-            "c-tf-idf",
-            "soft-c-tf-idf",
-            "centroid",
-            "bayes",
-        ]:
-            raise ValueError(feature_message)
+        if feature_importance not in VALID_WORD_IMPORTANCE:
+            raise ValueError(
+                f"feature_importance must be one of {VALID_WORD_IMPORTANCE} got {feature_importance} instead."
+            )
+        if reduction_method not in VALID_LINKAGE_METHODS:
+            raise ValueError(
+                f"Topic reduction method has to be one of: {VALID_LINKAGE_METHODS}, but got {reduction_method} instead."
+            )
+        if reduction_distance_metric not in VALID_DISTANCE_METRICS:
+            raise ValueError(
+                f"Distance metric should be one of: {VALID_DISTANCE_METRICS}, but got {reduction_distance_metric} instead."
+            )
+        if reduction_topic_representation not in VALID_TOPIC_REPRESENTATIONS:
+            raise ValueError(
+                f"Topic representation should be one of: {VALID_TOPIC_REPRESENTATIONS}, but got {reduction_topic_representation} instead."
+            )
         if isinstance(encoder, int):
             raise TypeError(integer_message)
         if isinstance(encoder, str):
@@ -231,147 +223,52 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         else:
             self.dimensionality_reduction = dimensionality_reduction
         self.feature_importance = feature_importance
+        self.reduction_distance_metric = reduction_distance_metric
+        self.reduction_topic_representation = reduction_topic_representation
         self.n_reduce_to = n_reduce_to
         self.reduction_method = reduction_method
 
+    @property
+    def topic_representations(self) -> np.ndarray:
+        if self.reduction_topic_representation == "component":
+            return self.components_
+        else:
+            return self._calculate_topic_vectors()
+
     def _calculate_topic_vectors(
-        self, is_in_slice: Optional[np.ndarray] = None
+        self,
+        is_in_slice: Optional[np.ndarray] = None,
+        classes: Optional[np.ndarray] = None,
+        embeddings: Optional[np.ndarray] = None,
+        labels: Optional[np.ndarray] = None,
     ) -> np.ndarray:
-        label_to_idx = {label: idx for idx, label in enumerate(self.classes_)}
-        n_topics = len(self.classes_)
-        n_dims = self.embeddings.shape[1]
+        if classes is None:
+            classes = self.classes_
+        if embeddings is None:
+            embeddings = self.embeddings
+        if labels is None:
+            labels = self.labels_
+        label_to_idx = {label: idx for idx, label in enumerate(classes)}
+        n_topics = len(classes)
+        n_dims = embeddings.shape[1]
         topic_vectors = np.full((n_topics, n_dims), np.nan)
-        for label in np.unique(self.labels_):
-            doc_idx = self.labels_ == label
+        for label in np.unique(labels):
+            doc_idx = labels == label
             if is_in_slice is not None:
                 doc_idx = doc_idx & is_in_slice
             topic_vectors[label_to_idx[label], :] = np.mean(
-                self.embeddings[doc_idx], axis=0
+                embeddings[doc_idx], axis=0
             )
         return topic_vectors
 
-    def _merge_agglomerative(self, n_reduce_to: int) -> np.ndarray:
-        n_topics = self.components_.shape[0]
-        res = {old_label: old_label for old_label in self.classes_}
-        if n_topics <= n_reduce_to:
-            return self.labels_
-        interesting_topic_vectors = np.stack(
-            [
-                vec
-                for label, vec in zip(self.classes_, self.topic_vectors_)
-                if label != -1
-            ]
-        )
-        old_labels = [label for label in self.classes_ if label != -1]
-        new_labels = AgglomerativeClustering(
-            n_clusters=n_reduce_to,
-            metric="cosine",
-            linkage="average",
-        ).fit_predict(interesting_topic_vectors)
-        res = {}
-        if -1 in self.classes_:
-            res[-1] = -1
-        for i_old, i_new in zip(old_labels, new_labels):
-            res[i_old] = i_new
-        return np.array([res[label] for label in self.labels_])
-
-    def _merge_smallest(self, n_reduce_to: int):
-        merge_inst = smallest_hierarchical_join(
-            self.topic_vectors_[self.classes_ != -1],
-            self.topic_sizes_[self.classes_ != -1],
-            self.classes_[self.classes_ != -1],
-            n_reduce_to,
-        )
-        labels = np.copy(self.labels_)
-        for from_topic, to_topic in merge_inst:
-            labels[labels == from_topic] = to_topic
-        return labels
-
-    def reduce_topics(
-        self,
-        n_reduce_to: int,
-        reduction_method: Literal["smallest", "agglomerative"],
-    ) -> np.ndarray:
-        """Reduces the clustering to the desired amount with the given method.
-
-        Parameters
-        ----------
-        n_reduce_to: int, default None
-            Number of topics to reduce topics to.
-            The specified reduction method will be used to merge them.
-            By default, topics are not merged.
-        reduction_method: 'agglomerative', 'smallest'
-            Method used to reduce the number of topics post-hoc.
-            When 'agglomerative', BERTopic's topic reduction method is used,
-            where topic vectors are hierarchically clustered.
-            When 'smallest', the smallest topic gets merged into the closest
-            non-outlier cluster until the desired number
-            is achieved similarly to Top2Vec.
-
-        Returns
-        -------
-        ndarray of shape (n_documents)
-            New cluster labels for documents.
-        """
-        if not hasattr(self, "original_labels_"):
-            self.original_labels_ = self.labels_
-            self.original_names_ = self.topic_names
-            self.original_classes_ = self.classes_
-        if reduction_method == "smallest":
-            self.labels_ = self._merge_smallest(n_reduce_to)
-        elif reduction_method == "agglomerative":
-            self.labels_ = self._merge_agglomerative(n_reduce_to)
-        self.estimate_components(self.feature_importance)
-        return self.labels_
-
-    def join_topics(self, topic_ids: list[int]):
-        """Joins given topic together into one topic and reestimates term importances.
-
-        Example:
-        ```python
-        model.join_topics([0,3,2])
-        ```
-
-        Parameters
-        ----------
-        topic_ids: list[int]
-            Topic IDs to join together.
-            The new topic will get the lowest ID.
-        """
-        topic_ids = sorted(topic_ids)
-        new_topic = topic_ids[0]
-        new_labels = []
-        self.original_labels_ = self.labels_
-        self.original_names_ = self.topic_names
-        self.original_classes_ = self.classes_
-        for label in self.labels_:
-            if label in topic_ids:
-                new_labels.append(new_topic)
-            else:
-                new_labels.append(label)
-        self.labels_ = np.array(new_labels)
-        self.estimate_components(self.feature_importance)
-
-    def reset_topics(self):
-        """Resets topic reductions to the original clustering."""
-        if not hasattr(self, "original_labels_"):
-            warnings.warn("Topics have never been reduced, nothing to reset.")
-        else:
-            self.labels_ = self.original_labels_
-            self.topic_names_ = self.original_names_
-            self.estimate_components(self.feature_importance)
-
     def estimate_components(
-        self,
-        feature_importance: Literal[
-            "centroid", "soft-c-tf-idf", "bayes", "c-tf-idf"
-        ],
+        self, feature_importance: Optional[WordImportance] = None
     ) -> np.ndarray:
         """Estimates feature importances based on a fitted clustering.
 
         Parameters
         ----------
-        feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
+        feature_importance: WordImportance, default None
             Method for estimating term importances.
             'centroid' uses distances from cluster centroid similarly
             to Top2Vec.
@@ -385,52 +282,110 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         ndarray of shape (n_components, n_vocab)
             Topic-term matrix.
         """
-        self.topic_names_ = None
-        if getattr(self, "labels_", None) is None:
-            raise NotFittedError(
-                "The model has not been fitted yet, please fit the model before estimating temporal components."
-            )
-        clusters = np.unique(self.labels_)
-        self.classes_ = np.sort(clusters)
-        self.topic_sizes_ = np.array(
-            [np.sum(self.labels_ == label) for label in self.classes_]
-        )
-        self.topic_vectors_ = self._calculate_topic_vectors()
-        document_topic_matrix = label_binarize(
-            self.labels_, classes=self.classes_
-        )
-        if feature_importance == "soft-c-tf-idf":
-            self.components_ = soft_ctf_idf(
-                document_topic_matrix, self.doc_term_matrix
-            )  # type: ignore
-        elif feature_importance == "centroid":
-            if not hasattr(self, "vocab_embeddings"):
-                self.vocab_embeddings = self.encoder_.encode(
-                    self.vectorizer.get_feature_names_out()
-                )  # type: ignore
-                if (
-                    self.vocab_embeddings.shape[1]
-                    != self.topic_vectors_.shape[1]
-                ):
-                    raise ValueError(
-                        NOT_MATCHING_ERROR.format(
-                            n_dims=self.topic_vectors_.shape[1],
-                            n_word_dims=self.vocab_embeddings.shape[1],
-                        )
-                    )
-            self.components_ = cluster_centroid_distance(
-                self.topic_vectors_,
-                self.vocab_embeddings,
-            )
-        elif feature_importance == "bayes":
-            self.components_ = bayes_rule(
-                document_topic_matrix, self.doc_term_matrix
-            )
-        else:
-            self.components_ = ctf_idf(
-                document_topic_matrix, self.doc_term_matrix
-            )
+        if feature_importance is not None:
+            if feature_importance not in VALID_WORD_IMPORTANCE:
+                raise ValueError(
+                    f"feature_importance must be one of {VALID_WORD_IMPORTANCE} got {feature_importance} instead."
+                )
+            self.feature_importance = feature_importance
+        self.hierarchy.estimate_components()
         return self.components_
+
+    def reduce_topics(
+        self,
+        n_reduce_to: int,
+        reduction_method: Optional[LinkageMethod] = None,
+        metric: Optional[DistanceMetric] = None,
+    ) -> np.ndarray:
+        """Reduces the clustering to the desired amount with the given method.
+
+        Parameters
+        ----------
+        n_reduce_to: int, default None
+            Number of topics to reduce topics to.
+            The specified reduction method will be used to merge them.
+            By default, topics are not merged.
+        reduction_method: LinkageMethod, default None
+            Method used for hierarchically merging topics.
+            Could be "smallest", which is Top2Vec's default merging strategy, or
+            any of the linkage methods listed in [SciPy's documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html)
+        reduction_distance_metric: DistanceMetric, default None
+            Distance metric to use for hierarchical topic reduction.
+
+        Returns
+        -------
+        ndarray of shape (n_documents)
+            New cluster labels for documents.
+        """
+        if not hasattr(self, "original_labels_"):
+            self.original_labels_ = self.labels_
+            self.original_names_ = self.topic_names
+            self.original_classes_ = self.classes_
+        if reduction_method is None:
+            reduction_method = self.reduction_method
+        if metric is None:
+            metric = self.reduction_distance_metric
+        self.hierarchy.reduce_topics(
+            n_reduce_to, method=reduction_method, metric=metric
+        )
+        return self.labels_
+
+    def reset_topics(self):
+        """Resets topics to the original cllustering."""
+        original_labels = getattr(self, "original_labels_", None)
+        if original_labels is None:
+            warnings.warn("Topics have never been reduced, nothing to reset.")
+        else:
+            self.hierarchy = ClusterNode.create_root(
+                self, labels=self.original_labels_
+            )
+            self.topic_names_ = self.original_names_
+
+    @property
+    def classes_(self):
+        try:
+            return self.hierarchy.classes_
+        except AttributeError as e:
+            raise AttributeError(
+                "Model has not been fitted yet, and doesn't have classes_"
+            ) from e
+
+    @property
+    def components_(self):
+        try:
+            return self.hierarchy.components_
+        except AttributeError as e:
+            raise AttributeError(
+                "Model has not been fitted yet, and doesn't have components_"
+            ) from e
+
+    @property
+    def labels_(self):
+        try:
+            return self.hierarchy.labels_
+        except AttributeError as e:
+            raise AttributeError(
+                "Model has not been fitted yet, and doesn't have labels_"
+            ) from e
+
+    @property
+    def document_topic_matrix(self):
+        return label_binarize(self.labels_, classes=self.classes_)
+
+    def join_topics(
+        self, to_join: Sequence[int], joint_id: Optional[int] = None
+    ):
+        """Joins the given topics in the cluster hierarchy to a single topic.
+
+        Parameters
+        ----------
+        to_join: Sequence of int
+            Topics to join together by ID.
+        joint_ids: int, default None
+            New ID for the joint cluster.
+            Default is the smallest ID of the topics to join.
+        """
+        self.hierarchy.join_topics(to_join, joint_id=joint_id)
 
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -467,27 +422,26 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             )
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
-            self.labels_ = self.clustering.fit_predict(self.reduced_embeddings)
+            labels = self.clustering.fit_predict(self.reduced_embeddings)
             console.log("Clustering done.")
             status.update("Estimating parameters.")
-            self.estimate_components(self.feature_importance)
+            # Initializing hierarchy
+            self.hierarchy = ClusterNode.create_root(self, labels=labels)
             console.log("Parameter estimation done.")
             if self.n_reduce_to is not None:
                 n_topics = self.classes_.shape[0]
                 status.update(
                     f"Reducing topics from {n_topics} to {self.n_reduce_to}"
                 )
-                self.reduce_topics(self.n_reduce_to, self.reduction_method)
+                self.reduce_topics(
+                    self.n_reduce_to,
+                    self.reduction_method,
+                    self.reduction_distance_metric,
+                )
                 console.log(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
-                status.update("Reestimating parameters.")
-                self.estimate_components(self.feature_importance)
-                console.log("Reestimation done.")
         console.log("Model fitting done.")
-        self.doc_topic_matrix = label_binarize(
-            self.labels_, classes=self.classes_
-        )
         return self.labels_
 
     def fit_transform(
@@ -500,15 +454,13 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self,
         time_labels,
         time_bin_edges,
-        feature_importance: Literal[
-            "c-tf-idf", "soft-c-tf-idf", "centroid", "bayes"
-        ],
+        feature_importance: Optional[WordImportance] = None,
     ) -> np.ndarray:
         """Estimates temporal components based on a fitted topic model.
 
         Parameters
         ----------
-        feature_importance: {'soft-c-tf-idf', 'c-tf-idf', 'bayes', 'centroid'}, default 'soft-c-tf-idf'
+        feature_importance: WordImportance, default None
             Method for estimating term importances.
             'centroid' uses distances from cluster centroid similarly
             to Top2Vec.
@@ -526,6 +478,8 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             raise NotFittedError(
                 "The model has not been fitted yet, please fit the model before estimating temporal components."
             )
+        if feature_importance is None:
+            feature_importance = self.feature_importance
         n_comp, n_vocab = self.components_.shape
         self.time_bin_edges = time_bin_edges
         n_bins = len(self.time_bin_edges) - 1
@@ -536,14 +490,14 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         )
         self.temporal_importance_ = np.zeros((n_bins, n_comp))
         for i_timebin in np.unique(time_labels):
-            topic_importances = self.doc_topic_matrix[
+            topic_importances = self.document_topic_matrix[
                 time_labels == i_timebin
             ].sum(axis=0)
             if not topic_importances.sum() == 0:
                 topic_importances = topic_importances / topic_importances.sum()
             self.temporal_importance_[i_timebin, :] = topic_importances
             t_dtm = self.doc_term_matrix[time_labels == i_timebin]
-            t_doc_topic = self.doc_topic_matrix[time_labels == i_timebin]
+            t_doc_topic = self.document_topic_matrix[time_labels == i_timebin]
             if feature_importance == "c-tf-idf":
                 self.temporal_components_[i_timebin] = ctf_idf(
                     t_doc_topic, t_dtm
@@ -558,7 +512,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 )
             elif feature_importance == "centroid":
                 t_topic_vectors = self._calculate_topic_vectors(
-                    time_labels == i_timebin,
+                    is_in_slice=time_labels == i_timebin,
                 )
                 components = cluster_centroid_distance(
                     t_topic_vectors,

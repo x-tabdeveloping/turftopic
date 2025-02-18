@@ -47,7 +47,7 @@ newsgroups = fetch_20newsgroups(
     remove=("headers", "footers", "quotes"),
 )
 texts = newsgroups.data
-trf = SentenceTransformer("all-MiniLM-L6-v2")
+trf = SentenceTransformer("paraphrase-MiniLM-L3-v2")
 embeddings = np.asarray(trf.encode(texts))
 timestamps = generate_dates(n_dates=len(texts))
 
@@ -60,7 +60,7 @@ models = [
         clustering=KMeans(3),
         feature_importance="c-tf-idf",
         encoder=trf,
-        reduction_method="agglomerative",
+        reduction_method="average",
     ),
     ClusteringTopicModel(
         dimensionality_reduction=PCA(10),
@@ -126,12 +126,24 @@ def test_fit_online(model):
         df = pd.read_csv(out_path)
 
 
+OPTIONAL_FIELDS = [
+    "topic_names",
+    "classes",
+    "corpus",
+    "transform",
+    "time_bin_edges",
+    "temporal_components",
+    "temporal_importance",
+    "has_negative_side",
+    "hierarchy",
+]
+
+
 @pytest.mark.parametrize("model", models)
 def test_prepare_topic_data_export_table(model):
     topic_data = model.prepare_topic_data(texts, embeddings=embeddings)
     for key, value in topic_data.items():
-        # We allow transform() to be None for transductive models
-        if key == "transform":
+        if key in OPTIONAL_FIELDS:
             continue
         if value is None:
             raise TypeError(f"Field {key} is None in topic_data.")
@@ -148,6 +160,22 @@ def test_hierarchical():
     model.hierarchy.divide_children(3)
     model.hierarchy[0][0].divide(3)
     repr = str(model.hierarchy)
+
+
+def test_hierarchical_clustering():
+    model = ClusteringTopicModel(
+        n_reduce_to=5,
+        dimensionality_reduction=PCA(10),
+        clustering=KMeans(20),
+        feature_importance="c-tf-idf",
+        encoder=trf,
+        reduction_method="smallest",
+        reduction_topic_representation="centroid",
+    )
+    topic_data = model.prepare_topic_data(texts, embeddings=embeddings)
+    assert model.components_.shape[0] == 5
+    fig = model.hierarchy.plot_tree()
+    print(model.hierarchy.cut(2))
 
 
 def test_naming():
@@ -174,7 +202,7 @@ def test_topic_joining():
     )
     model.fit(texts, embeddings=embeddings)
     model.join_topics([0, 1, 2])
-    assert list(model.classes_) == [0, 3, 4]
+    assert set(model.classes_) == {0, 3, 4}
 
 
 def test_refitting():
