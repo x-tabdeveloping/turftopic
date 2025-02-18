@@ -57,7 +57,7 @@ In general, the most balanced models are $S^3$, Clustering models with `centroid
 
 | Model | :1234: Multiple Topics per Document  | :hash: Detecting Number of Topics  | :chart_with_upwards_trend: Dynamic Modeling  | :evergreen_tree: Hierarchical Modeling  | :star: Inference over New Documents  | :globe_with_meridians: Cross-Lingual  | :ocean: Online Fitting  |
 | - | - | - | - | - | - | - | - |
-| **[KeyNMF](KeyNMF.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:  | :heavy_check_mark: |
+| **[KeyNMF](KeyNMF.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark: |
 | **[SemanticSignalSeparation](s3.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
 | **[ClusteringTopicModel](clustering.md)** | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: |
 | **[GMM](GMM.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |

@@ -299,6 +299,48 @@ print(model.hierarchy)
 
 For a detailed tutorial on hierarchical modeling click [here](hierarchical.md).
 
+## Cross-lingual KeyNMF
+
+KeyNMF, by default, does not come with cross-lingual capabilities, since only words that appear in a document can be assigned to it as keywords.
+We, however provide a term-matching scheme that allows you to match words across languages based on their cosine similarity in a multilingual embedding model.
+
+This is done by:
+
+1. Computing a similarity matrix over terms.
+2. Checking, which terms have similarity over a given threshold (_0.9_ is the default)
+3. Building a graph from these connections, and finding graph components.
+4. Adding up term importances for terms that appear in the same component for all documents.
+
+```python
+from datasets import load_dataset
+from sklearn.feature_extraction.text import CountVectorizer
+
+from turftopic import KeyNMF
+
+# Loading a parallel corpus
+ds = load_dataset(
+    "aiana94/polynews-parallel", "dan_Latn-hun_Latn", split="train"
+)
+corpus = ds["src"] + ds["tgt"]
+
+model = KeyNMF(
+    10,
+    cross_lingual=True,
+    encoder="paraphrase-multilingual-MiniLM-L12-v2",
+    vectorizer=CountVectorizer()
+)
+model.fit(corpus)
+model.print_topics()
+```
+
+| Topic ID | Highest Ranking |
+| - | - |
+| ... | |
+| 4 | internettets-internettet-interneten, nyitottság-åbne-åbnede, censurer-cenzúra-cenzúrázása, crowdsourcing-crowdsourcinghez, ytringsfrihed-szólásszabadság, hálózat-netværke-netværket, kommunikálhat-kommunikere, orosz-oroszországi-oroszországban, lært-uddanelse-oktatásnak, szabadság-szabadságát-friheder |
+| 5 | colombianske-colombia-kolumbiai, hangjai-voicesnál-voices, dignity-méltóság, béketárgyalásokba-béke-békét, női-nőket-kvindelige, áldozatok-ofre-áldozata, viszály-konflikter-konflikt, jogairól-rettighederne-jogainak, petronilas-petronila, bevæbnede-fegyveres-pisztolyt |
+| 6 | karikaturistára-karikaturtegning-karikaturista, bloggermøde-blogs-bloggere, hver-international-letartóztatásával, rslans-rslan, történetét-historier-biografi, kritikere-kritikát-kritisk, salvadori-salvador, szeptember-september-júliusban, aktivistát-aktivisták-aktivister, vietnami-vietnamesiske |
+| ... | |
+
 ## Online Topic Modeling
 
 KeyNMF can also be fitted in an online manner.
