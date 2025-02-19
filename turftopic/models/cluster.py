@@ -382,7 +382,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         ----------
         to_join: Sequence of int
             Topics to join together by ID.
-        joint_ids: int, default None
+        joint_id: int, default None
             New ID for the joint cluster.
             Default is the smallest ID of the topics to join.
         """
