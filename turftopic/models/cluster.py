@@ -14,6 +14,7 @@ from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import label_binarize, scale
 
 from turftopic.base import ContextualModel, Encoder
@@ -448,7 +449,11 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ):
         labels = self.fit_predict(raw_documents, y, embeddings)
-        return label_binarize(labels, classes=self.classes_)
+        document_topic_matrix = label_binarize(labels, classes=self.classes_)
+        document_topic_matrix = document_topic_matrix * cosine_similarity(
+            self.embeddings, self._calculate_topic_vectors()
+        )
+        return document_topic_matrix
 
     def estimate_temporal_components(
         self,
