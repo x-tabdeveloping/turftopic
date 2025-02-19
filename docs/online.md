@@ -54,7 +54,7 @@ for epoch in range(5):
 You can pretrain a topic model on a large corpus and then finetune it on a novel corpus the model has not seen before.
 This will morph the model's topics to the corpus at hand.
 
-In this example I will load a pretrained KeyNMF model from disk. (see [Model Loading and Saving](persistance.md))
+In this example I will load a pretrained KeyNMF model from disk. (see [Model Loading and Saving](persistence.md))
 
 ```python
 from turftopic import load_model

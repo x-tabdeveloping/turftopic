@@ -113,7 +113,7 @@ Since the same word can appear in multiple forms in a piece of text, one can som
 
 ### Extracting lemmata with `LemmaCountVectorizer`
 
-Similarly to `NounPhraseCountVectorizer`, `LemmaCountVectorizer` relies on a [SpaCy](spacy.io) pipeline for extracting lemmas from a piece of text.
+Similarly to `NounPhraseCountVectorizer`, `LemmaCountVectorizer` relies on a [SpaCy](https://spacy.io/) pipeline for extracting lemmas from a piece of text.
 This means you will have to install SpaCy and a SpaCy pipeline to be able to use it.
 
 ```bash
@@ -180,7 +180,7 @@ In these cases we recommend that you use a vectorizer with its own language-spec
 
 ### Vectorizing Any Language with `TokenCountVectorizer`
 
-The [SpaCy](spacy.io) package includes language-specific tokenization and stop-word rules for just about any language.
+The [SpaCy](https://spacy.io/) package includes language-specific tokenization and stop-word rules for just about any language.
 We provide a vectorizer that you can use with the language of your choice.
 
 ```bash

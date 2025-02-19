@@ -319,8 +319,10 @@ from turftopic import KeyNMF
 
 # Loading a parallel corpus
 ds = load_dataset(
-    "aiana94/polynews-parallel", "dan_Latn-hun_Latn", split="train"
+    "aiana94/polynews-parallel", "deu_Latn-eng_Latn", split="train"
 )
+# Subsampling
+ds = ds.train_test_split(test_size=1000)["test"]
 corpus = ds["src"] + ds["tgt"]
 
 model = KeyNMF(
@@ -336,10 +338,11 @@ model.print_topics()
 | Topic ID | Highest Ranking |
 | - | - |
 | ... | |
-| 4 | internettets-internettet-interneten, nyitottság-åbne-åbnede, censurer-cenzúra-cenzúrázása, crowdsourcing-crowdsourcinghez, ytringsfrihed-szólásszabadság, hálózat-netværke-netværket, kommunikálhat-kommunikere, orosz-oroszországi-oroszországban, lært-uddanelse-oktatásnak, szabadság-szabadságát-friheder |
-| 5 | colombianske-colombia-kolumbiai, hangjai-voicesnál-voices, dignity-méltóság, béketárgyalásokba-béke-békét, női-nőket-kvindelige, áldozatok-ofre-áldozata, viszály-konflikter-konflikt, jogairól-rettighederne-jogainak, petronilas-petronila, bevæbnede-fegyveres-pisztolyt |
-| 6 | karikaturistára-karikaturtegning-karikaturista, bloggermøde-blogs-bloggere, hver-international-letartóztatásával, rslans-rslan, történetét-historier-biografi, kritikere-kritikát-kritisk, salvadori-salvador, szeptember-september-júliusban, aktivistát-aktivisták-aktivister, vietnami-vietnamesiske |
-| ... | |
+| 15 | africa-afrikanisch-african, media-medien-medienwirksam, schwarzwald-negroe-schwarzer, apartheid, difficulties-complicated-problems, kontinents-continent-kontinent, äthiopien-ethiopia, investitionen-investiert-investierenden, satire-satirical, hundred-100-1001 |
+| 16 | lawmaker-judges-gesetzliche, schutz-sicherheit-geschützt, an-success-eintreten, australian-australien-australischen, appeal-appealing-appeals, lawyer-lawyers-attorney, regeln-rule-rules, öffentlichkeit-öffentliche-publicly, terrorism-terroristischer-terrorismus, convicted |
+| 17 | israels-israel-israeli, palästinensischen-palestinians-palestine, gay-lgbtq-gays, david, blockaden-blockades-blockade, stars-star-stelle, aviv, bombardieren-bombenexplosion-bombing, militärischer-army-military, kampfflugzeuge-warplanes |
+| 18 | russischer-russlands-russischen, facebookbeitrag-facebook-facebooks, soziale-gesellschaftliche-sozialbauten, internetnutzer-internet, activism-aktivisten-activists, webseiten-web-site, isis, netzwerken-networks-netzwerk, vkontakte, media-medien-medienwirksam |
+| 19 | bundesstaates-regierenden-regiert, chinesischen-chinesische-chinesisch, präsidentschaft-presidential-president, regions-region-regionen, demokratien-democratic-democracy, kapitalismus-capitalist-capitalism, staatsbürgerin-citizens-bürger, jemen-jemenitische-yemen, angolanischen-angola, media-medien-medienwirksam |
 
 ## Online Topic Modeling
 

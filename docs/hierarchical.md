@@ -21,7 +21,7 @@ _Drag and click to zoom, hover to see word importance_
 ## 1. Divisive/Top-down Hierarchical Modeling
 
 In divisive modeling, you start from larger structures, higher up in the hierarchy, and  divide topics into smaller sub-topics on-demand.
-This is how hierarchical modeling works in [KeyNMF](keynmf.md), which, by default does not discover a topic hierarchy, but you can divide topics to as many subtopics as you see fit.
+This is how hierarchical modeling works in [KeyNMF](KeyNMF.md), which, by default does not discover a topic hierarchy, but you can divide topics to as many subtopics as you see fit.
 
 As a demonstration, let's load a corpus, that we know to have hierarchical themes.
 
