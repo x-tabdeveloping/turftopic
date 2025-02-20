@@ -4,7 +4,7 @@ Clustering topic models conceptualize topic modeling as a clustering task.
 Essentially a topic for these models is a tightly packed group of documents in semantic space.
 The first contextually sensitive clustering topic model was introduced with Top2Vec, and BERTopic has also iterated on this idea.
 
-If you are looking for a probabilistic/soft-clustering model you should also check out [GMM](gmm.md).
+If you are looking for a probabilistic/soft-clustering model you should also check out [GMM](GMM.md).
 
 <figure>
   <iframe src="../images/cluster_datamapplot.html", title="Cluster visualization", style="height:600px;width:800px;padding:0px;border:none;"></iframe>

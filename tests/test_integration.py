@@ -218,3 +218,15 @@ def test_serialization():
     with tempfile.TemporaryDirectory() as tmp_dir:
         model.to_disk(tmp_dir)
         model = load_model(tmp_dir)
+
+
+def test_cross_lingual():
+    from datasets import load_dataset
+
+    ds = load_dataset(
+        "aiana94/polynews-parallel", "dan_Latn-hun_Latn", split="train"
+    )
+    corpus = ds["src"] + ds["tgt"]
+    model = KeyNMF(5, cross_lingual=True)
+    model.fit(corpus)
+    model.print_topics()

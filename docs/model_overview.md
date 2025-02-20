@@ -8,7 +8,7 @@ It is quite important that you choose the right topic model for your use case.
 
 | :zap: Speed | :book: Long Documents | :elephant: Scalability | :nut_and_bolt: Flexibility |
 | - | - | - | - |
-| **[SemanticSignalSeparation](s3.md)** | **[KeyNMF](KeyNMF.md)** |  **[KeyNMF](KeyNMF.md)** | **[ClusteringTopicModel](ClusteringTopicModel.md)** |
+| **[SemanticSignalSeparation](s3.md)** | **[KeyNMF](KeyNMF.md)** |  **[KeyNMF](KeyNMF.md)** | **[ClusteringTopicModel](clustering.md)** |
 
 _Table 1: You should tailor your model choice to your needs_
 
@@ -40,7 +40,7 @@ Some models are also capable of being used in a dynamic context, some can be fit
     You should take the results presented here with a grain of salt. A more comprehensive and in-depth analysis can be found in [Kardos et al., 2024](https://arxiv.org/abs/2406.09556), though the general tendencies are similar.
     Note that some topic models are also less stable than others, and they might require tweaking optimal results (like BERTopic), while others perform well out-of-the-box, but are not as flexible ($S^3$)
 
-The quality of the topics you can get out of your topic model can depend on a lot of things, including your choice of [vectorizer](../vectorizers.md) and [encoder model](../encoders.md).
+The quality of the topics you can get out of your topic model can depend on a lot of things, including your choice of [vectorizer](vectorizers.md) and [encoder model](encoders.md).
 More rigorous evaluation regimes can be found in a number of studies on topic modeling.
 
 Two usual metrics to evaluate models by are *coherence* and *diversity*.
@@ -57,7 +57,7 @@ In general, the most balanced models are $S^3$, Clustering models with `centroid
 
 | Model | :1234: Multiple Topics per Document  | :hash: Detecting Number of Topics  | :chart_with_upwards_trend: Dynamic Modeling  | :evergreen_tree: Hierarchical Modeling  | :star: Inference over New Documents  | :globe_with_meridians: Cross-Lingual  | :ocean: Online Fitting  |
 | - | - | - | - | - | - | - | - |
-| **[KeyNMF](KeyNMF.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x:  | :heavy_check_mark: |
+| **[KeyNMF](KeyNMF.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark: |
 | **[SemanticSignalSeparation](s3.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
 | **[ClusteringTopicModel](clustering.md)** | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: |
 | **[GMM](GMM.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |

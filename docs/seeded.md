@@ -4,7 +4,7 @@ When investigating a set of documents, you might already have an idea about what
 Some models are able to account for this by taking seed phrases or words.
 This is currently only possible with KeyNMF in Turftopic, but will likely be extended in the future.
 
-In [KeyNMF](../keynmf.md), you can describe the aspect, from which you want to investigate your corpus, using a free-text seed-phrase,
+In [KeyNMF](keynmf.md), you can describe the aspect, from which you want to investigate your corpus, using a free-text seed-phrase,
 which will then be used to only extract topics, which are relevant to your research question.
 
 In this example we investigate the 20Newsgroups corpus from three different aspects:

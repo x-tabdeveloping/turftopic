@@ -13,9 +13,9 @@ This page provides a guide on how to define models, train them, and use them for
 
 ## Defining a Model
 
-### 1. [Topic Model](../models.md)
+### 1. [Topic Model](model_overview.md)
  In order to initialize a model, you will first need to make a choice about which **topic model** you'd like to use.
-You might want to have a look at the [Models](models.md) page in order to make an informed choice about the topic model you intend to train.
+You might want to have a look at the [Models](model_overview.md) page in order to make an informed choice about the topic model you intend to train.
 
 Here are some examples of models you can load and use in the package:
 
@@ -43,11 +43,11 @@ Here are some examples of models you can load and use in the package:
     model = SemanticSignalSeparation(n_components=10, feature_importance="combined")
     ```
 
-### 2. [Vectorizer](../vectorizers.md)
+### 2. [Vectorizer](vectorizers.md)
 
 In Turftopic, all Models have a vectorizer component, which is responsible for extracting word content from documents in the corpus.
 This means, that a vectorizer also determines which words will be part of the model's vocabulary.
-For a more detailed explanation, see the [Vectorizers](../vectorizers.md) page
+For a more detailed explanation, see the [Vectorizers](vectorizers.md) page
 
 The default is scikit-learn's CountVectorizer:
 
@@ -126,12 +126,12 @@ thereby getting different behaviours. You can for instance use noun-phrases in y
 
     ```
 
-### 3. [Encoder](../encoders.md)
+### 3. [Encoder](encoders.md)
 
 Since all models in Turftopic rely on contextual embeddings, you will need to specify a contextual embedding model to use.
 The default is [`all-MiniLM-L6-v2`](sentence-transformers/all-MiniLM-L6-v2), which is a very fast and reasonably performant embedding model for English.
 You might, however want to use custom embeddings, either because your corpus is not in English, or because you need higher speed or performance.
-See a detailed guide on Encoders [here](../encoders.md).
+See a detailed guide on Encoders [here](encoders.md).
 
 Similar to a vectorizer, you can add an encoder to a topic model upon initializing it.
 
@@ -143,11 +143,11 @@ encoder = SentenceTransformer("parahprase-multilingual-MiniLM-L12-v2")
 model = KeyNMF(10, encoder=encoder)
 ```
 
-### 4. [Namer](../namers.md) (*optional*)
+### 4. [Namer](namers.md) (*optional*)
 
 A Namer is an optional part of your topic modeling pipeline, that can automatically assign human-readable names to topics.
 Namers are technically **not part of your topic model**, and should be used *after training*.
-See a detailed guide [here](../namers.md).
+See a detailed guide [here](namers.md).
 
 === "LLM from HuggingFace"
     ```python

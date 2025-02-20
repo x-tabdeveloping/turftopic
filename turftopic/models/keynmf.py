@@ -53,6 +53,11 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         Describes an aspect of the corpus that the model should explore.
         It can be a free-text query, such as
         "Christian Denominations: Protestantism and Catholicism"
+    cross_lingual: bool, default False
+        Indicates whether KeyNMF should match terms across languages.
+        This is useful when you have a corpus containing multiple languages.
+    term_match_threshold: float, default 0.9
+        Cosine similarity threshold for matching terms across languages.
     """
 
     def __init__(
@@ -66,6 +71,8 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         random_state: Optional[int] = None,
         metric: Literal["cosine", "dot"] = "cosine",
         seed_phrase: Optional[str] = None,
+        cross_lingual: bool = False,
+        term_match_threshold: float = 0.9,
     ):
         self.random_state = random_state
         self.n_components = n_components
@@ -74,6 +81,13 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self.encoder = encoder
         self._has_custom_vectorizer = vectorizer is not None
         if isinstance(encoder, str):
+            if (
+                encoder == "sentence-transformers/all-MiniLM-L6-v2"
+            ) and cross_lingual:
+                warnings.warn(
+                    "all-MiniLM is incompatible with cross-lingual transfer, using paraphrase-multilingual-MiniLM-L12-v2."
+                )
+                encoder = "paraphrase-multilingual-MiniLM-L12-v2"
             self.encoder_ = SentenceTransformer(encoder)
         else:
             self.encoder_ = encoder
@@ -94,6 +108,8 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self.seed_embedding = None
         if self.seed_phrase is not None:
             self.seed_embedding = self.encoder_.encode([self.seed_phrase])[0]
+        self.cross_lingual = cross_lingual
+        self.term_match_threshold = term_match_threshold
 
     def extract_keywords(
         self,
@@ -112,12 +128,17 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         """
         if isinstance(batch_or_document, str):
             batch_or_document = [batch_or_document]
-        return self.extractor.batch_extract_keywords(
+        keywords = self.extractor.batch_extract_keywords(
             batch_or_document,
             embeddings=embeddings,
             seed_embedding=self.seed_embedding,
             fitting=fitting,
         )
+        if self.cross_lingual:
+            keywords = self.extractor.match_terms(
+                keywords, threshold=self.term_match_threshold
+            )
+        return keywords
 
     def vectorize(
         self,
@@ -285,6 +306,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         keywords: list[dict[str, float]], optional
             Precomputed keyword dictionaries.
         """
+        if self.cross_lingual:
+            raise ValueError(
+                "Cross-lingual online topic modeling is yet to be implemented in KeyNMF."
+            )
         if not self._has_custom_vectorizer:
             self.vectorizer = CountVectorizer(stop_words="english")
             self._has_custom_vectorizer = True
@@ -486,6 +511,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         bins: list[datetime]
             Explicit time bin edges for the dynamic model.
         """
+        if self.cross_lingual:
+            raise ValueError(
+                "Cross-lingual online topic modeling is yet to be implemented in KeyNMF."
+            )
         if timestamps is None:
             raise TypeError(
                 "You have to pass timestamps when fitting a dynamic model."

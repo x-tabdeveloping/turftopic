@@ -10,6 +10,7 @@ nav:
     - Dynamic Topic Modeling: dynamic.md
     - Online Topic Modeling: online.md
     - Hierarchical Topic Modeling: hierarchical.md
+    - Cross-Lingual Topic Modeling: cross_lingual.md
     - Modifying and Finetuning Models: finetuning.md
     - Saving and Loading: persistence.md
     - Using TopicData: topic_data.md

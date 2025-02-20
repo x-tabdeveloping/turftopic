@@ -299,6 +299,51 @@ print(model.hierarchy)
 
 For a detailed tutorial on hierarchical modeling click [here](hierarchical.md).
 
+## Cross-lingual KeyNMF
+
+KeyNMF, by default, does not come with cross-lingual capabilities, since only words that appear in a document can be assigned to it as keywords.
+We, however provide a term-matching scheme that allows you to match words across languages based on their cosine similarity in a multilingual embedding model.
+
+This is done by:
+
+1. Computing a similarity matrix over terms.
+2. Checking, which terms have similarity over a given threshold (_0.9_ is the default)
+3. Building a graph from these connections, and finding graph components.
+4. Adding up term importances for terms that appear in the same component for all documents.
+
+```python
+from datasets import load_dataset
+from sklearn.feature_extraction.text import CountVectorizer
+
+from turftopic import KeyNMF
+
+# Loading a parallel corpus
+ds = load_dataset(
+    "aiana94/polynews-parallel", "deu_Latn-eng_Latn", split="train"
+)
+# Subsampling
+ds = ds.train_test_split(test_size=1000)["test"]
+corpus = ds["src"] + ds["tgt"]
+
+model = KeyNMF(
+    10,
+    cross_lingual=True,
+    encoder="paraphrase-multilingual-MiniLM-L12-v2",
+    vectorizer=CountVectorizer()
+)
+model.fit(corpus)
+model.print_topics()
+```
+
+| Topic ID | Highest Ranking |
+| - | - |
+| ... | |
+| 15 | africa-afrikanisch-african, media-medien-medienwirksam, schwarzwald-negroe-schwarzer, apartheid, difficulties-complicated-problems, kontinents-continent-kontinent, äthiopien-ethiopia, investitionen-investiert-investierenden, satire-satirical, hundred-100-1001 |
+| 16 | lawmaker-judges-gesetzliche, schutz-sicherheit-geschützt, an-success-eintreten, australian-australien-australischen, appeal-appealing-appeals, lawyer-lawyers-attorney, regeln-rule-rules, öffentlichkeit-öffentliche-publicly, terrorism-terroristischer-terrorismus, convicted |
+| 17 | israels-israel-israeli, palästinensischen-palestinians-palestine, gay-lgbtq-gays, david, blockaden-blockades-blockade, stars-star-stelle, aviv, bombardieren-bombenexplosion-bombing, militärischer-army-military, kampfflugzeuge-warplanes |
+| 18 | russischer-russlands-russischen, facebookbeitrag-facebook-facebooks, soziale-gesellschaftliche-sozialbauten, internetnutzer-internet, activism-aktivisten-activists, webseiten-web-site, isis, netzwerken-networks-netzwerk, vkontakte, media-medien-medienwirksam |
+| 19 | bundesstaates-regierenden-regiert, chinesischen-chinesische-chinesisch, präsidentschaft-presidential-president, regions-region-regionen, demokratien-democratic-democracy, kapitalismus-capitalist-capitalism, staatsbürgerin-citizens-bürger, jemen-jemenitische-yemen, angolanischen-angola, media-medien-medienwirksam |
+
 ## Online Topic Modeling
 
 KeyNMF can also be fitted in an online manner.

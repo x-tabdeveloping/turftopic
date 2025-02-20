@@ -1,8 +1,10 @@
 import itertools
 import warnings
+from collections import defaultdict
 from datetime import datetime
 from typing import Iterable, Literal, Optional
 
+import igraph as ig
 import numpy as np
 import scipy.sparse as spr
 from sklearn.base import clone
@@ -31,6 +33,34 @@ def batched(iterable, n: int) -> Iterable[list[str]]:
     it = iter(iterable)
     while batch := list(itertools.islice(it, n)):
         yield batch
+
+
+def _match_terms(
+    keywords: list[dict],
+    vocab: np.ndarray,
+    vocab_embeddings: np.ndarray,
+    threshold: float = 0.9,
+) -> list[dict]:
+    """Matches similar terms into a single, cross-lingual term."""
+    similarity = cosine_similarity(vocab_embeddings, vocab_embeddings)
+    np.fill_diagonal(similarity, 0)
+    similarity[similarity < threshold] = 0
+    edges = zip(*np.nonzero(similarity > 0))
+    g = ig.Graph(n=len(vocab), edges=edges)
+    components = g.connected_components()
+    old_to_new = {}
+    for component in components:
+        component_name = "-".join(vocab[component][:3])
+        for i_word in component:
+            old_to_new[vocab[i_word]] = component_name
+    joint_keywords = []
+    for entry in keywords:
+        joint_entry = defaultdict(lambda: 0)
+        for word, value in entry.items():
+            new_word = old_to_new[word]
+            joint_entry[new_word] += value
+        joint_keywords.append(joint_entry)
+    return joint_keywords
 
 
 def fit_timeslice(
@@ -87,6 +117,20 @@ class SBertKeywordExtractor:
         self.key_to_index: dict[str, int] = {}
         self.term_embeddings: Optional[np.ndarray] = None
         self.metric = metric
+
+    @property
+    def vocab(self) -> np.ndarray:
+        res = [""] * self.n_vocab
+        for key, index in self.key_to_index.items():
+            res[index] = key
+        return np.array(res)
+
+    def match_terms(
+        self, keywords: list[dict], threshold: float = 0.9
+    ) -> list[dict]:
+        return _match_terms(
+            keywords, self.vocab, self.term_embeddings, threshold=threshold
+        )
 
     @property
     def is_encoder_promptable(self) -> bool:
