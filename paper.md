@@ -53,12 +53,12 @@ Additionally, while model interpretation is fundamental aspect of topic modellin
 Turftopic unifies state-of-the-art contextual topic models under a superset of the `scikit-learn` [@scikit-learn] API, which users are likely already familiar with, and can be readily included in `scikit-learn` workflows and pipelines.
 We focused on making Turftopic first and foremost an easy-to-use library that does not necessitate expert knowledge or excessive amounts of code to get started with, but gives great flexibility to power users.
 Furthermore, we included an extensive suite of pretty-printing and visualization utilities that aid users in interpreting their results.
-The library also includes three topic models, which to our knowledge only have implementations in Turftopic, these are: KeyNMF [@keynmf], S^3^ [@s3], and GMM, a Gaussian Mixture model of document representations with a soft-c-tf-idf term weighting scheme.
+The library also includes three topic models, which to our knowledge only have implementations in Turftopic, these are: KeyNMF [@keynmf], Semantic Signal Separation (S^3^) [@s3], and GMM, a Gaussian Mixture model of document representations with a soft-c-tf-idf term weighting scheme.
 
 # Functionality
 
 Turftopic includes a wide array of contextual topic models from the literature, these include:
-FASTopic [@fastopic], Clustering models, such as BERTopic [@bertopic_paper] and Top2Vec [@top2vec], auto-encoding topic models, like CombinedTM [@ctm] and ZeroShotTM [@zeroshot_tm], KeyNMF [@keynmf], Semantic Signal Separation [@s3] and GMM.
+FASTopic [@fastopic], Clustering models, such as BERTopic [@bertopic_paper] and Top2Vec [@top2vec], auto-encoding topic models, like CombinedTM [@ctm] and ZeroShotTM [@zeroshot_tm], KeyNMF [@keynmf], S^3^ [@s3] and GMM.
 At the time of writing, these models are representative of the state of the art in contextual topic modelling and intend to expand on them in the future.
 
 ![Components of a Topic Modelling Pipeline in Turftopic](https://x-tabdeveloping.github.io/turftopic/images/topic_modeling_pipeline.png){width="800px"}
