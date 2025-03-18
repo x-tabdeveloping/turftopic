@@ -35,22 +35,25 @@ bibliography: paper.bib
 # Summary
 
 Turftopic is a topic modelling library including a number of recent topic models that go beyond bag-of-words and can understand text in context, utilizing representations from transformers.
-The library focuses on ease-of-use, providing a unified, interface for a number of different modern topic models, and boasting both model-specific and model-agnostic interpretation and visualization utilities.
+Turftopic focuses on ease-of-use, providing a unified, interface for a number of different modern topic models, and boasting both model-specific and model-agnostic interpretation and visualization utilities.
 The user is afforded great flexibility in model choice and customization, but the library comes with reasonable defaults, not to overwhelm first-time users with a plethora of choices.
-In addition, our library is capable of modeling topics over time, modeling topics in streams of texts, finding hierarchical themes, and multilingual usage.
-For ease of interpretation, users can utilize large language models to assign human-readable names to topics, and can model key phrases, lemmas or stems right out of the box.
+In addition, Turftopic allows you to model topics, as they change over time, learning themes from streams of texts, finding hierarchical topics, and multilingual usage.
+Users can utilize the power of large language models (LLMs) to give human-readable names to topics.
+Turftopic also comes with built-in utilities for generating topic descriptions based on key-phrases or lemmas rather than individual words.
 
 ![An Overview of Turftopic's Functionality](assets/paper_banner.png)
 
-# Statement of need
+# Statement of Need
 
-While a number of software packages have been developed for contextual topic modelling in recent years, including BERTopic [@bertopic_paper], Top2Vec [@top2vec], CTM [@ctm], these packages include implementations of one or two topic models, and most of the utilities they provide are model-specific. This has resulted in the unfortunate situation that practitioners need to switch between different topic modelling libraries if they intend to try different models for their use case, and adapt to their particularities in both interface and functionality.
-Some attempts have been made at creating unified packages for modern topic models, including STREAM [@stream] and TopMost [@topmost]. These packages, however have a focus on neural models and topic model evaluation, have abstract and highly specialized interfaces, and do not include all popular topic models.
-Additionally, we considered the interpretation utilities included in these libraries fairly limited.
+While a number of software packages have been developed for contextual topic modelling in recent years, including BERTopic [@bertopic_paper], Top2Vec [@top2vec], CTM [@ctm], these packages include implementations of one or two topic models, and most of the utilities they provide are model-specific. This has resulted in the unfortunate situation that practitioners need to switch between different libraries and adapt to their particularities in both interface and functionality.
+Some attempts have been made at creating unified packages for modern topic models, including STREAM [@stream] and TopMost [@topmost].
+These packages, however have a focus on neural models and topic model evaluation, have abstract and highly specialized interfaces, and do not include some popular topic models.
+Additionally, while model interpretation is an incredibly important aspect of topic modelling, the interpretation utilities provided in these libraries are fairly limited, especially in comparison with model-specific packages, like BERTopic.
 
-Turftopic unifies state-of-the-art contextual topic models under a superset of the scikit-learn [@scikit-learn] API, which users are likely already familiar with, and can be readily included in scikit-learn workflows and pipelines.
+Turftopic unifies state-of-the-art contextual topic models under a superset of the `scikit-learn` [@scikit-learn] API, which users are likely already familiar with, and can be readily included in `scikit-learn` workflows and pipelines.
 We focused on making Turftopic first and foremost an easy-to-use library, that does not necessitate expert knowledge or excessive amounts of code to get started with, but gives great flexibility to power users.
-The library also includes three topic models, which to our knowledge only have implementations in Turftopic, these are: KeyNMF [@keynmf], S^3^ [@s3] and GMM.
+Furthermore, included an extensive suite of pretty-printing and visualization utilities that aid users in interpreting their results.
+The library also includes three topic models, which to our knowledge only have implementations in Turftopic, these are: KeyNMF [@keynmf], S^3^ [@s3], and GMM.
 
 # Functionality
 
@@ -69,9 +72,13 @@ To accommodate a variety of use-cases, Turftopic can be used for dynamic topic m
 Some models can also be fitted in an *online* fashion, where documents are accounted for as they come in by batches.
 Turftopic also includes *seeded* topic modelling, where a seed phrase can be used to retrieve topics relevant to the specific research question.
 
+# Use Cases
+
+Topic models can be utilized in a number of research settings, including exploratory data analysis, discourse analysis of diverse domains, such as newspapers, social media or policy documents.
+Turftopic has already been utilized by @keynmf for analyzing information dynamics in Chinese Diaspora Media, and is currently being used in multiple ongoing research projects, including one analyzing discourse on the HPV vaccine in Denmark, and studying Danish golden-age literature.
+
 # Target Audience
 
-Topic models can be utilized in a number of research settings, including exploratory data analysis, discourse analysis of many domains, such as newspapers, social media or policy documents.
-Turftopic has already been utilized by @keynmf for analyzing information dynamics in Chinese Diaspora Media, and is currently being used in multiple ongoing research projects, including one analyzing discourse on the HPV vaccine in Denmark.
-In addition, the library has already seen extensive use in student exam papers at Aarhus University.
-We expect that computational researchers, especially in digital humanities and in social sciences will benefit from an easy-to-use, unified contextual topic modelling package.
+We expect that Turftopic will prove useful to a diverse user base including computational researchers in digital humanities and social sciences, and industry NLP professionals.
+Due to ease of use, Turftopic is also an appropriate choice for educational purposes.
+
