@@ -1,0 +1,84 @@
+# Contributing to Turftopic
+
+We do our best to maintain Turftopic, and any help or suggestions are most welcome from the community including:
+
+- Reporting a bug
+- Discussing the current state of the code
+- Submitting a fix
+- Proposing new features
+
+## We Develop with Github
+We use github to host code, to track issues and feature requests, as well as accept pull requests.
+
+## We Use [Github Flow](https://guides.github.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests
+Pull requests are the best way to propose changes to the codebase (we use [Github Flow](https://guides.github.com/introduction/flow/index.html)). We actively welcome your pull requests:
+
+## Setting up your environment
+
+#### Installing dependencies
+
+Install all developer dependencies by running:
+```bash
+pip install turftopic[dev]
+```
+
+#### Formatting
+
+We use black and isort on all files and encourage you to do the same. Code formatted with Ruff will also be accepted:
+
+```bash
+pip install black isort
+
+python3 -m black turftopic/
+python3 -m isort turftopic/
+```
+
+#### Running tests
+
+To run tests locally run:
+
+```bash
+python3 -m pytest tests/
+```
+
+#### Running documentation
+
+You can build the documentation and host it locally by running:
+
+```bash
+mkdocs serve
+```
+
+## How to contribute?
+
+1. Fork the repo and create your branch from `main`.
+2. If you've added code that should be tested, add tests.
+2. If you intend to introducee breaking changes, please start a Github discussion before submitting.
+3. If you've changed APIs, update the documentation.
+4. Ensure the test suite passes.
+5. Make sure to format the code.
+6. Issue that pull request!
+
+
+## Report bugs using Github's [issues](https://github.com/x-tabdeveloping/turftopic/issues)
+We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/x-tabdeveloping/turftopic/issues/new/choose); it's that easy!
+
+**Great Bug Reports** tend to have:
+
+- A quick summary and/or background
+- Steps to reproduce
+  - Be specific!
+  - Give sample code if you can.
+- What you expected would happen
+- What actually happens
+- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
+
+## Any contributions you make will be under the MIT Software License
+By contributing you agree to the terms of the [MIT License](http://choosealicense.com/licenses/mit/), under which Turftopic is released.
+
+## Be Respectful
+We expect all discussions on this repository to be conducted in a civil and respectful tone, please refrain from being offensive.
+
+## References
+This document was adapted from the open-source contribution guidelines for [Facebook's Draft](https://github.com/facebook/draft-js/blob/a9316a723f9e918afde44dea68b5f9f39b7d9b00/CONTRIBUTING.md)
+
