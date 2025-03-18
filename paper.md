@@ -1,5 +1,5 @@
 ---
-title: 'Turftopic: Topic Modelling with Contextual Embeddings'
+title: 'Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers'
 tags:
   - Python
   - topic modelling
