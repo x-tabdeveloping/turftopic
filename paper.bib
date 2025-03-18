@@ -51,6 +51,8 @@
     abstract = "Topic models have a rich history with various applications and have recently been reinvigorated by neural topic modeling. However, these numerous topic models adopt totally distinct datasets, implementations, and evaluations. This impedes quick utilization and fair comparisons, and thereby hinders their research progress and applications. To tackle this challenge, we in this paper propose a Topic Modeling System Toolkit (TopMost). Compared to existing toolkits, TopMost stands out by supporting more extensive features. It covers a broader spectrum of topic modeling scenarios with their complete lifecycles, including datasets, preprocessing, models, training, and evaluations. Thanks to its highly cohesive and decoupled modular design, TopMost enables rapid utilization, fair comparisons, and flexible extensions of diverse cutting-edge topic models. Our code, tutorials, and documentation are available at https://github.com/bobxwu/topmost."
 }
 
+@article{quantitative_text_analysis, title={Quantitative text analysis}, volume={4}, url={https://www.nature.com/articles/s43586-024-00302-w#citeas}, DOI={10.1038/s43586-024-00302-w}, number={1}, journal={Nature Reviews Methods Primers}, author={Nielbo, Kristoffer L. and Karsdorp, Folgert and Wevers, Melvin and Lassche, Alie and Baglini, Rebekah B. and Kestemont, Mike and Tahmasebi, Nina}, year={2024}, month=apr }
+
 @inproceedings{stream,
     title = "{STREAM}: Simplified Topic Retrieval, Exploration, and Analysis Module",
     author = {Thielmann, Anton  and
@@ -125,12 +127,12 @@
       primaryClass={cs.CL}
 }
 
-@inproceedings{prodlda,
-  title={Autoencoding Variational Inference For Topic Models},
-  author={Akash Srivastava and Charles Sutton},
-  booktitle={International Conference on Learning Representations},
-  year={2017},
-  url={https://api.semanticscholar.org/CorpusID:29842525}
+@inproceedings{prodla,
+    title={Autoencoding Variational Inference For Topic Models},
+    author={Akash Srivastava and Charles Sutton},
+    booktitle={International Conference on Learning Representations},
+    year={2017},
+    url={https://openreview.net/forum?id=BybtVK9lg}
 }
 
 @article{scikit-learn,
@@ -180,31 +182,32 @@ series = {NIPS'03}
 author={Bianchi, Federico and Terragni, Silvia and Hovy, Dirk},
 title={Contextualized Topic Models — Contextualized Topic Models 2.5.0 documentation}, url={https://contextualized-topic-models.readthedocs.io/en/latest/introduction.html}, year={2020} }
 
-@misc{fastopic,
-      title={FASTopic: A Fast, Adaptive, Stable, and Transferable Topic Modeling Paradigm}, 
-      author={Xiaobao Wu and Thong Nguyen and Delvin Ce Zhang and William Yang Wang and Anh Tuan Luu},
-      year={2024},
-      eprint={2405.17978},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2405.17978}, 
+@inproceedings{fastopic,
+    title={FASTopic: Pretrained Transformer is a Fast, Adaptive, Stable, and Transferable Topic Model},
+    author={Wu, Xiaobao and Nguyen, Thong Thanh and Zhang, Delvin Ce and Wang, William Yang and Luu, Anh Tuan},
+    booktitle={The Thirty-eighth Annual Conference on Neural Information Processing Systems},
+    year={2024}
 }
 
-@article{sentence_transformers,
-  author       = {Nils Reimers and
-                  Iryna Gurevych},
-  title        = {Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks},
-  journal      = {CoRR},
-  volume       = {abs/1908.10084},
-  year         = {2019},
-  url          = {http://arxiv.org/abs/1908.10084},
-  eprinttype    = {arXiv},
-  eprint       = {1908.10084},
-  timestamp    = {Thu, 26 Nov 2020 12:13:54 +0100},
-  biburl       = {https://dblp.org/rec/journals/corr/abs-1908-10084.bib},
-  bibsource    = {dblp computer science bibliography, https://dblp.org}
+@inproceedings{sentence_transformers,
+    title = "Sentence-{BERT}: Sentence Embeddings using {S}iamese {BERT}-Networks",
+    author = "Reimers, Nils  and
+      Gurevych, Iryna",
+    editor = "Inui, Kentaro  and
+      Jiang, Jing  and
+      Ng, Vincent  and
+      Wan, Xiaojun",
+    booktitle = "Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)",
+    month = nov,
+    year = "2019",
+    address = "Hong Kong, China",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/D19-1410/",
+    doi = "10.18653/v1/D19-1410",
+    pages = "3982--3992",
+    abstract = "BERT (Devlin et al., 2018) and RoBERTa (Liu et al., 2019) has set a new state-of-the-art performance on sentence-pair regression tasks like semantic textual similarity (STS). However, it requires that both sentences are fed into the network, which causes a massive computational overhead: Finding the most similar pair in a collection of 10,000 sentences requires about 50 million inference computations ({\textasciitilde}65 hours) with BERT. The construction of BERT makes it unsuitable for semantic similarity search as well as for unsupervised tasks like clustering. In this publication, we present Sentence-BERT (SBERT), a modification of the pretrained BERT network that use siamese and triplet network structures to derive semantically meaningful sentence embeddings that can be compared using cosine-similarity. This reduces the effort for finding the most similar pair from 65 hours with BERT / RoBERTa to about 5 seconds with SBERT, while maintaining the accuracy from BERT. We evaluate SBERT and SRoBERTa on common STS tasks and transfer learning tasks, where it outperforms other state-of-the-art sentence embeddings methods."
 }
-
+  
 @software{topicwizard,
   author = {Kardos, Márton},
   month = nov,
