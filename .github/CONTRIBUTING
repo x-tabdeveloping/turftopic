@@ -10,9 +10,6 @@ We do our best to maintain Turftopic, and any help or suggestions are most welco
 ## We Develop with Github
 We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
-## We Use [Github Flow](https://guides.github.com/introduction/flow/index.html), So All Code Changes Happen Through Pull Requests
-Pull requests are the best way to propose changes to the codebase (we use [Github Flow](https://guides.github.com/introduction/flow/index.html)). We actively welcome your pull requests:
-
 ## Setting up your environment
 
 #### Installing dependencies
@@ -29,8 +26,8 @@ We use black and isort on all files and encourage you to do the same. Code forma
 ```bash
 pip install black isort
 
-python3 -m black turftopic/
-python3 -m isort turftopic/
+python -m black turftopic/
+python -m isort turftopic/
 ```
 
 #### Running tests
@@ -38,11 +35,12 @@ python3 -m isort turftopic/
 To run tests locally run:
 
 ```bash
-python3 -m pytest tests/
+python -m pytest tests/
 ```
 
 #### Running documentation
 
+Turftopic uses [mkdocs](https://www.mkdocs.org/) and [mkdocs-material](https://squidfunk.github.io/mkdocs-material/) to generate documentation.
 You can build the documentation and host it locally by running:
 
 ```bash
