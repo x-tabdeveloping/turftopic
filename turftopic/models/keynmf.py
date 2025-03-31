@@ -4,6 +4,7 @@ from typing import Literal, Optional, Union
 
 import numpy as np
 import scipy.sparse as spr
+from PIL import Image
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.exceptions import NotFittedError
@@ -13,13 +14,16 @@ from sklearn.preprocessing import normalize
 from turftopic.base import ContextualModel, Encoder
 from turftopic.data import TopicData
 from turftopic.dynamic import DynamicTopicModel
+from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.hierarchical import DivisibleTopicNode
 from turftopic.models._keynmf import KeywordNMF, SBertKeywordExtractor
 from turftopic.models.wnmf import weighted_nmf
+from turftopic.multimodal import (ImageRepr, MultimodalEmbeddings,
+                                  MultimodalModel)
 from turftopic.vectorizers.default import default_vectorizer
 
 
-class KeyNMF(ContextualModel, DynamicTopicModel):
+class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
     """Extracts keywords from documents based on semantic similarity of
     term encodings to document encodings.
     Topics are then extracted with non-negative matrix factorization from
@@ -64,7 +68,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self,
         n_components: int,
         encoder: Union[
-            Encoder, str
+            Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         top_n: int = 25,
@@ -230,6 +234,54 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             console.log("Model fitting done.")
         self.document_topic_matrix = doc_topic_matrix
         self.document_term_matrix = self.model.vectorize(keywords)
+        self.hierarchy = DivisibleTopicNode.create_root(
+            self, self.components_, self.document_topic_matrix
+        )
+        return doc_topic_matrix
+
+    def fit_transform_multimodal(
+        self,
+        raw_documents: list[str],
+        images: list[ImageRepr],
+        y=None,
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ) -> np.ndarray:
+        console = Console()
+        self.multimodal_embeddings = embeddings
+        with console.status("Fitting model") as status:
+            if self.multimodal_embeddings is None:
+                status.update("Encoding documents")
+                self.multimodal_embeddings = self.encode_multimodal(
+                    raw_documents, images
+                )
+                console.log("Documents encoded.")
+            status.update("Extracting keywords")
+            document_keywords = self.extract_keywords(
+                raw_documents,
+                embeddings=self.multimodal_embeddings["document_embeddings"],
+            )
+            image_keywords = self.extract_keywords(
+                raw_documents,
+                embeddings=self.multimodal_embeddings["image_embeddings"],
+            )
+            console.log("Keyword extraction done.")
+            status.update("Decomposing with NMF")
+            try:
+                doc_topic_matrix = self.model.transform(document_keywords)
+            except (NotFittedError, AttributeError):
+                doc_topic_matrix = self.model.fit_transform(document_keywords)
+                self.components_ = self.model.components
+            console.log("Model fitting done.")
+            status.update("Transforming images")
+            self.image_topic_matrix = self.model.transform(image_keywords)
+            self.top_images: list[list[Image.Image]] = []
+            for image_topic_vector in self.image_topic_matrix.T:
+                top_im_ind = np.argsort(-image_topic_vector)[:9]
+                top_im = [images[i] for i in top_im_ind]
+                self.top_images.append(top_im)
+            console.log("Images transformed")
+        self.document_topic_matrix = doc_topic_matrix
+        self.document_term_matrix = self.model.vectorize(document_keywords)
         self.hierarchy = DivisibleTopicNode.create_root(
             self, self.components_, self.document_topic_matrix
         )

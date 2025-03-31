@@ -8,12 +8,8 @@ import igraph as ig
 import numpy as np
 import scipy.sparse as spr
 from sklearn.base import clone
-from sklearn.decomposition._nmf import (
-    NMF,
-    MiniBatchNMF,
-    _initialize_nmf,
-    _update_coordinate_descent,
-)
+from sklearn.decomposition._nmf import (NMF, MiniBatchNMF, _initialize_nmf,
+                                        _update_coordinate_descent)
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -144,6 +140,15 @@ class SBertKeywordExtractor:
         if ("query" in prompts) and ("passage" in prompts):
             return True
 
+    def encode(
+        self, texts: Iterable[str], prompt_name: str = None
+    ) -> np.ndarray:
+        if not hasattr(self.encoder, "encode"):
+            return self.encoder.get_text_embeddings(list(texts))
+        if (prompt_name is not None) and (self.is_encoder_promptable):
+            return self.encoder.encode(texts, prompt_name=prompt_name)
+        return self.encoder.encode(texts)
+
     @property
     def n_vocab(self) -> int:
         return len(self.key_to_index)
@@ -151,12 +156,7 @@ class SBertKeywordExtractor:
     def _add_terms(self, new_terms: list[str]):
         for term in new_terms:
             self.key_to_index[term] = self.n_vocab
-        if not self.is_encoder_promptable:
-            term_encodings = self.encoder.encode(new_terms)
-        else:
-            term_encodings = self.encoder.encode(
-                new_terms, prompt_name="passage"
-            )
+        term_encodings = self.encode(new_terms, prompt_name="passage")
         if self.term_embeddings is not None:
             self.term_embeddings = np.concatenate(
                 (self.term_embeddings, term_encodings), axis=0
@@ -174,12 +174,7 @@ class SBertKeywordExtractor:
         if not len(documents):
             return []
         if embeddings is None:
-            if not self.is_encoder_promptable:
-                embeddings = self.encoder.encode(documents)
-            else:
-                embeddings = self.encoder.encode(
-                    documents, prompt_name="query"
-                )
+            embeddings = self.encode(documents, prompt_name="query")
         if len(embeddings) != len(documents):
             raise ValueError(
                 "Number of documents doesn't match number of embeddings."
