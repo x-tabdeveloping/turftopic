@@ -14,6 +14,9 @@ from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic.base import ContextualModel, Encoder
+from turftopic.encoders.multimodal import MultimodalEncoder
+from turftopic.multimodal import (Image, ImageRepr, MultimodalEmbeddings,
+                                  MultimodalModel)
 from turftopic.vectorizers.default import default_vectorizer
 
 
@@ -91,7 +94,7 @@ class Model(nn.Module):
         return self.decoder.beta.weight.cpu().detach().T
 
 
-class AutoEncodingTopicModel(ContextualModel):
+class AutoEncodingTopicModel(ContextualModel, MultimodalModel):
     """Variational autoencoding topic models
     with contextualized representations (CTM).
     Uses amortized variational inference with neural networks
@@ -138,7 +141,7 @@ class AutoEncodingTopicModel(ContextualModel):
         self,
         n_components: int,
         encoder: Union[
-            Encoder, SentenceTransformer
+            Encoder, SentenceTransformer, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         combined: bool = False,
@@ -279,3 +282,102 @@ class AutoEncodingTopicModel(ContextualModel):
         return self.fit(raw_documents, y, embeddings).transform(
             raw_documents, embeddings
         )
+
+    def fit_transform_multimodal(
+        self,
+        raw_documents: list[str],
+        images: list[ImageRepr],
+        y=None,
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ) -> np.ndarray:
+        console = Console()
+        self.multimodal_embeddings = embeddings
+        with console.status("Fitting model") as status:
+            if self.multimodal_embeddings is None:
+                status.update("Encoding documents")
+                self.multimodal_embeddings = self.encode_multimodal(
+                    raw_documents, images
+                )
+                console.log("Documents encoded.")
+            status.update("Extracting terms.")
+            document_term_matrix = self.vectorizer.fit_transform(raw_documents)
+            console.log("Term extraction done.")
+            seed = self.random_state or random.randint(0, 10_000)
+            torch.manual_seed(seed)
+            pyro.set_rng_seed(seed)
+            device = torch.device("cpu")
+            pyro.clear_param_store()
+            contextualized_size = self.multimodal_embeddings[
+                "document_embeddings"
+            ].shape[1]
+            if self.combined:
+                contextualized_size = (
+                    contextualized_size + document_term_matrix.shape[1]
+                )
+            self.model = Model(
+                vocab_size=document_term_matrix.shape[1],
+                contextualized_size=contextualized_size,
+                num_topics=self.n_components,
+                hidden=self.hidden,
+                dropout=self.dropout_rate,
+            )
+            self.model.to(device)
+            optimizer = pyro.optim.Adam({"lr": self.learning_rate})
+            svi = SVI(
+                self.model.model,
+                self.model.guide,
+                optimizer,
+                loss=TraceMeanField_ELBO(),
+            )
+            num_batches = int(
+                math.ceil(document_term_matrix.shape[0] / self.batch_size)
+            )
+
+            status.update(f"Fitting model. Epoch [0/{self.n_epochs}]")
+            for epoch in range(self.n_epochs):
+                running_loss = 0.0
+                for i in range(num_batches):
+                    batch_bow = np.atleast_2d(
+                        document_term_matrix[
+                            i * self.batch_size : (i + 1) * self.batch_size, :
+                        ].toarray()
+                    )
+                    # Skipping batches that are smaller than 2
+                    if batch_bow.shape[0] < 2:
+                        continue
+                    batch_contextualized = np.atleast_2d(
+                        self.multimodal_embeddings["document_embeddings"][
+                            i * self.batch_size : (i + 1) * self.batch_size, :
+                        ]
+                    )
+                    if self.combined:
+                        batch_contextualized = np.concatenate(
+                            (batch_contextualized, batch_bow), axis=1
+                        )
+                    batch_contextualized = (
+                        torch.tensor(batch_contextualized).float().to(device)
+                    )
+                    batch_bow = torch.tensor(batch_bow).float().to(device)
+                    loss = svi.step(batch_bow, batch_contextualized)
+                    running_loss += loss / batch_bow.size(0)
+                status.update(
+                    f"Fitting model. Epoch [{epoch}/{self.n_epochs}], Loss [{running_loss}]"
+                )
+            self.components_ = np.array(self.model.beta())
+            console.log("Model fitting done.")
+            status.update("Transforming documents and images.")
+            document_topic_matrix = self.transform(
+                raw_documents,
+                embeddings=self.multimodal_embeddings["document_embeddings"],
+            )
+            self.image_topic_matrix = self.transform(
+                raw_documents,
+                embeddings=self.multimodal_embeddings["image_embeddings"],
+            )
+            self.top_images: list[list[Image.Image]] = []
+            for image_topic_vector in self.image_topic_matrix.T:
+                top_im_ind = np.argsort(-image_topic_vector)[:9]
+                top_im = [images[i] for i in top_im_ind]
+                self.top_images.append(top_im)
+            console.log("Transformation done.")
+        return document_topic_matrix
