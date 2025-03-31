@@ -193,7 +193,7 @@ class SemanticSignalSeparation(
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
             console.log("Term extraction done.")
             status.update("Encoding vocabulary")
-            self.vocab_embeddings = self.encoder_.encode(vocab)
+            self.vocab_embeddings = self.encode_documents(vocab)
             if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
                 raise ValueError(
                     NOT_MATCHING_ERROR.format(
