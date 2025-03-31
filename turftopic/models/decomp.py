@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal, Optional, Union
 
 import numpy as np
+from PIL import Image
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
@@ -13,6 +14,9 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
+from turftopic.encoders.multimodal import MultimodalEncoder
+from turftopic.multimodal import (ImageRepr, MultimodalEmbeddings,
+                                  MultimodalModel)
 from turftopic.namers.base import TopicNamer
 from turftopic.vectorizers.default import default_vectorizer
 
@@ -23,7 +27,9 @@ NOT_MATCHING_ERROR = (
 )
 
 
-class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
+class SemanticSignalSeparation(
+    ContextualModel, DynamicTopicModel, MultimodalModel
+):
     """Separates the embedding matrix into 'semantic signals' with
     component analysis methods.
     Topics are assumed to be dimensions of semantics.
@@ -64,7 +70,7 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
         self,
         n_components: int = 10,
         encoder: Union[
-            Encoder, str
+            Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         decomposition: Optional[TransformerMixin] = None,
@@ -161,6 +167,64 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
                     * self.angular_components_
                 )
             console.log("Model fitting done.")
+        return doc_topic
+
+    def fit_transform_multimodal(
+        self,
+        raw_documents: list[str],
+        images: list[ImageRepr],
+        y=None,
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ) -> np.ndarray:
+        console = Console()
+        self.multimodal_embeddings = embeddings
+        with console.status("Fitting model") as status:
+            if self.multimodal_embeddings is None:
+                status.update("Encoding documents")
+                self.multimodal_embeddings = self.encode_multimodal(
+                    raw_documents, images
+                )
+                console.log("Documents encoded.")
+            self.embeddings = self.multimodal_embeddings["document_embeddings"]
+            status.update("Decomposing embeddings")
+            doc_topic = self.decomposition.fit_transform(self.embeddings)
+            console.log("Decomposition done.")
+            status.update("Extracting terms.")
+            vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
+            console.log("Term extraction done.")
+            status.update("Encoding vocabulary")
+            self.vocab_embeddings = self.encoder_.encode(vocab)
+            if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=self.embeddings.shape[1],
+                        n_word_dims=self.vocab_embeddings.shape[1],
+                    )
+                )
+            console.log("Vocabulary encoded.")
+            status.update("Estimating term importances")
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
+            console.log("Model fitting done.")
+            status.update("Transforming images")
+            self.image_topic_matrix = self.transform(
+                [], embeddings=self.multimodal_embeddings["image_embeddings"]
+            )
+            self.top_images: list[list[Image.Image]] = []
+            for image_topic_vector in self.image_topic_matrix.T:
+                top_im_ind = np.argsort(-image_topic_vector)[:9]
+                top_im = [images[i] for i in top_im_ind]
+                self.top_images.append(top_im)
+            console.log("Images transformed")
         return doc_topic
 
     def _rename_automatic(self, namer: TopicNamer) -> list[str]:
