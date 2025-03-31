@@ -39,6 +39,8 @@ class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
         ndarray of shape (n_documents, n_dimensions)
             Matrix of document embeddings.
         """
+        if not hasattr(self.encoder_, "encode"):
+            return self.encoder.get_text_embeddings(list(raw_documents))
         return self.encoder_.encode(raw_documents)
 
     @abstractmethod

@@ -41,7 +41,7 @@ class MultimodalModel:
     ) -> dict[str, np.ndarray]:
         if len(sentences) != len(images):
             raise ValueError("Images and documents were not the same length.")
-        images = _load_images(images)
+        images = list(_load_images(images))
         if hasattr(self.encoder_, "get_text_embeddings"):
             text_embeddings = np.array(
                 self.encoder_.get_text_embeddings(sentences)
@@ -83,6 +83,16 @@ class MultimodalModel:
         embeddings: Optional[MultimodalEmbeddings] = None,
     ) -> np.ndarray:
         pass
+
+    def fit_multimodal(
+        self,
+        raw_documents: list[str],
+        images: list[ImageRepr],
+        y=None,
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ):
+        self.fit_transform_multimodal(raw_documents, images, y, embeddings)
+        return self
 
     def _top_image_grid(self, ind_topic: int, final_size=(1200, 1200)):
         grid_size = (3, 3)
@@ -168,4 +178,4 @@ class MultimodalModel:
             height=figure_height,
             margin={"l": 0, "r": 0, "t": 0, "b": 0},
         )
-        fig.show()
+        return fig
