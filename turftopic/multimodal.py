@@ -110,9 +110,9 @@ class MultimodalModel:
             top_images.append(top_im)
         return top_images
 
-    def _top_image_grid(
-        self,
-        ind_topic: int,
+    @staticmethod
+    def _image_grid(
+        images: list[Image.Image],
         final_size=(1200, 1200),
         grid_size: tuple[int, int] = (4, 4),
     ):
@@ -120,9 +120,7 @@ class MultimodalModel:
         cell_width = final_size[0] // grid_size[0]
         cell_height = final_size[1] // grid_size[1]
         n_rows, n_cols = grid_size
-        for idx, img in enumerate(
-            self.top_images[ind_topic][: n_rows * n_cols]
-        ):
+        for idx, img in enumerate(images[: n_rows * n_cols]):
             img = img.resize(
                 (cell_width, cell_height), resample=Image.Resampling.LANCZOS
             )
@@ -131,7 +129,7 @@ class MultimodalModel:
             grid_img.paste(img, (x_offset, y_offset))
         return grid_img
 
-    def plot_topics_with_images(self, n_columns: int = 3, grid_size: int = 4):
+    def plot_topics_with_images(self, n_cols: int = 3, grid_size: int = 4):
         try:
             import plotly.graph_objects as go
         except (ImportError, ModuleNotFoundError) as e:
@@ -143,7 +141,6 @@ class MultimodalModel:
         scale_factor = 0.25
         w, h = width * scale_factor, height * scale_factor
         padding = 10
-        n_cols = 3
         n_components = self.components_.shape[0]
         n_rows = n_components // n_cols + int(bool(n_components % n_cols))
         figure_height = (h + padding) * n_rows
@@ -161,8 +158,9 @@ class MultimodalModel:
             col = i % n_cols
             row = i // n_cols
             top_7 = vocab[np.argsort(-component)[:7]]
-            image = self._top_image_grid(
-                i, (width, height), grid_size=(grid_size, grid_size)
+            images = self.top_images[i]
+            image = self._image_grid(
+                images, (width, height), grid_size=(grid_size, grid_size)
             )
             x0 = (w + padding) * col
             y0 = (h + padding) * (n_rows - row)
