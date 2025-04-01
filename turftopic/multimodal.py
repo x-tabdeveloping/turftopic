@@ -94,12 +94,32 @@ class MultimodalModel:
         self.fit_transform_multimodal(raw_documents, images, y, embeddings)
         return self
 
-    def _top_image_grid(self, ind_topic: int, final_size=(1200, 1200)):
-        grid_size = (3, 3)
+    @staticmethod
+    def collect_top_images(
+        images: list[Image.Image],
+        image_topic_matrix: np.ndarray,
+        n_images: int = 20,
+    ) -> list[list[Image.Image]]:
+        top_images: list[list[Image.Image]] = []
+        for image_topic_vector in image_topic_matrix.T:
+            top_im_ind = np.argsort(-image_topic_vector)[:20]
+            top_im = [images[i] for i in top_im_ind]
+            top_images.append(top_im)
+        return top_images
+
+    def _top_image_grid(
+        self,
+        ind_topic: int,
+        final_size=(1200, 1200),
+        grid_size: tuple[int, int] = (4, 4),
+    ):
         grid_img = Image.new("RGB", final_size, (255, 255, 255))
         cell_width = final_size[0] // grid_size[0]
         cell_height = final_size[1] // grid_size[1]
-        for idx, img in enumerate(self.top_images[ind_topic]):
+        n_rows, n_cols = grid_size
+        for idx, img in enumerate(
+            self.top_images[ind_topic][: n_rows * n_cols]
+        ):
             img = img.resize(
                 (cell_width, cell_height), resample=Image.Resampling.LANCZOS
             )
@@ -108,7 +128,7 @@ class MultimodalModel:
             grid_img.paste(img, (x_offset, y_offset))
         return grid_img
 
-    def plot_topics_with_images(self, n_columns: int = 3):
+    def plot_topics_with_images(self, n_columns: int = 3, grid_size: int = 4):
         try:
             import plotly.graph_objects as go
         except (ImportError, ModuleNotFoundError) as e:
@@ -138,7 +158,9 @@ class MultimodalModel:
             col = i % n_cols
             row = i // n_cols
             top_7 = vocab[np.argsort(-component)[:7]]
-            image = self._top_image_grid(i, (width, height))
+            image = self._top_image_grid(
+                i, (width, height), grid_size=(grid_size, grid_size)
+            )
             x0 = (w + padding) * col
             y0 = (h + padding) * (n_rows - row)
             fig = fig.add_layout_image(

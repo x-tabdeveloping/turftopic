@@ -219,11 +219,9 @@ class SemanticSignalSeparation(
             self.image_topic_matrix = self.transform(
                 [], embeddings=self.multimodal_embeddings["image_embeddings"]
             )
-            self.top_images: list[list[Image.Image]] = []
-            for image_topic_vector in self.image_topic_matrix.T:
-                top_im_ind = np.argsort(-image_topic_vector)[:9]
-                top_im = [images[i] for i in top_im_ind]
-                self.top_images.append(top_im)
+            self.top_images: list[list[Image.Image]] = self.collect_top_images(
+                images, self.image_topic_matrix
+            )
             console.log("Images transformed")
         return doc_topic
 
