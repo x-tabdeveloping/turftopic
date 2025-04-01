@@ -99,9 +99,12 @@ class MultimodalModel:
         images: list[Image.Image],
         image_topic_matrix: np.ndarray,
         n_images: int = 20,
+        negative: bool = False,
     ) -> list[list[Image.Image]]:
         top_images: list[list[Image.Image]] = []
         for image_topic_vector in image_topic_matrix.T:
+            if negative:
+                image_topic_vector = -image_topic_vector
             top_im_ind = np.argsort(-image_topic_vector)[:20]
             top_im = [images[i] for i in top_im_ind]
             top_images.append(top_im)

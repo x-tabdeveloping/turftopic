@@ -219,8 +219,11 @@ class SemanticSignalSeparation(
             self.image_topic_matrix = self.transform(
                 [], embeddings=self.multimodal_embeddings["image_embeddings"]
             )
-            self.top_images: list[list[Image.Image]] = self.collect_top_images(
+            self.top_images = self.collect_top_images(
                 images, self.image_topic_matrix
+            )
+            self.negative_images = self.collect_top_images(
+                images, self.image_topic_matrix, negative=True
             )
             console.log("Images transformed")
         return doc_topic
