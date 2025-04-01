@@ -19,12 +19,15 @@ from sklearn.preprocessing import label_binarize, normalize, scale
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
+from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.feature_importance import (bayes_rule,
                                           cluster_centroid_distance, ctf_idf,
                                           soft_ctf_idf)
 from turftopic.models._hierarchical_clusters import (VALID_LINKAGE_METHODS,
                                                      ClusterNode,
                                                      LinkageMethod)
+from turftopic.multimodal import (Image, ImageRepr, MultimodalEmbeddings,
+                                  MultimodalModel)
 from turftopic.types import VALID_DISTANCE_METRICS, DistanceMetric
 from turftopic.vectorizers.default import default_vectorizer
 
@@ -102,7 +105,9 @@ def build_tsne(*args, **kwargs):
         return TSNE(*args, **kwargs)
 
 
-class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
+class ClusteringTopicModel(
+    ContextualModel, ClusterMixin, DynamicTopicModel, MultimodalModel
+):
     """Topic models, which assume topics to be clusters of documents
     in semantic space.
     Models also include a dimensionality reduction step to aid clustering.
@@ -167,7 +172,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
     def __init__(
         self,
         encoder: Union[
-            Encoder, str
+            Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
@@ -424,7 +429,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         with console.status("Fitting model") as status:
             if embeddings is None:
                 status.update("Encoding documents")
-                embeddings = self.encoder_.encode(raw_documents)
+                embeddings = self.encode_documents(raw_documents)
                 console.log("Encoding done.")
             self.embeddings = embeddings
             status.update("Extracting terms")
@@ -486,6 +491,32 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             raw_documents, embeddings=embeddings
         )
         return document_topic_matrix
+
+    def fit_transform_multimodal(
+        self,
+        raw_documents: list[str],
+        images: list[ImageRepr],
+        y=None,
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ) -> np.ndarray:
+        console = Console()
+        self.multimodal_embeddings = embeddings
+        if self.multimodal_embeddings is None:
+            self.multimodal_embeddings = self.encode_multimodal(
+                raw_documents, images
+            )
+        doc_topic_matrix = self.fit_transform(
+            raw_documents,
+            embeddings=self.multimodal_embeddings["document_embeddings"],
+        )
+        self.image_topic_matrix = self.transform(
+            raw_documents,
+            embeddings=self.multimodal_embeddings["image_embeddings"],
+        )
+        self.top_images: list[list[Image.Image]] = self.collect_top_images(
+            images, self.image_topic_matrix
+        )
+        return doc_topic_matrix
 
     def estimate_temporal_components(
         self,
@@ -586,7 +617,7 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         )
         self.temporal_importance_ = np.zeros((n_bins, n_comp))
         if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
+            embeddings = self.encode_documents(raw_documents)
         self.embeddings = embeddings
         self.estimate_temporal_components(
             time_labels, self.time_bin_edges, self.feature_importance

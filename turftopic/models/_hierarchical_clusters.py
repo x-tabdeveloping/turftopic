@@ -187,7 +187,7 @@ class ClusterNode(TopicNode):
             )  # type: ignore
         elif self.model.feature_importance == "centroid":
             if not hasattr(self.model, "vocab_embeddings"):
-                self.model.vocab_embeddings = self.model.encoder_.encode(
+                self.model.vocab_embeddings = self.model.encode_documents(
                     self.model.vectorizer.get_feature_names_out()
                 )  # type: ignore
                 if (
