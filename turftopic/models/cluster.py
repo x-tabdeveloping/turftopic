@@ -499,7 +499,7 @@ class ClusteringTopicModel(
         y=None,
         embeddings: Optional[MultimodalEmbeddings] = None,
     ) -> np.ndarray:
-        console = Console()
+        self.validate_embeddings(embeddings)
         self.multimodal_embeddings = embeddings
         if self.multimodal_embeddings is None:
             self.multimodal_embeddings = self.encode_multimodal(

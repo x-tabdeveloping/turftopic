@@ -74,6 +74,21 @@ class MultimodalModel:
             "document_embeddings": document_embeddings,
         }
 
+    def validate_embeddings(self, embeddings: Optional[MultimodalEmbeddings]):
+        if embeddings is None:
+            return
+        try:
+            document_embeddings = embeddings["document_embeddings"]
+            image_embeddings = embeddings["image_embeddings"]
+        except KeyError as e:
+            raise TypeError(
+                "embeddings do not contain document and image embeddings, can't be used for multimodal modelling."
+            ) from e
+        if document_embeddings.shape != image_embeddings.shape:
+            raise ValueError(
+                f"Shape mismatch between document_embeddings {document_embeddings.shape} and image_embeddings {image_embeddings.shape}"
+            )
+
     @abstractmethod
     def fit_transform_multimodal(
         self,
@@ -130,6 +145,10 @@ class MultimodalModel:
         return grid_img
 
     def plot_topics_with_images(self, n_cols: int = 3, grid_size: int = 4):
+        if not hasattr(self, "top_images"):
+            raise ValueError(
+                "Model either has not been fit or was fit without images. top_images property missing."
+            )
         try:
             import plotly.graph_objects as go
         except (ImportError, ModuleNotFoundError) as e:

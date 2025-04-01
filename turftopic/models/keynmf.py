@@ -246,6 +246,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         y=None,
         embeddings: Optional[MultimodalEmbeddings] = None,
     ) -> np.ndarray:
+        self.validate_embeddings(embeddings)
         console = Console()
         self.multimodal_embeddings = embeddings
         with console.status("Fitting model") as status:
