@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Iterable, Optional, TypedDict
+from typing import Iterable, Optional, TypedDict, Union
 
 import numpy as np
 from PIL import Image
 
 UrlStr = str
 
-ImageRepr = [Image.Image | UrlStr]
+ImageRepr = Union[Image.Image, UrlStr]
 
 
 def _load_images(images: Iterable[ImageRepr]) -> Iterable[Image]:
