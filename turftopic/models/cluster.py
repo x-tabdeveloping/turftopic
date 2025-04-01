@@ -15,7 +15,7 @@ from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import label_binarize, scale
+from sklearn.preprocessing import label_binarize, normalize, scale
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
@@ -290,6 +290,19 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
                 )
             self.feature_importance = feature_importance
         self.hierarchy.estimate_components()
+        doc_topic_matrix = label_binarize(self.labels_, classes=self.classes_)
+        if feature_importance == "c-tf-idf":
+            _, self._idf_diag = ctf_idf(
+                doc_topic_matrix,
+                self.doc_term_matrix,
+                return_idf=True,
+            )
+        if feature_importance == "soft-c-tf-idf":
+            _, self._idf_diag = soft_ctf_idf(
+                doc_topic_matrix,
+                self.doc_term_matrix,
+                return_idf=True,
+            )
         return self.components_
 
     def reduce_topics(
@@ -428,6 +441,21 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             status.update("Estimating parameters.")
             # Initializing hierarchy
             self.hierarchy = ClusterNode.create_root(self, labels=labels)
+            doc_topic_matrix = label_binarize(
+                self.labels_, classes=self.classes_
+            )
+            if self.feature_importance == "c-tf-idf":
+                _, self._idf_diag = ctf_idf(
+                    doc_topic_matrix,
+                    self.doc_term_matrix,
+                    return_idf=True,
+                )
+            if self.feature_importance == "soft-c-tf-idf":
+                _, self._idf_diag = soft_ctf_idf(
+                    doc_topic_matrix,
+                    self.doc_term_matrix,
+                    return_idf=True,
+                )
             console.log("Parameter estimation done.")
             if self.n_reduce_to is not None:
                 n_topics = self.classes_.shape[0]
@@ -448,10 +476,14 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ):
-        labels = self.fit_predict(raw_documents, y, embeddings)
-        document_topic_matrix = label_binarize(labels, classes=self.classes_)
-        document_topic_matrix = document_topic_matrix * cosine_similarity(
-            self.embeddings, self._calculate_topic_vectors()
+        self.fit_predict(raw_documents, y, embeddings)
+        embeddings = (
+            embeddings
+            if embeddings is not None
+            else getattr(self, "embeddings", None)
+        )
+        document_topic_matrix = self.transform(
+            raw_documents, embeddings=embeddings
         )
         return document_topic_matrix
 
@@ -504,12 +536,12 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
             t_dtm = self.doc_term_matrix[time_labels == i_timebin]
             t_doc_topic = self.document_topic_matrix[time_labels == i_timebin]
             if feature_importance == "c-tf-idf":
-                self.temporal_components_[i_timebin] = ctf_idf(
-                    t_doc_topic, t_dtm
+                self.temporal_components_[i_timebin], self._idf_diag = ctf_idf(
+                    t_doc_topic, t_dtm, return_idf=True
                 )
             elif feature_importance == "soft-c-tf-idf":
-                self.temporal_components_[i_timebin] = soft_ctf_idf(
-                    t_doc_topic, t_dtm
+                self.temporal_components_[i_timebin], self._idf_diag = (
+                    soft_ctf_idf(t_doc_topic, t_dtm, return_idf=True)
                 )
             elif feature_importance == "bayes":
                 self.temporal_components_[i_timebin] = bayes_rule(
@@ -597,3 +629,28 @@ class ClusteringTopicModel(ContextualModel, ClusterMixin, DynamicTopicModel):
         plot.show = show_fig
         plot.write_html = plot.save
         return plot
+
+    def transform(
+        self, raw_documents, embeddings: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        if getattr(self, "components_", None) is None:
+            raise NotFittedError(
+                "You can only transform documents once the model has been fitted."
+            )
+        idf_diag = getattr(self, "_idf_diag", None)
+        if idf_diag is not None:
+            X = self.vectorizer.transform(raw_documents)
+            X = normalize(X, axis=1, norm="l1", copy=False)
+            X = X * idf_diag
+            doc_topic_matrix = np.exp(cosine_similarity(X, self.components_))
+        elif self.feature_importance == "centroid":
+            if embeddings is None:
+                embeddings = self.encode_documents(raw_documents)
+            doc_topic_matrix = np.exp(
+                cosine_similarity(embeddings, self._calculate_topic_vectors())
+            )
+        else:
+            doc_topic_matrix = label_binarize(
+                self.labels_, classes=self.classes_
+            )
+        return doc_topic_matrix
