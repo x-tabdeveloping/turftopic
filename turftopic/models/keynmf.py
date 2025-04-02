@@ -95,6 +95,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
             self.encoder_ = SentenceTransformer(encoder)
         else:
             self.encoder_ = encoder
+        self.validate_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
         else:

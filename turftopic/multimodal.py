@@ -5,6 +5,9 @@ from typing import Iterable, Optional, TypedDict, Union
 
 import numpy as np
 from PIL import Image
+from sentence_transformers import SentenceTransformer
+
+from turftopic.encoders.multimodal import MultimodalEncoder
 
 UrlStr = str
 
@@ -74,7 +77,8 @@ class MultimodalModel:
             "document_embeddings": document_embeddings,
         }
 
-    def validate_embeddings(self, embeddings: Optional[MultimodalEmbeddings]):
+    @staticmethod
+    def validate_embeddings(embeddings: Optional[MultimodalEmbeddings]):
         if embeddings is None:
             return
         try:
@@ -88,6 +92,16 @@ class MultimodalModel:
             raise ValueError(
                 f"Shape mismatch between document_embeddings {document_embeddings.shape} and image_embeddings {image_embeddings.shape}"
             )
+
+    def validate_encoder(self):
+        if not hasattr(self.encoder_, "encode"):
+            if not all(
+                hasattr(self.encoder_, "get_text_embeddings"),
+                hasattr(self.encoder_, "get_image_embeddings"),
+            ):
+                raise TypeError(
+                    "An encoder must either have an encode() method or a get_text_embeddings and get_image_embeddings method (optionally get_fused_embeddings)"
+                )
 
     @abstractmethod
     def fit_transform_multimodal(
