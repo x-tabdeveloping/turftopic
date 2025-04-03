@@ -1,5 +1,5 @@
 import pytest
-from datasets import load_datasets
+from datasets import load_dataset
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import CountVectorizer
@@ -34,7 +34,7 @@ MULTIMODAL_MODELS = [
     ),
 ]
 
-flowers = load_datasets(
+flowers = load_dataset(
     "Multimodal-Fatima/OxfordFlowers_test", split="test"
 ).train_test_split(test_size=256, seed=42)["test"]
 texts = flowers["blip_caption"]
