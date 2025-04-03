@@ -4,9 +4,12 @@ line-length=79
 [tool.ruff]
 line-length=79
 
+[tool.isort]
+profile = "black"
+
 [tool.poetry]
 name = "turftopic"
-version = "0.14.0"
+version = "0.14.1"
 description = "Topic modeling with contextual representations from sentence transformers."
 authors = ["Márton Kardos <power.up1163@gmail.com>"]
 license = "MIT"
@@ -34,6 +37,7 @@ mkdocs = { version = "^1.5.2", optional = true }
 mkdocs-material = { version = "^9.5.12", optional = true }
 mkdocstrings = { version = "^0.24.0", extras = ["python"], optional = true }
 topic-wizard = { version = ">=1.0.0", optional = true}
+pytest = { version = ">=8.1.1", optional = true }
 
 [tool.poetry.extras]
 pyro-ppl = ["pyro-ppl"]
@@ -45,6 +49,7 @@ spacy = ["spacy"]
 snowball = ["snowballstemmer"]
 topic-wizard = ["topic-wizard"]
 docs = ["mkdocs", "mkdocs-material", "mkdocstrings"]
+dev = ["pyro-ppl", "openai", "openTSNE", "datamapplot", "jieba", "spacy", "snowballstemmer", "topic-wizard", "mkdocs", "mkdocs-material", "mkdocstrings", "pytest"]
 
 [build-system]
 requires = ["poetry-core"]
