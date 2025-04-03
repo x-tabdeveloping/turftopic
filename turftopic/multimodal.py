@@ -17,10 +17,11 @@ ImageRepr = Union[Image.Image, UrlStr, None]
 def _load_images(images: Iterable[ImageRepr]) -> Iterable[Image]:
     for image in images:
         if image is None:
-            return None
-        if isinstance(image, str):
-            image = Image.open(image)
-        yield image
+            yield None
+        elif isinstance(image, str):
+            yield Image.open(image)
+        else:
+            yield image
 
 
 def _naive_join_embeddings(
@@ -66,11 +67,12 @@ class MultimodalModel:
                 else:
                     image_embeddings.append(np.full(embedding_size, np.nan))
             image_embeddings = np.stack(image_embeddings)
+            print(image_embeddings)
         if hasattr(self.encoder_, "get_fused_embeddings"):
             document_embeddings = np.array(
                 self.encoder_.get_fused_embeddings(
                     texts=sentences,
-                    images=images,
+                    images=list(images),
                 )
             )
         else:
@@ -103,8 +105,10 @@ class MultimodalModel:
     def validate_encoder(self):
         if not hasattr(self.encoder_, "encode"):
             if not all(
-                hasattr(self.encoder_, "get_text_embeddings"),
-                hasattr(self.encoder_, "get_image_embeddings"),
+                (
+                    hasattr(self.encoder_, "get_text_embeddings"),
+                    hasattr(self.encoder_, "get_image_embeddings"),
+                ),
             ):
                 raise TypeError(
                     "An encoder must either have an encode() method or a get_text_embeddings and get_image_embeddings method (optionally get_fused_embeddings)"
