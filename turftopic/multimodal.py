@@ -11,11 +11,13 @@ from turftopic.encoders.multimodal import MultimodalEncoder
 
 UrlStr = str
 
-ImageRepr = Union[Image.Image, UrlStr]
+ImageRepr = Union[Image.Image, UrlStr, None]
 
 
 def _load_images(images: Iterable[ImageRepr]) -> Iterable[Image]:
     for image in images:
+        if image is None:
+            return None
         if isinstance(image, str):
             image = Image.open(image)
         yield image
@@ -25,7 +27,7 @@ def _naive_join_embeddings(
     text_embeddings: np.ndarray, image_embeddings: np.ndarray
 ) -> np.ndarray:
     """Produces document embeddings by averaging text and image embeddings"""
-    return np.mean(np.stack([text_embeddings, image_embeddings]), axis=0)
+    return np.nanmean(np.stack([text_embeddings, image_embeddings]), axis=0)
 
 
 class MultimodalEmbeddings(TypedDict):
@@ -44,21 +46,26 @@ class MultimodalModel:
     ) -> dict[str, np.ndarray]:
         if len(sentences) != len(images):
             raise ValueError("Images and documents were not the same length.")
-        images = list(_load_images(images))
         if hasattr(self.encoder_, "get_text_embeddings"):
             text_embeddings = np.array(
                 self.encoder_.get_text_embeddings(sentences)
             )
         else:
             text_embeddings = self.encoder_.encode(sentences)
+        embedding_size = text_embeddings.shape[1]
+        images = _load_images(images)
         if hasattr(self.encoder_, "get_image_embeddings"):
             image_embeddings = np.array(
-                self.encoder_.get_image_embeddings(images)
+                self.encoder_.get_image_embeddings(list(images))
             )
         else:
-            image_embeddings = np.stack(
-                [self.encoder_.encode(image) for image in images]
-            )
+            image_embeddings = []
+            for image in images:
+                if image is not None:
+                    image_embeddings.append(self.encoder_.encode(image))
+                else:
+                    image_embeddings.append(np.full(embedding_size, np.nan))
+            image_embeddings = np.stack(image_embeddings)
         if hasattr(self.encoder_, "get_fused_embeddings"):
             document_embeddings = np.array(
                 self.encoder_.get_fused_embeddings(
