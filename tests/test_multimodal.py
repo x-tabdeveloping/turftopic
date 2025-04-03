@@ -43,7 +43,7 @@ images = flowers["image"]
 
 @pytest.mark.parametrize("model", MULTIMODAL_MODELS)
 def test_multimodal(model):
-    doc_topic_matrix = model.fit_multimodal(texts, images=images)
+    doc_topic_matrix = model.fit_transform_multimodal(texts, images=images)
     fig = model.plot_topics_with_images()
     assert len(model.top_images) == model.components_.shape[0]
     assert doc_topic_matrix.shape[1] == model.components_.shape[0]
