@@ -32,6 +32,10 @@ def _naive_join_embeddings(
 
 
 class MultimodalEmbeddings(TypedDict):
+    """Dict type for embeddings in a multimodal context.
+
+    Exclusively used for type checking."""
+
     text_embeddings: np.ndarray
     image_embeddings: np.ndarray
     document_embeddings: np.ndarray
@@ -45,6 +49,21 @@ class MultimodalModel:
         sentences: list[str],
         images: list[ImageRepr],
     ) -> dict[str, np.ndarray]:
+        """Produce multimodal embeddings of the documents passed to the model.
+
+        Parameters
+        ----------
+        sentences: list[str]
+            Textual documents to encode.
+        images: list[ImageRepr]
+            Corresponding images for each document.
+
+        Returns
+        -------
+        MultimodalEmbeddings
+            Text, image and joint document embeddings.
+
+        """
         if len(sentences) != len(images):
             raise ValueError("Images and documents were not the same length.")
         if hasattr(self.encoder_, "get_text_embeddings"):
@@ -122,6 +141,24 @@ class MultimodalModel:
         y=None,
         embeddings: Optional[MultimodalEmbeddings] = None,
     ) -> np.ndarray:
+        """Fits topic model in a multimodal context and returns the document-topic matrix.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        images: list[ImageRepr]
+            Images corresponding to each document.
+        y: None
+            Ignored, exists for sklearn compatibility.
+        embeddings: MultimodalEmbeddings
+            Precomputed multimodal embeddings.
+
+        Returns
+        -------
+        ndarray of shape (n_documents, n_topics)
+            Document-topic matrix.
+        """
         pass
 
     def fit_multimodal(
@@ -131,6 +168,24 @@ class MultimodalModel:
         y=None,
         embeddings: Optional[MultimodalEmbeddings] = None,
     ):
+        """Fits topic model on a multimodal corpus.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        images: list[ImageRepr]
+            Images corresponding to each document.
+        y: None
+            Ignored, exists for sklearn compatibility.
+        embeddings: MultimodalEmbeddings
+            Precomputed multimodal embeddings.
+
+        Returns
+        -------
+        Self
+            The fitted topic model
+        """
         self.fit_transform_multimodal(raw_documents, images, y, embeddings)
         return self
 
@@ -170,6 +225,24 @@ class MultimodalModel:
         return grid_img
 
     def plot_topics_with_images(self, n_cols: int = 3, grid_size: int = 4):
+        """Plots the most important images for each topic, along with keywords.
+
+        Note that you will need to `pip install plotly` to use plots in Turftopic.
+
+        Parameters
+        ----------
+        n_cols: int, default 3
+            Number of columns you want to have in the grid of topics.
+        grid_size: int, default 4
+            The square root of the number of images you want to display for a given topic.
+            For instance if grid_size==4, all topics will have 16 images displayed,
+            since the joint image will have 4 columns and 4 rows.
+
+        Returns
+        -------
+        go.Figure
+            Plotly figure containing top images and keywords for topics.
+        """
         if not hasattr(self, "top_images"):
             raise ValueError(
                 "Model either has not been fit or was fit without images. top_images property missing."
