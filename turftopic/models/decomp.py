@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal, Optional, Union
 
 import numpy as np
+from PIL import Image
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
@@ -13,6 +14,9 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
+from turftopic.encoders.multimodal import MultimodalEncoder
+from turftopic.multimodal import (ImageRepr, MultimodalEmbeddings,
+                                  MultimodalModel)
 from turftopic.namers.base import TopicNamer
 from turftopic.vectorizers.default import default_vectorizer
 
@@ -23,7 +27,9 @@ NOT_MATCHING_ERROR = (
 )
 
 
-class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
+class SemanticSignalSeparation(
+    ContextualModel, DynamicTopicModel, MultimodalModel
+):
     """Separates the embedding matrix into 'semantic signals' with
     component analysis methods.
     Topics are assumed to be dimensions of semantics.
@@ -64,7 +70,7 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
         self,
         n_components: int = 10,
         encoder: Union[
-            Encoder, str
+            Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         decomposition: Optional[TransformerMixin] = None,
@@ -81,6 +87,7 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
             self.encoder_ = SentenceTransformer(encoder)
         else:
             self.encoder_ = encoder
+        self.validate_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
         else:
@@ -162,6 +169,169 @@ class SemanticSignalSeparation(ContextualModel, DynamicTopicModel):
                 )
             console.log("Model fitting done.")
         return doc_topic
+
+    def fit_transform_multimodal(
+        self,
+        raw_documents: list[str],
+        images: list[ImageRepr],
+        y=None,
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ) -> np.ndarray:
+        self.validate_embeddings(embeddings)
+        console = Console()
+        self.multimodal_embeddings = embeddings
+        with console.status("Fitting model") as status:
+            if self.multimodal_embeddings is None:
+                status.update("Encoding documents")
+                self.multimodal_embeddings = self.encode_multimodal(
+                    raw_documents, images
+                )
+                console.log("Documents encoded.")
+            self.embeddings = self.multimodal_embeddings["document_embeddings"]
+            status.update("Decomposing embeddings")
+            doc_topic = self.decomposition.fit_transform(self.embeddings)
+            console.log("Decomposition done.")
+            status.update("Extracting terms.")
+            vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
+            console.log("Term extraction done.")
+            status.update("Encoding vocabulary")
+            self.vocab_embeddings = self.encode_documents(vocab)
+            if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=self.embeddings.shape[1],
+                        n_word_dims=self.vocab_embeddings.shape[1],
+                    )
+                )
+            console.log("Vocabulary encoded.")
+            status.update("Estimating term importances")
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
+            console.log("Model fitting done.")
+            status.update("Transforming images")
+            self.image_topic_matrix = self.transform(
+                [], embeddings=self.multimodal_embeddings["image_embeddings"]
+            )
+            self.top_images = self.collect_top_images(
+                images, self.image_topic_matrix
+            )
+            self.negative_images = self.collect_top_images(
+                images, self.image_topic_matrix, negative=True
+            )
+            console.log("Images transformed")
+        return doc_topic
+
+    def plot_topics_with_images(self, n_columns: int = 3, grid_size: int = 4):
+        try:
+            import plotly.graph_objects as go
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+        fig = go.Figure()
+        width, height = 1200, 1200
+        scale_factor = 0.25
+        w, h = width * scale_factor, height * scale_factor
+        padding = 10
+        figure_height = (h + padding) * self.n_components
+        figure_width = (w + padding) * 2
+        fig = fig.add_trace(
+            go.Scatter(
+                x=[0, figure_width],
+                y=[0, figure_height],
+                mode="markers",
+                marker_opacity=0,
+            )
+        )
+        vocab = self.get_vocab()
+        for i, component in enumerate(self.components_):
+            positive = vocab[np.argsort(-component)[:7]]
+            negative = vocab[np.argsort(component)[:7]]
+            pos_image = self._image_grid(
+                self.top_images[i],
+                (width, height),
+                grid_size=(grid_size, grid_size),
+            )
+            neg_image = self._image_grid(
+                self.negative_images[i],
+                (width, height),
+                grid_size=(grid_size, grid_size),
+            )
+            x0 = 0
+            y0 = (h + padding) * (self.n_components - i)
+            fig = fig.add_layout_image(
+                dict(
+                    x=x0,
+                    sizex=w,
+                    y=y0,
+                    sizey=h,
+                    xref="x",
+                    yref="y",
+                    opacity=1.0,
+                    layer="below",
+                    sizing="stretch",
+                    source=pos_image,
+                ),
+            )
+            fig.add_annotation(
+                x=(w / 2),
+                y=(h + padding) * (self.n_components - i) - (h / 2),
+                text="<b> " + "<br> ".join(positive),
+                font=dict(
+                    size=16,
+                    family="Times New Roman",
+                    color="white",
+                ),
+                bgcolor="rgba(0,0,255, 0.5)",
+            )
+            x0 = (w + padding) * 1
+            fig = fig.add_layout_image(
+                dict(
+                    x=x0,
+                    sizex=w,
+                    y=y0,
+                    sizey=h,
+                    xref="x",
+                    yref="y",
+                    opacity=1.0,
+                    layer="below",
+                    sizing="stretch",
+                    source=neg_image,
+                ),
+            )
+            fig.add_annotation(
+                x=(w + padding) + (w / 2),
+                y=(h + padding) * (self.n_components - i) - (h / 2),
+                text="<b> " + "<br> ".join(negative),
+                font=dict(
+                    size=16,
+                    family="Times New Roman",
+                    color="white",
+                ),
+                bgcolor="rgba(255,0,0, 0.5)",
+            )
+        fig = fig.update_xaxes(visible=False, range=[0, figure_width])
+        fig = fig.update_yaxes(
+            visible=False,
+            range=[0, figure_height],
+            # the scaleanchor attribute ensures that the aspect ratio stays constant
+            scaleanchor="x",
+        )
+        fig = fig.update_layout(
+            width=figure_width,
+            height=figure_height,
+            margin={"l": 0, "r": 0, "t": 0, "b": 0},
+        )
+        return fig
 
     def _rename_automatic(self, namer: TopicNamer) -> list[str]:
         """Names topics with a topic namer in the model.

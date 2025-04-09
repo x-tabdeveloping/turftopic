@@ -4,6 +4,7 @@ from typing import Literal, Optional, Union
 
 import numpy as np
 import scipy.sparse as spr
+from PIL import Image
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.exceptions import NotFittedError
@@ -13,13 +14,16 @@ from sklearn.preprocessing import normalize
 from turftopic.base import ContextualModel, Encoder
 from turftopic.data import TopicData
 from turftopic.dynamic import DynamicTopicModel
+from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.hierarchical import DivisibleTopicNode
 from turftopic.models._keynmf import KeywordNMF, SBertKeywordExtractor
 from turftopic.models.wnmf import weighted_nmf
+from turftopic.multimodal import (ImageRepr, MultimodalEmbeddings,
+                                  MultimodalModel)
 from turftopic.vectorizers.default import default_vectorizer
 
 
-class KeyNMF(ContextualModel, DynamicTopicModel):
+class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
     """Extracts keywords from documents based on semantic similarity of
     term encodings to document encodings.
     Topics are then extracted with non-negative matrix factorization from
@@ -64,7 +68,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         self,
         n_components: int,
         encoder: Union[
-            Encoder, str
+            Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         top_n: int = 25,
@@ -91,6 +95,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             self.encoder_ = SentenceTransformer(encoder)
         else:
             self.encoder_ = encoder
+        self.validate_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
         else:
@@ -209,6 +214,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         ndarray of shape (n_dimensions, n_topics)
             Document-topic matrix.
         """
+        if self.seed_phrase is not None and keywords is not None:
+            warnings.warn(
+                "Seed phrase is specified, but keyword matrix is pre-computed. The seed phrase will be ignored. Note that this is not a problem if you already calculated the keyword matrix using the seed phrase."
+            )
         console = Console()
         with console.status("Running KeyNMF") as status:
             if keywords is None:
@@ -226,6 +235,53 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
             console.log("Model fitting done.")
         self.document_topic_matrix = doc_topic_matrix
         self.document_term_matrix = self.model.vectorize(keywords)
+        self.hierarchy = DivisibleTopicNode.create_root(
+            self, self.components_, self.document_topic_matrix
+        )
+        return doc_topic_matrix
+
+    def fit_transform_multimodal(
+        self,
+        raw_documents: list[str],
+        images: list[ImageRepr],
+        y=None,
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ) -> np.ndarray:
+        self.validate_embeddings(embeddings)
+        console = Console()
+        self.multimodal_embeddings = embeddings
+        with console.status("Fitting model") as status:
+            if self.multimodal_embeddings is None:
+                status.update("Encoding documents")
+                self.multimodal_embeddings = self.encode_multimodal(
+                    raw_documents, images
+                )
+                console.log("Documents encoded.")
+            status.update("Extracting keywords")
+            document_keywords = self.extract_keywords(
+                raw_documents,
+                embeddings=self.multimodal_embeddings["document_embeddings"],
+            )
+            image_keywords = self.extract_keywords(
+                raw_documents,
+                embeddings=self.multimodal_embeddings["image_embeddings"],
+            )
+            console.log("Keyword extraction done.")
+            status.update("Decomposing with NMF")
+            try:
+                doc_topic_matrix = self.model.transform(document_keywords)
+            except (NotFittedError, AttributeError):
+                doc_topic_matrix = self.model.fit_transform(document_keywords)
+                self.components_ = self.model.components
+            console.log("Model fitting done.")
+            status.update("Transforming images")
+            self.image_topic_matrix = self.model.transform(image_keywords)
+            self.top_images: list[list[Image.Image]] = self.collect_top_images(
+                images, self.image_topic_matrix
+            )
+            console.log("Images transformed")
+        self.document_topic_matrix = doc_topic_matrix
+        self.document_term_matrix = self.model.vectorize(document_keywords)
         self.hierarchy = DivisibleTopicNode.create_root(
             self, self.components_, self.document_topic_matrix
         )
@@ -249,7 +305,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         keywords: list[dict[str, float]], optional
             Precomputed keyword dictionaries.
         """
-        self.fit_transform(raw_documents, y, embeddings, keywords)
+        self.fit_transform(
+            raw_documents, y, embeddings=embeddings, keywords=keywords
+        )
         return self
 
     def get_vocab(self) -> np.ndarray:
@@ -277,6 +335,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         ndarray of shape (n_dimensions, n_topics)
             Document-topic matrix.
         """
+        if self.seed_phrase is not None and keywords is not None:
+            warnings.warn(
+                "Seed phrase is specified, but keyword matrix is pre-computed. The seed phrase will be ignored. Note that this is not a problem if you already calculated the keyword matrix using the seed phrase."
+            )
         if keywords is None and raw_documents is None:
             raise ValueError(
                 "You have to pass either keywords or raw_documents."
@@ -306,6 +368,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         keywords: list[dict[str, float]], optional
             Precomputed keyword dictionaries.
         """
+        if self.seed_phrase is not None and keywords is not None:
+            warnings.warn(
+                "Seed phrase is specified, but keyword matrix is pre-computed. The seed phrase will be ignored. Note that this is not a problem if you already calculated the keyword matrix using the seed phrase."
+            )
         if self.cross_lingual:
             raise ValueError(
                 "Cross-lingual online topic modeling is yet to be implemented in KeyNMF."
@@ -345,6 +411,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         if keywords is None and corpus is None:
             raise ValueError(
                 "You have to pass either keywords or raw_documents."
+            )
+        if self.seed_phrase is not None and keywords is not None:
+            warnings.warn(
+                "Seed phrase is specified, but keyword matrix is pre-computed. The seed phrase will be ignored. Note that this is not a problem if you already calculated the keyword matrix using the seed phrase."
             )
         console = Console()
         with console.status("Running KeyNMF") as status:
@@ -392,6 +462,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         bins: Union[int, list[datetime]] = 10,
         keywords: Optional[list[dict[str, float]]] = None,
     ):
+        if self.seed_phrase is not None and keywords is not None:
+            warnings.warn(
+                "Seed phrase is specified, but keyword matrix is pre-computed. The seed phrase will be ignored. Note that this is not a problem if you already calculated the keyword matrix using the seed phrase."
+            )
         if ((corpus is not None) and (keywords is not None)) and (
             len(keywords) != len(corpus)
         ):
@@ -457,6 +531,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         keywords: Optional[list[dict[str, float]]] = None,
         bins: Union[int, list[datetime]] = 10,
     ) -> np.ndarray:
+        if self.seed_phrase is not None and keywords is not None:
+            warnings.warn(
+                "Seed phrase is specified, but keyword matrix is pre-computed. The seed phrase will be ignored. Note that this is not a problem if you already calculated the keyword matrix using the seed phrase."
+            )
         if timestamps is None:
             raise TypeError(
                 "You have to pass timestamps when fitting a dynamic model."
@@ -511,6 +589,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel):
         bins: list[datetime]
             Explicit time bin edges for the dynamic model.
         """
+        if self.seed_phrase is not None and keywords is not None:
+            warnings.warn(
+                "Seed phrase is specified, but keyword matrix is pre-computed. The seed phrase will be ignored. Note that this is not a problem if you already calculated the keyword matrix using the seed phrase."
+            )
         if self.cross_lingual:
             raise ValueError(
                 "Cross-lingual online topic modeling is yet to be implemented in KeyNMF."

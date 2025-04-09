@@ -140,6 +140,15 @@ class SBertKeywordExtractor:
         if ("query" in prompts) and ("passage" in prompts):
             return True
 
+    def encode(
+        self, texts: Iterable[str], prompt_name: str = None
+    ) -> np.ndarray:
+        if not hasattr(self.encoder, "encode"):
+            return self.encoder.get_text_embeddings(list(texts))
+        if (prompt_name is not None) and (self.is_encoder_promptable):
+            return self.encoder.encode(texts, prompt_name=prompt_name)
+        return self.encoder.encode(texts)
+
     @property
     def n_vocab(self) -> int:
         return len(self.key_to_index)
@@ -147,12 +156,7 @@ class SBertKeywordExtractor:
     def _add_terms(self, new_terms: list[str]):
         for term in new_terms:
             self.key_to_index[term] = self.n_vocab
-        if not self.is_encoder_promptable:
-            term_encodings = self.encoder.encode(new_terms)
-        else:
-            term_encodings = self.encoder.encode(
-                new_terms, prompt_name="passage"
-            )
+        term_encodings = self.encode(new_terms, prompt_name="passage")
         if self.term_embeddings is not None:
             self.term_embeddings = np.concatenate(
                 (self.term_embeddings, term_encodings), axis=0
@@ -170,12 +174,7 @@ class SBertKeywordExtractor:
         if not len(documents):
             return []
         if embeddings is None:
-            if not self.is_encoder_promptable:
-                embeddings = self.encoder.encode(documents)
-            else:
-                embeddings = self.encoder.encode(
-                    documents, prompt_name="query"
-                )
+            embeddings = self.encode(documents, prompt_name="query")
         if len(embeddings) != len(documents):
             raise ValueError(
                 "Number of documents doesn't match number of embeddings."
@@ -191,7 +190,7 @@ class SBertKeywordExtractor:
             self._add_terms(new_terms)
         total = embeddings.shape[0]
         # Relevance based on similarity to seed embedding
-        document_relevance = None
+        document_relevance = np.ones(embeddings.shape[0])
         if seed_embedding is not None:
             if self.metric == "cosine":
                 document_relevance = cosine_similarity(
@@ -225,8 +224,7 @@ class SBertKeywordExtractor:
             else:
                 sim = np.dot(word_embeddings, embedding[0]).T
             # If a seed is specified, we multiply by the document's relevance
-            if document_relevance is not None:
-                sim = document_relevance[i] * sim
+            sim = document_relevance[i] * sim
             kth = min(self.top_n, len(sim) - 1)
             top = np.argpartition(-sim, kth)[:kth]
             top_words = batch_vocab[important_terms][top]

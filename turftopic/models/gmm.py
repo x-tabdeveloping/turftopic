@@ -11,11 +11,14 @@ from sklearn.pipeline import Pipeline, make_pipeline
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
+from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.feature_importance import soft_ctf_idf
+from turftopic.multimodal import (Image, ImageRepr, MultimodalEmbeddings,
+                                  MultimodalModel)
 from turftopic.vectorizers.default import default_vectorizer
 
 
-class GMM(ContextualModel, DynamicTopicModel):
+class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
     """Multivariate Gaussian Mixture Model over document embeddings.
     Models topics as mixture components.
 
@@ -67,7 +70,7 @@ class GMM(ContextualModel, DynamicTopicModel):
         self,
         n_components: int,
         encoder: Union[
-            Encoder, str
+            Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
@@ -84,6 +87,7 @@ class GMM(ContextualModel, DynamicTopicModel):
             self.encoder_ = SentenceTransformer(encoder)
         else:
             self.encoder_ = encoder
+        self.validate_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
         else:
@@ -130,6 +134,47 @@ class GMM(ContextualModel, DynamicTopicModel):
                 document_topic_matrix, document_term_matrix
             )
             console.log("Model fitting done.")
+        return document_topic_matrix
+
+    def fit_transform_multimodal(
+        self,
+        raw_documents: list[str],
+        images: list[ImageRepr],
+        y=None,
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ) -> np.ndarray:
+        self.validate_embeddings(embeddings)
+        console = Console()
+        self.multimodal_embeddings = embeddings
+        with console.status("Fitting model") as status:
+            if self.multimodal_embeddings is None:
+                status.update("Encoding documents")
+                self.multimodal_embeddings = self.encode_multimodal(
+                    raw_documents, images
+                )
+                console.log("Documents encoded.")
+            status.update("Extracting terms.")
+            document_term_matrix = self.vectorizer.fit_transform(raw_documents)
+            console.log("Term extraction done.")
+            status.update("Fitting mixture model.")
+            self.gmm_.fit(self.multimodal_embeddings["document_embeddings"])
+            console.log("Mixture model fitted.")
+            status.update("Estimating term importances.")
+            document_topic_matrix = self.gmm_.predict_proba(
+                self.multimodal_embeddings["document_embeddings"]
+            )
+            self.components_ = soft_ctf_idf(
+                document_topic_matrix, document_term_matrix
+            )
+            console.log("Model fitting done.")
+            self.image_topic_matrix = self.transform(
+                raw_documents,
+                embeddings=self.multimodal_embeddings["document_embeddings"],
+            )
+            self.top_images: list[list[Image.Image]] = self.collect_top_images(
+                images, self.image_topic_matrix
+            )
+            console.log("Transformation done.")
         return document_topic_matrix
 
     @property

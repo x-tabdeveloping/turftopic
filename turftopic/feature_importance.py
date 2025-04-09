@@ -1,6 +1,9 @@
 import numpy as np
 import scipy.sparse as spr
+from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import normalize
+from sklearn.utils import check_array
 
 
 def cluster_centroid_distance(
@@ -34,7 +37,9 @@ def cluster_centroid_distance(
 
 
 def soft_ctf_idf(
-    doc_topic_matrix: np.ndarray, doc_term_matrix: spr.csr_matrix
+    doc_topic_matrix: np.ndarray,
+    doc_term_matrix: spr.csr_matrix,
+    return_idf: bool = False,
 ) -> np.ndarray:
     """Computes feature importances using Soft C-TF-IDF
 
@@ -57,11 +62,23 @@ def soft_ctf_idf(
     tf = (term_importance.T / (overall_in_topic + eps)).T
     idf = np.log(n_docs / (np.abs(term_importance).sum(axis=0) + eps))
     ctf_idf = tf * idf
-    return ctf_idf
+    idf_diag = spr.diags(
+        idf,
+        offsets=0,
+        shape=(doc_term_matrix.shape[1], doc_term_matrix.shape[1]),
+        format="csr",
+        dtype=tf.dtype,
+    )
+    if not return_idf:
+        return ctf_idf
+    else:
+        return ctf_idf, idf_diag
 
 
 def ctf_idf(
-    doc_topic_matrix: np.ndarray, doc_term_matrix: spr.csr_matrix
+    doc_topic_matrix: np.ndarray,
+    doc_term_matrix: spr.csr_matrix,
+    return_idf: bool = False,
 ) -> np.ndarray:
     """Computes feature importances using standard C-TF-IDF
 
@@ -89,7 +106,18 @@ def ctf_idf(
         )
         component = freq * np.log(1 + average / overall_freq)
         components.append(component)
-    return np.stack(components)
+    idf = np.log((average / overall_freq) + 1)
+    idf_diag = spr.diags(
+        idf,
+        offsets=0,
+        shape=(doc_term_matrix.shape[1], doc_term_matrix.shape[1]),
+        format="csr",
+        dtype=doc_term_matrix.dtype,
+    )
+    if not return_idf:
+        return np.stack(components)
+    else:
+        return np.stack(components), idf_diag
 
 
 def bayes_rule(
