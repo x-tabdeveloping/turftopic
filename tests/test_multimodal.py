@@ -41,7 +41,7 @@ def multimodal_models():
     ]
 
 
-flowers = load_dataset("kardosdrur/flowers_multimodal_test", split="test")
+flowers = load_dataset("kardosdrur/flowers_multimodal_test", split="train")
 texts = flowers["blip_caption"]
 images = flowers["image"]
 
