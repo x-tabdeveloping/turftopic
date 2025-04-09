@@ -1,8 +1,7 @@
 # Multimodal Topic Modelling ***(BETA)***
 
 !!! note 
-    Multimodal modelling is still a BETA feature in Turftopic, and the interface is likely to change in the future.
-    We also intend on implementing multimodal modelling in a dynamic context and adding more interpretation functionality for multimodal models.
+    Multimodal modeling is still a BETA feature in Turftopic, and it is likely that we will add more features and change the interface in the near future.
 
 Some corpora spread across multiple modalities.
 A good example of this would be news articles with images attached.
