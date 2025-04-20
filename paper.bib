@@ -116,7 +116,6 @@
     abstract = "Many data sets (e.g., reviews, forums, news, etc.) exist parallelly in multiple languages. They all cover the same content, but the linguistic differences make it impossible to use traditional, bag-of-word-based topic models. Models have to be either single-language or suffer from a huge, but extremely sparse vocabulary. Both issues can be addressed by transfer learning. In this paper, we introduce a zero-shot cross-lingual topic model. Our model learns topics on one language (here, English), and predicts them for unseen documents in different languages (here, Italian, French, German, and Portuguese). We evaluate the quality of the topic predictions for the same document in different languages. Our results show that the transferred topics are coherent and stable across languages, which suggests exciting future research directions.",
 }
 
-@article{blei_prob_topic_models, title={Probabilistic topic models}, volume={55}, url={https://doi.org/10.1145/2133806.2133826}, DOI={10.1145/2133806.2133826}, number={4}, journal={Communications of the ACM}, author={Blei, David M.}, year={2012}, month=apr, pages={77–84} }
 
 @misc{top2vec,
       title={Top2Vec: Distributed Representations of Topics}, 
@@ -125,14 +124,6 @@
       eprint={2008.09470},
       archivePrefix={arXiv},
       primaryClass={cs.CL}
-}
-
-@inproceedings{prodla,
-    title={Autoencoding Variational Inference For Topic Models},
-    author={Akash Srivastava and Charles Sutton},
-    booktitle={International Conference on Learning Representations},
-    year={2017},
-    url={https://openreview.net/forum?id=BybtVK9lg}
 }
 
 @article{scikit-learn,
@@ -147,40 +138,6 @@
  year={2011}
 }
 
-@inproceedings{blei_dynamic,
-author = {Blei, David M. and Lafferty, John D.},
-title = {Dynamic Topic Models},
-year = {2006},
-isbn = {1595933832},
-publisher = {Association for Computing Machinery},
-address = {New York, NY, USA},
-url = {https://doi.org/10.1145/1143844.1143859},
-doi = {10.1145/1143844.1143859},
-abstract = {A family of probabilistic time series models is developed to analyze the time evolution of topics in large document collections. The approach is to use state space models on the natural parameters of the multinomial distributions that represent the topics. Variational approximations based on Kalman filters and nonparametric wavelet regression are developed to carry out approximate posterior inference over the latent topics. In addition to giving quantitative, predictive models of a sequential corpus, dynamic topic models provide a qualitative window into the contents of a large document collection. The models are demonstrated by analyzing the OCR'ed archives of the journal Science from 1880 through 2000.},
-booktitle = {Proceedings of the 23rd International Conference on Machine Learning},
-pages = {113–120},
-numpages = {8},
-location = {Pittsburgh, Pennsylvania, USA},
-series = {ICML '06}
-}
-
-@inproceedings{blei_hierarchical,
-author = {Blei, David M. and Jordan, Michael I. and Griffiths, Thomas L. and Tenenbaum, Joshua B.},
-title = {Hierarchical Topic Models and the Nested Chinese Restaurant Process},
-year = {2003},
-publisher = {MIT Press},
-address = {Cambridge, MA, USA},
-abstract = {We address the problem of learning topic hierarchies from data. The model selection problem in this domain is daunting—which of the large collection of possible trees to use? We take a Bayesian approach, generating an appropriate prior via a distribution on partitions that we refer to as the nested Chinese restaurant process. This nonparametric prior allows arbitrarily large branching factors and readily accommodates growing data collections. We build a hierarchical topic model by combining this prior with a likelihood that is based on a hierarchical variant of latent Dirichlet allocation. We illustrate our approach on simulated data and with an application to the modeling of NIPS abstracts.},
-booktitle = {Proceedings of the 16th International Conference on Neural Information Processing Systems},
-pages = {17–24},
-numpages = {8},
-location = {Whistler, British Columbia, Canada},
-series = {NIPS'03}
-}
-
-@misc{ctm_docs,
-author={Bianchi, Federico and Terragni, Silvia and Hovy, Dirk},
-title={Contextualized Topic Models — Contextualized Topic Models 2.5.0 documentation}, url={https://contextualized-topic-models.readthedocs.io/en/latest/introduction.html}, year={2020} }
 
 @inproceedings{fastopic,
     title={FASTopic: Pretrained Transformer is a Fast, Adaptive, Stable, and Transferable Topic Model},
