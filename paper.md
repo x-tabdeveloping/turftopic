@@ -83,3 +83,4 @@ Turftopic has already been utilized by @keynmf for analyzing information dynamic
 We expect that Turftopic will prove useful to a diverse user base including computational researchers in digital humanities and social sciences, and industry NLP professionals.
 Turftopic is also an appropriate choice for educational purposes, providing instructors with a single, user-friendly framework for students to explore and compare alternative topic modelling approaches.
 
+# References
