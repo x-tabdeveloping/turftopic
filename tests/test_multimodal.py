@@ -48,7 +48,10 @@ images = flowers["image"]
 
 def test_multimodal(multimodal_models):
     for model in multimodal_models:
-        doc_topic_matrix = model.fit_transform_multimodal(texts, images=images)
-        fig = model.plot_topics_with_images()
-        assert len(model.top_images) == model.components_.shape[0]
-        assert doc_topic_matrix.shape[1] == model.components_.shape[0]
+        topic_data = model.prepare_multimodal_topic_data(texts, images=images)
+        fig = topic_data.plot_topics_with_images()
+        assert len(topic_data.top_images) == model.components_.shape[0]
+        assert (
+            topic_data.document_topic_matrix.shape[1]
+            == model.components_.shape[0]
+        )
