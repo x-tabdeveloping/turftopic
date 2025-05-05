@@ -76,6 +76,77 @@ class TopicContainer(ABC):
                 terms.append(list(vocab[highest]))
         return terms
 
+    def get_top_words(
+        self, top_k: int = 10, positive: bool = True
+    ) -> list[list[str]]:
+        """Returns list of top words for each topic.
+
+        Parameters
+        ----------
+        top_k: int, default 10
+            Number of words to return.
+        positive: bool, default True
+            Indicates whether the highest
+            or lowest scoring terms should be returned.
+        """
+        return self._top_terms(self, top_k, positive)
+
+    def get_top_documents(
+        self,
+        raw_documents=None,
+        document_topic_matrix=None,
+        top_k: int = 10,
+        positive: bool = True,
+    ) -> list[list[str]]:
+        """Returns list of top documents for each topic.
+
+        Parameters
+        ----------
+        top_k: int, default 10
+            Number of documents to return per topic.
+        positive: bool, default True
+            Indicates whether the highest
+            or lowest scoring documents should be returned.
+        """
+        docs = []
+        raw_documents = raw_documents or getattr(self, "corpus", None)
+        if raw_documents is None:
+            raise ValueError(
+                "No corpus was passed, can't search for representative documents."
+            )
+        document_topic_matrix = document_topic_matrix or getattr(
+            self, "document_topic_matrix", None
+        )
+        if document_topic_matrix is None:
+            try:
+                document_topic_matrix = self.transform(raw_documents)
+            except AttributeError:
+                raise ValueError(
+                    "Transductive methods cannot "
+                    "infer topical content in documents.\n"
+                    "Please pass a document_topic_matrix."
+                )
+        for topic_doc_vec in document_topic_matrix.T:
+            if self.positive:
+                topic_doc_vec = -topic_doc_vec
+            highest = np.argsort(topic_doc_vec)[:top_k]
+            docs.append([raw_documents[i_doc] for i_doc in highest])
+        return docs
+
+    def get_top_images(self):
+        """Returns list of top images for each topic.
+
+        Parameters
+        ----------
+        top_k: int, default 10
+            Number of images to return.
+        """
+        if not hasattr(self, "top_images"):
+            raise ValueError(
+                "Model either has not been fit or was fit without images. top_images property missing."
+            )
+        return self.top_images
+
     def _rename_automatic(self, namer: TopicNamer) -> list[str]:
         self.topic_names_ = namer.name_topics(self._top_terms())
         return self.topic_names_
