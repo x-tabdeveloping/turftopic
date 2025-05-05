@@ -1,4 +1,5 @@
 import itertools
+import warnings
 from abc import ABC
 from datetime import datetime
 from typing import Any, Iterable, List, Optional, Tuple, Union
@@ -133,19 +134,34 @@ class TopicContainer(ABC):
             docs.append([raw_documents[i_doc] for i_doc in highest])
         return docs
 
-    def get_top_images(self):
+    def get_top_images(self, top_k: int = True, positive: bool = True):
         """Returns list of top images for each topic.
 
         Parameters
         ----------
         top_k: int, default 10
             Number of images to return.
+        positive: bool, default True
+            Indicates whether the highest
+            or lowest scoring images should be returned.
         """
         if not hasattr(self, "top_images"):
             raise ValueError(
                 "Model either has not been fit or was fit without images. top_images property missing."
             )
-        return self.top_images
+        if (not positive) and not hasattr(self, "negative_images"):
+            raise ValueError(
+                "Model either has not been fit or was fit without images. top_images property missing."
+            )
+        top_images = self.top_images if positive else self.negative_images
+        ims = []
+        for topic_images in top_images:
+            if len(topic_images < top_k):
+                warnings.warn(
+                    "Number of images stored in the topic model is smaller than the specified top_k, returning all that the model has."
+                )
+            ims.append(topic_images[:top_k])
+        return ims
 
     def _rename_automatic(self, namer: TopicNamer) -> list[str]:
         self.topic_names_ = namer.name_topics(self._top_terms())
