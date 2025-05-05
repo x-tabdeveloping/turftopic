@@ -21,6 +21,10 @@ class TopicContainer(ABC):
     """Base class for classes that contain topical information."""
 
     @property
+    def n_components(self) -> int:
+        return self.components_.shape[0]
+
+    @property
     def has_negative_side(self) -> bool:
         return np.any(self.components_ < 0)
 
