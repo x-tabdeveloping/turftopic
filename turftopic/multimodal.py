@@ -232,7 +232,7 @@ class MultimodalModel:
         if embeddings is None:
             embeddings = self.encode_multimodal(corpus, images)
         document_topic_matrix = self.fit_transform_multimodal(
-            corpus, embeddings=embeddings
+            corpus, images=images, embeddings=embeddings
         )
         dtm = self.vectorizer.transform(corpus)  # type: ignore
         try:

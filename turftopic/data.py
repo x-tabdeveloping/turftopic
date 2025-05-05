@@ -109,6 +109,9 @@ class TopicData(Mapping, TopicContainer):
         self.temporal_importance = temporal_importance
         self.hierarchy = hierarchy
         self._has_negative_side = has_negative_side
+        self.top_images = top_images
+        self.negative_images = negative_images
+        self.images = images
         for key, value in kwargs:
             setattr(self, key, value)
         self._attributes = [

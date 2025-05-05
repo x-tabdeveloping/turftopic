@@ -91,7 +91,7 @@ class TopicContainer(ABC):
             Indicates whether the highest
             or lowest scoring terms should be returned.
         """
-        return self._top_terms(self, top_k, positive)
+        return self._top_terms(top_k, positive)
 
     def get_top_documents(
         self,
@@ -129,7 +129,7 @@ class TopicContainer(ABC):
                     "Please pass a document_topic_matrix."
                 )
         for topic_doc_vec in document_topic_matrix.T:
-            if self.positive:
+            if positive:
                 topic_doc_vec = -topic_doc_vec
             highest = np.argsort(topic_doc_vec)[:top_k]
             docs.append([raw_documents[i_doc] for i_doc in highest])
@@ -157,7 +157,7 @@ class TopicContainer(ABC):
         top_images = self.top_images if positive else self.negative_images
         ims = []
         for topic_images in top_images:
-            if len(topic_images < top_k):
+            if len(topic_images) < top_k:
                 warnings.warn(
                     "Number of images stored in the topic model is smaller than the specified top_k, returning all that the model has."
                 )
@@ -1065,7 +1065,8 @@ class TopicContainer(ABC):
             raise ModuleNotFoundError(
                 "Please install plotly if you intend to use plots in Turftopic."
             ) from e
-        if hasattr(self, "negative_images"):
+        negative_images = getattr(self, "negative_images", None)
+        if negative_images is not None:
             # If the model has negative images, it should display them side by side with the positive ones.
             n_components = self.components_.shape[0]
             fig = go.Figure()
