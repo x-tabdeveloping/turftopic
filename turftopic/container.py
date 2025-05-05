@@ -21,10 +21,6 @@ class TopicContainer(ABC):
     """Base class for classes that contain topical information."""
 
     @property
-    def n_components(self) -> int:
-        return self.components_.shape[0]
-
-    @property
     def has_negative_side(self) -> bool:
         return np.any(self.components_ < 0)
 
@@ -1146,7 +1142,7 @@ class TopicContainer(ABC):
                 )
                 fig.add_annotation(
                     x=(w + padding) + (w / 2),
-                    y=(h + padding) * (self.n_components - i) - (h / 2),
+                    y=(h + padding) * (n_components - i) - (h / 2),
                     text="<b> " + "<br> ".join(negative),
                     font=dict(
                         size=16,
