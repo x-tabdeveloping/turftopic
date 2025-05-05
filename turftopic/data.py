@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Callable, Optional
 
 import joblib
 import numpy as np
+from PIL import Image
 from rich.console import Console
 from rich.tree import Tree
 
@@ -63,6 +64,13 @@ class TopicData(Mapping, TopicContainer):
         This is in contrast to KeyNMF for instance, where only positive word importance should be considered.
     hierarchy: TopicNode, default None
         Optional topic hierarchy for models that support hierarchical topic modeling.
+    images: list[ImageRepr], default None
+        Images the model has been fit on
+    top_images: list[list[Image]], default None
+        Top images discovered by the topic model.
+    negative_images: list[list[Image]], default None
+        Lowest ranking images discivered by the topic model.
+        (Only relevant with models like S^3)
     """
 
     def __init__(
@@ -82,6 +90,9 @@ class TopicData(Mapping, TopicContainer):
         temporal_importance: Optional[np.ndarray] = None,
         has_negative_side: bool = False,
         hierarchy: Optional[TopicNode] = None,
+        images: Optional[list[str | Image.Image]] = None,
+        top_images: Optional[list[list[Image.Image]]] = None,
+        negative_images: Optional[list[list[Image.Image]]] = None,
         **kwargs,
     ):
         self.corpus = corpus
@@ -98,6 +109,9 @@ class TopicData(Mapping, TopicContainer):
         self.temporal_importance = temporal_importance
         self.hierarchy = hierarchy
         self._has_negative_side = has_negative_side
+        self.top_images = top_images
+        self.negative_images = negative_images
+        self.images = images
         for key, value in kwargs:
             setattr(self, key, value)
         self._attributes = [

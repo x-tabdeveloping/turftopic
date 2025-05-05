@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 from sentence_transformers import SentenceTransformer
 
+from turftopic.data import TopicData
 from turftopic.encoders.multimodal import MultimodalEncoder
 
 UrlStr = str
@@ -205,117 +206,53 @@ class MultimodalModel:
             top_images.append(top_im)
         return top_images
 
-    @staticmethod
-    def _image_grid(
-        images: list[Image.Image],
-        final_size=(1200, 1200),
-        grid_size: tuple[int, int] = (4, 4),
-    ):
-        grid_img = Image.new("RGB", final_size, (255, 255, 255))
-        cell_width = final_size[0] // grid_size[0]
-        cell_height = final_size[1] // grid_size[1]
-        n_rows, n_cols = grid_size
-        for idx, img in enumerate(images[: n_rows * n_cols]):
-            img = img.resize(
-                (cell_width, cell_height), resample=Image.Resampling.LANCZOS
-            )
-            x_offset = (idx % grid_size[0]) * cell_width
-            y_offset = (idx // grid_size[1]) * cell_height
-            grid_img.paste(img, (x_offset, y_offset))
-        return grid_img
-
-    def plot_topics_with_images(self, n_cols: int = 3, grid_size: int = 4):
-        """Plots the most important images for each topic, along with keywords.
-
-        Note that you will need to `pip install plotly` to use plots in Turftopic.
+    def prepare_multimodal_topic_data(
+        self,
+        corpus: list[str],
+        images: list[ImageRepr],
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ) -> TopicData:
+        """Produces multimodal topic inference data for a given corpus, that can be then used and reused.
+        Exists to allow visualizations out of the box with topicwizard.
 
         Parameters
         ----------
-        n_cols: int, default 3
-            Number of columns you want to have in the grid of topics.
-        grid_size: int, default 4
-            The square root of the number of images you want to display for a given topic.
-            For instance if grid_size==4, all topics will have 16 images displayed,
-            since the joint image will have 4 columns and 4 rows.
+        corpus: list[str]
+            Documents to infer topical content for.
+        images: list[ImageRepr]
+            Images belonging to the documents.
+        embeddings: MultimodalEmbeddings
+            Embeddings of documents.
 
         Returns
         -------
-        go.Figure
-            Plotly figure containing top images and keywords for topics.
+        TopicData
+            Information about topical inference in a dictionary.
         """
-        if not hasattr(self, "top_images"):
-            raise ValueError(
-                "Model either has not been fit or was fit without images. top_images property missing."
-            )
+        if embeddings is None:
+            embeddings = self.encode_multimodal(corpus, images)
+        document_topic_matrix = self.fit_transform_multimodal(
+            corpus, images=images, embeddings=embeddings
+        )
+        dtm = self.vectorizer.transform(corpus)  # type: ignore
         try:
-            import plotly.graph_objects as go
-        except (ImportError, ModuleNotFoundError) as e:
-            raise ModuleNotFoundError(
-                "Please install plotly if you intend to use plots in Turftopic."
-            ) from e
-        fig = go.Figure()
-        width, height = 1200, 1200
-        scale_factor = 0.25
-        w, h = width * scale_factor, height * scale_factor
-        padding = 10
-        n_components = self.components_.shape[0]
-        n_rows = n_components // n_cols + int(bool(n_components % n_cols))
-        figure_height = (h + padding) * n_rows
-        figure_width = (w + padding) * n_cols
-        fig = fig.add_trace(
-            go.Scatter(
-                x=[0, figure_width],
-                y=[0, figure_height],
-                mode="markers",
-                marker_opacity=0,
-            )
+            classes = self.classes_
+        except AttributeError:
+            classes = list(range(self.components_.shape[0]))
+        res = TopicData(
+            corpus=corpus,
+            document_term_matrix=dtm,
+            vocab=self.get_vocab(),
+            document_topic_matrix=document_topic_matrix,
+            document_representation=embeddings["document_embeddings"],
+            topic_term_matrix=self.components_,  # type: ignore
+            transform=getattr(self, "transform", None),
+            topic_names=self.topic_names,
+            classes=classes,
+            has_negative_side=self.has_negative_side,
+            hierarchy=getattr(self, "hierarchy", None),
+            images=images,
+            top_images=self.top_images,
+            negative_images=getattr(self, "negative_images", None),
         )
-        vocab = self.get_vocab()
-        for i, component in enumerate(self.components_):
-            col = i % n_cols
-            row = i // n_cols
-            top_7 = vocab[np.argsort(-component)[:7]]
-            images = self.top_images[i]
-            image = self._image_grid(
-                images, (width, height), grid_size=(grid_size, grid_size)
-            )
-            x0 = (w + padding) * col
-            y0 = (h + padding) * (n_rows - row)
-            fig = fig.add_layout_image(
-                dict(
-                    x=x0,
-                    sizex=w,
-                    y=y0,
-                    sizey=h,
-                    xref="x",
-                    yref="y",
-                    opacity=1.0,
-                    layer="below",
-                    sizing="stretch",
-                    source=image,
-                ),
-            )
-            fig.add_annotation(
-                x=(w + padding) * col + (w / 2),
-                y=(h + padding) * (n_rows - row) - (h / 2),
-                text="<b> " + "<br> ".join(top_7),
-                font=dict(
-                    size=16,
-                    family="Times New Roman",
-                    color="white",
-                ),
-                bgcolor="rgba(0,0,0, 0.5)",
-            )
-        fig = fig.update_xaxes(visible=False, range=[0, figure_width])
-        fig = fig.update_yaxes(
-            visible=False,
-            range=[0, figure_height],
-            # the scaleanchor attribute ensures that the aspect ratio stays constant
-            scaleanchor="x",
-        )
-        fig = fig.update_layout(
-            width=figure_width,
-            height=figure_height,
-            margin={"l": 0, "r": 0, "t": 0, "b": 0},
-        )
-        return fig
+        return res
