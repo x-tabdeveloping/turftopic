@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 from sentence_transformers import SentenceTransformer
 
+from turftopic.data import TopicData
 from turftopic.encoders.multimodal import MultimodalEncoder
 
 UrlStr = str
@@ -204,3 +205,54 @@ class MultimodalModel:
             top_im = [images[i] for i in top_im_ind]
             top_images.append(top_im)
         return top_images
+
+    def prepare_multimodal_topic_data(
+        self,
+        corpus: list[str],
+        images: list[ImageRepr],
+        embeddings: Optional[MultimodalEmbeddings] = None,
+    ) -> TopicData:
+        """Produces multimodal topic inference data for a given corpus, that can be then used and reused.
+        Exists to allow visualizations out of the box with topicwizard.
+
+        Parameters
+        ----------
+        corpus: list[str]
+            Documents to infer topical content for.
+        images: list[ImageRepr]
+            Images belonging to the documents.
+        embeddings: MultimodalEmbeddings
+            Embeddings of documents.
+
+        Returns
+        -------
+        TopicData
+            Information about topical inference in a dictionary.
+        """
+        if embeddings is None:
+            embeddings = self.encode_multimodal(corpus, images)
+        document_topic_matrix = self.fit_transform_multimodal(
+            corpus, embeddings=embeddings
+        )
+        dtm = self.vectorizer.transform(corpus)  # type: ignore
+        try:
+            classes = self.classes_
+        except AttributeError:
+            classes = list(range(self.components_.shape[0]))
+        res = TopicData(
+            corpus=corpus,
+            document_term_matrix=dtm,
+            vocab=self.get_vocab(),
+            document_topic_matrix=document_topic_matrix,
+            document_representation=embeddings["document_embeddings"],
+            topic_term_matrix=self.components_,  # type: ignore
+            transform=getattr(self, "transform", None),
+            topic_names=self.topic_names,
+            classes=classes,
+            has_negative_side=self.has_negative_side,
+            hierarchy=getattr(self, "hierarchy", None),
+            images=images,
+            top_images=self.top_images,
+            negative_images=getattr(self, "negative_images", None),
+        )
+        return res
