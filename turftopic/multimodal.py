@@ -74,7 +74,7 @@ class MultimodalModel:
         else:
             text_embeddings = self.encoder_.encode(sentences)
         embedding_size = text_embeddings.shape[1]
-        images = len(_load_images(images))
+        images = list(_load_images(images))
         if hasattr(self.encoder_, "get_image_embeddings"):
             image_embeddings = np.array(
                 self.encoder_.get_image_embeddings(images)
