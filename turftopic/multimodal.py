@@ -74,10 +74,10 @@ class MultimodalModel:
         else:
             text_embeddings = self.encoder_.encode(sentences)
         embedding_size = text_embeddings.shape[1]
-        images = _load_images(images)
+        images = len(_load_images(images))
         if hasattr(self.encoder_, "get_image_embeddings"):
             image_embeddings = np.array(
-                self.encoder_.get_image_embeddings(list(images))
+                self.encoder_.get_image_embeddings(images)
             )
         else:
             image_embeddings = []
@@ -92,7 +92,7 @@ class MultimodalModel:
             document_embeddings = np.array(
                 self.encoder_.get_fused_embeddings(
                     texts=sentences,
-                    images=list(images),
+                    images=images,
                 )
             )
         else:
