@@ -135,7 +135,7 @@ class TopicContainer(ABC):
             docs.append([raw_documents[i_doc] for i_doc in highest])
         return docs
 
-    def get_top_images(self, top_k: int = True, positive: bool = True):
+    def get_top_images(self, top_k: int = 10, positive: bool = True):
         """Returns list of top images for each topic.
 
         Parameters
