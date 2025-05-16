@@ -81,7 +81,12 @@ def _tree_plot(hierarchy: TopicNode):
     )
     fig = fig.update_traces(marker=dict(size=20))
     fig = fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-    fig = fig.update_yaxes(showgrid=False, visible=False, zeroline=False)
+    fig = fig.update_yaxes(
+        showgrid=False,
+        visible=False,
+        zeroline=False,
+        font=dict(family="Roboto Mono"),
+    )
     fig = fig.update_xaxes(
         showgrid=False,
         visible=False,
