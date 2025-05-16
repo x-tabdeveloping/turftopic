@@ -1011,6 +1011,7 @@ class TopicContainer(ABC):
             template="plotly_white",
             hoverlabel=dict(font_size=16, bgcolor="white"),
             hovermode="x",
+            font=dict(family="Roboto Mono"),
         )
         fig.add_hline(y=0, line_dash="dash", opacity=0.5)
         fig.update_xaxes(title="Time Slice Start")
@@ -1120,7 +1121,7 @@ class TopicContainer(ABC):
                     text="<b> " + "<br> ".join(positive),
                     font=dict(
                         size=16,
-                        family="Times New Roman",
+                        family="Roboto Mono",
                         color="white",
                     ),
                     bgcolor="rgba(0,0,255, 0.5)",
