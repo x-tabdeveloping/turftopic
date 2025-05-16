@@ -697,7 +697,7 @@ class SemanticSignalSeparation(
         fig = fig.update_layout(
             width=1000,
             height=1000,
-            font=dict(family="Robot Mono", color="black", size=21),
+            font=dict(family="Roboto Mono", color="black", size=21),
             margin=dict(l=5, r=5, t=5, b=5),
         )
         fig = fig.add_hline(y=0, line_color="black", line_width=4)
