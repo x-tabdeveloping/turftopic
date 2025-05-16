@@ -1,3 +1,4 @@
+import warnings
 from datetime import datetime
 from typing import Literal, Optional, Union
 
@@ -15,8 +16,7 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.multimodal import (ImageRepr, MultimodalEmbeddings,
-                                  MultimodalModel)
+from turftopic.multimodal import ImageRepr, MultimodalEmbeddings, MultimodalModel
 from turftopic.namers.base import TopicNamer
 from turftopic.vectorizers.default import default_vectorizer
 
@@ -620,6 +620,17 @@ class SemanticSignalSeparation(
     def concept_compass(
         self, topic_x: Union[int, str], topic_y: Union[str, int]
     ):
+        """[DEPRECATED] will be removed in version 1.0.0.
+        See plot_concept_compass().
+        """
+        warnings.warn(
+            "concept_compass() is deprecated and will be removed in version 1.0.0. Use plot_concept_compass() instead."
+        )
+        return self.plot_concept_compass(topic_x, topic_y)
+
+    def plot_concept_compass(
+        self, topic_x: Union[int, str], topic_y: Union[str, int]
+    ):
         """Display a compass of concepts along two semantic axes.
         In order for the plot to be concise and readable, terms are randomly selected on
         a grid of the two topics.
@@ -681,11 +692,12 @@ class SemanticSignalSeparation(
         ).update_layout(
             xaxis_title=f"{self.topic_names[topic_x]}",
             yaxis_title=f"{self.topic_names[topic_y]}",
+            font=dict(family="Roboto Mono"),
         )
         fig = fig.update_layout(
             width=1000,
             height=1000,
-            font=dict(family="Times New Roman", color="black", size=21),
+            font=dict(family="Robot Mono", color="black", size=21),
             margin=dict(l=5, r=5, t=5, b=5),
         )
         fig = fig.add_hline(y=0, line_color="black", line_width=4)
@@ -740,6 +752,7 @@ class SemanticSignalSeparation(
             template="plotly_white",
             hoverlabel=dict(font_size=16, bgcolor="white"),
             hovermode="x",
+            font=dict(family="Roboto Mono"),
         )
         fig.update_xaxes(title="Time Slice Start")
         fig.update_yaxes(title="Topic Importance")
