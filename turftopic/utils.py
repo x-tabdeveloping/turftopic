@@ -1,6 +1,22 @@
 import csv
 import io
 
+import numpy as np
+from sklearn.preprocessing import label_binarize
+
+
+def safe_binarize(y, classes) -> np.ndarray:
+    """label_binarzie, but its behaviour stays consistent when the labels are {0,1}"""
+    if set(classes) == {0, 1}:
+        binary_vec = np.squeeze(label_binarize(y, classes=classes))
+        negative_vec = np.zeros(binary_vec.shape[0], dtype=binary_vec.dtype)
+        negative_vec[binary_vec == 0] = 1
+        # Concatenating
+        onehot = np.stack((binary_vec, negative_vec))
+        return onehot.T
+    else:
+        return label_binarize(y, classes=classes)
+
 
 def export_table(
     table: list[list[str]],

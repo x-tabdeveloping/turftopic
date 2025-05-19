@@ -15,7 +15,7 @@ from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import label_binarize, normalize, scale
+from sklearn.preprocessing import normalize, scale
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
@@ -33,6 +33,7 @@ from turftopic.models._hierarchical_clusters import (
 )
 from turftopic.multimodal import Image, ImageRepr, MultimodalEmbeddings, MultimodalModel
 from turftopic.types import VALID_DISTANCE_METRICS, DistanceMetric
+from turftopic.utils import safe_binarize
 from turftopic.vectorizers.default import default_vectorizer
 
 integer_message = """
@@ -300,7 +301,7 @@ class ClusteringTopicModel(
                 )
             self.feature_importance = feature_importance
         self.hierarchy.estimate_components()
-        doc_topic_matrix = label_binarize(self.labels_, classes=self.classes_)
+        doc_topic_matrix = safe_binarize(self.labels_, classes=self.classes_)
         if feature_importance == "c-tf-idf":
             _, self._idf_diag = ctf_idf(
                 doc_topic_matrix,
@@ -394,7 +395,7 @@ class ClusteringTopicModel(
 
     @property
     def document_topic_matrix(self):
-        return label_binarize(self.labels_, classes=self.classes_)
+        return safe_binarize(self.labels_, classes=self.classes_)
 
     def join_topics(
         self, to_join: Sequence[int], joint_id: Optional[int] = None
@@ -451,7 +452,7 @@ class ClusteringTopicModel(
             status.update("Estimating parameters.")
             # Initializing hierarchy
             self.hierarchy = ClusterNode.create_root(self, labels=labels)
-            doc_topic_matrix = label_binarize(
+            doc_topic_matrix = safe_binarize(
                 self.labels_, classes=self.classes_
             )
             if self.feature_importance == "c-tf-idf":
@@ -608,7 +609,7 @@ class ClusteringTopicModel(
             timestamps, bins
         )
         if hasattr(self, "components_"):
-            doc_topic_matrix = label_binarize(
+            doc_topic_matrix = safe_binarize(
                 self.labels_, classes=self.classes_
             )
         else:
@@ -686,7 +687,7 @@ class ClusteringTopicModel(
                 cosine_similarity(embeddings, self._calculate_topic_vectors())
             )
         else:
-            doc_topic_matrix = label_binarize(
+            doc_topic_matrix = safe_binarize(
                 self.labels_, classes=self.classes_
             )
         return doc_topic_matrix
