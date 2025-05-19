@@ -7,8 +7,8 @@
 ## Features
 | | |
 | - | - |
-| SOTA Transformer-based Topic Models | :compass: [S³](https://x-tabdeveloping.github.io/turftopic/s3/), :key: [KeyNMF](https://x-tabdeveloping.github.io/turftopic/KeyNMF/),  :gem: [GMM](https://x-tabdeveloping.github.io/turftopic/GMM/), [Clustering Models](https://x-tabdeveloping.github.io/turftopic/GMM/), [CTMs](https://x-tabdeveloping.github.io/turftopic/ctm/), [FASTopic](https://x-tabdeveloping.github.io/turftopic/FASTopic/) |
-| Models for all Scenarios | :chart_with_upwards_trend: [Dynamic](https://x-tabdeveloping.github.io/turftopic/dynamic/), :ocean: [Online](https://x-tabdeveloping.github.io/turftopic/online/), :herb: [Seeded](https://x-tabdeveloping.github.io/turftopic/seeded/), and :evergreen_tree: [Hierarchical](https://x-tabdeveloping.github.io/turftopic/hierarchical/) topic modeling |
+| SOTA Transformer-based Topic Models | :compass: [S³](https://x-tabdeveloping.github.io/turftopic/s3/), :key: [KeyNMF](https://x-tabdeveloping.github.io/turftopic/KeyNMF/),  :gem: [GMM](https://x-tabdeveloping.github.io/turftopic/GMM/), [Clustering Models (BERTopic and Top2Vec)](https://x-tabdeveloping.github.io/turftopic/GMM/), [Autoencoding models (ZeroShotTM and CombinedTM)](https://x-tabdeveloping.github.io/turftopic/ctm/), [FASTopic](https://x-tabdeveloping.github.io/turftopic/FASTopic/) |
+| Models for all Scenarios | :chart_with_upwards_trend: [Dynamic](https://x-tabdeveloping.github.io/turftopic/dynamic/), :ocean: [Online](https://x-tabdeveloping.github.io/turftopic/online/), :herb: [Seeded](https://x-tabdeveloping.github.io/turftopic/seeded/), :evergreen_tree: [Hierarchical](https://x-tabdeveloping.github.io/turftopic/hierarchical/), and :camera: [Multimodal](https://x-tabdeveloping.github.io/turftopic/multimodal/)  topic modeling |
 | [Easy Interpretation](https://x-tabdeveloping.github.io/turftopic/model_interpretation/) | :bookmark_tabs: Pretty Printing, :bar_chart: Interactive Figures, :art: [topicwizard](https://github.com/x-tabdeveloping/topicwizard) compatible |
 | [Topic Naming](https://x-tabdeveloping.github.io/turftopic/namers/) | :robot: LLM-based, N-gram Retrieval, :wave: Manual |
 | [Informative Topic Descriptions](https://x-tabdeveloping.github.io/turftopic/vectorizers/) | :key: Keyphrases, Noun-phrases, Lemmatization, Stemming |
@@ -16,6 +16,8 @@
 
 ## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
+
+For detailed model comparison and tutorials, consult our documentation: [Click here](https://x-tabdeveloping.github.io/turftopic/)
 
 ### Installation
 
@@ -29,6 +31,12 @@ If you intend to use CTMs, make sure to install the package with Pyro as an opti
 
 ```bash
 pip install turftopic[pyro-ppl]
+```
+
+If you want to use clustering models like BERTopic or Top2Vec, install:
+
+```bash
+pip install turftopic[umap-learn]
 ```
 
 ### Fitting a Model
@@ -140,10 +148,10 @@ model.print_topics()
 You can use a set of custom vectorizers for topic modeling over **phrases**, as well as **lemmata** and **stems**.
 
 ```python
-from turftopic import KeyNMF
+from turftopic import BERTopic
 from turftopic.vectorizers.spacy import NounPhraseCountVectorizer
 
-model = KeyNMF(
+model = BERTopic(
     n_components=10,
     vectorizer=NounPhraseCountVectorizer("en_core_web_sm"),
 )
