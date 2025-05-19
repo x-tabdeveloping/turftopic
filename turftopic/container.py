@@ -1287,7 +1287,6 @@ class TopicContainer(ABC):
             shared_xaxes=True,
         )
         width, height = 1200, 1200
-        grid_size = 4
         topics = self.get_top_words(top_k=top_k)
         n_topics = len(topics)
         annotations = []
