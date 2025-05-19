@@ -39,6 +39,7 @@ mkdocs-material = { version = "^9.5.12", optional = true }
 mkdocstrings = { version = "^0.24.0", extras = ["python"], optional = true }
 topic-wizard = { version = ">=1.0.0", optional = true}
 pytest = { version = ">=8.1.1", optional = true }
+umap-learn = { version = "^0.5.5", optional = true }
 
 [tool.poetry.extras]
 pyro-ppl = ["pyro-ppl"]
@@ -49,8 +50,9 @@ jieba = ["jieba"]
 spacy = ["spacy"]
 snowball = ["snowballstemmer"]
 topic-wizard = ["topic-wizard"]
+umap-learn = ["umap-learn"]
 docs = ["mkdocs", "mkdocs-material", "mkdocstrings"]
-dev = ["pyro-ppl", "openai", "openTSNE", "datamapplot", "jieba", "spacy", "snowballstemmer", "topic-wizard", "mkdocs", "mkdocs-material", "mkdocstrings", "pytest"]
+dev = ["pyro-ppl", "openai", "openTSNE", "datamapplot", "jieba", "spacy", "snowballstemmer", "topic-wizard", "mkdocs", "mkdocs-material", "mkdocstrings", "pytest", "umap-learn"]
 
 [build-system]
 requires = ["poetry-core"]
