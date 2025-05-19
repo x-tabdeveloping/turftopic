@@ -191,6 +191,40 @@ model.estimate_components(feature_importance="centroid")
 model.estimate_components(feature_importance="soft-c-tf-idf")
 ```
 
+## BERTopic and Top2Vec in Turftopic
+
+Since BERTopic and Top2Vec are also just clustering topic models with specific characteristics,
+you can easily use the same models in Turftopic.
+We have added convenience classes, that inherit from `ClusteringTopicModel` that make it very easy to create a BERTopic or Top2Vec model in the library.
+
+```bash
+pip install turftopic[umap-learn]
+```
+
+!!! quote "Create BERTopic and Top2Vec models"
+
+    === "BERTopic"
+
+        ```python
+        from turftopic import BERTopic
+
+        berttopic = BERTopic()
+        berttopic.fit(corpus)
+        ```
+
+    === "Top2Vec"
+
+        ```python
+        from turftopic import Top2Vec
+
+        top2vec = Top2Vec()
+        top2vec.fit(corpus)
+        ```
+
+!!! question "Are these different from the original?"
+    Theoretically the model descriptions above should result in the same behaviour as the other two packages, but there might be minor changes in implementation.
+
+
 ## Hierarchical Topic Merging
 
 A weakness of clustering approaches based on density-based clustering methods, is that all too frequently they find a very large number of topics.
@@ -301,70 +335,6 @@ _See Figure 1_
     If you are not running Turftopic from a Jupyter notebook, make sure to call `fig.show()`. This will open up a new browser tab with the interactive figure.
 
 
-
-## BERTopic and Top2Vec-like models in Turftopic
-
-You can create BERTopic and Top2Vec models in Turftopic by modifying all model parameters and hyperparameters to match the defaults in those other packages.
-You will need UMAP and scikit-learn>=1.3.0 to be able to use HDBSCAN and UMAP:
-```bash
-pip install umap-learn scikit-learn>=1.3.0
-```
-
-!!! quote "Create BERTopic and Top2Vec models"
-
-    === "BERTopic"
-
-        ```python
-        from turftopic import ClusteringTopicModel
-        from sklearn.cluster import HDBSCAN
-        import umap
-
-        berttopic = ClusteringTopicModel(
-            dimensionality_reduction=umap.UMAP(
-                n_neighbors=10,
-                n_components=5,
-                min_dist=0.0,
-                metric="cosine",
-            ),
-            clustering=HDBSCAN(
-                min_cluster_size=15,
-                metric="euclidean",
-                cluster_selection_method="eom",
-            ),
-            feature_importance="c-tf-idf",
-            reduction_method="average"
-            reduction_distance_metric="cosine",
-            reduction_topic_representation="component",
-        )
-        ```
-
-    === "Top2Vec"
-
-        ```python
-        from turftopic import ClusteringTopicModel
-        from sklearn.cluster import HDBSCAN
-        import umap
-
-        top2vec = ClusteringTopicModel(
-            dimensionality_reduction=umap.UMAP(
-                n_neighbors=15,
-                n_components=5,
-                metric="cosine"
-            ),
-            clustering=HDBSCAN(
-                min_cluster_size=15,
-                metric="euclidean",
-                cluster_selection_method="eom",
-            ),
-            feature_importance="centroid",
-            reduction_method="smallest"
-            reduction_distance_metric="cosine",
-            reduction_topic_representation="centroid",
-        )
-        ```
-
-Theoretically the model descriptions above should result in the same behaviour as the other two packages, but there might be minor changes in implementation.
-We do not intend to keep up with changes in Top2Vec's and BERTopic's internal implementation details indefinitely.
 
 ## API Reference
 
