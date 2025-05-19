@@ -20,14 +20,18 @@ from sklearn.preprocessing import label_binarize, normalize, scale
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.feature_importance import (bayes_rule,
-                                          cluster_centroid_distance, ctf_idf,
-                                          soft_ctf_idf)
-from turftopic.models._hierarchical_clusters import (VALID_LINKAGE_METHODS,
-                                                     ClusterNode,
-                                                     LinkageMethod)
-from turftopic.multimodal import (Image, ImageRepr, MultimodalEmbeddings,
-                                  MultimodalModel)
+from turftopic.feature_importance import (
+    bayes_rule,
+    cluster_centroid_distance,
+    ctf_idf,
+    soft_ctf_idf,
+)
+from turftopic.models._hierarchical_clusters import (
+    VALID_LINKAGE_METHODS,
+    ClusterNode,
+    LinkageMethod,
+)
+from turftopic.multimodal import Image, ImageRepr, MultimodalEmbeddings, MultimodalModel
 from turftopic.types import VALID_DISTANCE_METRICS, DistanceMetric
 from turftopic.vectorizers.default import default_vectorizer
 
@@ -686,3 +690,163 @@ class ClusteringTopicModel(
                 self.labels_, classes=self.classes_
             )
         return doc_topic_matrix
+
+
+class BERTopic(ClusteringTopicModel):
+    """Convenience function to construct a BERTopic model in Turftopic.
+
+    ```python
+    from turftopic import BERTopic
+    from sklearn.cluster import HDBSCAN
+    import umap
+
+    corpus: list[str] = ["some text", "more text", ...]
+
+    model = BERTopic().fit(corpus)
+    model.print_topics()
+    ```
+
+    Parameters
+    ----------
+    encoder: str or SentenceTransformer
+        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+    vectorizer: CountVectorizer, default None
+        Vectorizer used for term extraction.
+        Can be used to prune or filter the vocabulary.
+    dimensionality_reduction: TransformerMixin, default None
+        Dimensionality reduction step to run before clustering.
+        Defaults to UMAP(5, metric="cosine")
+    clustering: ClusterMixin, default None
+        Clustering method to use for finding topics.
+        Defaults to HDBSCAN.
+    n_reduce_to: int, default None
+        Number of topics to reduce topics to.
+        The specified reduction method will be used to merge them.
+        By default, topics are not merged.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
+    """
+
+    def __init__(
+        self,
+        encoder: Union[
+            Encoder, str, MultimodalEncoder
+        ] = "sentence-transformers/all-MiniLM-L6-v2",
+        vectorizer: Optional[CountVectorizer] = None,
+        dimensionality_reduction: Optional[TransformerMixin] = None,
+        clustering: Optional[ClusterMixin] = None,
+        n_reduce_to: Optional[int] = None,
+        random_state: Optional[int] = None,
+    ):
+        if dimensionality_reduction is None:
+            try:
+                from umap import UMAP
+            except ModuleNotFoundError as e:
+                raise ModuleNotFoundError(
+                    "UMAP is not installed in your environment, but BERTopic requires it."
+                ) from e
+            dimensionality_reduction = UMAP(
+                n_neighbors=15,
+                n_components=5,
+                min_dist=0.0,
+                metric="cosine",
+                random_state=random_state,
+            )
+        if clustering is None:
+            clustering = HDBSCAN(
+                min_cluster_size=10,
+                metric="euclidean",
+                cluster_selection_method="eom",
+            )
+        super().__init__(
+            encoder=encoder,
+            vectorizer=vectorizer,
+            dimensionality_reduction=dimensionality_reduction,
+            clustering=clustering,
+            n_reduce_to=n_reduce_to,
+            random_state=random_state,
+            feature_importance="c-tf-idf",
+            reduction_method="average",
+            reduction_distance_metric="cosine",
+            reduction_topic_representation="component",
+        )
+
+
+class Top2Vec(ClusteringTopicModel):
+    """Convenience function to construct a Top2Vec model in Turftopic.
+
+    ```python
+    from turftopic import Top2Vec
+    from sklearn.cluster import HDBSCAN
+    import umap
+
+    corpus: list[str] = ["some text", "more text", ...]
+
+    model = Top2Vec().fit(corpus)
+    model.print_topics()
+    ```
+
+    Parameters
+    ----------
+    encoder: str or SentenceTransformer
+        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+    vectorizer: CountVectorizer, default None
+        Vectorizer used for term extraction.
+        Can be used to prune or filter the vocabulary.
+    dimensionality_reduction: TransformerMixin, default None
+        Dimensionality reduction step to run before clustering.
+        Defaults to UMAP(5, metric="cosine")
+    clustering: ClusterMixin, default None
+        Clustering method to use for finding topics.
+        Defaults to HDBSCAN.
+    n_reduce_to: int, default None
+        Number of topics to reduce topics to.
+        The specified reduction method will be used to merge them.
+        By default, topics are not merged.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
+    """
+
+    def __init__(
+        self,
+        encoder: Union[
+            Encoder, str, MultimodalEncoder
+        ] = "sentence-transformers/all-MiniLM-L6-v2",
+        vectorizer: Optional[CountVectorizer] = None,
+        dimensionality_reduction: Optional[TransformerMixin] = None,
+        clustering: Optional[ClusterMixin] = None,
+        n_reduce_to: Optional[int] = None,
+        random_state: Optional[int] = None,
+    ):
+        if dimensionality_reduction is None:
+            try:
+                from umap import UMAP
+            except ModuleNotFoundError as e:
+                raise ModuleNotFoundError(
+                    "UMAP is not installed in your environment, but BERTopic requires it."
+                ) from e
+            dimensionality_reduction = UMAP(
+                n_neighbors=15,
+                n_components=5,
+                min_dist=0.0,
+                metric="cosine",
+                random_state=random_state,
+            )
+        if clustering is None:
+            clustering = HDBSCAN(
+                min_cluster_size=15,
+                metric="euclidean",
+                cluster_selection_method="eom",
+            )
+        super().__init__(
+            encoder=encoder,
+            vectorizer=vectorizer,
+            dimensionality_reduction=dimensionality_reduction,
+            clustering=clustering,
+            n_reduce_to=n_reduce_to,
+            random_state=random_state,
+            feature_importance="centroid",
+            reduction_method="smallest",
+            reduction_distance_metric="cosine",
+            reduction_topic_representation="centroid",
+        )
