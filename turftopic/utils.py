@@ -6,7 +6,7 @@ from sklearn.preprocessing import label_binarize
 
 
 def safe_binarize(y, classes) -> np.ndarray:
-    """label_binarzie, but its behaviour stays consistent when the labels are {0,1}"""
+    """label_binarize, but its behaviour stays consistent when the labels are {0,1}"""
     if set(classes) == {0, 1}:
         binary_vec = np.squeeze(label_binarize(y, classes=classes))
         negative_vec = np.zeros(binary_vec.shape[0], dtype=binary_vec.dtype)
