@@ -1,3 +1,4 @@
+import warnings
 from datetime import datetime
 from typing import Literal, Optional, Union
 
@@ -15,8 +16,7 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.multimodal import (ImageRepr, MultimodalEmbeddings,
-                                  MultimodalModel)
+from turftopic.multimodal import ImageRepr, MultimodalEmbeddings, MultimodalModel
 from turftopic.namers.base import TopicNamer
 from turftopic.vectorizers.default import default_vectorizer
 
@@ -179,6 +179,7 @@ class SemanticSignalSeparation(
     ) -> np.ndarray:
         self.validate_embeddings(embeddings)
         console = Console()
+        self.images = images
         self.multimodal_embeddings = embeddings
         with console.status("Fitting model") as status:
             if self.multimodal_embeddings is None:
@@ -620,6 +621,17 @@ class SemanticSignalSeparation(
     def concept_compass(
         self, topic_x: Union[int, str], topic_y: Union[str, int]
     ):
+        """[DEPRECATED] will be removed in version 1.0.0.
+        See plot_concept_compass().
+        """
+        warnings.warn(
+            "concept_compass() is deprecated and will be removed in version 1.0.0. Use plot_concept_compass() instead."
+        )
+        return self.plot_concept_compass(topic_x, topic_y)
+
+    def plot_concept_compass(
+        self, topic_x: Union[int, str], topic_y: Union[str, int]
+    ):
         """Display a compass of concepts along two semantic axes.
         In order for the plot to be concise and readable, terms are randomly selected on
         a grid of the two topics.
@@ -681,15 +693,90 @@ class SemanticSignalSeparation(
         ).update_layout(
             xaxis_title=f"{self.topic_names[topic_x]}",
             yaxis_title=f"{self.topic_names[topic_y]}",
+            font=dict(family="Roboto Mono"),
         )
         fig = fig.update_layout(
-            width=1000,
-            height=1000,
-            font=dict(family="Times New Roman", color="black", size=21),
+            font=dict(family="Roboto Mono", color="black", size=21),
             margin=dict(l=5, r=5, t=5, b=5),
         )
         fig = fig.add_hline(y=0, line_color="black", line_width=4)
         fig = fig.add_vline(x=0, line_color="black", line_width=4)
+        return fig
+
+    def plot_image_compass(
+        self, topic_x: Union[str, int], topic_y: Union[str, int]
+    ):
+        try:
+            import plotly.express as px
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+        top_images = getattr(self, "top_images", None)
+        if top_images is None:
+            raise ValueError(
+                "Topic model is not multimodal. Can't plot image compass."
+            )
+        if isinstance(topic_x, str):
+            try:
+                topic_x = list(self.topic_names).index(topic_x)
+            except ValueError as e:
+                raise ValueError(
+                    f"{topic_x} is not a valid topic name or index."
+                ) from e
+        if isinstance(topic_y, str):
+            try:
+                topic_y = list(self.topic_names).index(topic_y)
+            except ValueError as e:
+                raise ValueError(
+                    f"{topic_y} is not a valid topic name or index."
+                ) from e
+        x = self.image_topic_matrix[:, topic_x]
+        y = self.image_topic_matrix[:, topic_y]
+        points = np.array(list(zip(x, y)))
+        xx, yy = np.meshgrid(
+            np.linspace(np.min(x), np.max(x), 8),
+            np.linspace(np.min(y), np.max(y), 8),
+        )
+        coords = np.array(list(zip(np.ravel(xx), np.ravel(yy))))
+        dist = euclidean_distances(coords, points)
+        idxs = np.argmin(dist, axis=1)
+        fig = px.scatter(
+            x=x[idxs],
+            y=y[idxs],
+            template="plotly_white",
+        )
+        sizex = (max(x) - min(x)) / 10
+        sizey = (max(y) - min(y)) / 10
+        for i in np.unique(idxs):
+            fig.add_layout_image(
+                dict(
+                    name=f"image{i}",
+                    source=self.images[i],
+                    x=x[i],
+                    y=y[i],
+                    xref="x",
+                    yref="y",
+                    xanchor="right",
+                    yanchor="top",
+                    layer="above",
+                    sizex=sizex,
+                    sizey=sizey,
+                )
+            )
+        fig = fig.update_traces(
+            mode="markers", textfont_color="black", marker=dict(opacity=0)
+        ).update_layout(
+            xaxis_title=f"{self.topic_names[topic_x]}",
+            yaxis_title=f"{self.topic_names[topic_y]}",
+            font=dict(family="Roboto Mono"),
+        )
+        fig = fig.update_layout(
+            font=dict(family="Roboto Mono", color="black", size=21),
+            margin=dict(l=5, r=5, t=5, b=5),
+        )
+        fig = fig.update_xaxes(range=[min(x), max(x)])
+        fig = fig.update_yaxes(range=[min(y), max(y)])
         return fig
 
     def plot_topics_over_time(self, top_k: int = 6):
@@ -740,6 +827,7 @@ class SemanticSignalSeparation(
             template="plotly_white",
             hoverlabel=dict(font_size=16, bgcolor="white"),
             hovermode="x",
+            font=dict(family="Roboto Mono"),
         )
         fig.update_xaxes(title="Time Slice Start")
         fig.update_yaxes(title="Topic Importance")

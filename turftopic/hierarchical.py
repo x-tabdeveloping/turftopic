@@ -80,8 +80,15 @@ def _tree_plot(hierarchy: TopicNode):
         marker=dict(color=[color_map[root_node] for root_node in root_nodes]),
     )
     fig = fig.update_traces(marker=dict(size=20))
-    fig = fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-    fig = fig.update_yaxes(showgrid=False, visible=False, zeroline=False)
+    fig = fig.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0),
+        font=dict(family="Roboto Mono"),
+    )
+    fig = fig.update_yaxes(
+        showgrid=False,
+        visible=False,
+        zeroline=False,
+    )
     fig = fig.update_xaxes(
         showgrid=False,
         visible=False,

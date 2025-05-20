@@ -6,13 +6,16 @@ from typing import Optional, Sequence
 import numpy as np
 from scipy.cluster.hierarchy import linkage
 from sklearn.metrics.pairwise import pairwise_distances
-from sklearn.preprocessing import label_binarize
 
 from turftopic.base import ContextualModel
-from turftopic.feature_importance import (bayes_rule,
-                                          cluster_centroid_distance, ctf_idf,
-                                          soft_ctf_idf)
+from turftopic.feature_importance import (
+    bayes_rule,
+    cluster_centroid_distance,
+    ctf_idf,
+    soft_ctf_idf,
+)
 from turftopic.hierarchical import TopicNode
+from turftopic.utils import safe_binarize
 
 NOT_MATCHING_ERROR = (
     "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
@@ -91,7 +94,7 @@ class ClusterNode(TopicNode):
     def create_root(cls, model: ContextualModel, labels: np.ndarray):
         """Creates root node from a topic models' components and topic importances in documents."""
         classes = np.sort(np.unique(labels))
-        document_topic_matrix = label_binarize(labels, classes=classes)
+        document_topic_matrix = safe_binarize(labels, classes=classes)
         children = []
         for topic_id, doc_top in zip(classes, document_topic_matrix.T):
             children.append(
@@ -180,7 +183,7 @@ class ClusterNode(TopicNode):
         topic_vectors = self.model._calculate_topic_vectors(
             classes=classes, labels=labels
         )
-        document_topic_matrix = label_binarize(labels, classes=classes)
+        document_topic_matrix = safe_binarize(labels, classes=classes)
         if self.model.feature_importance == "soft-c-tf-idf":
             components = soft_ctf_idf(
                 document_topic_matrix, self.model.doc_term_matrix

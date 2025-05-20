@@ -1011,6 +1011,7 @@ class TopicContainer(ABC):
             template="plotly_white",
             hoverlabel=dict(font_size=16, bgcolor="white"),
             hovermode="x",
+            font=dict(family="Roboto Mono"),
         )
         fig.add_hline(y=0, line_dash="dash", opacity=0.5)
         fig.update_xaxes(title="Time Slice Start")
@@ -1120,7 +1121,7 @@ class TopicContainer(ABC):
                     text="<b> " + "<br> ".join(positive),
                     font=dict(
                         size=16,
-                        family="Times New Roman",
+                        family="Roboto Mono",
                         color="white",
                     ),
                     bgcolor="rgba(0,0,255, 0.5)",
@@ -1231,3 +1232,191 @@ class TopicContainer(ABC):
                 margin={"l": 0, "r": 0, "t": 0, "b": 0},
             )
             return fig
+
+    def plot_multimodal_topics(
+        self,
+        top_k: int = 10,
+        grid_size: int = 4,
+        raw_documents=None,
+        document_topic_matrix=None,
+    ):
+        """Plots all multimodal topics in a model along with top documents individually,
+        and provides a slider to switch between them.
+
+        Parameters
+        ----------
+        top_k: int = 10
+            Number of top words and documents to display.
+        grid_size: int, default 4
+            The square root of the number of images you want to display for a given topic.
+            For instance if grid_size==4, all topics will have 16 images displayed,
+            since the joint image will have 4 columns and 4 rows.
+        raw_documents: list of str, optional
+            List of documents to consider.
+        document_topic_matrix: ndarray of shape (n_documents, n_topics), optional
+            Document topic matrix to use. This is useful for transductive methods,
+            as they cannot infer topics from text.
+
+        """
+        if not hasattr(self, "top_images"):
+            raise ValueError(
+                "Model either has not been fit or was fit without images. top_images property missing."
+            )
+        try:
+            import plotly.express as px
+            import plotly.graph_objects as go
+            from plotly.subplots import make_subplots
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+        negative_images = getattr(self, "negative_images", None)
+        negative_topics = (
+            self.get_top_words(top_k=top_k, positive=False)
+            if negative_images is not None
+            else None
+        )
+        specs = [{"type": "image"}, {"type": "table"}]
+        if negative_images is not None:
+            specs.append({"type": "image"})
+        fig = make_subplots(
+            rows=1,
+            cols=2 if negative_images is None else 3,
+            specs=[specs],
+            shared_yaxes=True,
+            shared_xaxes=True,
+        )
+        width, height = 1200, 1200
+        topics = self.get_top_words(top_k=top_k)
+        n_topics = len(topics)
+        annotations = []
+        for i, topic in enumerate(topics):
+            images = self.top_images[i]
+            image = TopicContainer._image_grid(
+                images, (width, height), grid_size=(grid_size, grid_size)
+            )
+            trace = px.imshow(image).data[0]
+            trace.visible = False
+            fig.add_trace(trace, col=1, row=1)
+            annt = dict(
+                x=width / 2,
+                y=height / 2,
+                text="<b> " + "<br> ".join(topic),
+                font=dict(
+                    size=16,
+                    family="Roboto Mono",
+                    color="white",
+                ),
+                bgcolor="rgba(0,0,255, 0.5)",
+                xref="x",
+                yref="y",
+            )
+            annotations.append(annt)
+        if negative_topics is not None:
+            for i, negative_topic in enumerate(negative_topics):
+                images = negative_images[i]
+                image = TopicContainer._image_grid(
+                    images, (width, height), grid_size=(grid_size, grid_size)
+                )
+                trace = px.imshow(image).data[0]
+                trace.visible = False
+                fig.add_trace(trace, col=3, row=1)
+                annotations.append(
+                    dict(
+                        x=width / 2,
+                        y=height / 2,
+                        text="<b> " + "<br> ".join(negative_topic),
+                        font=dict(
+                            size=16,
+                            family="Roboto Mono",
+                            color="white",
+                        ),
+                        bgcolor="rgba(255,0,0, 0.5)",
+                        xref="x2",
+                        yref="y2",
+                    )
+                )
+        fig = fig.add_annotation(**annotations[0])
+        if negative_images is not None:
+            fig.add_annotation(**annotations[n_topics])
+        classes = getattr(self, "classes_", np.arange(n_topics))
+        for i, topic_id in enumerate(classes):
+            header, *cells = self._representative_docs(
+                topic_id,
+                raw_documents=raw_documents,
+                document_topic_matrix=document_topic_matrix,
+                top_k=top_k,
+                show_negative=negative_images is not None,
+            )
+            # Transposing cells
+            cells = [list(column) for column in zip(*cells)]
+            fig.add_trace(
+                go.Table(
+                    columnorder=[1, 2],
+                    columnwidth=[400, 80],
+                    header=dict(
+                        values=header,
+                        fill_color="white",
+                        line=dict(color="black", width=4),
+                        font=dict(
+                            family="Roboto Mono", color="black", size=20
+                        ),
+                    ),
+                    cells=dict(
+                        values=cells,
+                        fill_color="white",
+                        align="left",
+                        line=dict(color="black", width=2),
+                        font=dict(
+                            family="Roboto Mono", color="black", size=16
+                        ),
+                        height=40,
+                    ),
+                    visible=False,
+                ),
+                col=2,
+                row=1,
+            )
+        fig.data[0].visible = True
+        fig.data[n_topics].visible = True
+        if negative_images is not None:
+            fig.data[n_topics * 2].visible = True
+        fig = fig.update_layout(
+            margin={"l": 0, "r": 0, "t": 40, "b": 20},
+            template="plotly_white",
+            font=dict(family="Roboto Mono"),
+        )
+        fig = fig.update_xaxes(visible=False)
+        fig = fig.update_yaxes(visible=False)
+        steps = []
+        n_traces = n_topics * 2 if negative_images is None else n_topics * 3
+        for i, name in enumerate(self.topic_names):
+            _annt = [annotations[i]]
+            if negative_topics is not None:
+                _annt.append(annotations[n_topics + i])
+            step = dict(
+                method="update",
+                label=name,
+                args=[
+                    {"visible": [False] * n_traces},
+                    {
+                        "title": "Topic: " + name,
+                        "annotations": _annt,
+                    },
+                ],
+            )
+            step["args"][0]["visible"][i] = True
+            step["args"][0]["visible"][n_topics + i] = True
+            if negative_images is not None:
+                step["args"][0]["visible"][n_topics * 2 + i] = True
+            steps.append(step)
+        sliders = [
+            dict(
+                active=0,
+                currentvalue={"prefix": "Topic: "},
+                pad={"t": 50, "b": 20, "r": 40, "l": 40},
+                steps=steps,
+            )
+        ]
+        fig = fig.update_layout(sliders=sliders)
+        return fig

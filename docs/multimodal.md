@@ -61,16 +61,6 @@ All multimodal models have a `fit_multimodal()`/`fit_transform_multimodal()` met
 that you can use to discover topics in multimodal corpora.
 
 !!! quote "Fit a multimodal model on a corpus"
-    === "KeyNMF"
-
-        ```python
-        from turftopic import KeyNMF
-
-        model = KeyNMF(12, encoder="clip-ViT-B-32")
-        model.fit_multimodal(texts, images=images)
-        model.plot_topics_with_images()
-        ```
-
     === "SemanticSignalSeparation"
 
         ```python
@@ -78,8 +68,19 @@ that you can use to discover topics in multimodal corpora.
 
         model = SemanticSignalSeparation(12, encoder="clip-ViT-B-32")
         model.fit_multimodal(texts, images=images)
-        model.plot_topics_with_images()
+        model.plot_multimodal_topics()
         ```
+
+    === "KeyNMF"
+
+        ```python
+        from turftopic import KeyNMF
+
+        model = KeyNMF(12, encoder="clip-ViT-B-32")
+        model.fit_multimodal(texts, images=images)
+        model.plot_multimodal_topics()
+        ```
+
 
     === "Clustering Models"
 
@@ -91,7 +92,7 @@ that you can use to discover topics in multimodal corpora.
         # Top2Vec-style
         model = ClusteringTopicModel(encoder="clip-ViT-B-32", feature_importance="centroid")
         model.fit_multimodal(texts, images=images)
-        model.plot_topics_with_images()
+        model.plot_multimodal_topics()
         ```
 
     === "GMM"
@@ -101,7 +102,7 @@ that you can use to discover topics in multimodal corpora.
 
         model = GMM(12, encoder="clip-ViT-B-32")
         model.fit_multimodal(texts, images=images)
-        model.plot_topics_with_images()
+        model.plot_multimodal_topics()
         ```
 
     === "AutoEncodingTopicModel"
@@ -114,10 +115,10 @@ that you can use to discover topics in multimodal corpora.
         # ZeroShotTM
         model = AutoEncodingTopicModel(12, combined=False, encoder="clip-ViT-B-32")
         model.fit_multimodal(texts, images=images)
-        model.plot_topics_with_images()
+        model.plot_multimodal_topics()
         ```
 
-<iframe src="../images/multimodal.html", title="Multimodal KeyNMF on IKEA catalogue", style="height:350px;width:100%;padding:0px;border:none;"></iframe>
+<iframe src="../images/multimodal.html", title="Multimodal S^3 on IKEA catalogue", style="height:800px;width:1200px;padding:0px;border:none;"></iframe>
 
 ## API reference
 
