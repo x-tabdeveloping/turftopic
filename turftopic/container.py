@@ -298,8 +298,10 @@ class TopicContainer(ABC):
     ) -> list[list[str]]:
         if show_negative is None:
             show_negative = self.has_negative_side
-        raw_documents = raw_documents is not None or getattr(
-            self, "corpus", None
+        raw_documents = (
+            raw_documents
+            if raw_documents is not None
+            else getattr(self, "corpus", None)
         )
         if raw_documents is None:
             raise ValueError(
