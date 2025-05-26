@@ -19,8 +19,7 @@ nav:
      - Tutorial Overview: tutorials/overview.md
      - Analyzing the Landscape of Machine Learning Research: tutorials/arxiv_ml.md
      - Discourse Analysis on Morality and Religion: tutorials/religious.md
-     - Clustering Election Discourse on Social Media: tutorials/elections.md
-     - Dynamic Time Series Analysis of Financial News: tutorials/financial.md
+     - Discovering a Data-driven Political Compass: tutorials/ideologies.md
   - Models:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md
