@@ -14,10 +14,16 @@
 | [Informative Topic Descriptions](https://x-tabdeveloping.github.io/turftopic/vectorizers/) | :key: Keyphrases, Noun-phrases, Lemmatization, Stemming |
 
 
-## Basics [(Documentation)](https://x-tabdeveloping.github.io/turftopic/)
+## Basics
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
 
-For detailed model comparison and tutorials, consult our documentation: [Click here](https://x-tabdeveloping.github.io/turftopic/)
+For more details on a particular topic, you can consult our [documentation page](https://x-tabdeveloping.github.io/turftopic/):
+
+| | | |
+| - | - | - |
+|   :house: [Build and Train Topic Models](https://x-tabdeveloping.github.io/turftopic/model_definition_and_training) |  :art: [Explore, Interpret and Visualize your Models](https://x-tabdeveloping.github.io/turftopic/model_interpretation) | :wrench: [Modify and Fine-tune Topic Models](https://x-tabdeveloping.github.io/turftopic/finetuning) |
+|  :pushpin:  [Choose the Right Model for your Use-Case](https://x-tabdeveloping.github.io/turftopic/model_overview) |  :chart_with_upwards_trend: [Explore Topics Changing over Time](https://x-tabdeveloping.github.io/turftopic/dynamic)   |  :newspaper: [Use Phrases or Lemmas for Topic Models](https://x-tabdeveloping.github.io/turftopic/vectorizers) |
+| :ocean: [Extract Topics from a Stream of Documents](https://x-tabdeveloping.github.io/turftopic/online) |  :evergreen_tree: [Find Hierarchical Order in Topics](https://x-tabdeveloping.github.io/turftopic/hierarchical) |  :whale: [Name Topics with Large Language Models](https://x-tabdeveloping.github.io/turftopic/namers) |
 
 ### Installation
 
@@ -53,7 +59,8 @@ newsgroups = fetch_20newsgroups(
     subset="all",
     remove=("headers", "footers", "quotes"),
 )
-corpus = newsgroups.data
+corpus: list[str] = newsgroups.data
+print(len(corpus)) # 18846
 ```
 
 Turftopic also comes with interpretation tools that make it easy to display and understand your results.
