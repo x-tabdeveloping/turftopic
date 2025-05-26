@@ -20,6 +20,7 @@ nav:
      - Analyzing the Landscape of Machine Learning Research: tutorials/arxiv_ml.md
      - Discourse Analysis on Morality and Religion: tutorials/religious.md
      - Discovering a Data-driven Political Compass: tutorials/ideologies.md
+     - Customer Dissatisfaction Analysis: tutorials/reviews.md
   - Models:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md
@@ -67,6 +68,7 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - admonition
+  - tables
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.tabbed:
