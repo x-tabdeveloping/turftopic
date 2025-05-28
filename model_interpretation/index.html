@@ -1168,7 +1168,7 @@
 
 <h1 id="interpreting-and-visualizing-models">Interpreting and Visualizing Models</h1>
 <p>Interpreting topic models can be challenging. Luckily Turftopic comes loaded with a bunch of utilities you can use for interpreting your topic models.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">topic_data</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">prepare_topic_data</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -1184,7 +1184,7 @@
 <span class="c1"># or</span>
 <span class="n">topic_data</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
 </code></pre></div>
-<center>
+<p><center></p>
 <table>
 <thead>
 <tr>
@@ -1215,7 +1215,7 @@
 </tr>
 </tbody>
 </table>
-</center>
+<p></center></p>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="c1"># Print highest ranking documents for topic 0</span>
@@ -1224,7 +1224,7 @@
 <span class="c1"># since topic_data already stores the corpus and the doc-topic-matrix, you only need to give a topic ID</span>
 <span class="n">topic_data</span><span class="o">.</span><span class="n">print_representative_documents</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </code></pre></div>
-<center>
+<p><center></p>
 <table>
 <thead>
 <tr>
@@ -1247,7 +1247,7 @@
 </tr>
 </tbody>
 </table>
-</center>
+<p></center></p>
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><span class="n">document</span> <span class="o">=</span> <span class="s2">&quot;I think guns should definitely banned from all public institutions, such as schools.&quot;</span>
@@ -1256,7 +1256,7 @@
 <span class="c1"># or </span>
 <span class="n">topic_data</span><span class="o">.</span><span class="n">print_topic_distribution</span><span class="p">(</span><span class="n">document</span><span class="p">)</span>
 </code></pre></div>
-<center>
+<p><center></p>
 <table>
 <thead>
 <tr>
@@ -1287,7 +1287,7 @@
 </tr>
 </tbody>
 </table>
-</center>
+<p></center></p>
 </div>
 </div>
 </div>
@@ -1338,7 +1338,7 @@ You can launch the app either using a <a href="../topic_data/"><code>TopicData</
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">topicwizard</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">topicwizard</span>
 
 <span class="n">topicwizard</span><span class="o">.</span><span class="n">visualize</span><span class="p">(</span><span class="n">corpus</span><span class="o">=</span><span class="n">documents</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 </code></pre></div>
@@ -1396,8 +1396,8 @@ Almost all figures in the Figures API can be called on the <code>figures</code> 
 You will first have to install <code>datamapplot</code> for this to work:</p>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>datamapplot<span class="o">]</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.namers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAITopicNamer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
+<span class="kn">from</span> <span class="nn">turftopic.namers</span> <span class="kn">import</span> <span class="n">OpenAITopicNamer</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">(</span><span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 
@@ -1426,8 +1426,8 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
 <div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Automated</label><label for="__tabbed_5_2">Manual</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.namers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAITopicNamer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic.namers</span> <span class="kn">import</span> <span class="n">OpenAITopicNamer</span>
 
 <span class="n">namer</span> <span class="o">=</span> <span class="n">OpenAITopicNamer</span><span class="p">(</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">rename_topics</span><span class="p">(</span><span class="n">namer</span><span class="p">)</span>
@@ -1467,7 +1467,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
 </table>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">rename_topics</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;New name for topic 0&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;New name for topic 5&quot;</span><span class="p">})</span>
@@ -2907,14 +2907,14 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
 <span class="normal">1425</span>
 <span class="normal">1426</span>
 <span class="normal">1427</span>
-<span class="normal">1428</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TopicContainer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="normal">1428</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">TopicContainer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for classes that contain topical information.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">has_negative_side</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">has_negative_side</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns high-level topic representations in form of the top K words</span>
@@ -2952,7 +2952,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">topics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic_data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">topics</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_top_terms</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_top_terms</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">positive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2968,7 +2968,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
                 <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">vocab</span><span class="p">[</span><span class="n">highest</span><span class="p">]))</span>
         <span class="k">return</span> <span class="n">terms</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_top_words</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_top_words</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">positive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of top words for each topic.</span>
@@ -2983,7 +2983,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_terms</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">positive</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_top_documents</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_top_documents</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -3025,7 +3025,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">docs</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">raw_documents</span><span class="p">[</span><span class="n">i_doc</span><span class="p">]</span> <span class="k">for</span> <span class="n">i_doc</span> <span class="ow">in</span> <span class="n">highest</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">docs</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_top_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">positive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_top_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">positive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns list of top images for each topic.</span>
 
 <span class="sd">        Parameters</span>
@@ -3054,11 +3054,11 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">ims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topic_images</span><span class="p">[:</span><span class="n">top_k</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">ims</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_rename_automatic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namer</span><span class="p">:</span> <span class="n">TopicNamer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_rename_automatic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namer</span><span class="p">:</span> <span class="n">TopicNamer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">topic_names_</span> <span class="o">=</span> <span class="n">namer</span><span class="o">.</span><span class="n">name_topics</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_top_terms</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">topic_names_</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_topics_table</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_topics_table</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3114,7 +3114,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">print_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3151,7 +3151,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">export_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">export_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3178,7 +3178,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_representative_docs</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_representative_docs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">topic_id</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -3251,7 +3251,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
                 <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">doc</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_representative_documents</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">print_representative_documents</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">topic_id</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -3292,7 +3292,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">export_representative_documents</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">export_representative_documents</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">topic_id</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -3330,7 +3330,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">topic_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">topic_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Names of the topics based on the highest scoring 4 terms.&quot;&quot;&quot;</span>
         <span class="n">topic_names</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;topic_names_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">topic_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3342,7 +3342,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">names</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">rename_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">rename_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">TopicNamer</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rename topics in a model manually or automatically, using a namer.</span>
@@ -3383,7 +3383,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">topic_names_</span> <span class="o">=</span> <span class="n">names</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_topic_distribution</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_topic_distribution</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="n">topic_dist</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -3410,7 +3410,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">topic_names</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_topic_distribution</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">print_topic_distribution</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Pretty prints topic distribution in a document.</span>
@@ -3435,7 +3435,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">export_topic_distribution</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">export_topic_distribution</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Exports topic distribution as a text table.</span>
@@ -3457,7 +3457,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topic_distribution</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">topic_dist</span><span class="p">,</span> <span class="n">top_k</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">topics_df</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">topics_df</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3475,7 +3475,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
 <span class="sd">            Indicates whether the most negative terms should also be displayed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+            <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
         <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;You need to pip install pandas to be able to use dataframes.&quot;</span>
@@ -3483,7 +3483,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topics_table</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">,</span> <span class="n">show_negative</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">representative_documents_df</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">representative_documents_df</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">topic_id</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -3508,7 +3508,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
 <span class="sd">            Indicates whether lowest ranking documents should also be shown.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+            <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
         <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;You need to pip install pandas to be able to use dataframes.&quot;</span>
@@ -3563,7 +3563,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
                 <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">doc</span><span class="p">,</span> <span class="n">score</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">topic_distribution_df</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">topic_distribution_df</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extracts topic distribution into a dataframe.</span>
@@ -3580,7 +3580,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
 <span class="sd">            Top K topics to show.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+            <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
         <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;You need to pip install pandas to be able to use dataframes.&quot;</span>
@@ -3609,7 +3609,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">topic_names</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">score</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_time_slices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">get_time_slices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns starting and ending datetime of</span>
 <span class="sd">        each timeslice in the model.&quot;&quot;&quot;</span>
         <span class="n">bins</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;time_bin_edges&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -3622,7 +3622,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">bins</span><span class="p">[</span><span class="n">i_bin</span><span class="p">],</span> <span class="n">slice_end</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">res</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_topics_over_time</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_topics_over_time</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns high-level topic representations in form of the top K words</span>
@@ -3669,7 +3669,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">topics</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_topics_over_time</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_topics_over_time</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3732,7 +3732,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">columns</span><span class="p">,</span> <span class="o">*</span><span class="n">rows</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_topics_over_time</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">print_topics_over_time</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3758,7 +3758,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">export_topics_over_time</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">export_topics_over_time</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3780,20 +3780,20 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topics_over_time</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">,</span> <span class="n">date_format</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">export_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">topics_over_time_df</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">topics_over_time_df</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+            <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
         <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;You need to pip install pandas to be able to use dataframes.&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">parse_time_slice</span><span class="p">(</span><span class="nb">slice</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">parse_time_slice</span><span class="p">(</span><span class="nb">slice</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]:</span>
             <span class="n">date_format</span> <span class="o">=</span> <span class="s2">&quot;%Y %m </span><span class="si">%d</span><span class="s2">&quot;</span>
             <span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span> <span class="o">=</span> <span class="nb">slice</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; - &quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
@@ -3805,7 +3805,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Time Slice&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Time Slice&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">parse_time_slice</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">plot_topics_over_time</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">plot_topics_over_time</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
         <span class="n">color_discrete_sequence</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3839,12 +3839,12 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
 <span class="sd">            HTML or static image.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+            <span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+            <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="n">temporal_components</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;temporal_components_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">temporal_components</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
@@ -3915,7 +3915,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
         <span class="k">return</span> <span class="n">fig</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_image_grid</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_image_grid</span><span class="p">(</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">],</span>
         <span class="n">final_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1200</span><span class="p">,</span> <span class="mi">1200</span><span class="p">),</span>
         <span class="n">grid_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
@@ -3933,7 +3933,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="n">grid_img</span><span class="o">.</span><span class="n">paste</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">x_offset</span><span class="p">,</span> <span class="n">y_offset</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">grid_img</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">plot_topics_with_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot_topics_with_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Plots the most important images for each topic, along with keywords.</span>
 
 <span class="sd">        Note that you will need to `pip install plotly` to use plots in Turftopic.</span>
@@ -3957,11 +3957,11 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
                 <span class="s2">&quot;Model either has not been fit or was fit without images. top_images property missing.&quot;</span>
             <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+            <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="n">negative_images</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;negative_images&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">negative_images</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># If the model has negative images, it should display them side by side with the positive ones.</span>
@@ -4129,7 +4129,7 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">fig</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">plot_multimodal_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">plot_multimodal_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
@@ -4159,13 +4159,13 @@ See a our detailed guide about <a href="../namers.md">Namers</a> to learn how yo
                 <span class="s2">&quot;Model either has not been fit or was fit without images. top_images property missing.&quot;</span>
             <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">plotly.subplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_subplots</span>
+            <span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+            <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
+            <span class="kn">from</span> <span class="nn">plotly.subplots</span> <span class="kn">import</span> <span class="n">make_subplots</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="n">negative_images</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;negative_images&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">negative_topics</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_top_words</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="n">top_k</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -4502,7 +4502,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">437</span>
 <span class="normal">438</span>
 <span class="normal">439</span>
-<span class="normal">440</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_representative_documents</span><span class="p">(</span>
+<span class="normal">440</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">export_representative_documents</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">topic_id</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -4653,7 +4653,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">565</span>
 <span class="normal">566</span>
 <span class="normal">567</span>
-<span class="normal">568</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_topic_distribution</span><span class="p">(</span>
+<span class="normal">568</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">export_topic_distribution</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exports topic distribution as a text table.</span>
@@ -4796,7 +4796,7 @@ Returns table as a pure string.</p>
 <span class="normal">286</span>
 <span class="normal">287</span>
 <span class="normal">288</span>
-<span class="normal">289</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_topics</span><span class="p">(</span>
+<span class="normal">289</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">export_topics</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -4923,7 +4923,7 @@ Returns table as a pure string.</p>
 <span class="normal">888</span>
 <span class="normal">889</span>
 <span class="normal">890</span>
-<span class="normal">891</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">export_topics_over_time</span><span class="p">(</span>
+<span class="normal">891</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">export_topics_over_time</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
     <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -4979,7 +4979,7 @@ each timeslice in the model.</p>
 <span class="normal">730</span>
 <span class="normal">731</span>
 <span class="normal">732</span>
-<span class="normal">733</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_time_slices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]]:</span>
+<span class="normal">733</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_time_slices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">datetime</span><span class="p">,</span> <span class="n">datetime</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns starting and ending datetime of</span>
 <span class="sd">    each timeslice in the model.&quot;&quot;&quot;</span>
     <span class="n">bins</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;time_bin_edges&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -5099,7 +5099,7 @@ or lowest scoring documents should be returned.</p>
 <span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span>
-<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_top_documents</span><span class="p">(</span>
+<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_top_documents</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">document_topic_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -5235,7 +5235,7 @@ or lowest scoring images should be returned.</p>
 <span class="normal">162</span>
 <span class="normal">163</span>
 <span class="normal">164</span>
-<span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_top_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">positive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_top_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">positive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns list of top images for each topic.</span>
 
 <span class="sd">    Parameters</span>
@@ -5344,7 +5344,7 @@ or lowest scoring terms should be returned.</p>
 <span class="normal">91</span>
 <span class="normal">92</span>
 <span class="normal">93</span>
-<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_top_words</span><span class="p">(</span>
+<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_top_words</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">positive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns list of top words for each topic.</span>
@@ -5474,7 +5474,7 @@ Top k words are a list of (word, word_importance) pairs.</p>
 <span class="normal">60</span>
 <span class="normal">61</span>
 <span class="normal">62</span>
-<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_topics</span><span class="p">(</span>
+<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_topics</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns high-level topic representations in form of the top K words</span>
@@ -5637,7 +5637,7 @@ Top k words are a list of (word, word_importance) pairs.</p>
 <span class="normal">777</span>
 <span class="normal">778</span>
 <span class="normal">779</span>
-<span class="normal">780</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_topics_over_time</span><span class="p">(</span>
+<span class="normal">780</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_topics_over_time</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns high-level topic representations in form of the top K words</span>
@@ -5966,7 +5966,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">1425</span>
 <span class="normal">1426</span>
 <span class="normal">1427</span>
-<span class="normal">1428</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_multimodal_topics</span><span class="p">(</span>
+<span class="normal">1428</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_multimodal_topics</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
@@ -5996,13 +5996,13 @@ as they cannot infer topics from text.</p>
             <span class="s2">&quot;Model either has not been fit or was fit without images. top_images property missing.&quot;</span>
         <span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">plotly.subplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_subplots</span>
+        <span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+        <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
+        <span class="kn">from</span> <span class="nn">plotly.subplots</span> <span class="kn">import</span> <span class="n">make_subplots</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
             <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
     <span class="n">negative_images</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;negative_images&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">negative_topics</span> <span class="o">=</span> <span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_top_words</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="n">top_k</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -6213,7 +6213,7 @@ as they cannot infer topics from text.</p>
             <div class="doc-md-description">
               <p>Color palette to use in the plot.
 Example:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
 <span class="n">model</span><span class="o">.</span><span class="n">plot_topics_over_time</span><span class="p">(</span><span class="n">color_discrete_sequence</span><span class="o">=</span><span class="n">px</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">qualitative</span><span class="o">.</span><span class="n">Light24</span><span class="p">)</span>
 </code></pre></div>
             </div>
@@ -6374,7 +6374,7 @@ HTML or static image.</p>
 <span class="normal">1022</span>
 <span class="normal">1023</span>
 <span class="normal">1024</span>
-<span class="normal">1025</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_topics_over_time</span><span class="p">(</span>
+<span class="normal">1025</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_topics_over_time</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
     <span class="n">color_discrete_sequence</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -6408,12 +6408,12 @@ HTML or static image.</p>
 <span class="sd">        HTML or static image.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+        <span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+        <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
             <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
     <span class="n">temporal_components</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;temporal_components_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">temporal_components</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
@@ -6770,7 +6770,7 @@ since the joint image will have 4 columns and 4 rows.</p>
 <span class="normal">1237</span>
 <span class="normal">1238</span>
 <span class="normal">1239</span>
-<span class="normal">1240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_topics_with_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+<span class="normal">1240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_topics_with_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Plots the most important images for each topic, along with keywords.</span>
 
 <span class="sd">    Note that you will need to `pip install plotly` to use plots in Turftopic.</span>
@@ -6794,11 +6794,11 @@ since the joint image will have 4 columns and 4 rows.</p>
             <span class="s2">&quot;Model either has not been fit or was fit without images. top_images property missing.&quot;</span>
         <span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+        <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
             <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
     <span class="n">negative_images</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;negative_images&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">negative_images</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># If the model has negative images, it should display them side by side with the positive ones.</span>
@@ -7110,7 +7110,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">400</span>
 <span class="normal">401</span>
 <span class="normal">402</span>
-<span class="normal">403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_representative_documents</span><span class="p">(</span>
+<span class="normal">403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_representative_documents</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">topic_id</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -7254,7 +7254,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">543</span>
 <span class="normal">544</span>
 <span class="normal">545</span>
-<span class="normal">546</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_topic_distribution</span><span class="p">(</span>
+<span class="normal">546</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_topic_distribution</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Pretty prints topic distribution in a document.</span>
@@ -7394,7 +7394,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">259</span>
 <span class="normal">260</span>
 <span class="normal">261</span>
-<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_topics</span><span class="p">(</span>
+<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_topics</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -7521,7 +7521,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">866</span>
 <span class="normal">867</span>
 <span class="normal">868</span>
-<span class="normal">869</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_topics_over_time</span><span class="p">(</span>
+<span class="normal">869</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_topics_over_time</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
     <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -7646,7 +7646,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">491</span>
 <span class="normal">492</span>
 <span class="normal">493</span>
-<span class="normal">494</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rename_topics</span><span class="p">(</span>
+<span class="normal">494</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">rename_topics</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">TopicNamer</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Rename topics in a model manually or automatically, using a namer.</span>
@@ -7870,7 +7870,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">671</span>
 <span class="normal">672</span>
 <span class="normal">673</span>
-<span class="normal">674</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">representative_documents_df</span><span class="p">(</span>
+<span class="normal">674</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">representative_documents_df</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">topic_id</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -7895,7 +7895,7 @@ as they cannot infer topics from text.</p>
 <span class="sd">        Indicates whether lowest ranking documents should also be shown.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+        <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
     <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
             <span class="s2">&quot;You need to pip install pandas to be able to use dataframes.&quot;</span>
@@ -8074,7 +8074,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">717</span>
 <span class="normal">718</span>
 <span class="normal">719</span>
-<span class="normal">720</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">topic_distribution_df</span><span class="p">(</span>
+<span class="normal">720</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">topic_distribution_df</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topic_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts topic distribution into a dataframe.</span>
@@ -8091,7 +8091,7 @@ as they cannot infer topics from text.</p>
 <span class="sd">        Top K topics to show.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+        <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
     <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
             <span class="s2">&quot;You need to pip install pandas to be able to use dataframes.&quot;</span>
@@ -8224,7 +8224,7 @@ as they cannot infer topics from text.</p>
 <span class="normal">591</span>
 <span class="normal">592</span>
 <span class="normal">593</span>
-<span class="normal">594</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">topics_df</span><span class="p">(</span>
+<span class="normal">594</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">topics_df</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -8242,7 +8242,7 @@ as they cannot infer topics from text.</p>
 <span class="sd">        Indicates whether the most negative terms should also be displayed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+        <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
     <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
             <span class="s2">&quot;You need to pip install pandas to be able to use dataframes.&quot;</span>

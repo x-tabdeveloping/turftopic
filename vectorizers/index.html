@@ -1182,7 +1182,7 @@ Just define a custom vectorizer with an <code>n_gram_range</code>.</p>
 <p>While this option is naive, and will likely yield the lowest quality results, it is also incredibly fast in comparison to other phrase vectorization techniques.
 It might, however be slower, if the topic model encodes its vocabulary when fitting.</p>
 </div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_extraction.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">CountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
 
 <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">stop_words</span><span class="o">=</span><span class="s2">&quot;english&quot;</span><span class="p">)</span>
 
@@ -1231,8 +1231,8 @@ The default pipeline is English, and you should install it before attempting to 
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>spacy<span class="w"> </span>download<span class="w"> </span>en_core_web_sm
 </code></pre></div>
 <p>Using SpaCy pipelines will substantially slow down model fitting, but the results might be more correct and higher quality than with naive n-gram extraction.
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.spacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">NounPhraseCountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic.vectorizers.spacy</span> <span class="kn">import</span> <span class="n">NounPhraseCountVectorizer</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span>
     <span class="n">n_components</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
@@ -1282,7 +1282,7 @@ KeyphraseVectorizers can potentially be faster as the dependency parser componen
 This vectorizer is not part of the Turftopic package, but can be easily used with it out of the box.</p>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>keyphrase-vectorizers
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">keyphrase_vectorizers</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyphraseCountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">keyphrase_vectorizers</span> <span class="kn">import</span> <span class="n">KeyphraseCountVectorizer</span>
 
 <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">KeyphraseCountVectorizer</span><span class="p">()</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">vectorizer</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -1299,8 +1299,8 @@ This means you will have to install SpaCy and a SpaCy pipeline to be able to use
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>spacy<span class="o">]</span>
 python<span class="w"> </span>-m<span class="w"> </span>spacy<span class="w"> </span>download<span class="w"> </span>en_core_web_sm
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.spacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">LemmaCountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic.vectorizers.spacy</span> <span class="kn">import</span> <span class="n">LemmaCountVectorizer</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">LemmaCountVectorizer</span><span class="p">(</span><span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">))</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -1354,8 +1354,8 @@ In that case you should try stemming! Stemming is available in Turftopic via the
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>snowball<span class="o">]</span>
 </code></pre></div>
 <p>Then you can initialize a topic model with this vectorizer:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.snowball</span><span class="w"> </span><span class="kn">import</span> <span class="n">StemmingCountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic.vectorizers.snowball</span> <span class="kn">import</span> <span class="n">StemmingCountVectorizer</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">StemmingCountVectorizer</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">&quot;english&quot;</span><span class="p">))</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -1408,8 +1408,8 @@ We provide a vectorizer that you can use with the language of your choice.</p>
 <p>Note that you do not have to install any SpaCy pipelines for this to work.
 No pipelines or models will be loaded with <code>TokenCountVectorizer</code> only a language-specific tokenizer.</p>
 </div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.spacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenCountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic.vectorizers.spacy</span> <span class="kn">import</span> <span class="n">TokenCountVectorizer</span>
 
 <span class="c1"># CountVectorizer for Arabic</span>
 <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TokenCountVectorizer</span><span class="p">(</span><span class="s2">&quot;ar&quot;</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -1433,8 +1433,8 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>jieba<span class="o">]</span>
 </code></pre></div>
 <p>You can then use the <code>ChineseCountVectorizer</code> object, which comes preloaded with the jieba tokenizer along with a Chinese stop word list.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.chinese</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChineseCountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic.vectorizers.chinese</span> <span class="kn">import</span> <span class="n">ChineseCountVectorizer</span>
 
 <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">ChineseCountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">stop_words</span><span class="o">=</span><span class="s2">&quot;chinese&quot;</span><span class="p">)</span>
 
@@ -1596,7 +1596,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span>
-<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NounPhraseCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">NounPhraseCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts Noun phrases from text using SpaCy.</span>
 
 <span class="sd">    Parameters</span>
@@ -1605,7 +1605,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
 <span class="sd">        A Spacy pipeline or its name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">nlp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Language</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1652,7 +1652,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
             <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">nounphrase_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">nounphrase_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">noun_chunks</span><span class="p">:</span>
@@ -1665,7 +1665,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
                 <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phrase</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tokens</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nounphrase_tokenize</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -1807,7 +1807,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
 <span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
-<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LemmaCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">LemmaCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts lemmata from text using SpaCy.</span>
 
 <span class="sd">    Parameters</span>
@@ -1816,7 +1816,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
 <span class="sd">        A Spacy pipeline or its name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">nlp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Language</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1863,7 +1863,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
             <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">lemma_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">lemma_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
@@ -1872,7 +1872,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
             <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">lemma_</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">tokens</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lemma_tokenize</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2050,7 +2050,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
-<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TokenCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">TokenCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tokenizes text with SpaCy using its language-specific tokenization rules and stop-word lists</span>
 
 <span class="sd">    Parameters</span>
@@ -2063,7 +2063,7 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
 <span class="sd">        Indicates whether only tokens containing alphabetical characters should be kept.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">language_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
         <span class="n">remove_stop_words</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -2110,10 +2110,10 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
             <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">blank</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language_code</span><span class="p">)</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
@@ -2222,10 +2222,10 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
 <span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
-<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">StemmingCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">StemmingCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extractes stemmed words from documents using Snowball.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">language</span><span class="o">=</span><span class="s2">&quot;english&quot;</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -2269,10 +2269,10 @@ Turftopic provides tools for Chinese tokenization via the <a href="https://githu
             <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">super_tokenizer</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_tokenizer</span><span class="p">()</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stemmer</span><span class="o">.</span><span class="n">stemWords</span><span class="p">(</span><span class="n">super_tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">tokenizer</span>
@@ -2367,12 +2367,12 @@ You have to specify stop_words="chinese" for this to kick into effect.</p>
 <span class="normal">1122</span>
 <span class="normal">1123</span>
 <span class="normal">1124</span>
-<span class="normal">1125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ChineseCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="normal">1125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">ChineseCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Chinese count vectorizer. Does word segmentation with Jieba, and includes a chinese stop words list.</span>
 <span class="sd">    You have to specify stop_words=&quot;chinese&quot; for this to kick into effect.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="nb">input</span><span class="o">=</span><span class="s2">&quot;content&quot;</span><span class="p">,</span>

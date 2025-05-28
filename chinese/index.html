@@ -1082,10 +1082,10 @@ To offset for the complexity introduced by this, we include a submodule in Turft
 <h2 id="data">Data</h2>
 <p>For this demonstration I will use the ThuNews corpus from the Chinese MTEB.
 You will need to install <code>datasets</code> to be able to download the dataset.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">random</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
 
 <span class="c1"># Loads the dataset</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;C-MTEB/ThuNewsClusteringP2P&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
@@ -1101,25 +1101,25 @@ We include a Chinese version of <code>CountVectorizer</code> that uses Jieba by 
 <p>You will have to install <code>jieba</code> for this to work:
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>jieba<span class="o">]</span>
 </code></pre></div></p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.chinese</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChineseCountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic.vectorizers.chinese</span> <span class="kn">import</span> <span class="n">ChineseCountVectorizer</span>
 
 <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">ChineseCountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">stop_words</span><span class="o">=</span><span class="s2">&quot;chinese&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p>We also provide a sensible default which is just a <code>ChineseCountVectorizer</code> with <code>min_df=10</code> and <code>stop_words="chinese"</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.chinese</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_chinese_vectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic.chinese</span> <span class="kn">import</span> <span class="n">default_chinese_vectorizer</span>
 
 <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">default_chinese_vectorizer</span><span class="p">()</span>
 </code></pre></div>
 <h2 id="encoder">Encoder</h2>
 <p>You will need to use a different encoder model for your topic models, since <code>all-MiniLM-L6-v2</code> does not support Chinese by default.
 We recommend the <a href="https://huggingface.co/collections/BAAI/bge-66797a74476eb1f085c7446d">BGE-zh model family</a> for this purpose.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
 
 <span class="n">encoder</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;BAAI/bge-small-zh-v1.5&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="defining-a-chinese-topic-model">Defining a Chinese topic model</h2>
 <p>Once having defined these steps, you can pass these arguments when initializing your topic model.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span>
     <span class="n">n_components</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>

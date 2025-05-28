@@ -1162,7 +1162,7 @@ These models can be fitted in minibatches instead of the entire corpus at the sa
 <blockquote>
 <p>In newer versions of Python (&gt;=3.12) you can just <code>from itertools import batched</code></p>
 </blockquote>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">batched</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">batched</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="s2">&quot;Batch data into lists of length n. The last batch may be shorter.&quot;</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n must be at least one&quot;</span><span class="p">)</span>
@@ -1171,7 +1171,7 @@ These models can be fitted in minibatches instead of the entire corpus at the sa
         <span class="k">yield</span> <span class="n">batch</span>
 </code></pre></div>
 <p>You can fit a model to a very large corpus in batches like so:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">top_n</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
@@ -1190,7 +1190,7 @@ These models can be fitted in minibatches instead of the entire corpus at the sa
 <p>You can pretrain a topic model on a large corpus and then finetune it on a novel corpus the model has not seen before.
 This will morph the model's topics to the corpus at hand.</p>
 <p>In this example I will load a pretrained KeyNMF model from disk. (see <a href="../persistence/">Model Loading and Saving</a>)</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_model</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">load_model</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;pretrained_keynmf_model&quot;</span><span class="p">)</span>
 
@@ -1205,15 +1205,15 @@ This will morph the model's topics to the corpus at hand.</p>
 You can still do this with <code>partial_fit()</code>, you just have to be careful to correctly match the embedding indices with the corpus indices.</p>
 <p>We provide an example of correct usage here.</p>
 <p>You might have a <code>utils.py</code> file with a function to load your corpus:
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_corpus</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">load_corpus</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Function that loads the corpus from some source.&quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></p>
 <p>Then you have a file which computes the embeddings and saves them to disk:
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformers</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformers</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_corpus</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">load_corpus</span>
 
 <span class="n">corpus</span> <span class="o">=</span> <span class="n">load_corpus</span><span class="p">()</span>
 
@@ -1223,10 +1223,10 @@ You can still do this with <code>partial_fit()</code>, you just have to be caref
 <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;embeddings.npy&quot;</span><span class="p">)</span>
 </code></pre></div></p>
 <p>This file then trains the model on the precomputed embeddings:
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_corpus</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">load_corpus</span>
 
 <span class="n">corpus</span> <span class="o">=</span> <span class="n">load_corpus</span><span class="p">()</span>
 <span class="n">embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;embeddings.npy&quot;</span><span class="p">)</span>

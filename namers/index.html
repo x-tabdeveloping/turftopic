@@ -1156,8 +1156,8 @@ This is done by instructing the language model to generate a topic name based on
 <h3 id="running-llms-locally">Running LLMs locally</h3>
 <p>You can use any LLM from the HuggingFace Hub to generate topic names on your own machine.
 The default in Turftopic is <a href="https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct">SmolLM</a>, due to it's small size and speed, but we recommend using larger LLMs for higher quality topic names, especially in multilingual contexts.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.namers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMTopicNamer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic.namers</span> <span class="kn">import</span> <span class="n">LLMTopicNamer</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 
@@ -1237,7 +1237,7 @@ Luckily Turftopic allows you to use OpenAI's chat models for topic naming too!</
 <span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;sk-&lt;your key goes here&gt;&quot;</span>
 </code></pre></div></p>
 </div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.namers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAITopicNamer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic.namers</span> <span class="kn">import</span> <span class="n">OpenAITopicNamer</span>
 
 <span class="n">namer</span> <span class="o">=</span> <span class="n">OpenAITopicNamer</span><span class="p">(</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">rename_topics</span><span class="p">(</span><span class="n">namer</span><span class="p">)</span>
@@ -1306,7 +1306,7 @@ Luckily Turftopic allows you to use OpenAI's chat models for topic naming too!</
 </table>
 <h3 id="prompting">Prompting</h3>
 <p>Since these namers use chat-finetuned LLMs you can freely define custom prompts for topic name generation:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.namers</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAITopicNamer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic.namers</span> <span class="kn">import</span> <span class="n">OpenAITopicNamer</span>
 
 <span class="n">system_prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">You are a topic namer. When the user gives you a set of keywords, you respond with a name for the topic they describe.</span>
@@ -1326,7 +1326,7 @@ Luckily Turftopic allows you to use OpenAI's chat models for topic naming too!</
 <h2 id="n-gram-patterns">N-gram Patterns</h2>
 <p>You can also name topics based on the semantically closest n-grams from the corpus to the topic descriptions.
 This method typically results in lower quality names, but might be good enough for your use case.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.namers</span><span class="w"> </span><span class="kn">import</span> <span class="n">NgramTopicNamer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic.namers</span> <span class="kn">import</span> <span class="n">NgramTopicNamer</span>
 
 <span class="n">namer</span> <span class="o">=</span> <span class="n">NgramTopicNamer</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">rename_topics</span><span class="p">(</span><span class="n">namer</span><span class="p">)</span>
@@ -1453,9 +1453,9 @@ This method typically results in lower quality names, but might be good enough f
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
-<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TopicNamer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">TopicNamer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">name_topic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">name_topic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1473,7 +1473,7 @@ This method typically results in lower quality names, but might be good enough f
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">name_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">name_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -1601,7 +1601,7 @@ This method typically results in lower quality names, but might be good enough f
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">name_topic</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">name_topic</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1714,7 +1714,7 @@ This method typically results in lower quality names, but might be good enough f
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
-<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">name_topics</span><span class="p">(</span>
+<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">name_topics</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -1884,7 +1884,7 @@ This method typically results in lower quality names, but might be good enough f
 <span class="normal">47</span>
 <span class="normal">48</span>
 <span class="normal">49</span>
-<span class="normal">50</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LLMTopicNamer</span><span class="p">(</span><span class="n">TopicNamer</span><span class="p">):</span>
+<span class="normal">50</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">LLMTopicNamer</span><span class="p">(</span><span class="n">TopicNamer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Name topics with an instruction-finetuned LLM, e.g. Zephyr-7b-beta</span>
 
 <span class="sd">    Parameters</span>
@@ -1899,7 +1899,7 @@ This method typically results in lower quality names, but might be good enough f
 <span class="sd">        Device to run the model on.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HuggingFaceTB/SmolLM2-1.7B-Instruct&quot;</span><span class="p">,</span>
         <span class="n">prompt_template</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_PROMPT</span><span class="p">,</span>
@@ -1914,7 +1914,7 @@ This method typically results in lower quality names, but might be good enough f
             <span class="s2">&quot;text-generation&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">name_topic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">name_topic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -2067,7 +2067,7 @@ This method typically results in lower quality names, but might be good enough f
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OpenAITopicNamer</span><span class="p">(</span><span class="n">TopicNamer</span><span class="p">):</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">OpenAITopicNamer</span><span class="p">(</span><span class="n">TopicNamer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Name topics with an OpenAI model.</span>
 
 <span class="sd">    Parameters</span>
@@ -2080,7 +2080,7 @@ This method typically results in lower quality names, but might be good enough f
 <span class="sd">        System prompt to use for the language model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
         <span class="n">prompt_template</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_PROMPT</span><span class="p">,</span>
@@ -2091,7 +2091,7 @@ This method typically results in lower quality names, but might be good enough f
         <span class="bp">self</span><span class="o">.</span><span class="n">prompt_template</span> <span class="o">=</span> <span class="n">prompt_template</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system_prompt</span> <span class="o">=</span> <span class="n">system_prompt</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">name_topic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">name_topic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -2316,7 +2316,7 @@ Can be used to prune or filter the vocabulary.</p>
 <span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NgramTopicNamer</span><span class="p">(</span><span class="n">TopicNamer</span><span class="p">):</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">NgramTopicNamer</span><span class="p">(</span><span class="n">TopicNamer</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieves the most similar n-grams from a corpus using an encoder model</span>
 <span class="sd">    to the topic descriptions, these will be assigned as topic names.</span>
 
@@ -2335,7 +2335,7 @@ Can be used to prune or filter the vocabulary.</p>
 <span class="sd">        Can be used to prune or filter the vocabulary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">corpus</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
@@ -2372,14 +2372,14 @@ Can be used to prune or filter the vocabulary.</p>
             <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;N-grams encoded&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_encoder_promptable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">is_encoder_promptable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">prompts</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="s2">&quot;prompts&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">prompts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;query&quot;</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;passage&quot;</span> <span class="ow">in</span> <span class="n">prompts</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">name_topic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">name_topic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">keywords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

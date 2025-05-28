@@ -1202,7 +1202,7 @@ while taking inspiration from classical matrix-decomposition approaches for extr
 </figure>
 
 <p>Here's an example of how you can fit and interpret a KeyNMF model in the easiest way.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;paraphrase-MiniLM-L3-v2&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -1213,14 +1213,14 @@ while taking inspiration from classical matrix-decomposition approaches for extr
 <p class="admonition-title">Which Embedding model should I use</p>
 <ul>
 <li>You should probably use KeyNMF with a <code>paraphrase-</code> type embedding model. These seem to perform best in most tasks. Some examples include:<ul>
-<li><a href="https://huggingface.co/sentence-transformers/paraphrase-MiniLM-L3-v2">paraphrase-MiniLM-L3-v2</a> - Absolutely tiny <img alt="🐭" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f42d.svg" title=":mouse:" /> </li>
-<li><a href="https://huggingface.co/sentence-transformers/paraphrase-mpnet-base-v2">paraphrase-mpnet-base-v2</a> - High performance <img alt="🌟" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f31f.svg" title=":star2:" /></li>
-<li><a href="https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2">paraphrase-multilingual-mpnet-base-v2</a> - Multilingual, high-performance <img alt="🌎" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f30e.svg" title=":earth_americas:" /> <img alt="🌟" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f31f.svg" title=":star2:" /></li>
+<li><a href="https://huggingface.co/sentence-transformers/paraphrase-MiniLM-L3-v2">paraphrase-MiniLM-L3-v2</a> - Absolutely tiny <img alt="🐭" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f42d.svg" title=":mouse:" /> </li>
+<li><a href="https://huggingface.co/sentence-transformers/paraphrase-mpnet-base-v2">paraphrase-mpnet-base-v2</a> - High performance <img alt="🌟" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f31f.svg" title=":star2:" /></li>
+<li><a href="https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2">paraphrase-multilingual-mpnet-base-v2</a> - Multilingual, high-performance <img alt="🌎" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f30e.svg" title=":earth_americas:" /> <img alt="🌟" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f31f.svg" title=":star2:" /></li>
 </ul>
 </li>
 <li>KeyNMF works remarkably well with static models, which are incredibly fast, even on your laptop:<ul>
-<li><a href="https://huggingface.co/sentence-transformers/static-retrieval-mrl-en-v1">sentence-transformers/static-retrieval-mrl-en-v1</a> - Blazing Fast <img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a1.svg" title=":zap:" /> </li>
-<li><a href="https://huggingface.co/sentence-transformers/static-similarity-mrl-multilingual-v1">sentence-transformers/static-similarity-mrl-multilingual-v1</a> - Multilingual, Blazing Fast <img alt="🌎" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f30e.svg" title=":earth_americas:" /> <img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a1.svg" title=":zap:" /> </li>
+<li><a href="https://huggingface.co/sentence-transformers/static-retrieval-mrl-en-v1">sentence-transformers/static-retrieval-mrl-en-v1</a> - Blazing Fast <img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/26a1.svg" title=":zap:" /> </li>
+<li><a href="https://huggingface.co/sentence-transformers/static-similarity-mrl-multilingual-v1">sentence-transformers/static-similarity-mrl-multilingual-v1</a> - Multilingual, Blazing Fast <img alt="🌎" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f30e.svg" title=":earth_americas:" /> <img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/26a1.svg" title=":zap:" /> </li>
 </ul>
 </li>
 </ul>
@@ -1306,7 +1306,7 @@ L(W,H) = ||M - WH||^2
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
 
 <span class="n">trf</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">)</span>
 <span class="n">embeddings</span> <span class="o">=</span> <span class="n">trf</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -1343,7 +1343,7 @@ Word importance scores in a document get weighted by their similarity to the see
 </li>
 </ul>
 </details>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">seed_phrase</span><span class="o">=</span><span class="s2">&quot;&lt;your seed phrase&gt;&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -1472,9 +1472,9 @@ H_t = \text{argmin}_{H^{*}} ||M_t - W_t H^{*}||^2
 </ol>
 </details>
 <p>Here's an example of using KeyNMF in a dynamic modeling setting:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1490,18 +1490,62 @@ H_t = \text{argmin}_{H^{*}} ||M_t - W_t H^{*}||^2
 </blockquote>
 <div class="highlight"><pre><span></span><code><span class="n">model</span><span class="o">.</span><span class="n">print_topics_over_time</span><span class="p">()</span>
 </code></pre></div>
-<center>
-
-| Time Slice | 0_olympics_tokyo_athletes_beijing | 1_covid_vaccine_pandemic_coronavirus | 2_olympic_athletes_ioc_athlete | 3_djokovic_novak_tennis_federer | 4_ronaldo_cristiano_messi_manchester |
-| - | - | - | - | - | - |
-| 2012 12 06 - 2013 11 10 | genocide, yugoslavia, karadzic, facts, cnn | cnn, russia, chechnya, prince, merkel | france, cnn, francois, hollande, bike | tennis, tournament, wimbledon, grass, courts | beckham, soccer, retired, david, learn |
-| 2013 11 10 - 2014 10 14 | keith, stones, richards, musician, author | georgia, russia, conflict, 2008, cnn | civil, rights, hear, why, should | cnn, kidneys, traffickers, organ, nepal | ronaldo, cristiano, goalscorer, soccer, player |
-|  |  | ... |  |  |  |
-| 2020 05 07 - 2021 04 10 | olympics, beijing, xinjiang, ioc, boycott | covid, vaccine, coronavirus, pandemic, vaccination | olympic, japan, medalist, canceled, tokyo | djokovic, novak, tennis, federer, masterclass | ronaldo, cristiano, messi, juventus, barcelona |
-| 2021 04 10 - 2022 03 16 | olympics, tokyo, athletes, beijing, medal | covid, pandemic, vaccine, vaccinated, coronavirus | olympic, athletes, ioc, medal, athlete | djokovic, novak, tennis, wimbledon, federer | ronaldo, cristiano, messi, manchester, scored |
-
-</center>
-
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th>Time Slice</th>
+<th>0_olympics_tokyo_athletes_beijing</th>
+<th>1_covid_vaccine_pandemic_coronavirus</th>
+<th>2_olympic_athletes_ioc_athlete</th>
+<th>3_djokovic_novak_tennis_federer</th>
+<th>4_ronaldo_cristiano_messi_manchester</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2012 12 06 - 2013 11 10</td>
+<td>genocide, yugoslavia, karadzic, facts, cnn</td>
+<td>cnn, russia, chechnya, prince, merkel</td>
+<td>france, cnn, francois, hollande, bike</td>
+<td>tennis, tournament, wimbledon, grass, courts</td>
+<td>beckham, soccer, retired, david, learn</td>
+</tr>
+<tr>
+<td>2013 11 10 - 2014 10 14</td>
+<td>keith, stones, richards, musician, author</td>
+<td>georgia, russia, conflict, 2008, cnn</td>
+<td>civil, rights, hear, why, should</td>
+<td>cnn, kidneys, traffickers, organ, nepal</td>
+<td>ronaldo, cristiano, goalscorer, soccer, player</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>...</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2020 05 07 - 2021 04 10</td>
+<td>olympics, beijing, xinjiang, ioc, boycott</td>
+<td>covid, vaccine, coronavirus, pandemic, vaccination</td>
+<td>olympic, japan, medalist, canceled, tokyo</td>
+<td>djokovic, novak, tennis, federer, masterclass</td>
+<td>ronaldo, cristiano, messi, juventus, barcelona</td>
+</tr>
+<tr>
+<td>2021 04 10 - 2022 03 16</td>
+<td>olympics, tokyo, athletes, beijing, medal</td>
+<td>covid, pandemic, vaccine, vaccinated, coronavirus</td>
+<td>olympic, athletes, ioc, medal, athlete</td>
+<td>djokovic, novak, tennis, wimbledon, federer</td>
+<td>ronaldo, cristiano, messi, manchester, scored</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
 <p>You can also display the topics over time on an interactive HTML figure.
 The most important words for topics get revealed by hovering over them.</p>
 <blockquote>
@@ -1567,10 +1611,10 @@ We, however provide a term-matching scheme that allows you to match words across
 <li>Building a graph from these connections, and finding graph components.</li>
 <li>Adding up term importances for terms that appear in the same component for all documents.</li>
 </ol>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_extraction.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">CountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="c1"># Loading a parallel corpus</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
@@ -1637,7 +1681,7 @@ This is done by fitting NMF with batches of data instead of the whole dataset at
 <blockquote>
 <p>In newer versions of Python (&gt;=3.12) you can just <code>from itertools import batched</code></p>
 </blockquote>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">batched</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">batched</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="s2">&quot;Batch data into lists of length n. The last batch may be shorter.&quot;</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n must be at least one&quot;</span><span class="p">)</span>
@@ -1646,7 +1690,7 @@ This is done by fitting NMF with batches of data instead of the whole dataset at
         <span class="k">yield</span> <span class="n">batch</span>
 </code></pre></div>
 <p>You can fit a KeyNMF model to a very large corpus in batches like so:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">top_n</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
@@ -1674,9 +1718,9 @@ In such scenarios you might want to precompute and maybe even save the extracted
 </code></pre></div>
 <p>You can extract keywords in batches and save them to disk to a file format of your choice.
 In this example I will use NDJSON because of its simplicity.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
 
 <span class="c1"># Here we are saving keywords to a JSONL/NDJSON file</span>
 <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;keywords.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">keyword_file</span><span class="p">:</span>
@@ -1688,7 +1732,7 @@ In this example I will use NDJSON because of its simplicity.</p>
         <span class="k">for</span> <span class="n">keywords</span> <span class="ow">in</span> <span class="n">batch_keywords</span><span class="p">:</span>
             <span class="n">keyword_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">stream_keywords</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="k">def</span> <span class="nf">stream_keywords</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;This function streams keywords from the file.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;keywords.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">()</span> <span class="k">as</span> <span class="n">keyword_file</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">keyword_file</span><span class="p">:</span>
@@ -1704,7 +1748,7 @@ In this example I will use NDJSON because of its simplicity.</p>
 This is useful when you have large corpora of text over time, or when you want to fit the model on future information flowing in
 and want to analyze the topics' changes over time.</p>
 <p>When using dynamic online topic modeling you have to predefine the time bins that you will use, as the model can't infer these from the data.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="c1"># We will bin by years in a period of 2020-2030</span>
 <span class="n">bins</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">2030</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
@@ -1726,8 +1770,8 @@ Microsoft's E5 models are, for instance, all prompted by default, and it would b
 <p>In these cases, you're better off NOT passing a string to Turftopic models, but explicitly loading the model using <code>sentence-transformers</code>.</p>
 <p>Here's an example of using instruct models for keyword retrieval with KeyNMF.
 In this case, documents will serve as the queries and words as the passages:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
 
 <span class="n">encoder</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span>
     <span class="s2">&quot;intfloat/multilingual-e5-large-instruct&quot;</span><span class="p">,</span>
@@ -1776,7 +1820,7 @@ In this case, documents will serve as the queries and words as the passages:</p>
 term encodings to document encodings.
 Topics are then extracted with non-negative matrix factorization from
 keywords' proximity to documents.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;some text&quot;</span><span class="p">,</span> <span class="s2">&quot;more text&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 
@@ -2539,7 +2583,7 @@ This is useful when you have a corpus containing multiple languages.</p>
 <span class="normal">630</span>
 <span class="normal">631</span>
 <span class="normal">632</span>
-<span class="normal">633</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">KeyNMF</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">,</span> <span class="n">DynamicTopicModel</span><span class="p">,</span> <span class="n">MultimodalModel</span><span class="p">):</span>
+<span class="normal">633</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">KeyNMF</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">,</span> <span class="n">DynamicTopicModel</span><span class="p">,</span> <span class="n">MultimodalModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts keywords from documents based on semantic similarity of</span>
 <span class="sd">    term encodings to document encodings.</span>
 <span class="sd">    Topics are then extracted with non-negative matrix factorization from</span>
@@ -2580,7 +2624,7 @@ This is useful when you have a corpus containing multiple languages.</p>
 <span class="sd">        Cosine similarity threshold for matching terms across languages.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
@@ -2632,7 +2676,7 @@ This is useful when you have a corpus containing multiple languages.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">cross_lingual</span> <span class="o">=</span> <span class="n">cross_lingual</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">term_match_threshold</span> <span class="o">=</span> <span class="n">term_match_threshold</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">extract_keywords</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">extract_keywords</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">batch_or_document</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
         <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2661,7 +2705,7 @@ This is useful when you have a corpus containing multiple languages.</p>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">keywords</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">vectorize</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">vectorize</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2674,7 +2718,7 @@ This is useful when you have a corpus containing multiple languages.</p>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">divide_topic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">divide_topic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">node</span><span class="p">:</span> <span class="n">DivisibleTopicNode</span><span class="p">,</span>
         <span class="n">n_subtopics</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -2707,7 +2751,7 @@ This is useful when you have a corpus containing multiple languages.</p>
             <span class="n">subtopics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">subtopics</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -2756,7 +2800,7 @@ This is useful when you have a corpus containing multiple languages.</p>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">doc_topic_matrix</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform_multimodal</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_transform_multimodal</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -2803,7 +2847,7 @@ This is useful when you have a corpus containing multiple languages.</p>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">doc_topic_matrix</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -2826,10 +2870,10 @@ This is useful when you have a corpus containing multiple languages.</p>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">index_to_key</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2867,7 +2911,7 @@ This is useful when you have a corpus containing multiple languages.</p>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">partial_fit</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">partial_fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2918,7 +2962,7 @@ This is useful when you have a corpus containing multiple languages.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">components_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">components</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_topic_data</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">prepare_topic_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">corpus</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
         <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2970,7 +3014,7 @@ This is useful when you have a corpus containing multiple languages.</p>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_dynamic_topic_data</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">prepare_dynamic_topic_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">corpus</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
         <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
@@ -3039,7 +3083,7 @@ This is useful when you have a corpus containing multiple languages.</p>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform_dynamic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_transform_dynamic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">timestamps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3082,7 +3126,7 @@ This is useful when you have a corpus containing multiple languages.</p>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">doc_topic_matrix</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">partial_fit_dynamic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">partial_fit_dynamic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">timestamps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3250,7 +3294,7 @@ This is useful when you have a corpus containing multiple languages.</p>
 <span class="normal">143</span>
 <span class="normal">144</span>
 <span class="normal">145</span>
-<span class="normal">146</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_keywords</span><span class="p">(</span>
+<span class="normal">146</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">extract_keywords</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">batch_or_document</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3379,7 +3423,7 @@ This is useful when you have a corpus containing multiple languages.</p>
 <span class="normal">308</span>
 <span class="normal">309</span>
 <span class="normal">310</span>
-<span class="normal">311</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+<span class="normal">311</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -3552,7 +3596,7 @@ This is useful when you have a corpus containing multiple languages.</p>
 <span class="normal">238</span>
 <span class="normal">239</span>
 <span class="normal">240</span>
-<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span>
+<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -3730,7 +3774,7 @@ This is useful when you have a corpus containing multiple languages.</p>
 <span class="normal">400</span>
 <span class="normal">401</span>
 <span class="normal">402</span>
-<span class="normal">403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">partial_fit</span><span class="p">(</span>
+<span class="normal">403</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">partial_fit</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3952,7 +3996,7 @@ This is useful when you have a corpus containing multiple languages.</p>
 <span class="normal">630</span>
 <span class="normal">631</span>
 <span class="normal">632</span>
-<span class="normal">633</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">partial_fit_dynamic</span><span class="p">(</span>
+<span class="normal">633</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">partial_fit_dynamic</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">timestamps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4157,7 +4201,7 @@ This is useful when you have a corpus containing multiple languages.</p>
 <span class="normal">349</span>
 <span class="normal">350</span>
 <span class="normal">351</span>
-<span class="normal">352</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+<span class="normal">352</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4228,7 +4272,7 @@ This is useful when you have a corpus containing multiple languages.</p>
 <span class="normal">156</span>
 <span class="normal">157</span>
 <span class="normal">158</span>
-<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">vectorize</span><span class="p">(</span>
+<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">vectorize</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

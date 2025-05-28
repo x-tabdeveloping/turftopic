@@ -1163,7 +1163,7 @@ This allows users to fit pretrained topic models to their specific use cases.</p
 <h2 id="namingrenaming-topics">Naming/renaming topics</h2>
 <p>Topics can be freely renamed in all topic models.
 This can be beneficial when interpreting models, as it allows you to assign labels to the topics you've already looked at. </p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 
@@ -1173,7 +1173,7 @@ This can be beneficial when interpreting models, as it allows you to assign labe
 <span class="n">model</span><span class="o">.</span><span class="n">rename_topics</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;Topic </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)])</span>
 </code></pre></div>
 <p>You can also automatically name topics with a <a href="../namers/">topic namer</a> model.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.namers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMTopicNamer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic.namers</span> <span class="kn">import</span> <span class="n">LLMTopicNamer</span>
 
 <span class="n">namer</span> <span class="o">=</span> <span class="n">LLMTopicNamer</span><span class="p">(</span><span class="s2">&quot;HuggingFaceTB/SmolLM2-1.7B-Instruct&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">rename_topics</span><span class="p">(</span><span class="n">namer</span><span class="p">)</span>
@@ -1184,7 +1184,7 @@ This can be beneficial when interpreting models, as it allows you to assign labe
 <p><span class="arithmatex">\(S^3\)</span> models store all information that is needed to refit them using a different number of topics, iterations or random seed.
 This process is incredibly fast and allows you to explore semantics in a corpora on multiple levels of detail.
 Moreover, any model you load from a third party can be refitted at will.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_model</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">load_model</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;hf_user/some_s3_model&quot;</span><span class="p">)</span>
 
@@ -1202,7 +1202,7 @@ Moreover, any model you load from a third party can be refitted at will.</p>
 <p>Clustering models are very flexible in this regard, as they allow you to merge clusters after the model has been fitted.</p>
 <h4 id="manual-topic-merging">Manual topic merging</h4>
 <p>You can merge topics manually in a clustering model by using the <code>join_topics()</code> method:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 
@@ -1222,7 +1222,7 @@ This can be done with the <code>reduce_topics()</code> method:</p>
 <h2 id="finetuning-models-on-a-new-corpus">Finetuning models on a new corpus.</h2>
 <p>Currently, you can only finetune KeyNMF to a new corpus.
 You can do this by using the <code>partial_fit()</code> method on texts the model hasn't seen before:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_model</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">load_model</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;pretrained_keynmf_model&quot;</span><span class="p">)</span>
 
@@ -1240,7 +1240,7 @@ You can do this by using the <code>partial_fit()</code> method on texts the mode
 Since both of these models use post-hoc measures, these scores can be calculated without fitting a new model or refitting an old one.
 This allows you to play around with different types of feature importance estimation measures for the same model (same underlying clusters or axes).</p>
 <p>Here's an example with <span class="arithmatex">\(S^3\)</span>:
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;combined&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
@@ -1280,7 +1280,7 @@ This allows you to play around with different types of feature importance estima
 <p class="admonition-title">Info</p>
 <p>Remember, these are the same underlying clusters, just described in two different ways. For further details, check out <a href="../clustering/">this page</a></p>
 </div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">(</span><span class="n">n_reduce_to</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;soft-c-tf-idf&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>

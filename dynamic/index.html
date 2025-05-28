@@ -1158,9 +1158,9 @@
 To fit a dynamic topic model you will need a corpus, that has been annotated with timestamps.
 The timestamps need to be Python <code>datetime</code> objects, but pandas <code>Timestamp</code> object are also supported.</p>
 <p>Models that have dynamic modeling capabilities (<code>KeyNMF</code>, <code>GMM</code>, <code>SemanticSignalSeparation</code> and <code>ClusteringTopicModel</code>) have a <code>fit_transform_dynamic()</code> method, that fits the model on the corpus over time.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1189,7 +1189,7 @@ The timestamps need to be Python <code>datetime</code> objects, but pandas <code
 <span class="c1"># or</span>
 <span class="n">topic_data</span><span class="o">.</span><span class="n">print_topics_over_time</span><span class="p">()</span>
 </code></pre></div>
-<center>
+<p><center></p>
 <table>
 <thead>
 <tr>
@@ -1284,7 +1284,7 @@ The timestamps need to be Python <code>datetime</code> objects, but pandas <code
 </tr>
 </tbody>
 </table>
-</center>
+<p></center></p>
 </div>
 </div>
 </div>
@@ -1466,9 +1466,9 @@ The timestamps need to be Python <code>datetime</code> objects, but pandas <code
 <span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DynamicTopicModel</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">DynamicTopicModel</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">bin_timestamps</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">bin_timestamps</span><span class="p">(</span>
         <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span> <span class="n">bins</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Bins timestamps based on given bins.</span>
@@ -1493,7 +1493,7 @@ The timestamps need to be Python <code>datetime</code> objects, but pandas <code
         <span class="k">return</span> <span class="n">bin_timestamps</span><span class="p">(</span><span class="n">timestamps</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform_dynamic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_transform_dynamic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">,</span>
         <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
@@ -1523,7 +1523,7 @@ The timestamps need to be Python <code>datetime</code> objects, but pandas <code
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_dynamic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_dynamic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">,</span>
         <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
@@ -1552,7 +1552,7 @@ The timestamps need to be Python <code>datetime</code> objects, but pandas <code
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_transform_dynamic</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">timestamps</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_dynamic_topic_data</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">prepare_dynamic_topic_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
@@ -1763,7 +1763,7 @@ Bins are inclusive at the lower end and exclusive at the upper (lower &lt;= time
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">bin_timestamps</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">bin_timestamps</span><span class="p">(</span>
     <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span> <span class="n">bins</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">10</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Bins timestamps based on given bins.</span>
@@ -1912,7 +1912,7 @@ the last bin edge if it equals the last timestamp.</p>
 <span class="normal">122</span>
 <span class="normal">123</span>
 <span class="normal">124</span>
-<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fit_dynamic</span><span class="p">(</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_dynamic</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="p">,</span>
     <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
@@ -2095,7 +2095,7 @@ and final edges of the slices.</p>
 <span class="normal">94</span>
 <span class="normal">95</span>
 <span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">fit_transform_dynamic</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">fit_transform_dynamic</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="p">,</span>
     <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
@@ -2318,7 +2318,7 @@ the last bin edge if it equals the last timestamp.</p>
 <span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_dynamic_topic_data</span><span class="p">(</span>
+<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_dynamic_topic_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
