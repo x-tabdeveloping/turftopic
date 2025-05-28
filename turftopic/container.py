@@ -298,13 +298,19 @@ class TopicContainer(ABC):
     ) -> list[list[str]]:
         if show_negative is None:
             show_negative = self.has_negative_side
-        raw_documents = raw_documents or getattr(self, "corpus", None)
+        raw_documents = (
+            raw_documents
+            if raw_documents is not None
+            else getattr(self, "corpus", None)
+        )
         if raw_documents is None:
             raise ValueError(
                 "No corpus was passed, can't search for representative documents."
             )
-        document_topic_matrix = document_topic_matrix or getattr(
-            self, "document_topic_matrix", None
+        document_topic_matrix = (
+            document_topic_matrix
+            if document_topic_matrix is not None
+            else getattr(self, "document_topic_matrix", None)
         )
         if document_topic_matrix is None:
             try:

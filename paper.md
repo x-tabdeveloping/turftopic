@@ -68,19 +68,38 @@ The user has full control over what components should be used at different stage
 
 The library comes loaded with numerous utilities to help users interpret their results, including *pretty printing* utilities for exploring topics, *interactive visualizations* partially powered by the `topicwizard` [@topicwizard] Python package, and *automated topic naming* with LLMs.
 
-To accommodate a variety of use cases, Turftopic can be used for *dynamic* topic modelling, where we expect topics to change over time.
+To accommodate a variety of use cases, Turftopic can be used for *dynamic* topic modelling, where topics are expected to change over time.
 Turftopic is also capable of extracting topics at multiple levels of granularity, thereby uncovering *hierarchical* topic structures.
 Some models can also be fitted in an *online* fashion, where documents are accounted for as they come in batches.
 Turftopic also includes *seeded* topic modelling, where a seed phrase can be used to retrieve topics relevant to the specific research question.
 
-# Use Cases
+# Use cases
 
-Topic modelling is a key tool for quantitative text analysis [@quantitative_text_analysis], and can be utilized in a number of research settings, including exploratory data analysis, discourse analysis of diverse domains, such as newspapers, social media or policy documents.
-Turftopic has already been utilized by @keynmf for analyzing information dynamics in Chinese diaspora media, and is currently being used in multiple ongoing research projects, including one analyzing discourse on the HPV vaccine in Denmark, and studying Danish golden-age literature.
+Topic models can be and have been utilized for numerous purposes in both academia and industry.
+They are a key tool in digital/computational humanities, mainly as an instrument of quantitative text analysis or *distant reading*  [@quantitative_text_analysis],
+as topic models can pick up on macro-patterns in corpora, at times missed by close readers [@macroanalysis],
+and might be able to provide a more impartial account of a corpus's content.
+Topic models can also aid discourse analysis by facilitating exploratory data analysis, and quantitative modelling of information dynamics [@discourse_analysis].
+Industry analysts might make use of topic models for analyzing customer feedback [@hotel_sector] or social media data related to a company's products [@social_media_mining].
+
+Since topic models learn topically informative representations of text, they can also be utilized for down-stream applications,
+such as content filtering, recommendation [@content_recommendation],
+unsupervised classification [@unsupervised_classification], information retrieval [@information_retrieval] and pre-training data curation [@data_mixers].
+
+The Turftopic framework has already been utilized by @keynmf for analyzing information dynamics in Chinese diaspora media, and is currently being used in multiple ongoing research projects,
+including one concerning the media coverage of the HPV vaccine in Denmark,
+and another studying Danish golden-age literature.
+We provide examples of correct usage and case studies as part of our documentation.
 
 # Target Audience
 
-We expect that Turftopic will prove useful to a diverse user base including computational researchers in digital humanities and social sciences, and industry NLP professionals.
+Turftopic's utility has already been demonstrated for computational scholars in digital humanities, and political science,
+and we expect that it will be of utility to a diverse audience of researchers in social sciences, medicine, linguistics and legal studies.
+It can furthermore prove valuable to business analysts working with text-based data to generate qualitative insights.
+
+As the focus on pre-training data mixing techniques is on the rise, we expect that Turftopic will help facilitate foundational language model research.
+The library's design, wide array of models, and flexibility are also aimed at enabling usage in more extended production pipelines for retrieval, filtering or content recommendation, and we thus expect the package to be a most valuable tool for the industry NLP practitioner.
+
 Turftopic is also an appropriate choice for educational purposes, providing instructors with a single, user-friendly framework for students to explore and compare alternative topic modelling approaches.
 
 # References
