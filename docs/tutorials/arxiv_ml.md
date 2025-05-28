@@ -19,9 +19,9 @@ pip install datasets plotly turftopic[umap-learn, datamapplot]
 We will download the dataset from HuggingFace Hub, using `datasets`.
 
 !!! note
-    In this example, we will use a subset of the data (10000 examples),
-    as it would otherwise take a long time to run on my laptop.
-    If you have a more powerful computer or a GPU at hand, I recommend running the topic model on the entire corpus.
+    In this example, we will downsample to a subset of the data (10000 examples).
+    We do this to make the tutorial run smoothly. However, often downsampling can be 
+    a great strategy for speeding up topic modelling.
 ```python
 from datasets import load_dataset
 
