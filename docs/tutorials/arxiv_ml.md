@@ -3,7 +3,11 @@
 Topic models can often be used to gain an overall understanding of what kinds of topics are being discussed in a corpus.
 If one wanted to build a taxonomy of the field of machine learning, a good starting point would be to investigate what sorts of machine learning articles have been put on ArXiv, the largest preprint server.
 
-In this tutorial, I will demonstrate how you can use Turftopic to discover themes in machine learning research using a clustering topic model.
+In this tutorial, I will demonstrate how you can use Turftopic to discover themes in machine learning abstracts using a clustering topic model, we will look at:
+
+- Building and training a clustering topic model
+- Interpreting the model's output, and
+- Topic-based filtering and retrieval 
 
 ## Installation
 
@@ -48,7 +52,7 @@ embeddings = encoder.encode(abstracts, show_progress_bar=True)
 ## Model Training
 
 For building a hierarchy, we will assume that a paper is centered around one central theme, and we would like to categorize our articles into distinct groups.
-Clustering topic models, such as BERTopic and Top2Vec are well suited for this task, as they assume that a document belongs to a single cluster.
+[Clustering topic models](../clustering.md), such as BERTopic and Top2Vec are well suited for this task, as they assume that a document belongs to a single cluster.
 They can also be used in settings, where we expect there to be a hierarchy of topics.
 This is certainly the case for machine learning, where, for instance, *auto-encoders* could be a sub-topic of *unsupervised learning*.
 
@@ -64,7 +68,10 @@ topic_data = model.prepare_topic_data(abstracts, embeddings=embeddings)
 
 ## Interpreting Results
 
-Let's print the topic in our model in order to see what sorts of topic have been discovered.
+!!! tip
+    For a more detailed discussion, see the [Model Interpretation](../model_interpretation.md) page in the documentation.
+
+Let's print the topic in our model in order to see what sorts of topics have been discovered.
 
 ```python
 model.print_topics()
@@ -83,6 +90,10 @@ model.print_topics()
 We can already see some clear themes emerge, for instance we can see that a group of ML papers are dedicated to quantum computing, and there are also some researchers investigating bias and fairness in machine learning approaches.
 
 ### Building a Topic Hierarchy
+
+
+!!! tip
+    For a more detailed discussion, see the [Hierarchical Modelling](../hierarchical.md) page in the documentation.
 
 Our model has discovered over 100 topics, which can be a bit hard to interpret.
 Luckily, we can reduce the number of top level topics in clustering models by iteratively merging them until we obtain a desired number.

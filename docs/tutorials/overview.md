@@ -13,7 +13,7 @@ We provide a number of concrete examples of using Turftopic to gain real insight
 :fontawesome-solid-church: [**Discourse Analysis** of internet forums on morality and religion.](./religious.md)
 { .card }
 
-<img src="../images/preview_pol_comp.png" height="500px"/>
+<img src="../images/preview_axes.png" height="500px"/>
 :fontawesome-solid-compass: [**Dimensional Analysis** of political ideologies and issues.](./ideologies.md)
 { .card }
 

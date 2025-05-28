@@ -12,7 +12,12 @@ While this model enjoys wide public recognition, one potential issue with it is 
 meaning that these dimensions were not discovered from some underlying data, but is based on experts' intuitions.
 Dimensional analysis of views is also typically conducted using surveys.
 
-In this tutorial we are going to look into how one could discover a **bottom-up**, data-driven Political Compass using the power of topic modelling.
+In this tutorial we are going to look into how one could discover a **bottom-up**, data-driven Political Compass using the power of topic modelling, we will look at:
+
+ - How to build and train a [Semantic Signal Separation ($S^3$)](../s3.md) model on our corpus
+ - How to interpret the semantic axes discovered by our model
+ - How to investigate the distribution of political parties along the discovered axes
+
 
 ## Installation
 
@@ -63,6 +68,9 @@ doc_topic_matrix = model.fit_transform(texts, embeddings=embeddings)
 ## Model Interpretation
 
 First, let us examine the highest and lowest ranking terms on each axis in order to gain an intuition for what the dimensions could be about.
+
+!!! tip
+    For a more detailed discussion, see the [Model Interpretation](../model_interpretation.md) page in the documentation.
 
 ```python
 model.print_topics(top_k=10)

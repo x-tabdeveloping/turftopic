@@ -3,7 +3,11 @@
 Topic models are an effective tool for discourse analysis, and widely applied in computational humanities research.
 One potential research question could be to investigate how groups online discuss the connection between morality and religion.
 
-For this task, we are going to utilize [KeyNMF](../KeyNMF.md), which is a powerful topic model based on keyword/keyphrase extraction using contextual representations.
+For this task, we are going to utilize [KeyNMF](../KeyNMF.md), which is a powerful topic model based on keyword/keyphrase extraction using contextual representations, we will look at:
+
+ - How to construct and train a Seeded KeyNMF model on our corpus
+ - How to interpret the topic model's output
+ - How topics are distributed across groups
 
 ## Installation
 
@@ -52,6 +56,9 @@ embeddings = encoder.encode(corpus, show_progress_bar=True)
 Since we want to investigate the discourse from the perspective of morality, we would like to include this information in our model.
 KeyNMF is capable of investigating a corpus from a certain angle based on a **seed phrase**, this will allow us to focus the topics in the model on morality.
 
+!!! tip
+    For a more detailed discussion, check out our documentation page on [Seeded Topic Modelling](../seeded.md)
+
 ```python
 from turftopic import KeyNMF
 
@@ -66,7 +73,11 @@ topic_data = model.prepare_topic_data(corpus, embeddings=embeddings)
 
 ## Model Interpretation
 
+
 Let us first print the top 10 words for each topic discovered by the model.
+
+!!! tip
+    For a more detailed discussion, see the [Model Interpretation](../model_interpretation.md) page in the documentation.
 
 ```python
 topic_data.print_topics()

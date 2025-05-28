@@ -4,7 +4,11 @@ When providing some service for customers as a company, it is valuable to have a
 A good place to start would be to analyze reviews of your product that have low scores.
 
 In this tutorial we will use Turftopic to find topics in customer reviews of the Uber app on Google Play.
-The dataset is [openly available on Kaggle](https://www.kaggle.com/datasets/kanchana1990/uber-customer-reviews-dataset-2024?resource=download).
+The dataset is [openly available on Kaggle](https://www.kaggle.com/datasets/kanchana1990/uber-customer-reviews-dataset-2024?resource=download), we will:
+
+ - Build and train a Noun-phrase informed [KeyNMF](../KeyNMF.md) topic model on customer feedback
+ - Learn about topic interpretation.
+ - Investigate the prevalence of issues identified by customers.
 
 ## Installation
 
@@ -62,6 +66,9 @@ doc_topic_matrix = model.fit_transform(corpus, embeddings=embeddings)
 
 Let us first examine the highest ranking phrases on each topic.
 
+!!! tip
+    For a more detailed discussion, see the [Model Interpretation](../model_interpretation.md) page in the documentation.
+
 ```python
 model.print_topics()
 ```
@@ -83,10 +90,14 @@ It seems that a substantial part of the bad reviews are related to the drivers, 
 This indicates that the company should be wary of such behaviour and should implement measures to counteract these issues.
 Other topics are related to customer support, or the quality of the app itself.
 
+
 ### Hierarchical Topic Expansion
 
 Let us say that we are mostly interested in issues with customer service since we want to provide insights, about what could be improved.
 We can investigate the topics related to this in more detail by expanding the model's hierarchy.
+
+!!! tip
+    For a more detailed discussion, see the [Hierarchical Modelling](../hierarchical.md) page in the documentation.
 
 We can for instance investigate what subtopics can be found in Topic 9:
 ```python
