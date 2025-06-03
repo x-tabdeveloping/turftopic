@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.sparse as spr
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import normalize
@@ -33,6 +34,37 @@ def cluster_centroid_distance(
         cluster_centroids[valid_centroids], vocab_embeddings
     )
     components[valid_centroids, :] = similarities
+    return components
+
+
+def linear_classifier(
+    doc_topic_matrix: np.ndarray,
+    embeddings: np.ndarray,
+    vocab_embeddings: np.ndarray,
+) -> np.ndarray:
+    """Computes feature importances based on embedding directions
+    obtained with logistic regression.
+
+    Parameters
+    ----------
+    doc_topic_matrix: np.ndarray
+        Document-topic matrix.
+    embeddings: np.ndarray
+        Document embeddings.
+    vocab_embeddings: np.ndarray
+        Term embeddings of shape (vocab_size, embedding_size)
+
+    Returns
+    -------
+    ndarray of shape (n_topics, vocab_size)
+        Term importance matrix.
+    """
+    labels = np.argmax(doc_topic_matrix, axis=1)
+    model = LinearDiscriminantAnalysis().fit(embeddings, labels)
+    components = cosine_similarity(model.coef_, vocab_embeddings)
+    if len(set(labels)) == 2:
+        # Binary is a special case
+        components = np.concatenate([-components, components], axis=0)
     return components
 
 
