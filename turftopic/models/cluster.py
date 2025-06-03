@@ -24,6 +24,7 @@ from turftopic.feature_importance import (
     bayes_rule,
     cluster_centroid_distance,
     ctf_idf,
+    fighting_words,
     linear_classifier,
     soft_ctf_idf,
 )
@@ -58,6 +59,7 @@ WordImportance = Literal[
     "centroid",
     "bayes",
     "linear",
+    "fighting-words",
 ]
 VALID_WORD_IMPORTANCE = list(typing.get_args(WordImportance))
 
@@ -160,6 +162,8 @@ class ClusteringTopicModel(
         'bayes' uses Bayes' rule.
         'linear' calculates most predictive directions in embedding space and projects
         words onto them.
+        'fighting-words' calculates word importances based on the Fighting Words
+        algorithm from Monroe et al.
     n_reduce_to: int, default None
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
@@ -294,6 +298,8 @@ class ClusteringTopicModel(
             'bayes' uses Bayes' rule.
             'linear' calculates most predictive directions in embedding space and projects
             words onto them.
+            'fighting-words' calculates word importances based on the Fighting Words
+            algorithm from Monroe et al.
 
         Returns
         -------
@@ -581,15 +587,19 @@ class ClusteringTopicModel(
             t_dtm = self.doc_term_matrix[time_labels == i_timebin]
             t_doc_topic = self.document_topic_matrix[time_labels == i_timebin]
             if feature_importance == "c-tf-idf":
-                self.temporal_components_[i_timebin], self._idf_diag = ctf_idf(
+                self.temporal_components_[i_timebin], _ = ctf_idf(
                     t_doc_topic, t_dtm, return_idf=True
                 )
             elif feature_importance == "soft-c-tf-idf":
-                self.temporal_components_[i_timebin], self._idf_diag = (
-                    soft_ctf_idf(t_doc_topic, t_dtm, return_idf=True)
+                self.temporal_components_[i_timebin], _ = soft_ctf_idf(
+                    t_doc_topic, t_dtm, return_idf=True
                 )
             elif feature_importance == "bayes":
                 self.temporal_components_[i_timebin] = bayes_rule(
+                    t_doc_topic, t_dtm
+                )
+            elif feature_importance == "fighting-words":
+                self.temporal_components_[i_timebin] = fighting_words(
                     t_doc_topic, t_dtm
                 )
             elif feature_importance in ["centroid", "linear"]:

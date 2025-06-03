@@ -5,6 +5,7 @@ from typing import Optional, Sequence
 
 import numpy as np
 from scipy.cluster.hierarchy import linkage
+from scipy.spatial.distance import pdist
 from sklearn.metrics.pairwise import pairwise_distances
 
 from turftopic.base import ContextualModel
@@ -12,6 +13,7 @@ from turftopic.feature_importance import (
     bayes_rule,
     cluster_centroid_distance,
     ctf_idf,
+    fighting_words,
     linear_classifier,
     soft_ctf_idf,
 )
@@ -189,6 +191,10 @@ class ClusterNode(TopicNode):
             components = soft_ctf_idf(
                 document_topic_matrix, self.model.doc_term_matrix
             )  # type: ignore
+        if self.model.feature_importance == "fighting-words":
+            components = fighting_words(
+                document_topic_matrix, self.model.doc_term_matrix
+            )  # type: ignore
         elif self.model.feature_importance in ["centroid", "linear"]:
             if not hasattr(self.model, "vocab_embeddings"):
                 self.model.vocab_embeddings = self.model.encode_documents(
@@ -256,9 +262,11 @@ class ClusterNode(TopicNode):
             n_classes = len(classes[classes != -1])
             topic_vectors = topic_representations[classes != -1]
             n_reductions = n_classes - n_reduce_to
-            return linkage(topic_vectors, method=method, metric=metric)[
-                :n_reductions
-            ]
+            cond_dist = pdist(topic_vectors, metric=metric)
+            # Making the algorithm more numerically stable
+            if metric == "cosine":
+                cond_dist[~np.isfinite(cond_dist)] = -1
+            return linkage(cond_dist, method=method)[:n_reductions]
 
     def reduce_topics(
         self, n_reduce_to: int, method: str = "average", metric: str = "cosine"
