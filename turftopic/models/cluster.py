@@ -5,7 +5,7 @@ import warnings
 import webbrowser
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, Optional, Sequence, Union
+from typing import Any, Iterable, Literal, Optional, Sequence, Union
 
 import numpy as np
 from rich.console import Console
@@ -15,7 +15,7 @@ from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import normalize, scale
+from sklearn.preprocessing import LabelEncoder, normalize, scale
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
@@ -74,6 +74,15 @@ NOT_MATCHING_ERROR = (
     + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
     + "Try to initialize the model with the encoder you used for computing the embeddings."
 )
+
+
+def factorize_labels(labels: Iterable[Any]) -> np.ndarray:
+    le = LabelEncoder()
+    labels = le.fit_transform(labels)
+    for i, _class in enumerate(le.classes_):
+        if (str(_class) == -1) or (not np.isfinite(_class)):
+            labels[labels == i] = -1
+    return labels
 
 
 def calculate_topic_vectors(
@@ -468,7 +477,7 @@ class ClusteringTopicModel(
             # If y is specified, we pass it to the dimensionality
             # reduction method as supervisory signal
             if y is not None:
-                _, y = np.unique(y, return_inverse=True)
+                y = factorize_labels(y)
             self.reduced_embeddings = (
                 self.dimensionality_reduction.fit_transform(embeddings, y=y)
             )
