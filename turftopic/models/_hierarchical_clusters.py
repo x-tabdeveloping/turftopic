@@ -12,6 +12,7 @@ from turftopic.feature_importance import (
     bayes_rule,
     cluster_centroid_distance,
     ctf_idf,
+    linear_classifier,
     soft_ctf_idf,
 )
 from turftopic.hierarchical import TopicNode
@@ -188,7 +189,7 @@ class ClusterNode(TopicNode):
             components = soft_ctf_idf(
                 document_topic_matrix, self.model.doc_term_matrix
             )  # type: ignore
-        elif self.model.feature_importance == "centroid":
+        elif self.model.feature_importance in ["centroid", "linear"]:
             if not hasattr(self.model, "vocab_embeddings"):
                 self.model.vocab_embeddings = self.model.encode_documents(
                     self.model.vectorizer.get_feature_names_out()
@@ -203,10 +204,17 @@ class ClusterNode(TopicNode):
                             n_word_dims=self.model.vocab_embeddings.shape[1],
                         )
                     )
-            components = cluster_centroid_distance(
-                topic_vectors,
-                self.model.vocab_embeddings,
-            )
+            if self.model.feature_importance == "centroid":
+                components = cluster_centroid_distance(
+                    topic_vectors,
+                    self.model.vocab_embeddings,
+                )
+            else:
+                components = linear_classifier(
+                    document_topic_matrix,
+                    self.model.embeddings,
+                    self.model.vocab_embeddings,
+                )
         elif self.model.feature_importance == "bayes":
             components = bayes_rule(
                 document_topic_matrix, self.model.doc_term_matrix

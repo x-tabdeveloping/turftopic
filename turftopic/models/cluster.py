@@ -24,6 +24,7 @@ from turftopic.feature_importance import (
     bayes_rule,
     cluster_centroid_distance,
     ctf_idf,
+    linear_classifier,
     soft_ctf_idf,
 )
 from turftopic.models._hierarchical_clusters import (
@@ -56,6 +57,7 @@ WordImportance = Literal[
     "c-tf-idf",
     "centroid",
     "bayes",
+    "linear",
 ]
 VALID_WORD_IMPORTANCE = list(typing.get_args(WordImportance))
 
@@ -156,6 +158,8 @@ class ClusteringTopicModel(
         'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
         be very similar to 'c-tf-idf'.
         'bayes' uses Bayes' rule.
+        'linear' calculates most predictive directions in embedding space and projects
+        words onto them.
     n_reduce_to: int, default None
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
@@ -288,6 +292,8 @@ class ClusteringTopicModel(
             'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
             be very similar to 'c-tf-idf'.
             'bayes' uses Bayes' rule.
+            'linear' calculates most predictive directions in embedding space and projects
+            words onto them.
 
         Returns
         -------
@@ -542,6 +548,8 @@ class ClusteringTopicModel(
             'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
             be very similar to 'c-tf-idf'.
             'bayes' uses Bayes' rule.
+            'linear' calculates most predictive directions in embedding space and projects
+            words onto them.
 
         Returns
         -------
@@ -584,18 +592,25 @@ class ClusteringTopicModel(
                 self.temporal_components_[i_timebin] = bayes_rule(
                     t_doc_topic, t_dtm
                 )
-            elif feature_importance == "centroid":
+            elif feature_importance in ["centroid", "linear"]:
                 t_topic_vectors = self._calculate_topic_vectors(
                     is_in_slice=time_labels == i_timebin,
                 )
-                components = cluster_centroid_distance(
-                    t_topic_vectors,
-                    self.vocab_embeddings,
-                )
-                mask_terms = t_dtm.sum(axis=0).astype(np.float64)
-                mask_terms = np.squeeze(np.asarray(mask_terms))
-                components[:, mask_terms == 0] = np.nan
-                self.temporal_components_[i_timebin] = components
+                if feature_importance == "centroid":
+                    components = cluster_centroid_distance(
+                        t_topic_vectors,
+                        self.vocab_embeddings,
+                    )
+                    mask_terms = t_dtm.sum(axis=0).astype(np.float64)
+                    mask_terms = np.squeeze(np.asarray(mask_terms))
+                    components[:, mask_terms == 0] = np.nan
+                    self.temporal_components_[i_timebin] = components
+                else:
+                    self.temporal_components_[i_timebin] = linear_classifier(
+                        t_doc_topic,
+                        embeddings=self.embeddings,
+                        vocab_embedding=self.vocab_embeddings,
+                    )
         return self.temporal_components_
 
     def fit_transform_dynamic(
