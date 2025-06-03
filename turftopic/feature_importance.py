@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Literal
+
 import numpy as np
 import scipy.sparse as spr
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -43,7 +47,7 @@ def linear_classifier(
     vocab_embeddings: np.ndarray,
 ) -> np.ndarray:
     """Computes feature importances based on embedding directions
-    obtained with logistic regression.
+    obtained with a linear classifier.
 
     Parameters
     ----------
@@ -66,6 +70,60 @@ def linear_classifier(
         # Binary is a special case
         components = np.concatenate([-components, components], axis=0)
     return components
+
+
+def fighting_words(
+    doc_topic_matrix: np.ndarray,
+    doc_term_matrix: spr.csr_matrix,
+    prior: float | Literal["corpus"] = "corpus",
+) -> np.ndarray:
+    """Computes feature importance using the *Fighting Words* algorithm.
+
+    Parameters
+    ----------
+    doc_topic_matrix: np.ndarray
+        Document-topic matrix of shape (n_documents, n_topics)
+    doc_term_matrix: np.ndarray
+        Document-term matrix of shape (n_documents, vocab_size)
+    prior: float or "corpus", default "corpus"
+        Dirichlet prior to use. When a float, it indicates the alpha
+        parameter of a symmetric Dirichlet, if "corpus",
+        word frequencies from the background corpus are used.
+
+    Returns
+    -------
+    ndarray of shape (n_topics, vocab_size)
+        Term importance matrix.
+    """
+    labels = np.argmax(doc_topic_matrix, axis=1)
+    n_topics = doc_topic_matrix.shape[1]
+    n_vocab = doc_term_matrix.shape[1]
+    components = []
+    if prior == "corpus":
+        priors = np.ravel(np.asarray(doc_term_matrix.sum(axis=0)))
+    else:
+        priors = np.full(n_vocab, prior)
+    a0 = np.sum(priors)  # prior * n_vocab
+    for i_topic in range(n_topics):
+        topic_freq = np.ravel(
+            np.asarray(doc_term_matrix[labels == i_topic].sum(axis=0))
+        )
+        rest_freq = np.ravel(
+            np.asarray(doc_term_matrix[labels != i_topic].sum(axis=0))
+        )
+        n1 = np.sum(topic_freq)
+        n2 = np.sum(rest_freq)
+        topic_logodds = np.log(
+            (topic_freq + priors) / (n1 + a0 - topic_freq - priors)
+        )
+        rest_logodds = np.log(
+            (rest_freq + priors) / (n2 + a0 - rest_freq - priors)
+        )
+        delta = topic_logodds - rest_logodds
+        delta_var = 1 / (topic_freq + priors) + 1 / (rest_freq + priors)
+        zscore = delta / np.sqrt(delta_var)
+        components.append(zscore)
+    return np.stack(components)
 
 
 def soft_ctf_idf(
