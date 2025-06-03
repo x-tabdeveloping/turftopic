@@ -100,9 +100,19 @@ def build_tsne(*args, **kwargs):
     try:
         from openTSNE import TSNE
 
-        model = TSNE(*args, **kwargs)
-        model.fit_transform = model.fit
-        return model
+        class OpenTSNEWrapper(TSNE):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            def fit_transform(self, X: np.ndarray, y=None):
+                return super().fit(X)
+
+            def fit(self, X: np.ndarray, y=None):
+                self.fit_transform(X, y)
+                return self
+
+        return OpenTSNEWrapper(*args, **kwargs)
+
     except ModuleNotFoundError:
         from sklearn.manifold import TSNE
 
@@ -434,7 +444,8 @@ class ClusteringTopicModel(
         raw_documents: iterable of str
             Documents to fit the model on.
         y: None
-            Ignored, exists for sklearn compatibility.
+            Originally ignored, in case of a dimensionality reduction that can utilize labels,
+            you can pass labels to the model to inform the clustering process.
         embeddings: ndarray of shape (n_documents, n_dimensions), optional
             Precomputed document encodings.
 
@@ -454,8 +465,12 @@ class ClusteringTopicModel(
             self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
             status.update("Reducing Dimensionality")
+            # If y is specified, we pass it to the dimensionality
+            # reduction method as supervisory signal
+            if y is not None:
+                _, y = np.unique(y, return_inverse=True)
             self.reduced_embeddings = (
-                self.dimensionality_reduction.fit_transform(embeddings)
+                self.dimensionality_reduction.fit_transform(embeddings, y=y)
             )
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
@@ -526,6 +541,7 @@ class ClusteringTopicModel(
         doc_topic_matrix = self.fit_transform(
             raw_documents,
             embeddings=self.multimodal_embeddings["document_embeddings"],
+            y=y,
         )
         self.image_topic_matrix = self.transform(
             raw_documents,
@@ -720,37 +736,21 @@ class ClusteringTopicModel(
 
 class BERTopic(ClusteringTopicModel):
     """Convenience function to construct a BERTopic model in Turftopic.
+    The model is essentially just a ClusteringTopicModel
+    with BERTopic's defaults (UMAP -> HDBSCAN -> C-TF-IDF).
+
+    ```bash
+    pip install turftopic[umap-learn]
+    ```
 
     ```python
     from turftopic import BERTopic
-    from sklearn.cluster import HDBSCAN
-    import umap
 
     corpus: list[str] = ["some text", "more text", ...]
 
     model = BERTopic().fit(corpus)
     model.print_topics()
     ```
-
-    Parameters
-    ----------
-    encoder: str or SentenceTransformer
-        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
-    vectorizer: CountVectorizer, default None
-        Vectorizer used for term extraction.
-        Can be used to prune or filter the vocabulary.
-    dimensionality_reduction: TransformerMixin, default None
-        Dimensionality reduction step to run before clustering.
-        Defaults to UMAP(5, metric="cosine")
-    clustering: ClusterMixin, default None
-        Clustering method to use for finding topics.
-        Defaults to HDBSCAN.
-    n_reduce_to: int, default None
-        Number of topics to reduce topics to.
-        The specified reduction method will be used to merge them.
-        By default, topics are not merged.
-    random_state: int, default None
-        Random state to use so that results are exactly reproducible.
     """
 
     def __init__(
@@ -761,7 +761,11 @@ class BERTopic(ClusteringTopicModel):
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
+        feature_importance: WordImportance = "c-tf-idf",
         n_reduce_to: Optional[int] = None,
+        reduction_method: LinkageMethod = "average",
+        reduction_distance_metric: DistanceMetric = "cosine",
+        reduction_topic_representation: TopicRepresentation = "component",
         random_state: Optional[int] = None,
     ):
         if dimensionality_reduction is None:
@@ -791,46 +795,30 @@ class BERTopic(ClusteringTopicModel):
             clustering=clustering,
             n_reduce_to=n_reduce_to,
             random_state=random_state,
-            feature_importance="c-tf-idf",
-            reduction_method="average",
-            reduction_distance_metric="cosine",
-            reduction_topic_representation="component",
+            feature_importance=feature_importance,
+            reduction_method=reduction_method,
+            reduction_distance_metric=reduction_distance_metric,
+            reduction_topic_representation=reduction_topic_representation,
         )
 
 
 class Top2Vec(ClusteringTopicModel):
     """Convenience function to construct a Top2Vec model in Turftopic.
+    The model is essentially the same as ClusteringTopicModel
+    with defaults that resemble Top2Vec (UMAP -> HDBSCAN -> Centroid term importance).
+
+    ```bash
+    pip install turftopic[umap-learn]
+    ```
 
     ```python
     from turftopic import Top2Vec
-    from sklearn.cluster import HDBSCAN
-    import umap
 
     corpus: list[str] = ["some text", "more text", ...]
 
     model = Top2Vec().fit(corpus)
     model.print_topics()
     ```
-
-    Parameters
-    ----------
-    encoder: str or SentenceTransformer
-        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
-    vectorizer: CountVectorizer, default None
-        Vectorizer used for term extraction.
-        Can be used to prune or filter the vocabulary.
-    dimensionality_reduction: TransformerMixin, default None
-        Dimensionality reduction step to run before clustering.
-        Defaults to UMAP(5, metric="cosine")
-    clustering: ClusterMixin, default None
-        Clustering method to use for finding topics.
-        Defaults to HDBSCAN.
-    n_reduce_to: int, default None
-        Number of topics to reduce topics to.
-        The specified reduction method will be used to merge them.
-        By default, topics are not merged.
-    random_state: int, default None
-        Random state to use so that results are exactly reproducible.
     """
 
     def __init__(
@@ -841,7 +829,11 @@ class Top2Vec(ClusteringTopicModel):
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
+        feature_importance: WordImportance = "centroid",
         n_reduce_to: Optional[int] = None,
+        reduction_method: LinkageMethod = "smallest",
+        reduction_distance_metric: DistanceMetric = "cosine",
+        reduction_topic_representation: TopicRepresentation = "centroid",
         random_state: Optional[int] = None,
     ):
         if dimensionality_reduction is None:
@@ -849,7 +841,7 @@ class Top2Vec(ClusteringTopicModel):
                 from umap import UMAP
             except ModuleNotFoundError as e:
                 raise ModuleNotFoundError(
-                    "UMAP is not installed in your environment, but BERTopic requires it."
+                    "UMAP is not installed in your environment, but Top2Vec requires it."
                 ) from e
             dimensionality_reduction = UMAP(
                 n_neighbors=15,
@@ -871,8 +863,8 @@ class Top2Vec(ClusteringTopicModel):
             clustering=clustering,
             n_reduce_to=n_reduce_to,
             random_state=random_state,
-            feature_importance="centroid",
-            reduction_method="smallest",
-            reduction_distance_metric="cosine",
-            reduction_topic_representation="centroid",
+            feature_importance=feature_importance,
+            reduction_method=reduction_method,
+            reduction_distance_metric=reduction_distance_metric,
+            reduction_topic_representation=reduction_topic_representation,
         )
