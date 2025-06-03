@@ -107,6 +107,25 @@ Turftopic is entirely clustering-model agnostic, and as such, any type of model 
 
 Clustering topic models rely on post-hoc term importance estimation, meaning that topic descriptions are calculated based on already discovered clusters.
 Multiple methods are available in Turftopic for estimating words'/phrases' importance scores for topics.
+You can manipulate how these scores are calculated by changing the `feature_importance` parameter of your topic models.
+By and large there are two types of methods that can be used for importance estimation:
+
+1. **Lexical methods**, which estimate term importance solely based on word counts in each cluster:
+    - Generally faster, since the vocabulary does not need to be encoded.
+    - Can capture more particular word use.
+    - Usually cover the topics' content better.
+2. **Semantic methods**, which estimate term importance using the semantic space of the model:
+    - They typically produce cleaner and more specific topics.
+    - Can be used in a multilingual context.
+    - Generally less sensitive to stop- and junk words.
+
+| Importance method | Type | Description | Advantages |
+| - | - | - | - |
+| `linear` **(NEW)** | Semantic | Project words onto the parameter vectors of a linear classifier (LDA). | Topic differences are measured in embedding space and are determined by predictive power, and are therefore accurate and clean. |
+| `fighting-words` **(NEW)** | Lexical | Compute word importance based on cluster differences using the Fightin' Words algorithm by Monroe et al. | A theoretically motivated probabilistic model that was explicitly designed for discovering lexical differences in groups of text. |
+| `c-tf-idf` | Lexical | Compute how unique terms are in a cluster with a tf-idf style weighting scheme. This is the default in BERTopic. | Very fast, easy to understand and is not affected by cluster shape. |
+| `soft-c-tf-idf` *(default)* | Lexical | A c-tf-idf mehod that can interpret soft cluster assignments. | Can interpret soft cluster assignment in models like Gaussian Mixtures, less sensitive to stop words than vanilla c-tf-idf. |
+| `centroid` | Semantic | Word importance based on words' proximity to cluster centroid vectors. This is the default in Top2Vec. | Produces clean topics, easily interpretable. |
 
 
 !!! quote "Choose a term importance estimation method"
@@ -120,43 +139,6 @@ Multiple methods are available in Turftopic for estimating words'/phrases' impor
         # or
         model = ClusteringTopicModel(feature_importance="c-tf-idf")
         ```
-        !!! failure inline end "Weaknesses"
-            - Topics can be contaminated with stop words
-            - Lower topic quality
-
-        !!! success inline end "Strengths"
-            - Theoretically more correct
-            - More within-topic coverage
-        c-TF-IDF (Grootendorst, 2022) is a weighting scheme based on the number of occurrences of terms in each cluster.
-        Terms which frequently occur in other clusters are inversely weighted so that words, which are specific to a topic gain larger importance.
-        By default, Turftopic uses a modified version of c-TF-IDF, called Soft-c-TF-IDF, which is more robust to stop-words.
-
-        <br>
-
-        ??? info "Click to see formulas"
-            #### Soft-c-TF-IDF
-            - Let $X$ be the document term matrix where each element ($X_{ij}$) corresponds with the number of times word $j$ occurs in a document $i$.
-            - Estimate weight of term $j$ for topic $z$: <br>
-            $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
-            $t_{zj} = \sum_{i \in z} X_{ij}$ is the number of occurrences of a word in a topic and 
-            $w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
-            - Estimate inverse document/topic frequency for term $j$:  
-            $idf_j = log(\frac{N}{\sum_z |t_{zj}|})$, where
-            $N$ is the total number of documents.
-            - Calculate importance of term $j$ for topic $z$:   
-            $Soft-c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
-
-            #### c-TF-IDF
-            - Let $X$ be the document term matrix where each element ($X_{ij}$) corresponds with the number of times word $j$ occurs in a document $i$.
-            - $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
-            $t_{zj} = \sum_{i \in z} X_{ij}$ is the number of occurrences of a word in a topic and 
-            $w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
-            - Estimate inverse document/topic frequency for term $j$:  
-            $idf_j = log(1 + \frac{A}{\sum_z |t_{zj}|})$, where
-            $A = \frac{\sum_z \sum_j t_{zj}}{Z}$ is the average number of words per topic, and $Z$ is the number of topics.
-            - Calculate importance of term $j$ for topic $z$:   
-            $c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
-
 
     === "Centroid Proximity (Top2Vec)"
 
@@ -166,18 +148,21 @@ Multiple methods are available in Turftopic for estimating words'/phrases' impor
         model = ClusteringTopicModel(feature_importance="centroid")
         ```
 
-        !!! failure inline end "Weaknesses"
-            - Low within-topic coverage
-            - Assumes spherical clusters
+    === "Fighting' Words"
 
-        !!! success inline end "Strengths"
-            - Clean topics
-            - Highly specific topics
+        ```python
+        from turftopic import ClusteringTopicModel
 
-        In Top2Vec (Angelov, 2020) term importance scores are estimated from word embeddings' similarity to centroid vector of clusters.
-        This approach typically produces cleaner and more specific topic descriptions, but might not be the optimal choice, since it makes assumptions about cluster shapes, and only describes the centers of clusters accurately.
+        model = ClusteringTopicModel(feature_importance="fighting-words")
+        ```
 
+    === "Linear Probing"
 
+        ```python
+        from turftopic import ClusteringTopicModel
+
+        model = ClusteringTopicModel(feature_importance="linear")
+        ```
 
 
 
@@ -305,6 +290,50 @@ model = ClusteringTopicModel().fit_dynamic(corpus, timestamps=ts, bins=10)
 model.print_topics_over_time()
 ```
 
+## Semi-supervised Topic Modeling
+
+Some dimensionality reduction methods are capable of designing features that are effective at predicting class labels.
+This way, you can provide a supervisory signal, but also let the model discover new topics that you have not specified.
+
+!!! warning
+    TSNE, the default dimensionality reduction method in Turftopic is not capable of semi-supervised modelling.
+    You will have to use a different algorithm.
+
+
+!!! note "Use a dimensionality reduction method for semi-supervised modeling."
+
+    === "with UMAP"
+
+        ```bash
+        pip install turftopic[umap-learn]
+        ```
+
+        ```python
+        from umap import UMAP
+        from turftopic import ClusteringTopicModel
+
+        corpus: list[str] = [...]
+
+        # UMAP can also understand missing class labels if you only have them on some examples
+        # Specify these with -1 or NaN labels
+        labels: list[int] = [0, 2, -1, -1, 0, 0...]
+
+        model = ClusteringTopicModel(dimensionality_reduction=UMAP())
+        model.fit(corpus, y=labels)
+        ```
+
+    === "with Linear Discriminant Analysis"
+
+        ```python
+        from sklearn.discriminant_analysis import LinearDisciminantAnalysis
+        from turftopic import ClusteringTopicModel
+
+        corpus: list[str] = [...]
+        labels: list[int] = [...]
+
+        model = ClusteringTopicModel(dimensionality_reduction=LinearDisciminantAnalysis(n_components=5))
+        model.fit(corpus, y=labels)
+        ```
 
 ## Visualization
 
@@ -339,3 +368,7 @@ _See Figure 1_
 ## API Reference
 
 ::: turftopic.models.cluster.ClusteringTopicModel
+
+::: turftopic.models.cluster.BERTopic
+
+::: turftopic.models.cluster.Top2Vec
