@@ -5,10 +5,7 @@ from typing import Literal
 import numpy as np
 import scipy.sparse as spr
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import normalize
-from sklearn.utils import check_array
 
 
 def cluster_centroid_distance(
