@@ -140,7 +140,11 @@ class SemanticSignalSeparation(
                 self.embeddings = self.encoder_.encode(raw_documents)
                 console.log("Documents encoded.")
             status.update("Decomposing embeddings")
-            doc_topic = self.decomposition.fit_transform(self.embeddings)
+            if isinstance(self.decomposition, FastICA) and (y is not None):
+                warnings.warn(
+                    "Supervisory signal is specified but decomposition method is FastICA. y will be ignored. Use a metric learning method for supervised S^3."
+                )
+            doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
@@ -190,7 +194,11 @@ class SemanticSignalSeparation(
                 console.log("Documents encoded.")
             self.embeddings = self.multimodal_embeddings["document_embeddings"]
             status.update("Decomposing embeddings")
-            doc_topic = self.decomposition.fit_transform(self.embeddings)
+            if isinstance(self.decomposition, FastICA) and (y is not None):
+                warnings.warn(
+                    "Supervisory signal is specified but decomposition method is FastICA. y will be ignored. Use a metric learning method for supervised S^3."
+                )
+            doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
