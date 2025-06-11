@@ -1173,7 +1173,7 @@ You can both use models that are supported in SentenceTransformers, or those tha
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">SentenceTransformers</label><label for="__tabbed_1_2">MTEB/MIEB</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">multimodal_keynmf</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;clip-ViT-B-32&quot;</span><span class="p">)</span>
 </code></pre></div>
@@ -1185,8 +1185,8 @@ You can both use models that are supported in SentenceTransformers, or those tha
 </div>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;mteb&lt;2.0.0&quot;</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">mteb</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">import</span> <span class="nn">mteb</span>
 
 <span class="n">encoder</span> <span class="o">=</span> <span class="n">mteb</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s2">&quot;kakaobrain/align-base&quot;</span><span class="p">)</span>
 
@@ -1200,7 +1200,7 @@ You can both use models that are supported in SentenceTransformers, or those tha
 <p>Currently all documents <strong>have to have</strong> an image attached to them, and only one image.
 This is a limitation, and we will address it in the future.
 Images can both be represented as file paths or <code>PIL.Image</code> objects.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 
 <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Image</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;file_path/something.jpeg&quot;</span><span class="p">),</span> <span class="o">...</span><span class="p">]</span>
 <span class="n">texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
@@ -1215,7 +1215,7 @@ that you can use to discover topics in multimodal corpora.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:5"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><input id="__tabbed_2_5" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">SemanticSignalSeparation</label><label for="__tabbed_2_2">KeyNMF</label><label for="__tabbed_2_3">Clustering Models</label><label for="__tabbed_2_4">GMM</label><label for="__tabbed_2_5">AutoEncodingTopicModel</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;clip-ViT-B-32&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit_multimodal</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">)</span>
@@ -1223,7 +1223,7 @@ that you can use to discover topics in multimodal corpora.</p>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;clip-ViT-B-32&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit_multimodal</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">)</span>
@@ -1231,7 +1231,7 @@ that you can use to discover topics in multimodal corpora.</p>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
 
 <span class="c1"># BERTopic-style</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">(</span><span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;clip-ViT-B-32&quot;</span><span class="p">,</span> <span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;c-tf-idf&quot;</span><span class="p">)</span>
@@ -1242,7 +1242,7 @@ that you can use to discover topics in multimodal corpora.</p>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">GMM</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">GMM</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">GMM</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;clip-ViT-B-32&quot;</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit_multimodal</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">)</span>
@@ -1250,7 +1250,7 @@ that you can use to discover topics in multimodal corpora.</p>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoEncodingTopicModel</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">AutoEncodingTopicModel</span>
 
 <span class="c1"># CombinedTM</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">AutoEncodingTopicModel</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;clip-ViT-B-32&quot;</span><span class="p">)</span>
@@ -1286,62 +1286,7 @@ that you can use to discover topics in multimodal corpora.</p>
 
             <details class="quote">
               <summary>Source code in <code>turftopic/multimodal.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 45</span>
-<span class="normal"> 46</span>
-<span class="normal"> 47</span>
-<span class="normal"> 48</span>
-<span class="normal"> 49</span>
-<span class="normal"> 50</span>
-<span class="normal"> 51</span>
-<span class="normal"> 52</span>
-<span class="normal"> 53</span>
-<span class="normal"> 54</span>
-<span class="normal"> 55</span>
-<span class="normal"> 56</span>
-<span class="normal"> 57</span>
-<span class="normal"> 58</span>
-<span class="normal"> 59</span>
-<span class="normal"> 60</span>
-<span class="normal"> 61</span>
-<span class="normal"> 62</span>
-<span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
@@ -1499,10 +1444,26 @@ that you can use to discover topics in multimodal corpora.</p>
 <span class="normal">255</span>
 <span class="normal">256</span>
 <span class="normal">257</span>
-<span class="normal">258</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">MultimodalModel</span><span class="p">:</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">MultimodalModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base model for multimodal topic models.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">encode_multimodal</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">encode_multimodal</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">sentences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -1522,49 +1483,10 @@ that you can use to discover topics in multimodal corpora.</p>
 <span class="sd">            Text, image and joint document embeddings.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Images and documents were not the same length.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="s2">&quot;get_text_embeddings&quot;</span><span class="p">):</span>
-            <span class="n">text_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">get_text_embeddings</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">text_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
-        <span class="n">embedding_size</span> <span class="o">=</span> <span class="n">text_embeddings</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">images</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_load_images</span><span class="p">(</span><span class="n">images</span><span class="p">))</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="s2">&quot;get_image_embeddings&quot;</span><span class="p">):</span>
-            <span class="n">image_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">get_image_embeddings</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">image_embeddings</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">image_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">image_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
-            <span class="n">image_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">image_embeddings</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">image_embeddings</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="s2">&quot;get_fused_embeddings&quot;</span><span class="p">):</span>
-            <span class="n">document_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">get_fused_embeddings</span><span class="p">(</span>
-                    <span class="n">texts</span><span class="o">=</span><span class="n">sentences</span><span class="p">,</span>
-                    <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">document_embeddings</span> <span class="o">=</span> <span class="n">_naive_join_embeddings</span><span class="p">(</span>
-                <span class="n">text_embeddings</span><span class="p">,</span> <span class="n">image_embeddings</span>
-            <span class="p">)</span>
-
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;text_embeddings&quot;</span><span class="p">:</span> <span class="n">text_embeddings</span><span class="p">,</span>
-            <span class="s2">&quot;image_embeddings&quot;</span><span class="p">:</span> <span class="n">image_embeddings</span><span class="p">,</span>
-            <span class="s2">&quot;document_embeddings&quot;</span><span class="p">:</span> <span class="n">document_embeddings</span><span class="p">,</span>
-        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">encode_multimodal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="n">sentences</span><span class="p">,</span> <span class="n">images</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">validate_embeddings</span><span class="p">(</span><span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MultimodalEmbeddings</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">validate_embeddings</span><span class="p">(</span><span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MultimodalEmbeddings</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1573,13 +1495,13 @@ that you can use to discover topics in multimodal corpora.</p>
         <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="s2">&quot;embeddings do not contain document and image embeddings, can&#39;t be used for multimodal modelling.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="k">if</span> <span class="n">document_embeddings</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">image_embeddings</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Shape mismatch between document_embeddings </span><span class="si">{</span><span class="n">document_embeddings</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> and image_embeddings </span><span class="si">{</span><span class="n">image_embeddings</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">validate_encoder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">validate_encoder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="s2">&quot;encode&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
                 <span class="p">(</span>
@@ -1592,7 +1514,7 @@ that you can use to discover topics in multimodal corpora.</p>
                 <span class="p">)</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform_multimodal</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_transform_multimodal</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -1619,7 +1541,7 @@ that you can use to discover topics in multimodal corpora.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_multimodal</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_multimodal</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -1648,7 +1570,7 @@ that you can use to discover topics in multimodal corpora.</p>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">collect_top_images</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">collect_top_images</span><span class="p">(</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">],</span>
         <span class="n">image_topic_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">n_images</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
@@ -1663,7 +1585,7 @@ that you can use to discover topics in multimodal corpora.</p>
             <span class="n">top_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top_im</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">top_images</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_multimodal_topic_data</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">prepare_multimodal_topic_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -1813,66 +1735,27 @@ that you can use to discover topics in multimodal corpora.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/multimodal.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 48</span>
-<span class="normal"> 49</span>
-<span class="normal"> 50</span>
-<span class="normal"> 51</span>
-<span class="normal"> 52</span>
-<span class="normal"> 53</span>
-<span class="normal"> 54</span>
-<span class="normal"> 55</span>
-<span class="normal"> 56</span>
-<span class="normal"> 57</span>
-<span class="normal"> 58</span>
-<span class="normal"> 59</span>
-<span class="normal"> 60</span>
-<span class="normal"> 61</span>
-<span class="normal"> 62</span>
-<span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">encode_multimodal</span><span class="p">(</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">encode_multimodal</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">sentences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -1892,46 +1775,7 @@ that you can use to discover topics in multimodal corpora.</p>
 <span class="sd">        Text, image and joint document embeddings.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Images and documents were not the same length.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="s2">&quot;get_text_embeddings&quot;</span><span class="p">):</span>
-        <span class="n">text_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">get_text_embeddings</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">text_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
-    <span class="n">embedding_size</span> <span class="o">=</span> <span class="n">text_embeddings</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">images</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_load_images</span><span class="p">(</span><span class="n">images</span><span class="p">))</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="s2">&quot;get_image_embeddings&quot;</span><span class="p">):</span>
-        <span class="n">image_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">get_image_embeddings</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">image_embeddings</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">image_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">image_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
-        <span class="n">image_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">image_embeddings</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">image_embeddings</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="s2">&quot;get_fused_embeddings&quot;</span><span class="p">):</span>
-        <span class="n">document_embeddings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">get_fused_embeddings</span><span class="p">(</span>
-                <span class="n">texts</span><span class="o">=</span><span class="n">sentences</span><span class="p">,</span>
-                <span class="n">images</span><span class="o">=</span><span class="n">images</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">document_embeddings</span> <span class="o">=</span> <span class="n">_naive_join_embeddings</span><span class="p">(</span>
-            <span class="n">text_embeddings</span><span class="p">,</span> <span class="n">image_embeddings</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;text_embeddings&quot;</span><span class="p">:</span> <span class="n">text_embeddings</span><span class="p">,</span>
-        <span class="s2">&quot;image_embeddings&quot;</span><span class="p">:</span> <span class="n">image_embeddings</span><span class="p">,</span>
-        <span class="s2">&quot;document_embeddings&quot;</span><span class="p">:</span> <span class="n">document_embeddings</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">encode_multimodal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="p">,</span> <span class="n">sentences</span><span class="p">,</span> <span class="n">images</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2050,23 +1894,7 @@ that you can use to discover topics in multimodal corpora.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/multimodal.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
 <span class="normal">184</span>
@@ -2076,7 +1904,23 @@ that you can use to discover topics in multimodal corpora.</p>
 <span class="normal">188</span>
 <span class="normal">189</span>
 <span class="normal">190</span>
-<span class="normal">191</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fit_multimodal</span><span class="p">(</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fit_multimodal</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -2225,23 +2069,7 @@ that you can use to discover topics in multimodal corpora.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/multimodal.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
@@ -2251,8 +2079,24 @@ that you can use to discover topics in multimodal corpora.</p>
 <span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
-<span class="normal">163</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">fit_transform_multimodal</span><span class="p">(</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
+<span class="k">def</span> <span class="nf">fit_transform_multimodal</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -2384,23 +2228,7 @@ Exists to allow visualizations out of the box with topicwizard.</p>
 
           <details class="quote">
             <summary>Source code in <code>turftopic/multimodal.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
 <span class="normal">226</span>
 <span class="normal">227</span>
 <span class="normal">228</span>
@@ -2433,7 +2261,23 @@ Exists to allow visualizations out of the box with topicwizard.</p>
 <span class="normal">255</span>
 <span class="normal">256</span>
 <span class="normal">257</span>
-<span class="normal">258</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_multimodal_topic_data</span><span class="p">(</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">prepare_multimodal_topic_data</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -2543,10 +2387,10 @@ Exists to allow visualizations out of the box with topicwizard.</p>
 <span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
-<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">MultimodalEncoder</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">MultimodalEncoder</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for external encoder models.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_text_embeddings</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_text_embeddings</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="o">*</span><span class="p">,</span>
@@ -2554,7 +2398,7 @@ Exists to allow visualizations out of the box with topicwizard.</p>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span> <span class="o">...</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_image_embeddings</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_image_embeddings</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">],</span>
         <span class="o">*</span><span class="p">,</span>
@@ -2562,7 +2406,7 @@ Exists to allow visualizations out of the box with topicwizard.</p>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span> <span class="o">...</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_fused_embeddings</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">get_fused_embeddings</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

@@ -1152,7 +1152,7 @@
 <p>You might expect some topics in your corpus to belong to a hierarchy of topics.
 Some models in Turftopic allow you to investigate hierarchical relations and build a taxonomy of topics in a corpus.</p>
 <p>Models in Turftopic that can model hierarchical relations will have a <code>hierarchy</code> property, that you can manipulate and print/visualize:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">(</span><span class="n">n_reduce_to</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 <span class="c1"># We cut at level 3 for plotting, since the hierarchy is very deep</span>
@@ -1165,7 +1165,7 @@ Some models in Turftopic allow you to investigate hierarchical relations and bui
 <p>In divisive modeling, you start from larger structures, higher up in the hierarchy, and  divide topics into smaller sub-topics on-demand.
 This is how hierarchical modeling works in <a href="../KeyNMF/">KeyNMF</a>, which, by default does not discover a topic hierarchy, but you can divide topics to as many subtopics as you see fit.</p>
 <p>As a demonstration, let's load a corpus, that we know to have hierarchical themes.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
 
 <span class="n">corpus</span> <span class="o">=</span> <span class="n">fetch_20newsgroups</span><span class="p">(</span>
     <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
@@ -1180,7 +1180,7 @@ This is how hierarchical modeling works in <a href="../KeyNMF/">KeyNMF</a>, whic
 </code></pre></div>
 <p>In this case, we have two base themes, which are <strong>computers</strong>, and <strong>religion</strong>.
 Let us fit a KeyNMF model with two topics to see if the model finds these.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">top_n</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
@@ -1257,7 +1257,7 @@ Let us divide Topic 0.0 to 5 subtopics.</p>
 Clustering models typically find a lot of topics, and it can help with interpretation to merge topics until you gain 10-20 top-level topics.</p>
 <p>You can either do this by default on a clustering model by setting <code>n_reduce_to</code> on initialization or you can do it manually with <code>reduce_topics()</code>.
 For more details, check our guide on <a href="../clustering/">Clustering models</a>.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">(</span>
     <span class="n">n_reduce_to</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
@@ -1709,7 +1709,7 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
 <span class="normal">422</span>
 <span class="normal">423</span>
 <span class="normal">424</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TopicNode</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">TopicNode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Node for a topic in a topic hierarchy.</span>
 
 <span class="sd">    Parameters</span>
@@ -1732,23 +1732,23 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
     <span class="n">document_topic_vector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">children</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">TopicNode</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_path_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_path_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">level_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">level_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">classes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">classes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;TopicNode doesn&#39;t have children.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">child</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">components_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">components_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;TopicNode doesn&#39;t have children.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">child</span><span class="o">.</span><span class="n">word_importance</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">])</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">create_root</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">create_root</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="n">ContextualModel</span><span class="p">,</span>
         <span class="n">components</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -1781,11 +1781,11 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
         <span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Indicates how deep down the hierarchy the topic is.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_words</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">get_words</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns top words and words importances for the topic.</span>
 
 <span class="sd">        Parameters</span>
@@ -1807,7 +1807,7 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">imp</span><span class="p">))</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a high level description of the topic with its path in the tree</span>
 <span class="sd">        and top words.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
@@ -1828,7 +1828,7 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
         <span class="k">return</span> <span class="n">capture</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_simple_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_simple_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
             <span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;Root&quot;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1841,7 +1841,7 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
         <span class="n">concat_words</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">concat_words</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_build_tree</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_build_tree</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">tree</span><span class="p">:</span> <span class="n">Tree</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -1861,7 +1861,7 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
                 <span class="n">child</span><span class="o">.</span><span class="n">_build_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">tree</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_tree</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1880,17 +1880,17 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_tree</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">console</span><span class="o">.</span><span class="n">capture</span><span class="p">()</span> <span class="k">as</span> <span class="n">capture</span><span class="p">:</span>
             <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">capture</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_or_path</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_or_path</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
                 <span class="s2">&quot;Current node is a leaf and does not have children.&quot;</span>
@@ -1901,20 +1901,20 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
         <span class="p">}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">mapping</span><span class="p">[</span><span class="n">id_or_path</span><span class="p">]]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">plot_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Plots hierarchy as an interactive tree in Plotly.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_tree_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_append_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_prefix</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_append_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_prefix</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="p">(</span><span class="n">path_prefix</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
                 <span class="n">child</span><span class="o">.</span><span class="n">_append_path</span><span class="p">(</span><span class="n">path_prefix</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a copy of the given node.</span>
 
 <span class="sd">        Parameters</span>
@@ -1946,7 +1946,7 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
                 <span class="n">document_topic_vector</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">document_topic_vector</span><span class="p">,</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Cuts hierarchy at a given depth, returns copy of the hierarchy with levels beyond max_depth removed.</span>
 
 <span class="sd">        Parameters</span>
@@ -1978,8 +1978,8 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
                 <span class="n">document_topic_vector</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">document_topic_vector</span><span class="p">,</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">collect_leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">TopicNode</span><span class="p">]:</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">_collect_leaves</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">TopicNode</span><span class="p">,</span> <span class="n">leaves</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TopicNode</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">collect_leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">TopicNode</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">_collect_leaves</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">TopicNode</span><span class="p">,</span> <span class="n">leaves</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TopicNode</span><span class="p">]):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
                 <span class="n">leaves</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1990,7 +1990,7 @@ For more details, check our guide on <a href="../clustering/">Clustering models<
         <span class="n">_collect_leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leaves</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">leaves</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns new hierarchy with only the leaves of the tree.</span>
 
 <span class="sd">        Returns</span>
@@ -2182,7 +2182,7 @@ contain references to the original children.</p>
 <span class="normal">345</span>
 <span class="normal">346</span>
 <span class="normal">347</span>
-<span class="normal">348</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
+<span class="normal">348</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a copy of the given node.</span>
 
 <span class="sd">    Parameters</span>
@@ -2272,7 +2272,7 @@ contain references to the original children.</p>
 <span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_root</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">create_root</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">ContextualModel</span><span class="p">,</span>
     <span class="n">components</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -2411,7 +2411,7 @@ Contains a deep copy of the original nodes.</p>
 <span class="normal">377</span>
 <span class="normal">378</span>
 <span class="normal">379</span>
-<span class="normal">380</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
+<span class="normal">380</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Cuts hierarchy at a given depth, returns copy of the hierarchy with levels beyond max_depth removed.</span>
 
 <span class="sd">    Parameters</span>
@@ -2520,7 +2520,7 @@ Copies of the original nodes.</p>
 <span class="normal">421</span>
 <span class="normal">422</span>
 <span class="normal">423</span>
-<span class="normal">424</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
+<span class="normal">424</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TopicNode</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns new hierarchy with only the leaves of the tree.</span>
 
 <span class="sd">    Returns</span>
@@ -2647,7 +2647,7 @@ Copies of the original nodes.</p>
 <span class="normal">205</span>
 <span class="normal">206</span>
 <span class="normal">207</span>
-<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_words</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_words</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns top words and words importances for the topic.</span>
 
 <span class="sd">    Parameters</span>
@@ -2692,7 +2692,7 @@ Copies of the original nodes.</p>
             <summary>Source code in <code>turftopic/hierarchical.py</code></summary>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">308</span>
 <span class="normal">309</span>
-<span class="normal">310</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">310</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Plots hierarchy as an interactive tree in Plotly.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_tree_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2780,7 +2780,7 @@ If None, the entire hierarchy is printed.</p>
 <span class="normal">279</span>
 <span class="normal">280</span>
 <span class="normal">281</span>
-<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_tree</span><span class="p">(</span>
+<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2891,15 +2891,15 @@ If None, the entire hierarchy is printed.</p>
 <span class="normal">478</span>
 <span class="normal">479</span>
 <span class="normal">480</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">DivisibleTopicNode</span><span class="p">(</span><span class="n">TopicNode</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">DivisibleTopicNode</span><span class="p">(</span><span class="n">TopicNode</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Node for a topic in a topic hierarchy that can be subdivided.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Deletes children of the given node.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">divide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_subtopics</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">divide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_subtopics</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Divides current node into smaller subtopics.</span>
 <span class="sd">        Only works when the underlying model is a divisive hierarchical model.</span>
 
@@ -2915,10 +2915,10 @@ If None, the entire hierarchy is printed.</p>
         <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
                 <span class="s2">&quot;Looks like your model is not a divisive hierarchical model.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">divide_children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_subtopics</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">divide_children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_subtopics</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Divides all children of the current node to smaller topics.</span>
 <span class="sd">        Only works when the underlying model is a divisive hierarchical model.</span>
 
@@ -2935,14 +2935,14 @@ If None, the entire hierarchy is printed.</p>
             <span class="n">child</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">n_subtopics</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_tree</span><span class="p">(</span><span class="n">top_k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
         <span class="k">with</span> <span class="n">console</span><span class="o">.</span><span class="n">capture</span><span class="p">()</span> <span class="k">as</span> <span class="n">capture</span><span class="p">:</span>
             <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">capture</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2979,7 +2979,7 @@ If None, the entire hierarchy is printed.</p>
             <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">431</span>
 <span class="normal">432</span>
 <span class="normal">433</span>
-<span class="normal">434</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">434</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Deletes children of the given node.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="bp">self</span>
@@ -3054,7 +3054,7 @@ Only works when the underlying model is a divisive hierarchical model.</p>
 <span class="normal">450</span>
 <span class="normal">451</span>
 <span class="normal">452</span>
-<span class="normal">453</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">divide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_subtopics</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="normal">453</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">divide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_subtopics</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Divides current node into smaller subtopics.</span>
 <span class="sd">    Only works when the underlying model is a divisive hierarchical model.</span>
 
@@ -3070,7 +3070,7 @@ Only works when the underlying model is a divisive hierarchical model.</p>
     <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
             <span class="s2">&quot;Looks like your model is not a divisive hierarchical model.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
     <span class="k">return</span> <span class="bp">self</span>
 </code></pre></div></td></tr></table></div>
           </details>
@@ -3141,7 +3141,7 @@ Only works when the underlying model is a divisive hierarchical model.</p>
 <span class="normal">467</span>
 <span class="normal">468</span>
 <span class="normal">469</span>
-<span class="normal">470</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">divide_children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_subtopics</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="normal">470</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">divide_children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_subtopics</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Divides all children of the current node to smaller topics.</span>
 <span class="sd">    Only works when the underlying model is a divisive hierarchical model.</span>
 
@@ -3372,12 +3372,12 @@ Supports merging topics based on a hierarchical merging strategy.</p>
 <span class="normal">265</span>
 <span class="normal">266</span>
 <span class="normal">267</span>
-<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ClusterNode</span><span class="p">(</span><span class="n">TopicNode</span><span class="p">):</span>
+<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">ClusterNode</span><span class="p">(</span><span class="n">TopicNode</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Hierarchical Topic Node for clustering models.</span>
 <span class="sd">    Supports merging topics based on a hierarchical merging strategy.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">create_root</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ContextualModel</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">create_root</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ContextualModel</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates root node from a topic models&#39; components and topic importances in documents.&quot;&quot;&quot;</span>
         <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
         <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="n">safe_binarize</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">)</span>
@@ -3401,7 +3401,7 @@ Supports merging topics based on a hierarchical merging strategy.</p>
         <span class="n">res</span><span class="o">.</span><span class="n">estimate_components</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">res</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">join_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">join_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">to_join</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">joint_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Joins a number of topics into a new topic with a given ID.</span>
@@ -3442,14 +3442,14 @@ Supports merging topics based on a hierarchical merging strategy.</p>
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
             <span class="n">child</span><span class="o">.</span><span class="n">word_importance</span> <span class="o">=</span> <span class="n">component_map</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">estimate_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">estimate_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="n">component_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estimate_children_components</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
             <span class="n">child</span><span class="o">.</span><span class="n">word_importance</span> <span class="o">=</span> <span class="n">component_map</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">labels_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">labels_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="n">topic_document_membership</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
             <span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">document_topic_vector</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">]</span>
         <span class="p">)</span>
@@ -3461,7 +3461,7 @@ Supports merging topics based on a hierarchical merging strategy.</p>
             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span> <span class="k">if</span> <span class="n">label</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_estimate_children_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_estimate_children_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimates feature importances based on a fitted clustering.&quot;&quot;&quot;</span>
         <span class="n">clusters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels_</span><span class="p">)</span>
         <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">clusters</span><span class="p">)</span>
@@ -3503,7 +3503,7 @@ Supports merging topics based on a hierarchical merging strategy.</p>
             <span class="p">)</span>
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">components</span><span class="p">))</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_merge_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linkage_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_merge_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linkage_matrix</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span>
         <span class="n">max_class</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">[</span><span class="n">classes</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">i_cluster</span><span class="p">,</span> <span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">linkage_matrix</span><span class="p">):</span>
@@ -3511,7 +3511,7 @@ Supports merging topics based on a hierarchical merging strategy.</p>
                 <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">left</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">right</span><span class="p">)],</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_class</span> <span class="o">+</span> <span class="n">i_cluster</span><span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_linkage</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_calculate_linkage</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">n_reduce_to</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cosine&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VALID_LINKAGE_METHODS</span><span class="p">:</span>
@@ -3538,7 +3538,7 @@ Supports merging topics based on a hierarchical merging strategy.</p>
                 <span class="p">:</span><span class="n">n_reductions</span>
             <span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">reduce_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">reduce_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">n_reduce_to</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cosine&quot;</span>
     <span class="p">):</span>
         <span class="n">n_topics</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -3612,7 +3612,7 @@ Supports merging topics based on a hierarchical merging strategy.</p>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_root</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ContextualModel</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">create_root</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ContextualModel</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates root node from a topic models&#39; components and topic importances in documents.&quot;&quot;&quot;</span>
     <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
     <span class="n">document_topic_matrix</span> <span class="o">=</span> <span class="n">safe_binarize</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">)</span>
@@ -3741,7 +3741,7 @@ Supports merging topics based on a hierarchical merging strategy.</p>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
-<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">join_topics</span><span class="p">(</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">join_topics</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">to_join</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">joint_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Joins a number of topics into a new topic with a given ID.</span>

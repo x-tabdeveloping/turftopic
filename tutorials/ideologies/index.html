@@ -1189,13 +1189,13 @@ Dimensional analysis of views is also typically conducted using surveys.</p>
 </code></pre></div>
 <h2 id="data-preparation">Data Preparation</h2>
 <p>For this demonstration, I will be using a synthetic dataset, in which a large language model was tasked with expressing political opinions in free-form text.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
 
 <span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;JyotiNayak/political_ideologies&quot;</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
 <span class="n">texts</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;statement&quot;</span><span class="p">]</span>
 </code></pre></div>
 <p>We will be using the <code>paraphrase-MiniLM-L12-v2</code> for embedding our dataset and pre-computing embeddings.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
 
 <span class="n">encoder</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;paraphrase-MiniLM-L12-v2&quot;</span><span class="p">)</span>
 <span class="n">embeddings</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">show_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1209,7 +1209,7 @@ For more details, read the documentation page on <a href="../../s3/">Semantic Si
 <p class="admonition-title">Note</p>
 <p>You can easily expand this to more dimensions, the only reason we're not doing it here is because it would take more time to interpret them, and the tutorial is more accessible this way.</p>
 </div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">encoder</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">doc_topic_matrix</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">)</span>
@@ -1324,8 +1324,8 @@ A potential interpretation of these could be the following:</p>
 <p>In this synthetic dataset we also have access to party affiliation labels.
 As such we can investigate the relation between (hypothetical) political parties and the discovered ideological dimensions.</p>
 <p>We will do this by organizing all information into a dataframe, then plotting it on a scatterplot matrix.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">doc_topic_matrix</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">topic_names</span><span class="p">)</span>
 <span class="n">df</span><span class="p">[</span><span class="s2">&quot;party&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Liberal&quot;</span> <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;Conservative&quot;</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]]</span>
@@ -1334,10 +1334,10 @@ As such we can investigate the relation between (hypothetical) political parties
 <span class="n">fig</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span><span class="n">diagonal_visible</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">showupperhalf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">opacity</span><span class="o">=</span><span class="mf">0.6</span><span class="p">))</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
-<center>
-  <iframe src="../images/pol_comp_parties.html", title="Parties' distribution on the axes", style="height:820px;width:820px;padding:0px;border:none;"></iframe>
-</center>
-
+<p><center>
+<br />
+<iframe src="../images/pol_comp_parties.html", title="Parties' distribution on the axes", style="height:820px;width:820px;padding:0px;border:none;"></iframe></p>
+<p></center></p>
 <p>While there doesn't seem to be a clear divide on these issues between these hypothetical liberals and convservatives, some differences can already be seen.
 For instance environmental issues are discussed more by liberals, while belief-based and religious issues are more prevalent in conservative texts.</p>
 

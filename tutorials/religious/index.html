@@ -1181,8 +1181,8 @@ One potential research question could be to investigate how groups online discus
 <h2 id="data-preparation">Data Preparation</h2>
 <p>We are going to use a subset of the 20 Newsgroups dataset, which includes three newsgroups oriented at discussing religion and atheism.
 Luckily this dataset is directly available from scikit-learn's repositories.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
 
 <span class="n">ds</span> <span class="o">=</span> <span class="n">fetch_20newsgroups</span><span class="p">(</span>
     <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
@@ -1203,7 +1203,7 @@ We will use the small and fast <code>all-MiniLM-L6-v2</code> sentence transforme
 <p>Sometimes you might want to reuse embeddings in different topic models, or save them to disk.
 It is thus recommended, but not necessary to precompute them before running a topic model.</p>
 </div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
 
 <span class="n">encoder</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">)</span>
 <span class="n">embeddings</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">show_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1215,7 +1215,7 @@ KeyNMF is capable of investigating a corpus from a certain angle based on a <str
 <p class="admonition-title">Tip</p>
 <p>For a more detailed discussion, check out our documentation page on <a href="../../seeded/">Seeded Topic Modelling</a></p>
 </div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span>
     <span class="n">n_components</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
@@ -1352,16 +1352,16 @@ and whether animals can be held morally responsible.</p>
 Hover over a word to display it.
 You can click on the legend to hide topics.</p>
 </div>
-<center>
-  <iframe src="../images/religion_word_map.html", title="Word Map of the Topic model", style="height:750px;width:1120px;padding:0px;border:none;"></iframe>
-</center>
-
+<p><center>
+<br />
+<iframe src="../images/religion_word_map.html", title="Word Map of the Topic model", style="height:750px;width:1120px;padding:0px;border:none;"></iframe></p>
+<p></center></p>
 <h2 id="topical-differences-in-groups">Topical Differences in Groups</h2>
 <p>One interesting aspect to look at when investigating data from social media, is understanding, which topics get mostly discussed by which group.
 Since we have group labels for each text in 20 Newsgroups, we can investigate how topic distributions are different in the three newsgroups we are analysing.</p>
 <p>We can do this by summing up all document-topic distributions in the given groups, and then plotting them on a heatmap.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="n">groups</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;alt.atheism&quot;</span><span class="p">,</span>
@@ -1379,10 +1379,10 @@ Since we have group labels for each text in 20 Newsgroups, we can investigate ho
 <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">group_topic_matrix</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
-<center>
-  <iframe src="../images/religion_topic_group_heatmap.html", title="Heatmap of topic-group distributions", style="height:350px;width:1120px;padding:0px;border:none;"></iframe>
-</center>
-
+<p><center>
+<br />
+<iframe src="../images/religion_topic_group_heatmap.html", title="Heatmap of topic-group distributions", style="height:350px;width:1120px;padding:0px;border:none;"></iframe></p>
+<p></center></p>
 <p>Here we can see that the distinction between theism and atheism, as well as subjectivity and objectivity are central themes for atheists.
 Christians, meanwhile, understandably, talk more about the bible, the gospel, differences between denominations and sins.
 Interestingly, Islam is mostly discussed in the atheism group, but not in the religion ones.</p>

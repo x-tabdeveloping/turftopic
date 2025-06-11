@@ -1098,9 +1098,9 @@ This is currently only possible with KeyNMF in Turftopic, but will likely be ext
 <p>In <a href="keynmf.md">KeyNMF</a>, you can describe the aspect, from which you want to investigate your corpus, using a free-text seed-phrase,
 which will then be used to only extract topics, which are relevant to your research question.</p>
 <p>In this example we investigate the 20Newsgroups corpus from three different aspects:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
 
 <span class="n">corpus</span> <span class="o">=</span> <span class="n">fetch_20newsgroups</span><span class="p">(</span>
     <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>

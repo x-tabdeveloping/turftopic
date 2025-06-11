@@ -1152,8 +1152,8 @@
 <p>Turftopic by default encodes documents using sentence transformers.
 You can always change the encoder model either by passing the name of a sentence transformer from the Huggingface Hub to a model, or by passing a <code>SentenceTransformer</code> instance.</p>
 <p>Here's an example of building a multilingual topic model by using multilingual embeddings:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">GMM</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">GMM</span>
 
 <span class="n">trf</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;paraphrase-multilingual-MiniLM-L12-v2&quot;</span><span class="p">)</span>
 
@@ -1171,8 +1171,8 @@ Microsoft's E5 models are, for instance, all prompted by default, and it would b
 <p>In these cases, you're better off NOT passing a string to Turftopic models, but explicitly loading the model using <code>sentence-transformers</code>.</p>
 <p>Here's an example of using instruct models for keyword retrieval with KeyNMF.
 In this case, documents will serve as the queries and words as the passages:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
 
 <span class="n">encoder</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span>
     <span class="s2">&quot;intfloat/multilingual-e5-large-instruct&quot;</span><span class="p">,</span>
@@ -1202,8 +1202,8 @@ In this case, documents will serve as the queries and words as the passages:</p>
 the <code>onnx</code> backend instead of regular torch.</p>
 <div class="highlight"><pre><span></span><code>pip install sentence-transformers[onnx, onnx-gpu]
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sentence_transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentenceTransformer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
 
 <span class="n">encoder</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;onnx&quot;</span><span class="p">)</span>
 
@@ -1251,11 +1251,11 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 <span class="normal">21</span>
 <span class="normal">22</span>
 <span class="normal">23</span>
-<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ExternalEncoder</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">ExternalEncoder</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for external encoder models.&quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Encodes sentences into an embedding matrix.</span>
 
 <span class="sd">        Parameters</span>
@@ -1374,7 +1374,7 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 <span class="normal">22</span>
 <span class="normal">23</span>
 <span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encodes sentences into an embedding matrix.</span>
 
 <span class="sd">    Parameters</span>
@@ -1430,8 +1430,8 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 <li><code>embed-english-light-v2.0</code></li>
 <li><code>embed-multilingual-v2.0</code></li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.encoders</span><span class="w"> </span><span class="kn">import</span> <span class="n">CohereEmbeddings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">GMM</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic.encoders</span> <span class="kn">import</span> <span class="n">CohereEmbeddings</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">GMM</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">GMM</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">CohereEmbeddings</span><span class="p">())</span>
 </code></pre></div>
@@ -1552,7 +1552,7 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 <span class="normal">73</span>
 <span class="normal">74</span>
 <span class="normal">75</span>
-<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CohereEmbeddings</span><span class="p">(</span><span class="n">ExternalEncoder</span><span class="p">):</span>
+<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">CohereEmbeddings</span><span class="p">(</span><span class="n">ExternalEncoder</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder model using embeddings from Cohere.</span>
 
 <span class="sd">    The available models are:</span>
@@ -1584,13 +1584,13 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 <span class="sd">        Sizes of the batches that will be sent to Cohere&#39;s API.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;embed-english-v3.0&quot;</span><span class="p">,</span>
         <span class="n">input_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;clustering&quot;</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">cohere</span>
+        <span class="kn">import</span> <span class="nn">cohere</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">cohere</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;COHERE_KEY&quot;</span><span class="p">])</span>
@@ -1598,12 +1598,12 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
                 <span class="s2">&quot;You have to set the COHERE_KEY environment&quot;</span>
                 <span class="s2">&quot; variable to use Cohere embeddings.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_type</span> <span class="o">=</span> <span class="n">input_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">batched</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">):</span>
             <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">embed</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">input_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_type</span><span class="p">)</span>
@@ -1656,8 +1656,8 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 <li><code>text-embedding-3-small</code></li>
 <li><code>text-embedding-ada-002</code></li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.encoders</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">GMM</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic.encoders</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">GMM</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">GMM</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">OpenAIEmbeddings</span><span class="p">())</span>
 </code></pre></div>
@@ -1759,7 +1759,7 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 <span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span>
-<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OpenAIEmbeddings</span><span class="p">(</span><span class="n">ExternalEncoder</span><span class="p">):</span>
+<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">OpenAIEmbeddings</span><span class="p">(</span><span class="n">ExternalEncoder</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder model using embeddings from OpenAI.</span>
 
 <span class="sd">    The available models are:</span>
@@ -1785,10 +1785,10 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;text-embedding-3-large&quot;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span>
     <span class="p">):</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">openai</span>
+        <span class="kn">import</span> <span class="nn">openai</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">openai</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OPENAI_KEY&quot;</span><span class="p">]</span>
@@ -1796,13 +1796,13 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
                 <span class="s2">&quot;You have to set the OPENAI_KEY environment&quot;</span>
                 <span class="s2">&quot; variable to use OpenAI embeddings.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="n">openai</span><span class="o">.</span><span class="n">organization</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_ORG&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">openai</span>
+    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="kn">import</span> <span class="nn">openai</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">batched</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">):</span>
@@ -1857,8 +1857,8 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 <li><code>voyage-2</code></li>
 <li><code>voyage-lite-2-instruct</code></li>
 </ul>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.encoders</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoyageEmbeddings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">GMM</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic.encoders</span> <span class="kn">import</span> <span class="n">VoyageEmbeddings</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">GMM</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">GMM</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">VoyageEmbeddings</span><span class="p">())</span>
 </code></pre></div>
@@ -1956,7 +1956,7 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
-<span class="normal">67</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VoyageEmbeddings</span><span class="p">(</span><span class="n">ExternalEncoder</span><span class="p">):</span>
+<span class="normal">67</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">VoyageEmbeddings</span><span class="p">(</span><span class="n">ExternalEncoder</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder model using embeddings from VoyageAI.</span>
 
 <span class="sd">    The available models are:</span>
@@ -1981,10 +1981,10 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;voyage-lite-2-instruct&quot;</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span>
     <span class="p">):</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">voyageai</span>
+        <span class="kn">import</span> <span class="nn">voyageai</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">voyageai</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;VOYAGE_KEY&quot;</span><span class="p">]</span>
@@ -1992,12 +1992,12 @@ Turftopic currently supports OpenAI, Voyage and Cohere embeddings.</p>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
                 <span class="s2">&quot;You have to set the VOYAGE_KEY environment&quot;</span>
                 <span class="s2">&quot; variable to use Voyage embeddings.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">voyageai</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_embeddings</span>
+    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="kn">from</span> <span class="nn">voyageai</span> <span class="kn">import</span> <span class="n">get_embeddings</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">batched</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">):</span>

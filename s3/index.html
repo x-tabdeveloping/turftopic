@@ -1210,7 +1210,7 @@ The strength of the components in the words will be interpreted as the words' im
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Axial</label><label for="__tabbed_1_2">Angular</label><label for="__tabbed_1_3">Combined (default)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;axial&quot;</span><span class="p">)</span>
 </code></pre></div>
@@ -1219,7 +1219,7 @@ This approach selects highly relevant words for topic descriptions, but topic de
 <p>The importance of word <span class="arithmatex">\(j\)</span> for topic <span class="arithmatex">\(t\)</span> is: <span class="arithmatex">\(\beta_{tj} = W_{jt}\)</span></p>
 </div>
 <div class="tabbed-block">
-<p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;angular&quot;</span><span class="p">)</span>
 </code></pre></div>
@@ -1227,7 +1227,7 @@ Angular topics can be calculated by taking the cosine of the angle between proje
 <p><span class="arithmatex">\(\beta_{tj} = cos(\Theta) = \frac{W_{jt}}{||W_j||}\)</span></p>
 </div>
 <div class="tabbed-block">
-<p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<p><div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;combined&quot;</span><span class="p">)</span>
 </code></pre></div>
@@ -1246,8 +1246,8 @@ Temporally changing components are found using the following steps:</p>
 <li>Estimate unmixing matrix for each time-slice by fitting a linear regression from the embeddings in the time slice to the document-topic-matrix for the time slice estimated by the global model.</li>
 <li>Estimate term importances for each time slice the same way as the global model.</li>
 </ol>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">ts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2018</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">12</span><span class="p">),</span> <span class="o">...</span><span class="p">]</span>
 <span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;First document&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
@@ -1270,7 +1270,7 @@ In the timeslices where a topic is below zero, its <strong>negative definition</
 <p>Unlike most other models in Turftopic, <span class="arithmatex">\(S^3\)</span> can be refit using different parameters and random seeds without needing to initialize the model from scratch.
 This makes <span class="arithmatex">\(S^3\)</span> incredibly convenient for exploring different numbers of topics, or adjusting the number of iterations.</p>
 <p>Refitting the model takes a fraction of the time of initializing a new one and fitting it, as the vocabulary doesn't have to be learned or encoded by the model again.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -1288,8 +1288,8 @@ This makes <span class="arithmatex">\(S^3\)</span> incredibly convenient for exp
 Whenever interpreting semantic axes, you should probably consider both ends of the axis.
 As such, when you print or export topics from <span class="arithmatex">\(S^3\)</span>, the lowest ranking terms will also be shown along with the highest ranking ones.</p>
 <p>Here's an example on ArXiv ML papers:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_extraction.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">CountVectorizer</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">CountVectorizer</span><span class="p">(),</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
@@ -1382,7 +1382,7 @@ This involves plotting terms in a corpus along two semantic axes.</p>
       <p>Separates the embedding matrix into 'semantic signals' with
 component analysis methods.
 Topics are assumed to be dimensions of semantics.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">turftopic</span> <span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
 
 <span class="n">corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;some text&quot;</span><span class="p">,</span> <span class="s2">&quot;more text&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 
@@ -2369,7 +2369,7 @@ or their combination ('combined') should determine the word's importance for a t
 <span class="normal">885</span>
 <span class="normal">886</span>
 <span class="normal">887</span>
-<span class="normal">888</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SemanticSignalSeparation</span><span class="p">(</span>
+<span class="normal">888</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">SemanticSignalSeparation</span><span class="p">(</span>
     <span class="n">ContextualModel</span><span class="p">,</span> <span class="n">DynamicTopicModel</span><span class="p">,</span> <span class="n">MultimodalModel</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Separates the embedding matrix into &#39;semantic signals&#39; with</span>
@@ -2408,7 +2408,7 @@ or their combination ('combined') should determine the word's importance for a t
 <span class="sd">        Random state to use so that results are exactly reproducible.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">n_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
@@ -2443,7 +2443,7 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">decomposition</span> <span class="o">=</span> <span class="n">decomposition</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">estimate_components</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">estimate_components</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">feature_importance</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;axial&quot;</span><span class="p">,</span> <span class="s2">&quot;angular&quot;</span><span class="p">,</span> <span class="s2">&quot;combined&quot;</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reestimates components based on the chosen feature_importance method.&quot;&quot;&quot;</span>
@@ -2468,10 +2468,10 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">has_negative_side</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">has_negative_side</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
@@ -2512,7 +2512,7 @@ or their combination ('combined') should determine the word's importance for a t
             <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Model fitting done.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">doc_topic</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform_multimodal</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_transform_multimodal</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">images</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ImageRepr</span><span class="p">],</span>
@@ -2573,13 +2573,13 @@ or their combination ('combined') should determine the word's importance for a t
             <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Images transformed&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">doc_topic</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">plot_topics_with_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_columns</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot_topics_with_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_columns</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">grid_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+            <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
         <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">1200</span>
         <span class="n">scale_factor</span> <span class="o">=</span> <span class="mf">0.25</span>
@@ -2676,7 +2676,7 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">fig</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_rename_automatic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namer</span><span class="p">:</span> <span class="n">TopicNamer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_rename_automatic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namer</span><span class="p">:</span> <span class="n">TopicNamer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Names topics with a topic namer in the model.</span>
 
 <span class="sd">        Parameters</span>
@@ -2697,7 +2697,7 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="bp">self</span><span class="o">.</span><span class="n">topic_names_</span> <span class="o">=</span> <span class="n">names</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">topic_names_</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">refit_transform</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">refit_transform</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">n_components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_iter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2752,7 +2752,7 @@ or their combination ('combined') should determine the word's importance for a t
             <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Model fitting done.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">doc_topic</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform_dynamic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">fit_transform_dynamic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">,</span>
         <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
@@ -2791,7 +2791,7 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="bp">self</span><span class="o">.</span><span class="n">estimate_components</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_importance</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">document_topic_matrix</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">refit_transform_dynamic</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">refit_transform_dynamic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
         <span class="n">bins</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -2834,7 +2834,7 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="bp">self</span><span class="o">.</span><span class="n">estimate_components</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_importance</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">document_topic_matrix</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">refit</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">refit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">n_components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">max_iter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2860,7 +2860,7 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">angular_components_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">angular_components_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reweights words based on their angle in ICA-space to the axis</span>
 <span class="sd">        base vectors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2873,7 +2873,7 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="k">return</span> <span class="n">cosine_components</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">angular_temporal_components_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">angular_temporal_components_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reweights words based on their angle in ICA-space to the axis</span>
 <span class="sd">        base vectors in a dynamic model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2888,7 +2888,7 @@ or their combination ('combined') should determine the word's importance for a t
             <span class="n">components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cosine_components</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">components</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Infers topic importances for new documents based on a fitted model.</span>
@@ -2909,7 +2909,7 @@ or their combination ('combined') should determine the word's importance for a t
             <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">decomposition</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">print_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2917,7 +2917,7 @@ or their combination ('combined') should determine the word's importance for a t
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">print_topics</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">,</span> <span class="n">show_negative</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">export_topics</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">export_topics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2926,7 +2926,7 @@ or their combination ('combined') should determine the word's importance for a t
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">export_topics</span><span class="p">(</span><span class="n">top_k</span><span class="p">,</span> <span class="n">show_scores</span><span class="p">,</span> <span class="n">show_negative</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_representative_documents</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">print_representative_documents</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">topic_id</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">,</span>
@@ -2942,7 +2942,7 @@ or their combination ('combined') should determine the word's importance for a t
             <span class="n">show_negative</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">export_representative_documents</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">export_representative_documents</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">topic_id</span><span class="p">,</span>
         <span class="n">raw_documents</span><span class="p">,</span>
@@ -2960,7 +2960,7 @@ or their combination ('combined') should determine the word's importance for a t
             <span class="nb">format</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">concept_compass</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">concept_compass</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">topic_x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">topic_y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;[DEPRECATED] will be removed in version 1.0.0.</span>
@@ -2971,7 +2971,7 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_concept_compass</span><span class="p">(</span><span class="n">topic_x</span><span class="p">,</span> <span class="n">topic_y</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">plot_concept_compass</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">plot_concept_compass</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">topic_x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">topic_y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Display a compass of concepts along two semantic axes.</span>
@@ -2991,25 +2991,25 @@ or their combination ('combined') should determine the word's importance for a t
 <span class="sd">            Plotly interactive plot of the concept compass.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
+            <span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">topic_x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">topic_x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic_names</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_x</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_x</span><span class="si">}</span><span class="s2"> is not a valid topic name or index.&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">topic_y</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">topic_y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic_names</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_y</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_y</span><span class="si">}</span><span class="s2"> is not a valid topic name or index.&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axial_components_</span><span class="p">[</span><span class="n">topic_x</span><span class="p">]</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axial_components_</span><span class="p">[</span><span class="n">topic_y</span><span class="p">]</span>
         <span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vocab</span><span class="p">()</span>
@@ -3045,15 +3045,15 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="n">fig</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_vline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">line_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">line_width</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fig</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">plot_image_compass</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">plot_image_compass</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">topic_x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">topic_y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
     <span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
+            <span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="n">top_images</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;top_images&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">top_images</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -3065,14 +3065,14 @@ or their combination ('combined') should determine the word's importance for a t
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_x</span><span class="si">}</span><span class="s2"> is not a valid topic name or index.&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">topic_y</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">topic_y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic_names</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_y</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_y</span><span class="si">}</span><span class="s2"> is not a valid topic name or index.&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_topic_matrix</span><span class="p">[:,</span> <span class="n">topic_x</span><span class="p">]</span>
         <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_topic_matrix</span><span class="p">[:,</span> <span class="n">topic_y</span><span class="p">]</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)))</span>
@@ -3121,13 +3121,13 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="n">fig</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)])</span>
         <span class="k">return</span> <span class="n">fig</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">plot_topics_over_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">plot_topics_over_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+            <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
         <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
         <span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vocab</span><span class="p">()</span>
         <span class="n">n_topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temporal_components_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -3175,7 +3175,7 @@ or their combination ('combined') should determine the word's importance for a t
         <span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Topic Importance&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fig</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_topics_over_time</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">_topics_over_time</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">show_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3314,7 +3314,7 @@ See plot_concept_compass().</p>
 <span class="normal">627</span>
 <span class="normal">628</span>
 <span class="normal">629</span>
-<span class="normal">630</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">concept_compass</span><span class="p">(</span>
+<span class="normal">630</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">concept_compass</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">topic_x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">topic_y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;[DEPRECATED] will be removed in version 1.0.0.</span>
@@ -3369,7 +3369,7 @@ See plot_concept_compass().</p>
 <span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
-<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">estimate_components</span><span class="p">(</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">estimate_components</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">feature_importance</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;axial&quot;</span><span class="p">,</span> <span class="s2">&quot;angular&quot;</span><span class="p">,</span> <span class="s2">&quot;combined&quot;</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reestimates components based on the chosen feature_importance method.&quot;&quot;&quot;</span>
@@ -3557,7 +3557,7 @@ a grid of the two topics.</p>
 <span class="normal">701</span>
 <span class="normal">702</span>
 <span class="normal">703</span>
-<span class="normal">704</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_concept_compass</span><span class="p">(</span>
+<span class="normal">704</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">plot_concept_compass</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">topic_x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">topic_y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Display a compass of concepts along two semantic axes.</span>
@@ -3577,25 +3577,25 @@ a grid of the two topics.</p>
 <span class="sd">        Plotly interactive plot of the concept compass.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
+        <span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ModuleNotFoundError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
             <span class="s2">&quot;Please install plotly if you intend to use plots in Turftopic.&quot;</span>
-        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">topic_x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">topic_x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic_names</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_x</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_x</span><span class="si">}</span><span class="s2"> is not a valid topic name or index.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">topic_y</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">topic_y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic_names</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">topic_y</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic_y</span><span class="si">}</span><span class="s2"> is not a valid topic name or index.&quot;</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
     <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axial_components_</span><span class="p">[</span><span class="n">topic_x</span><span class="p">]</span>
     <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">axial_components_</span><span class="p">[</span><span class="n">topic_y</span><span class="p">]</span>
     <span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_vocab</span><span class="p">()</span>
@@ -3759,7 +3759,7 @@ This is significantly faster than fitting a new model from scratch.</p>
 <span class="normal">515</span>
 <span class="normal">516</span>
 <span class="normal">517</span>
-<span class="normal">518</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">refit</span><span class="p">(</span>
+<span class="normal">518</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">refit</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">n_components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_iter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3942,7 +3942,7 @@ This is significantly faster than fitting a new model from scratch.</p>
 <span class="normal">408</span>
 <span class="normal">409</span>
 <span class="normal">410</span>
-<span class="normal">411</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">refit_transform</span><span class="p">(</span>
+<span class="normal">411</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">refit_transform</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">n_components</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">max_iter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4060,7 +4060,7 @@ This is significantly faster than fitting a new model from scratch.</p>
 <span class="normal">490</span>
 <span class="normal">491</span>
 <span class="normal">492</span>
-<span class="normal">493</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">refit_transform_dynamic</span><span class="p">(</span>
+<span class="normal">493</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">refit_transform_dynamic</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">],</span>
     <span class="n">bins</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -4211,7 +4211,7 @@ This is significantly faster than fitting a new model from scratch.</p>
 <span class="normal">565</span>
 <span class="normal">566</span>
 <span class="normal">567</span>
-<span class="normal">568</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+<span class="normal">568</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Infers topic importances for new documents based on a fitted model.</span>
