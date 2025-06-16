@@ -36,13 +36,13 @@ pip install turftopic
 If you intend to use CTMs, make sure to install the package with Pyro as an optional dependency.
 
 ```bash
-pip install turftopic[pyro-ppl]
+pip install "turftopic[pyro-ppl]"
 ```
 
 If you want to use clustering models like BERTopic or Top2Vec, install:
 
 ```bash
-pip install turftopic[umap-learn]
+pip install "turftopic[umap-learn]"
 ```
 
 ### Fitting a Model
@@ -51,6 +51,8 @@ Turftopic's models follow the scikit-learn API conventions, and as such they are
 scikit-learn workflows.
 
 Here's an example of how you use KeyNMF, one of our models on the 20Newsgroups dataset from scikit-learn.
+
+> If you are using a Mac, you might have to install the required SSL certificates on your system in order to be able to download the dataset.
 
 ```python
 from sklearn.datasets import fetch_20newsgroups
@@ -68,7 +70,8 @@ Turftopic also comes with interpretation tools that make it easy to display and 
 ```python
 from turftopic import KeyNMF
 
-model = KeyNMF(20).fit(corpus)
+model = KeyNMF(20)
+document_topic_matrix = model.fit_transform(corpus)
 ```
 
 ### Interpreting Models
@@ -131,6 +134,8 @@ model.print_topic_distribution(
 
 Turftopic now allows you to automatically assign human readable names to topics using LLMs or n-gram retrieval!
 
+> You will need to `pip install "turftopic[openai]"` for this to work.
+
 ```python
 from turftopic import KeyNMF
 from turftopic.namers import OpenAITopicNamer
@@ -153,6 +158,8 @@ model.print_topics()
 ### Vectorizers Module
 
 You can use a set of custom vectorizers for topic modeling over **phrases**, as well as **lemmata** and **stems**.
+
+> You will need to `pip install "turftopic[spacy]"` for this to work.
 
 ```python
 from turftopic import BERTopic
