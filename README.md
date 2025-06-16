@@ -182,10 +182,34 @@ model.print_topics()
 
 ### Visualization
 
-Turftopic does not come with built-in visualization utilities, [topicwizard](https://github.com/x-tabdeveloping/topicwizard), an interactive topic model visualization library, is compatible with all models from Turftopic.
+Turftopic comes with a number of visualization and  pretty printing utilities for specific models and specific contexts, such as hierarchical or dynamic topic modelling.
+You will find an overview of these in the [Interpreting and Visualizing Models](https://x-tabdeveloping.github.io/turftopic/model_interpretation/) section of our documentation.
+
+```
+pip install "turftopic[datamapplot, openai]"
+```
+
+```python
+from turftopic import ClusteringTopicModel
+from turftopic.namers import OpenAITopicNamer
+
+model = ClusteringTopicModel(feature_importance="centroid").fit(corpus)
+
+namer = OpenAITopicNamer("gpt-4o-mini")
+model.rename_topics(namer)
+
+fig = model.plot_clusters_datamapplot()
+fig.show()
+```
+
+<center>
+  <img src="https://github.com/x-tabdeveloping/turftopic/blob/main/docs/images/cluster_datamapplot.png?raw=true" width="70%" style="margin-left: auto;margin-right: auto;">
+</center>
+
+In addition, Turftopic is natively supported in [topicwizard](https://github.com/x-tabdeveloping/topicwizard), an interactive topic model visualization library, is compatible with all models from Turftopic.
 
 ```bash
-pip install topic-wizard
+pip install "turftopic[topic-wizard]"
 ```
 
 By far the easiest way to visualize your models for interpretation is to launch the topicwizard web app.
@@ -196,10 +220,10 @@ import topicwizard
 topicwizard.visualize(corpus, model=model)
 ```
 
-<figure>
+<center>
   <img src="https://x-tabdeveloping.github.io/topicwizard/_images/screenshot_topics.png" width="70%" style="margin-left: auto;margin-right: auto;">
   <figcaption>Screenshot of the topicwizard Web Application</figcaption>
-</figure>
+</center>
 
 Alternatively you can use the [Figures API](https://x-tabdeveloping.github.io/topicwizard/figures.html) in topicwizard for individual HTML figures.
 
