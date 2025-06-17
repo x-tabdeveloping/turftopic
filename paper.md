@@ -34,7 +34,8 @@ bibliography: paper.bib
 
 # Summary
 
-Turftopic is a topic modelling library including a number of recent topic models that go beyond bag-of-words models and can understand text in context, utilizing representations from transformers.
+Topic models are machine learning techniques that are able to discover themes in a set of documents.
+Turftopic is a topic modelling library including a number of recent developments in topic modelling that go beyond bag-of-words models and can understand text in context, utilizing representations from transformers.
 Turftopic focuses on ease of use, providing a unified interface for a number of different modern topic models, and boasting both model-specific and model-agnostic interpretation and visualization utilities.
 While the user is afforded great flexibility in model choice and customization, the library comes with reasonable defaults, so as not to needlessly overwhelm first-time users.
 In addition, Turftopic allows the user to: a) model topics as they change over time, b) learn topics on-line from a stream of texts, c) find hierarchical structure in topics, d) learning topics in multilingual texts and corpora.
@@ -50,10 +51,11 @@ Some attempts have been made at creating unified packages for modern topic model
 These packages, however, have a focus on neural models and topic model evaluation, have abstract and highly specialized interfaces, and do not include some popular topic models.
 Additionally, while model interpretation is fundamental aspect of topic modelling, the interpretation utilities provided in these libraries are fairly limited, especially in comparison with model-specific packages, like BERTopic.
 
-Turftopic unifies state-of-the-art contextual topic models under a superset of the `scikit-learn` [@scikit-learn] API, which users are likely already familiar with, and can be readily included in `scikit-learn` workflows and pipelines.
+Turftopic unifies state-of-the-art contextual topic models under a superset of the `scikit-learn` [@scikit-learn] API, which many users may be familiar with, and can be readily included in `scikit-learn` workflows and pipelines.
 We focused on making Turftopic first and foremost an easy-to-use library that does not necessitate expert knowledge or excessive amounts of code to get started with, but gives great flexibility to power users.
-Furthermore, we included an extensive suite of pretty-printing and visualization utilities that aid users in interpreting their results.
-The library also includes three topic models, which to our knowledge only have implementations in Turftopic, these are: KeyNMF [@keynmf], Semantic Signal Separation (S^3^) [@s3], and GMM, a Gaussian Mixture model of document representations with a soft-c-tf-idf term weighting scheme.
+Furthermore, we included an extensive suite of pretty-printing and model-specific visualization utilities that aid users in interpreting their results.
+In addition, we provide native compatibility with `topicwizard` [@topicwizard], a model-agnostic topic model visualization library.
+The library also includes three topic models that, to our knowledge, only have implementations in Turftopic: KeyNMF [@keynmf], Semantic Signal Separation (S^3^) [@s3], and GMM, a Gaussian Mixture model of document representations with a soft-c-tf-idf term weighting scheme.
 
 # Functionality
 
