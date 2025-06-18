@@ -5,10 +5,8 @@ from typing import Iterable, Optional, TypedDict, Union
 
 import numpy as np
 from PIL import Image
-from sentence_transformers import SentenceTransformer
 
 from turftopic.data import TopicData
-from turftopic.encoders.multimodal import MultimodalEncoder
 
 UrlStr = str
 
@@ -42,6 +40,61 @@ class MultimodalEmbeddings(TypedDict):
     document_embeddings: np.ndarray
 
 
+def encode_multimodal(
+    encoder, sentences: list[str], images: list[ImageRepr]
+) -> dict[str, np.ndarray]:
+    """Produce multimodal embeddings of the documents passed to the model.
+
+    Parameters
+    ----------
+    encoder
+        MTEB or SentenceTransformer compatible embedding model.
+    sentences: list[str]
+        Textual documents to encode.
+    images: list[ImageRepr]
+        Corresponding images for each document.
+
+    Returns
+    -------
+    MultimodalEmbeddings
+        Text, image and joint document embeddings.
+    """
+    if len(sentences) != len(images):
+        raise ValueError("Images and documents were not the same length.")
+    if hasattr(encoder, "get_text_embeddings"):
+        text_embeddings = np.array(encoder.get_text_embeddings(sentences))
+    else:
+        text_embeddings = encoder.encode(sentences)
+    embedding_size = text_embeddings.shape[1]
+    images = list(_load_images(images))
+    if hasattr(encoder, "get_image_embeddings"):
+        image_embeddings = np.array(encoder.get_image_embeddings(images))
+    else:
+        image_embeddings = []
+        for image in images:
+            if image is not None:
+                image_embeddings.append(encoder.encode(image))
+            else:
+                image_embeddings.append(np.full(embedding_size, np.nan))
+        image_embeddings = np.stack(image_embeddings)
+    if hasattr(encoder, "get_fused_embeddings"):
+        document_embeddings = np.array(
+            encoder.get_fused_embeddings(
+                texts=sentences,
+                images=images,
+            )
+        )
+    else:
+        document_embeddings = _naive_join_embeddings(
+            text_embeddings, image_embeddings
+        )
+    return {
+        "text_embeddings": text_embeddings,
+        "image_embeddings": image_embeddings,
+        "document_embeddings": document_embeddings,
+    }
+
+
 class MultimodalModel:
     """Base model for multimodal topic models."""
 
@@ -65,46 +118,7 @@ class MultimodalModel:
             Text, image and joint document embeddings.
 
         """
-        if len(sentences) != len(images):
-            raise ValueError("Images and documents were not the same length.")
-        if hasattr(self.encoder_, "get_text_embeddings"):
-            text_embeddings = np.array(
-                self.encoder_.get_text_embeddings(sentences)
-            )
-        else:
-            text_embeddings = self.encoder_.encode(sentences)
-        embedding_size = text_embeddings.shape[1]
-        images = list(_load_images(images))
-        if hasattr(self.encoder_, "get_image_embeddings"):
-            image_embeddings = np.array(
-                self.encoder_.get_image_embeddings(images)
-            )
-        else:
-            image_embeddings = []
-            for image in images:
-                if image is not None:
-                    image_embeddings.append(self.encoder_.encode(image))
-                else:
-                    image_embeddings.append(np.full(embedding_size, np.nan))
-            image_embeddings = np.stack(image_embeddings)
-            print(image_embeddings)
-        if hasattr(self.encoder_, "get_fused_embeddings"):
-            document_embeddings = np.array(
-                self.encoder_.get_fused_embeddings(
-                    texts=sentences,
-                    images=images,
-                )
-            )
-        else:
-            document_embeddings = _naive_join_embeddings(
-                text_embeddings, image_embeddings
-            )
-
-        return {
-            "text_embeddings": text_embeddings,
-            "image_embeddings": image_embeddings,
-            "document_embeddings": document_embeddings,
-        }
+        return encode_multimodal(self.encoder_, sentences, images)
 
     @staticmethod
     def validate_embeddings(embeddings: Optional[MultimodalEmbeddings]):
