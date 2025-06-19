@@ -5,7 +5,7 @@ import warnings
 import webbrowser
 from datetime import datetime
 from pathlib import Path
-from typing import Literal, Optional, Sequence, Union
+from typing import Any, Iterable, Literal, Optional, Sequence, Union
 
 import numpy as np
 from rich.console import Console
@@ -15,7 +15,7 @@ from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import normalize, scale
+from sklearn.preprocessing import LabelEncoder, normalize, scale
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
@@ -24,6 +24,8 @@ from turftopic.feature_importance import (
     bayes_rule,
     cluster_centroid_distance,
     ctf_idf,
+    fighting_words,
+    linear_classifier,
     soft_ctf_idf,
 )
 from turftopic.models._hierarchical_clusters import (
@@ -31,7 +33,12 @@ from turftopic.models._hierarchical_clusters import (
     ClusterNode,
     LinkageMethod,
 )
-from turftopic.multimodal import Image, ImageRepr, MultimodalEmbeddings, MultimodalModel
+from turftopic.multimodal import (
+    Image,
+    ImageRepr,
+    MultimodalEmbeddings,
+    MultimodalModel,
+)
 from turftopic.types import VALID_DISTANCE_METRICS, DistanceMetric
 from turftopic.utils import safe_binarize
 from turftopic.vectorizers.default import default_vectorizer
@@ -56,6 +63,8 @@ WordImportance = Literal[
     "c-tf-idf",
     "centroid",
     "bayes",
+    "linear",
+    "fighting-words",
 ]
 VALID_WORD_IMPORTANCE = list(typing.get_args(WordImportance))
 
@@ -70,6 +79,15 @@ NOT_MATCHING_ERROR = (
     + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
     + "Try to initialize the model with the encoder you used for computing the embeddings."
 )
+
+
+def factorize_labels(labels: Iterable[Any]) -> np.ndarray:
+    le = LabelEncoder()
+    labels = le.fit_transform(labels)
+    for i, _class in enumerate(le.classes_):
+        if (str(_class) == -1) or (not np.isfinite(_class)):
+            labels[labels == i] = -1
+    return labels
 
 
 def calculate_topic_vectors(
@@ -96,9 +114,19 @@ def build_tsne(*args, **kwargs):
     try:
         from openTSNE import TSNE
 
-        model = TSNE(*args, **kwargs)
-        model.fit_transform = model.fit
-        return model
+        class OpenTSNEWrapper(TSNE):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            def fit_transform(self, X: np.ndarray, y=None):
+                return super().fit(X)
+
+            def fit(self, X: np.ndarray, y=None):
+                self.fit_transform(X, y)
+                return self
+
+        return OpenTSNEWrapper(*args, **kwargs)
+
     except ModuleNotFoundError:
         from sklearn.manifold import TSNE
 
@@ -156,6 +184,10 @@ class ClusteringTopicModel(
         'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
         be very similar to 'c-tf-idf'.
         'bayes' uses Bayes' rule.
+        'linear' calculates most predictive directions in embedding space and projects
+        words onto them.
+        'fighting-words' calculates word importances based on the Fighting Words
+        algorithm from Monroe et al.
     n_reduce_to: int, default None
         Number of topics to reduce topics to.
         The specified reduction method will be used to merge them.
@@ -288,6 +320,10 @@ class ClusteringTopicModel(
             'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
             be very similar to 'c-tf-idf'.
             'bayes' uses Bayes' rule.
+            'linear' calculates most predictive directions in embedding space and projects
+            words onto them.
+            'fighting-words' calculates word importances based on the Fighting Words
+            algorithm from Monroe et al.
 
         Returns
         -------
@@ -422,7 +458,9 @@ class ClusteringTopicModel(
         raw_documents: iterable of str
             Documents to fit the model on.
         y: None
-            Ignored, exists for sklearn compatibility.
+            Ignored, when the dimensionality reduction is TSNE (the default),
+            in case of a dimensionality reduction that can utilize labels,
+            you can pass labels to the model to inform the clustering process.
         embeddings: ndarray of shape (n_documents, n_dimensions), optional
             Precomputed document encodings.
 
@@ -442,8 +480,12 @@ class ClusteringTopicModel(
             self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
             console.log("Term extraction done.")
             status.update("Reducing Dimensionality")
+            # If y is specified, we pass it to the dimensionality
+            # reduction method as supervisory signal
+            if y is not None:
+                y = factorize_labels(y)
             self.reduced_embeddings = (
-                self.dimensionality_reduction.fit_transform(embeddings)
+                self.dimensionality_reduction.fit_transform(embeddings, y=y)
             )
             console.log("Dimensionality reduction done.")
             status.update("Clustering documents")
@@ -514,6 +556,7 @@ class ClusteringTopicModel(
         doc_topic_matrix = self.fit_transform(
             raw_documents,
             embeddings=self.multimodal_embeddings["document_embeddings"],
+            y=y,
         )
         self.image_topic_matrix = self.transform(
             raw_documents,
@@ -542,6 +585,8 @@ class ClusteringTopicModel(
             'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
             be very similar to 'c-tf-idf'.
             'bayes' uses Bayes' rule.
+            'linear' calculates most predictive directions in embedding space and projects
+            words onto them.
 
         Returns
         -------
@@ -573,29 +618,40 @@ class ClusteringTopicModel(
             t_dtm = self.doc_term_matrix[time_labels == i_timebin]
             t_doc_topic = self.document_topic_matrix[time_labels == i_timebin]
             if feature_importance == "c-tf-idf":
-                self.temporal_components_[i_timebin], self._idf_diag = ctf_idf(
+                self.temporal_components_[i_timebin], _ = ctf_idf(
                     t_doc_topic, t_dtm, return_idf=True
                 )
             elif feature_importance == "soft-c-tf-idf":
-                self.temporal_components_[i_timebin], self._idf_diag = (
-                    soft_ctf_idf(t_doc_topic, t_dtm, return_idf=True)
+                self.temporal_components_[i_timebin], _ = soft_ctf_idf(
+                    t_doc_topic, t_dtm, return_idf=True
                 )
             elif feature_importance == "bayes":
                 self.temporal_components_[i_timebin] = bayes_rule(
                     t_doc_topic, t_dtm
                 )
-            elif feature_importance == "centroid":
+            elif feature_importance == "fighting-words":
+                self.temporal_components_[i_timebin] = fighting_words(
+                    t_doc_topic, t_dtm
+                )
+            elif feature_importance in ["centroid", "linear"]:
                 t_topic_vectors = self._calculate_topic_vectors(
                     is_in_slice=time_labels == i_timebin,
                 )
-                components = cluster_centroid_distance(
-                    t_topic_vectors,
-                    self.vocab_embeddings,
-                )
-                mask_terms = t_dtm.sum(axis=0).astype(np.float64)
-                mask_terms = np.squeeze(np.asarray(mask_terms))
-                components[:, mask_terms == 0] = np.nan
-                self.temporal_components_[i_timebin] = components
+                if feature_importance == "centroid":
+                    components = cluster_centroid_distance(
+                        t_topic_vectors,
+                        self.vocab_embeddings,
+                    )
+                    mask_terms = t_dtm.sum(axis=0).astype(np.float64)
+                    mask_terms = np.squeeze(np.asarray(mask_terms))
+                    components[:, mask_terms == 0] = np.nan
+                    self.temporal_components_[i_timebin] = components
+                else:
+                    self.temporal_components_[i_timebin] = linear_classifier(
+                        t_doc_topic,
+                        embeddings=self.embeddings,
+                        vocab_embedding=self.vocab_embeddings,
+                    )
         return self.temporal_components_
 
     def fit_transform_dynamic(
@@ -695,37 +751,21 @@ class ClusteringTopicModel(
 
 class BERTopic(ClusteringTopicModel):
     """Convenience function to construct a BERTopic model in Turftopic.
+    The model is essentially just a ClusteringTopicModel
+    with BERTopic's defaults (UMAP -> HDBSCAN -> C-TF-IDF).
+
+    ```bash
+    pip install turftopic[umap-learn]
+    ```
 
     ```python
     from turftopic import BERTopic
-    from sklearn.cluster import HDBSCAN
-    import umap
 
     corpus: list[str] = ["some text", "more text", ...]
 
     model = BERTopic().fit(corpus)
     model.print_topics()
     ```
-
-    Parameters
-    ----------
-    encoder: str or SentenceTransformer
-        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
-    vectorizer: CountVectorizer, default None
-        Vectorizer used for term extraction.
-        Can be used to prune or filter the vocabulary.
-    dimensionality_reduction: TransformerMixin, default None
-        Dimensionality reduction step to run before clustering.
-        Defaults to UMAP(5, metric="cosine")
-    clustering: ClusterMixin, default None
-        Clustering method to use for finding topics.
-        Defaults to HDBSCAN.
-    n_reduce_to: int, default None
-        Number of topics to reduce topics to.
-        The specified reduction method will be used to merge them.
-        By default, topics are not merged.
-    random_state: int, default None
-        Random state to use so that results are exactly reproducible.
     """
 
     def __init__(
@@ -736,7 +776,11 @@ class BERTopic(ClusteringTopicModel):
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
+        feature_importance: WordImportance = "c-tf-idf",
         n_reduce_to: Optional[int] = None,
+        reduction_method: LinkageMethod = "average",
+        reduction_distance_metric: DistanceMetric = "cosine",
+        reduction_topic_representation: TopicRepresentation = "component",
         random_state: Optional[int] = None,
     ):
         if dimensionality_reduction is None:
@@ -766,46 +810,30 @@ class BERTopic(ClusteringTopicModel):
             clustering=clustering,
             n_reduce_to=n_reduce_to,
             random_state=random_state,
-            feature_importance="c-tf-idf",
-            reduction_method="average",
-            reduction_distance_metric="cosine",
-            reduction_topic_representation="component",
+            feature_importance=feature_importance,
+            reduction_method=reduction_method,
+            reduction_distance_metric=reduction_distance_metric,
+            reduction_topic_representation=reduction_topic_representation,
         )
 
 
 class Top2Vec(ClusteringTopicModel):
     """Convenience function to construct a Top2Vec model in Turftopic.
+    The model is essentially the same as ClusteringTopicModel
+    with defaults that resemble Top2Vec (UMAP -> HDBSCAN -> Centroid term importance).
+
+    ```bash
+    pip install turftopic[umap-learn]
+    ```
 
     ```python
     from turftopic import Top2Vec
-    from sklearn.cluster import HDBSCAN
-    import umap
 
     corpus: list[str] = ["some text", "more text", ...]
 
     model = Top2Vec().fit(corpus)
     model.print_topics()
     ```
-
-    Parameters
-    ----------
-    encoder: str or SentenceTransformer
-        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
-    vectorizer: CountVectorizer, default None
-        Vectorizer used for term extraction.
-        Can be used to prune or filter the vocabulary.
-    dimensionality_reduction: TransformerMixin, default None
-        Dimensionality reduction step to run before clustering.
-        Defaults to UMAP(5, metric="cosine")
-    clustering: ClusterMixin, default None
-        Clustering method to use for finding topics.
-        Defaults to HDBSCAN.
-    n_reduce_to: int, default None
-        Number of topics to reduce topics to.
-        The specified reduction method will be used to merge them.
-        By default, topics are not merged.
-    random_state: int, default None
-        Random state to use so that results are exactly reproducible.
     """
 
     def __init__(
@@ -816,7 +844,11 @@ class Top2Vec(ClusteringTopicModel):
         vectorizer: Optional[CountVectorizer] = None,
         dimensionality_reduction: Optional[TransformerMixin] = None,
         clustering: Optional[ClusterMixin] = None,
+        feature_importance: WordImportance = "centroid",
         n_reduce_to: Optional[int] = None,
+        reduction_method: LinkageMethod = "smallest",
+        reduction_distance_metric: DistanceMetric = "cosine",
+        reduction_topic_representation: TopicRepresentation = "centroid",
         random_state: Optional[int] = None,
     ):
         if dimensionality_reduction is None:
@@ -824,7 +856,7 @@ class Top2Vec(ClusteringTopicModel):
                 from umap import UMAP
             except ModuleNotFoundError as e:
                 raise ModuleNotFoundError(
-                    "UMAP is not installed in your environment, but BERTopic requires it."
+                    "UMAP is not installed in your environment, but Top2Vec requires it."
                 ) from e
             dimensionality_reduction = UMAP(
                 n_neighbors=15,
@@ -846,8 +878,8 @@ class Top2Vec(ClusteringTopicModel):
             clustering=clustering,
             n_reduce_to=n_reduce_to,
             random_state=random_state,
-            feature_importance="centroid",
-            reduction_method="smallest",
-            reduction_distance_metric="cosine",
-            reduction_topic_representation="centroid",
+            feature_importance=feature_importance,
+            reduction_method=reduction_method,
+            reduction_distance_metric=reduction_distance_metric,
+            reduction_topic_representation=reduction_topic_representation,
         )
