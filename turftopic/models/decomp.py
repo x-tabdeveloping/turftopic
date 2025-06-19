@@ -16,7 +16,11 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.multimodal import ImageRepr, MultimodalEmbeddings, MultimodalModel
+from turftopic.multimodal import (
+    ImageRepr,
+    MultimodalEmbeddings,
+    MultimodalModel,
+)
 from turftopic.namers.base import TopicNamer
 from turftopic.vectorizers.default import default_vectorizer
 
@@ -142,7 +146,7 @@ class SemanticSignalSeparation(
             status.update("Decomposing embeddings")
             if isinstance(self.decomposition, FastICA) and (y is not None):
                 warnings.warn(
-                    "Supervisory signal is specified but decomposition method is FastICA. y will be ignored. Use a metric learning method for supervised S^3."
+                    "y is specified but decomposition method is FastICA, which can't use labels. y will be ignored. Use a metric learning method for semi-supervised S^3."
                 )
             doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
             console.log("Decomposition done.")
