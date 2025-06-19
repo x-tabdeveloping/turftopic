@@ -121,11 +121,11 @@ By and large there are two types of methods that can be used for importance esti
 
 | Importance method | Type | Description | Advantages |
 | - | - | - | - |
-| `linear` **(NEW)** | Semantic | Project words onto the parameter vectors of a linear classifier (LDA). | Topic differences are measured in embedding space and are determined by predictive power, and are therefore accurate and clean. |
-| `fighting-words` **(NEW)** | Lexical | Compute word importance based on cluster differences using the Fightin' Words algorithm by Monroe et al. | A theoretically motivated probabilistic model that was explicitly designed for discovering lexical differences in groups of text. |
-| `c-tf-idf` | Lexical | Compute how unique terms are in a cluster with a tf-idf style weighting scheme. This is the default in BERTopic. | Very fast, easy to understand and is not affected by cluster shape. |
 | `soft-c-tf-idf` *(default)* | Lexical | A c-tf-idf mehod that can interpret soft cluster assignments. | Can interpret soft cluster assignment in models like Gaussian Mixtures, less sensitive to stop words than vanilla c-tf-idf. |
+| `fighting-words` **(NEW)** | Lexical | Compute word importance based on cluster differences using the Fightin' Words algorithm by Monroe et al. | A theoretically motivated probabilistic model that was explicitly designed for discovering lexical differences in groups of text. See [Fightin' Words paper](https://languagelog.ldc.upenn.edu/myl/Monroe.pdf). |
+| `c-tf-idf` | Lexical | Compute how unique terms are in a cluster with a tf-idf style weighting scheme. This is the default in BERTopic. | Very fast, easy to understand and is not affected by cluster shape. |
 | `centroid` | Semantic | Word importance based on words' proximity to cluster centroid vectors. This is the default in Top2Vec. | Produces clean topics, easily interpretable. |
+| `linear` **(NEW, EXPERIMENTAL)** | Semantic | Project words onto the parameter vectors of a linear classifier (LDA). | Topic differences are measured in embedding space and are determined by predictive power, and are therefore accurate and clean. |
 
 
 !!! quote "Choose a term importance estimation method"
@@ -139,6 +139,30 @@ By and large there are two types of methods that can be used for importance esti
         # or
         model = ClusteringTopicModel(feature_importance="c-tf-idf")
         ```
+
+         ??? info "Click to see formulas"
+            #### Soft-c-TF-IDF
+            - Let $X$ be the document term matrix where each element ($X_{ij}$) corresponds with the number of times word $j$ occurs in a document $i$.
+            - Estimate weight of term $j$ for topic $z$: <br>
+            $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
+            $t_{zj} = \sum_{i \in z} X_{ij}$ is the number of occurrences of a word in a topic and 
+            $w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
+            - Estimate inverse document/topic frequency for term $j$:  
+            $idf_j = log(\frac{N}{\sum_z |t_{zj}|})$, where
+            $N$ is the total number of documents.
+            - Calculate importance of term $j$ for topic $z$:   
+            $Soft-c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
+
+            #### c-TF-IDF
+            - Let $X$ be the document term matrix where each element ($X_{ij}$) corresponds with the number of times word $j$ occurs in a document $i$.
+            - $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
+            $t_{zj} = \sum_{i \in z} X_{ij}$ is the number of occurrences of a word in a topic and 
+            $w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
+            - Estimate inverse document/topic frequency for term $j$:  
+            $idf_j = log(1 + \frac{A}{\sum_z |t_{zj}|})$, where
+            $A = \frac{\sum_z \sum_j t_{zj}}{Z}$ is the average number of words per topic, and $Z$ is the number of topics.
+            - Calculate importance of term $j$ for topic $z$:   
+            $c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
 
     === "Centroid Proximity (Top2Vec)"
 

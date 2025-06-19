@@ -33,7 +33,12 @@ from turftopic.models._hierarchical_clusters import (
     ClusterNode,
     LinkageMethod,
 )
-from turftopic.multimodal import Image, ImageRepr, MultimodalEmbeddings, MultimodalModel
+from turftopic.multimodal import (
+    Image,
+    ImageRepr,
+    MultimodalEmbeddings,
+    MultimodalModel,
+)
 from turftopic.types import VALID_DISTANCE_METRICS, DistanceMetric
 from turftopic.utils import safe_binarize
 from turftopic.vectorizers.default import default_vectorizer
@@ -453,7 +458,8 @@ class ClusteringTopicModel(
         raw_documents: iterable of str
             Documents to fit the model on.
         y: None
-            Originally ignored, in case of a dimensionality reduction that can utilize labels,
+            Ignored, when the dimensionality reduction is TSNE (the default),
+            in case of a dimensionality reduction that can utilize labels,
             you can pass labels to the model to inform the clustering process.
         embeddings: ndarray of shape (n_documents, n_dimensions), optional
             Precomputed document encodings.
