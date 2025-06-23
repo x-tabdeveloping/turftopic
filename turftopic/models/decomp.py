@@ -16,7 +16,11 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.multimodal import ImageRepr, MultimodalEmbeddings, MultimodalModel
+from turftopic.multimodal import (
+    ImageRepr,
+    MultimodalEmbeddings,
+    MultimodalModel,
+)
 from turftopic.namers.base import TopicNamer
 from turftopic.vectorizers.default import default_vectorizer
 
@@ -140,7 +144,11 @@ class SemanticSignalSeparation(
                 self.embeddings = self.encoder_.encode(raw_documents)
                 console.log("Documents encoded.")
             status.update("Decomposing embeddings")
-            doc_topic = self.decomposition.fit_transform(self.embeddings)
+            if isinstance(self.decomposition, FastICA) and (y is not None):
+                warnings.warn(
+                    "y is specified but decomposition method is FastICA, which can't use labels. y will be ignored. Use a metric learning method for semi-supervised S^3."
+                )
+            doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
@@ -190,7 +198,11 @@ class SemanticSignalSeparation(
                 console.log("Documents encoded.")
             self.embeddings = self.multimodal_embeddings["document_embeddings"]
             status.update("Decomposing embeddings")
-            doc_topic = self.decomposition.fit_transform(self.embeddings)
+            if isinstance(self.decomposition, FastICA) and (y is not None):
+                warnings.warn(
+                    "Supervisory signal is specified but decomposition method is FastICA. y will be ignored. Use a metric learning method for supervised S^3."
+                )
+            doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
