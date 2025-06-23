@@ -170,13 +170,15 @@
     abstract = "BERT (Devlin et al., 2018) and RoBERTa (Liu et al., 2019) has set a new state-of-the-art performance on sentence-pair regression tasks like semantic textual similarity (STS). However, it requires that both sentences are fed into the network, which causes a massive computational overhead: Finding the most similar pair in a collection of 10,000 sentences requires about 50 million inference computations ({\textasciitilde}65 hours) with BERT. The construction of BERT makes it unsuitable for semantic similarity search as well as for unsupervised tasks like clustering. In this publication, we present Sentence-BERT (SBERT), a modification of the pretrained BERT network that use siamese and triplet network structures to derive semantically meaningful sentence embeddings that can be compared using cosine-similarity. This reduces the effort for finding the most similar pair from 65 hours with BERT / RoBERTa to about 5 seconds with SBERT, while maintaining the accuracy from BERT. We evaluate SBERT and SRoBERTa on common STS tasks and transfer learning tasks, where it outperforms other state-of-the-art sentence embeddings methods."
 }
   
-@software{topicwizard,
-  author = {Kardos, Márton},
-  month = nov,
-  title = {{topicwizard: Pretty and opinionated topic model visualization in Python}},
-  url = {https://github.com/x-tabdeveloping/topic-wizard},
-  version = {0.5.0},
-  year = {2023}
+@misc{topicwizard,
+      title={topicwizard -- a Modern, Model-agnostic Framework for Topic Model Visualization and Interpretation}, 
+      author={Márton Kardos and Kenneth C. Enevoldsen and Kristoffer Laigaard Nielbo},
+      year={2025},
+      eprint={2505.13034},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2505.13034}, 
+      doi="10.48550/arXiv.2505.13034"
 }
 
 @article{discourse_analysis,
@@ -218,7 +220,8 @@
   address="Cham",
   pages="247--263",
   abstract="We propose a plot-based recommendation system, which is based upon an evaluation of similarity between the plot of a video that was watched by a user and a large amount of plots stored in a movie database. Our system is independent from the number of user ratings, thus it is able to propose famous and beloved movies as well as old or unheard movies/programs that are still strongly related to the content of the video the user has watched. The system implements and compares the two Topic Models, Latent Semantic Allocation (LSA) and Latent Dirichlet Allocation (LDA), on a movie database of two hundred thousand plots that has been constructed by integrating different movie databases in a local NoSQL (MongoDB) DBMS. The topic models behaviour has been examined on the basis of standard metrics and user evaluations, performance assessments with 30 users to compare our tool with a commercial system have been conducted.",
-  isbn="978-3-319-27030-2"
+  isbn="978-3-319-27030-2",
+  doi={10.1007/978-3-319-27030-2_16},
 }
 
 @article{unsupervised_classification,
@@ -248,7 +251,8 @@
   address="Berlin, Heidelberg",
   pages="29--41",
   abstract="We explore the utility of different types of topic models for retrieval purposes. Based on prior work, we describe several ways that topic models can be integrated into the retrieval process. We evaluate the effectiveness of different types of topic models within those retrieval approaches. We show that: (1) topic models are effective for document smoothing; (2) more rigorous topic models such as Latent Dirichlet Allocation provide gains over cluster-based models; (3) more elaborate topic models that capture topic dependencies provide no additional gains; (4) smoothing documents by using their similar documents is as effective as smoothing them by using topic models; (5) doing query expansion should utilize topics discovered in the top feedback documents instead of coarse-grained topics from the whole corpus; (6) generally, incorporating topics in the feedback documents for building relevance models can benefit the performance more for queries that have more relevant documents.",
-  isbn="978-3-642-00958-7"
+  isbn="978-3-642-00958-7",
+  doi={10.1007/978-3-642-00958-7_6},
 }
 
 @misc{data_mixers,
