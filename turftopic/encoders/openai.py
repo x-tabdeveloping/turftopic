@@ -65,8 +65,8 @@ class OpenAIEmbeddings(ExternalEncoder):
 
         result = []
         for b in batched(sentences, self.batch_size):
-            resp = openai.Embedding.create(
+            resp = openai.embeddings.create(
                 input=b, model=self.model
             )  # fmt: off
-            result.extend([_["embedding"] for _ in resp["data"]])
+            result.extend([_.embedding for _ in resp.data])
         return np.array(result)
