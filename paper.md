@@ -19,7 +19,7 @@ authors:
     orcid: 0000-0001-8714-1911
     affiliation: "1, 3"
   - name: Roberta Rocca
-    orcid: 0000-0002-0680-7097
+    orcid: 0000-0001-9017-8088
     affiliation: 2
 affiliations:
  - name: Center for Humanities Computing, Aarhus University, Denmark
@@ -28,7 +28,7 @@ affiliations:
    index: 2
  - name: Department of Linguistics, Cognitive Science, and Semiotics, Aarhus University, Denmark
    index: 3
-date: 17 March 2025
+date: 25 June 2025
 bibliography: paper.bib
 ---
 
