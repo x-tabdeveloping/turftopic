@@ -28,7 +28,7 @@ affiliations:
    index: 2
  - name: Department of Linguistics, Cognitive Science, and Semiotics, Aarhus University, Denmark
    index: 3
-date: 17 March 2025
+date: 25 June 2025
 bibliography: paper.bib
 ---
 
