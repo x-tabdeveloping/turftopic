@@ -1213,14 +1213,14 @@ while taking inspiration from classical matrix-decomposition approaches for extr
 <p class="admonition-title">Which Embedding model should I use</p>
 <ul>
 <li>You should probably use KeyNMF with a <code>paraphrase-</code> type embedding model. These seem to perform best in most tasks. Some examples include:<ul>
-<li><a href="https://huggingface.co/sentence-transformers/paraphrase-MiniLM-L3-v2">paraphrase-MiniLM-L3-v2</a> - Absolutely tiny <img alt="🐭" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f42d.svg" title=":mouse:" /> </li>
-<li><a href="https://huggingface.co/sentence-transformers/paraphrase-mpnet-base-v2">paraphrase-mpnet-base-v2</a> - High performance <img alt="🌟" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f31f.svg" title=":star2:" /></li>
-<li><a href="https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2">paraphrase-multilingual-mpnet-base-v2</a> - Multilingual, high-performance <img alt="🌎" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f30e.svg" title=":earth_americas:" /> <img alt="🌟" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f31f.svg" title=":star2:" /></li>
+<li><a href="https://huggingface.co/sentence-transformers/paraphrase-MiniLM-L3-v2">paraphrase-MiniLM-L3-v2</a> - Absolutely tiny <img alt="🐭" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f42d.svg" title=":mouse:" /> </li>
+<li><a href="https://huggingface.co/sentence-transformers/paraphrase-mpnet-base-v2">paraphrase-mpnet-base-v2</a> - High performance <img alt="🌟" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f31f.svg" title=":star2:" /></li>
+<li><a href="https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2">paraphrase-multilingual-mpnet-base-v2</a> - Multilingual, high-performance <img alt="🌎" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f30e.svg" title=":earth_americas:" /> <img alt="🌟" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f31f.svg" title=":star2:" /></li>
 </ul>
 </li>
 <li>KeyNMF works remarkably well with static models, which are incredibly fast, even on your laptop:<ul>
-<li><a href="https://huggingface.co/sentence-transformers/static-retrieval-mrl-en-v1">sentence-transformers/static-retrieval-mrl-en-v1</a> - Blazing Fast <img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a1.svg" title=":zap:" /> </li>
-<li><a href="https://huggingface.co/sentence-transformers/static-similarity-mrl-multilingual-v1">sentence-transformers/static-similarity-mrl-multilingual-v1</a> - Multilingual, Blazing Fast <img alt="🌎" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f30e.svg" title=":earth_americas:" /> <img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a1.svg" title=":zap:" /> </li>
+<li><a href="https://huggingface.co/sentence-transformers/static-retrieval-mrl-en-v1">sentence-transformers/static-retrieval-mrl-en-v1</a> - Blazing Fast <img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/26a1.svg" title=":zap:" /> </li>
+<li><a href="https://huggingface.co/sentence-transformers/static-similarity-mrl-multilingual-v1">sentence-transformers/static-similarity-mrl-multilingual-v1</a> - Multilingual, Blazing Fast <img alt="🌎" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f30e.svg" title=":earth_americas:" /> <img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/26a1.svg" title=":zap:" /> </li>
 </ul>
 </li>
 </ul>
@@ -1490,18 +1490,62 @@ H_t = \text{argmin}_{H^{*}} ||M_t - W_t H^{*}||^2
 </blockquote>
 <div class="highlight"><pre><span></span><code><span class="n">model</span><span class="o">.</span><span class="n">print_topics_over_time</span><span class="p">()</span>
 </code></pre></div>
-<center>
-
-| Time Slice | 0_olympics_tokyo_athletes_beijing | 1_covid_vaccine_pandemic_coronavirus | 2_olympic_athletes_ioc_athlete | 3_djokovic_novak_tennis_federer | 4_ronaldo_cristiano_messi_manchester |
-| - | - | - | - | - | - |
-| 2012 12 06 - 2013 11 10 | genocide, yugoslavia, karadzic, facts, cnn | cnn, russia, chechnya, prince, merkel | france, cnn, francois, hollande, bike | tennis, tournament, wimbledon, grass, courts | beckham, soccer, retired, david, learn |
-| 2013 11 10 - 2014 10 14 | keith, stones, richards, musician, author | georgia, russia, conflict, 2008, cnn | civil, rights, hear, why, should | cnn, kidneys, traffickers, organ, nepal | ronaldo, cristiano, goalscorer, soccer, player |
-|  |  | ... |  |  |  |
-| 2020 05 07 - 2021 04 10 | olympics, beijing, xinjiang, ioc, boycott | covid, vaccine, coronavirus, pandemic, vaccination | olympic, japan, medalist, canceled, tokyo | djokovic, novak, tennis, federer, masterclass | ronaldo, cristiano, messi, juventus, barcelona |
-| 2021 04 10 - 2022 03 16 | olympics, tokyo, athletes, beijing, medal | covid, pandemic, vaccine, vaccinated, coronavirus | olympic, athletes, ioc, medal, athlete | djokovic, novak, tennis, wimbledon, federer | ronaldo, cristiano, messi, manchester, scored |
-
-</center>
-
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th>Time Slice</th>
+<th>0_olympics_tokyo_athletes_beijing</th>
+<th>1_covid_vaccine_pandemic_coronavirus</th>
+<th>2_olympic_athletes_ioc_athlete</th>
+<th>3_djokovic_novak_tennis_federer</th>
+<th>4_ronaldo_cristiano_messi_manchester</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2012 12 06 - 2013 11 10</td>
+<td>genocide, yugoslavia, karadzic, facts, cnn</td>
+<td>cnn, russia, chechnya, prince, merkel</td>
+<td>france, cnn, francois, hollande, bike</td>
+<td>tennis, tournament, wimbledon, grass, courts</td>
+<td>beckham, soccer, retired, david, learn</td>
+</tr>
+<tr>
+<td>2013 11 10 - 2014 10 14</td>
+<td>keith, stones, richards, musician, author</td>
+<td>georgia, russia, conflict, 2008, cnn</td>
+<td>civil, rights, hear, why, should</td>
+<td>cnn, kidneys, traffickers, organ, nepal</td>
+<td>ronaldo, cristiano, goalscorer, soccer, player</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>...</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2020 05 07 - 2021 04 10</td>
+<td>olympics, beijing, xinjiang, ioc, boycott</td>
+<td>covid, vaccine, coronavirus, pandemic, vaccination</td>
+<td>olympic, japan, medalist, canceled, tokyo</td>
+<td>djokovic, novak, tennis, federer, masterclass</td>
+<td>ronaldo, cristiano, messi, juventus, barcelona</td>
+</tr>
+<tr>
+<td>2021 04 10 - 2022 03 16</td>
+<td>olympics, tokyo, athletes, beijing, medal</td>
+<td>covid, pandemic, vaccine, vaccinated, coronavirus</td>
+<td>olympic, athletes, ioc, medal, athlete</td>
+<td>djokovic, novak, tennis, wimbledon, federer</td>
+<td>ronaldo, cristiano, messi, manchester, scored</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
 <p>You can also display the topics over time on an interactive HTML figure.
 The most important words for topics get revealed by hovering over them.</p>
 <blockquote>
