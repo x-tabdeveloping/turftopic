@@ -1134,16 +1134,27 @@
 <p>Turftopic contains implementations of a number of contemporary topic models.
 Some of these models might be similar to each other in a lot of aspects, but they might be different in others.
 It is quite important that you choose the right topic model for your use case.</p>
-<center>
-
-| :zap: Speed | :book: Long Documents | :elephant: Scalability | :nut_and_bolt: Flexibility |
-| - | - | - | - |
-| **[SemanticSignalSeparation](s3.md)** | **[KeyNMF](KeyNMF.md)** |  **[KeyNMF](KeyNMF.md)** | **[ClusteringTopicModel](clustering.md)** |
-
-_Table 1: You should tailor your model choice to your needs_
-
-</center>
-
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th><img alt="⚡" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/26a1.svg" title=":zap:" /> Speed</th>
+<th><img alt="📖" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f4d6.svg" title=":book:" /> Long Documents</th>
+<th><img alt="🐘" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f418.svg" title=":elephant:" /> Scalability</th>
+<th><img alt="🔩" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f529.svg" title=":nut_and_bolt:" /> Flexibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><a href="../s3/">SemanticSignalSeparation</a></strong></td>
+<td><strong><a href="../KeyNMF/">KeyNMF</a></strong></td>
+<td><strong><a href="../KeyNMF/">KeyNMF</a></strong></td>
+<td><strong><a href="../clustering/">ClusteringTopicModel</a></strong></td>
+</tr>
+</tbody>
+</table>
+<p><em>Table 1: You should tailor your model choice to your needs</em></p>
+<p></center></p>
 <figure style="width: 50%; text-align: center; float: right;">
   <img src="../images/docs_per_second.png">
   <figcaption> Figure 1: Speed of Different Models on 20 Newsgroups <br> (Documents per Second; Higher is better) </figcaption>
@@ -1175,22 +1186,85 @@ Good models typically balance these to metrics, and should produce highly cohere
 On Figure 2 you can see how good different models are on these metrics on 20 Newsgroups.</p>
 <p>In general, the most balanced models are <span class="arithmatex">\(S^3\)</span>, Clustering models with <code>centroid</code> feature importance, GMM and KeyNMF, while FASTopic excels at diversity.</p>
 <p><br></p>
-<center>
-
-
-| Model | :1234: Multiple Topics per Document  | :hash: Detecting Number of Topics  | :chart_with_upwards_trend: Dynamic Modeling  | :evergreen_tree: Hierarchical Modeling  | :star: Inference over New Documents  | :globe_with_meridians: Cross-Lingual  | :ocean: Online Fitting  |
-| - | - | - | - | - | - | - | - |
-| **[KeyNMF](KeyNMF.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark: |
-| **[SemanticSignalSeparation](s3.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
-| **[ClusteringTopicModel](clustering.md)** | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: |
-| **[GMM](GMM.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
-| **[AutoEncodingTopicModel](ctm.md)** | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :heavy_check_mark:  | :x: |
-| **[FASTopic](fastopic.md)** | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
-
-_Table 2: Comparison of the models based on their capabilities_
-
-</center>
-
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th><img alt="🔢" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f522.svg" title=":1234:" /> Multiple Topics per Document</th>
+<th><img alt="#⃣" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/23-20e3.svg" title=":hash:" /> Detecting Number of Topics</th>
+<th><img alt="📈" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f4c8.svg" title=":chart_with_upwards_trend:" /> Dynamic Modeling</th>
+<th><img alt="🌲" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f332.svg" title=":evergreen_tree:" /> Hierarchical Modeling</th>
+<th><img alt="⭐" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2b50.svg" title=":star:" /> Inference over New Documents</th>
+<th><img alt="🌐" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f310.svg" title=":globe_with_meridians:" /> Cross-Lingual</th>
+<th><img alt="🌊" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f30a.svg" title=":ocean:" /> Online Fitting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><a href="../KeyNMF/">KeyNMF</a></strong></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+</tr>
+<tr>
+<td><strong><a href="../s3/">SemanticSignalSeparation</a></strong></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+</tr>
+<tr>
+<td><strong><a href="../clustering/">ClusteringTopicModel</a></strong></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+</tr>
+<tr>
+<td><strong><a href="../GMM/">GMM</a></strong></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+</tr>
+<tr>
+<td><strong><a href="../ctm/">AutoEncodingTopicModel</a></strong></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+</tr>
+<tr>
+<td><strong><a href="fastopic.md">FASTopic</a></strong></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="✔" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/2714.svg" title=":heavy_check_mark:" /></td>
+<td><img alt="❌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/274c.svg" title=":x:" /></td>
+</tr>
+</tbody>
+</table>
+<p><em>Table 2: Comparison of the models based on their capabilities</em></p>
+<p></center></p>
 <h2 id="api-reference">API Reference</h2>
 
 

@@ -1082,16 +1082,34 @@
 <h1 id="getting-started">Getting Started</h1>
 <p>Turftopic is a topic modeling library which intends to simplify and streamline the usage of contextually sensitive topic models.
 We provide stable, minimal and scalable implementations of several types of models along with extensive documentation.</p>
-<center>
-
-| | | |
-| - | - | - |
-|   :house: [Build and Train Topic Models](model_definition_and_training.md) |  :art: [Explore, Interpret and Visualize your Models](model_interpretation.md) | :wrench: [Modify and Fine-tune Topic Models](finetuning.md) |
-|  :pushpin:  [Choose the Right Model for your Use-Case](model_overview.md) |  :chart_with_upwards_trend: [Explore Topics Changing over Time](dynamic.md)   |  :newspaper: [Use Phrases or Lemmas for Topic Models](vectorizers.md) |
-| :ocean: [Extract Topics from a Stream of Documents](online.md) |  :evergreen_tree: [Find Hierarchical Order in Topics](hierarchical.md) |  :whale: [Name Topics with Large Language Models](namers.md) |
-
-</center>
-
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="🏠" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f3e0.svg" title=":house:" /> <a href="model_definition_and_training/">Build and Train Topic Models</a></td>
+<td><img alt="🎨" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f3a8.svg" title=":art:" /> <a href="model_interpretation/">Explore, Interpret and Visualize your Models</a></td>
+<td><img alt="🔧" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f527.svg" title=":wrench:" /> <a href="finetuning/">Modify and Fine-tune Topic Models</a></td>
+</tr>
+<tr>
+<td><img alt="📌" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f4cc.svg" title=":pushpin:" />  <a href="model_overview/">Choose the Right Model for your Use-Case</a></td>
+<td><img alt="📈" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f4c8.svg" title=":chart_with_upwards_trend:" /> <a href="dynamic/">Explore Topics Changing over Time</a></td>
+<td><img alt="📰" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f4f0.svg" title=":newspaper:" /> <a href="vectorizers/">Use Phrases or Lemmas for Topic Models</a></td>
+</tr>
+<tr>
+<td><img alt="🌊" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f30a.svg" title=":ocean:" /> <a href="online/">Extract Topics from a Stream of Documents</a></td>
+<td><img alt="🌲" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f332.svg" title=":evergreen_tree:" /> <a href="hierarchical/">Find Hierarchical Order in Topics</a></td>
+<td><img alt="🐳" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f433.svg" title=":whale:" /> <a href="namers/">Name Topics with Large Language Models</a></td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
 <h2 id="basic-usage">Basic Usage</h2>
 <p>Turftopic can be installed from PyPI.</p>
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic
@@ -1110,15 +1128,30 @@ scikit-learn workflows.</p>
 <span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
 </code></pre></div>
-<center>
-
-| Topic ID | Top 10 Words                                                                                    |
-| -------- | ----------------------------------------------------------------------------------------------- |
-|        0 | armenians, armenian, armenia, turks, turkish, genocide, azerbaijan, soviet, turkey, azerbaijani |
-|        1 | sale, price, shipping, offer, sell, prices, interested, 00, games, selling                      |
-|         | ....                                |
-
-</center>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Top 10 Words</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>armenians, armenian, armenia, turks, turkish, genocide, azerbaijan, soviet, turkey, azerbaijani</td>
+</tr>
+<tr>
+<td>1</td>
+<td>sale, price, shipping, offer, sell, prices, interested, 00, games, selling</td>
+</tr>
+<tr>
+<td></td>
+<td>....</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
 
 
 
