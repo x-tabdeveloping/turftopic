@@ -1,8 +1,10 @@
+
 <p align="center">
 <img align="center" height="200" src="assets/logo_w_text.svg">
 <br>
  <b>Topic modeling is your turf too.</b> <br> <i> Contextual topic models with representations from transformers. </i></p>
 
+ [![DOI](https://joss.theoj.org/papers/10.21105/joss.08183/status.svg)](https://doi.org/10.21105/joss.08183)
 
 ## Features
 | | |
