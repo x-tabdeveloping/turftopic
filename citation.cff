@@ -1,22 +1,52 @@
-cff-version: 0.1.0
-message: "When using this package please cite us."
+cff-version: "1.2.0"
 authors:
-- family-names: "Kardos"
-  given-names: "Márton"
+- family-names: Kardos
+  given-names: Márton
   orcid: "https://orcid.org/0000-0001-9652-4498"
-- family-names: "Enevoldsen"
-  given-names: "Kenneth C."
-  orcid: ""https://orcid.org/0000-0001-8733-0966"
-- family-names: "Kostkan"
-  given-names: "Jan"
+- family-names: Enevoldsen
+  given-names: Kenneth C.
+  orcid: "https://orcid.org/0000-0001-8733-0966"
+- family-names: Kostkan
+  given-names: Jan
   orcid: "https://orcid.org/0000-0002-9707-7121"
-- family-names: "Kristensen-McLachlan"
-  given-names: "Ross Deans"
+- family-names: Kristensen-McLachlan
+  given-names: Ross Deans
   orcid: "https://orcid.org/0000-0001-8714-1911"
-- family-names: "Rocca"
-  given-names: "Roberta"
+- family-names: Rocca
+  given-names: Roberta
   orcid: "https://orcid.org/0000-0001-9017-8088"
-title: "Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers"
-version: 0.17.1
-date-released: 2025-07-03
-url: "https://github.com/x-tabdeveloping/turftopic"
+doi: 10.5281/zenodo.15688293
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Kardos
+    given-names: Márton
+    orcid: "https://orcid.org/0000-0001-9652-4498"
+  - family-names: Enevoldsen
+    given-names: Kenneth C.
+    orcid: "https://orcid.org/0000-0001-8733-0966"
+  - family-names: Kostkan
+    given-names: Jan
+    orcid: "https://orcid.org/0000-0002-9707-7121"
+  - family-names: Kristensen-McLachlan
+    given-names: Ross Deans
+    orcid: "https://orcid.org/0000-0001-8714-1911"
+  - family-names: Rocca
+    given-names: Roberta
+    orcid: "https://orcid.org/0000-0001-9017-8088"
+  date-published: 2025-07-03
+  doi: 10.21105/joss.08183
+  issn: 2475-9066
+  issue: 111
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 8183
+  title: "Turftopic: Topic Modelling with Contextual Representations
+    from Sentence Transformers"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.08183"
+  volume: 10
+title: "Turftopic: Topic Modelling with Contextual Representations from
+  Sentence Transformers"
