@@ -4,13 +4,19 @@ authors:
 - family-names: "Kardos"
   given-names: "Márton"
   orcid: "https://orcid.org/0000-0001-9652-4498"
+- family-names: "Enevoldsen"
+  given-names: "Kenneth C."
+  orcid: ""https://orcid.org/0000-0001-8733-0966"
 - family-names: "Kostkan"
   given-names: "Jan"
   orcid: "https://orcid.org/0000-0002-9707-7121"
+- family-names: "Kristensen-McLachlan"
+  given-names: "Ross Deans"
+  orcid: "https://orcid.org/0000-0001-8714-1911"
 - family-names: "Rocca"
   given-names: "Roberta"
   orcid: "https://orcid.org/0000-0001-9017-8088"
-title: "Turftopic: Robust and fast implementations of transformer-based topic models in Python."
-version: 0.2.13
-date-released: 2024-03-22
+title: "Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers"
+version: 0.17.1
+date-released: 2025-07-03
 url: "https://github.com/x-tabdeveloping/turftopic"
