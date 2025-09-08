@@ -50,6 +50,7 @@ theme:
       - content.code.copy
 
 plugins:
+- search
 - mkdocstrings:
     handlers:
       python:
