@@ -216,7 +216,7 @@ class MultimodalModel:
             if negative:
                 image_topic_vector = -image_topic_vector
             top_im_ind = np.argsort(-image_topic_vector)[:20]
-            top_im = [images[i] for i in top_im_ind]
+            top_im = [images[int(i)] for i in top_im_ind]
             top_images.append(top_im)
         return top_images
 

@@ -11,8 +11,15 @@ from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.decomposition import PCA
 
-from turftopic import (GMM, AutoEncodingTopicModel, ClusteringTopicModel,
-                       FASTopic, KeyNMF, SemanticSignalSeparation, load_model)
+from turftopic import (
+    GMM,
+    AutoEncodingTopicModel,
+    ClusteringTopicModel,
+    FASTopic,
+    KeyNMF,
+    SemanticSignalSeparation,
+    load_model,
+)
 
 
 def batched(iterable, n: int):
@@ -226,7 +233,7 @@ def test_cross_lingual():
     ds = load_dataset(
         "aiana94/polynews-parallel", "dan_Latn-hun_Latn", split="train"
     )
-    corpus = ds["src"] + ds["tgt"]
+    corpus = list(ds["src"]) + list(ds["tgt"])
     model = KeyNMF(5, cross_lingual=True)
     model.fit(corpus)
     model.print_topics()
