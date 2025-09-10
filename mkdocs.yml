@@ -2,7 +2,7 @@ site_name: Turftopic
 site_description: 'An all-in-one library for topic modeling with sentence embeddings.'
 repo_url: https://github.com/x-tabdeveloping/turftopic
 nav:
-  - Usage:
+  - User Guide:
     - Getting Started: index.md
     - Defining and Fitting Topic Models: model_definition_and_training.md
     - Interpreting and Visualizing Models: model_interpretation.md
@@ -21,7 +21,7 @@ nav:
      - Discourse Analysis on Morality and Religion: tutorials/religious.md
      - Discovering a Data-driven Political Compass: tutorials/ideologies.md
      - Customer Dissatisfaction Analysis: tutorials/reviews.md
-  - Models:
+  - Topic Models:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md
     - KeyNMF: KeyNMF.md
@@ -29,9 +29,9 @@ nav:
     - Clustering Models (BERTopic & Top2Vec): clustering.md
     - Autoencoding Models (ZeroShotTM & CombinedTM): ctm.md
     - FASTopic: FASTopic.md
-  - Encoders: encoders.md
-  - Vectorizers: vectorizers.md
-  - Namers: namers.md
+  - Embedding Models: encoders.md
+  - Vectorizers (Term extraction): vectorizers.md
+  - Topic Namers: namers.md
 theme:
   name: material
   logo: images/logo.svg
@@ -68,8 +68,8 @@ markdown_extensions:
   - pymdownx.superfences
   - attr_list
   - md_in_html
-  - admonition
   - tables
+  - admonition
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.tabbed:

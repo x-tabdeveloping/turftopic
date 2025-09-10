@@ -31,7 +31,6 @@ but users are free to specify the model that will be used for dimensionality red
         model = ClusteringTopicModel(dimensionality_reduction=TSNE(n_components=2, metric="cosine"))
         ```
         TSNE is a classic method for producing non-linear lower-dimensional representations of high-simensional embeddings.
-        TSNE has an inherent clustering property, which helps clustering models find groups of data.
         While it is widely used, it has many well-known issues, such as poor representation of global relations, and artificial clusters.
 
         !!! tip "Use openTSNE for better performance!"
@@ -130,39 +129,47 @@ By and large there are two types of methods that can be used for importance esti
 
 !!! quote "Choose a term importance estimation method"
 
-    === "c-TF-IDF (BERTopic)"
+    === "soft-c-TF-IDF (Default)"
 
         ```python
         from turftopic import ClusteringTopicModel
 
         model = ClusteringTopicModel(feature_importance="soft-c-tf-idf")
-        # or
+        ```
+
+        #### Formula:
+
+        - Let $X$ be the document term matrix where each element ($X_{ij}$) corresponds with the number of times word $j$ occurs in a document $i$.
+        - Estimate weight of term $j$ for topic $z$: <br>
+        $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
+        $t_{zj} = \sum_{i \in z} X_{ij}$ is the number of occurrences of a word in a topic and 
+        $w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
+        - Estimate inverse document/topic frequency for term $j$:  
+        $idf_j = log(\frac{N}{\sum_z |t_{zj}|})$, where
+        $N$ is the total number of documents.
+        - Calculate importance of term $j$ for topic $z$:   
+        $Soft-c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
+
+    === "c-TF-IDF (BERTopic)"
+
+        ```python
+        from turftopic import ClusteringTopicModel
+
         model = ClusteringTopicModel(feature_importance="c-tf-idf")
         ```
 
-         ??? info "Click to see formulas"
-            #### Soft-c-TF-IDF
-            - Let $X$ be the document term matrix where each element ($X_{ij}$) corresponds with the number of times word $j$ occurs in a document $i$.
-            - Estimate weight of term $j$ for topic $z$: <br>
-            $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
-            $t_{zj} = \sum_{i \in z} X_{ij}$ is the number of occurrences of a word in a topic and 
-            $w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
-            - Estimate inverse document/topic frequency for term $j$:  
-            $idf_j = log(\frac{N}{\sum_z |t_{zj}|})$, where
-            $N$ is the total number of documents.
-            - Calculate importance of term $j$ for topic $z$:   
-            $Soft-c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
+        #### Formula:
 
-            #### c-TF-IDF
-            - Let $X$ be the document term matrix where each element ($X_{ij}$) corresponds with the number of times word $j$ occurs in a document $i$.
-            - $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
-            $t_{zj} = \sum_{i \in z} X_{ij}$ is the number of occurrences of a word in a topic and 
-            $w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
-            - Estimate inverse document/topic frequency for term $j$:  
-            $idf_j = log(1 + \frac{A}{\sum_z |t_{zj}|})$, where
-            $A = \frac{\sum_z \sum_j t_{zj}}{Z}$ is the average number of words per topic, and $Z$ is the number of topics.
-            - Calculate importance of term $j$ for topic $z$:   
-            $c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
+        - Let $X$ be the document term matrix where each element ($X_{ij}$) corresponds with the number of times word $j$ occurs in a document $i$.
+        - $tf_{zj} = \frac{t_{zj}}{w_z}$, where 
+        $t_{zj} = \sum_{i \in z} X_{ij}$ is the number of occurrences of a word in a topic and 
+        $w_{z}= \sum_{j} t_{zj}$ is all words in the topic <br>
+        - Estimate inverse document/topic frequency for term $j$:  
+        $idf_j = log(1 + \frac{A}{\sum_z |t_{zj}|})$, where
+        $A = \frac{\sum_z \sum_j t_{zj}}{Z}$ is the average number of words per topic, and $Z$ is the number of topics.
+        - Calculate importance of term $j$ for topic $z$:   
+        $c-TF-IDF{zj} = tf_{zj} \cdot idf_j$
+
 
     === "Centroid Proximity (Top2Vec)"
 
