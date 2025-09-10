@@ -128,9 +128,10 @@ class TopicContainer(ABC):
             raise ValueError(
                 "No corpus was passed, can't search for representative documents."
             )
-        document_topic_matrix = document_topic_matrix or getattr(
-            self, "document_topic_matrix", None
-        )
+        if document_topic_matrix is None:
+            document_topic_matrix = getattr(
+                self, "document_topic_matrix", None
+            )
         if document_topic_matrix is None:
             try:
                 document_topic_matrix = self.transform(raw_documents)
