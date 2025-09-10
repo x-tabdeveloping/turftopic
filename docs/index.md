@@ -3,15 +3,12 @@
 Turftopic is a topic modeling library which intends to simplify and streamline the usage of contextually sensitive topic models.
 We provide stable, minimal and scalable implementations of several types of models along with extensive documentation.
 
-<center>
-
 | | | |
 | - | - | - |
 |   :house: [Build and Train Topic Models](model_definition_and_training.md) |  :art: [Explore, Interpret and Visualize your Models](model_interpretation.md) | :wrench: [Modify and Fine-tune Topic Models](finetuning.md) |
 |  :pushpin:  [Choose the Right Model for your Use-Case](model_overview.md) |  :chart_with_upwards_trend: [Explore Topics Changing over Time](dynamic.md)   |  :newspaper: [Use Phrases or Lemmas for Topic Models](vectorizers.md) |
 | :ocean: [Extract Topics from a Stream of Documents](online.md) |  :evergreen_tree: [Find Hierarchical Order in Topics](hierarchical.md) |  :whale: [Name Topics with Large Language Models](namers.md) |
 
-</center>
 
 ## Basic Usage
 
@@ -39,7 +36,6 @@ model = KeyNMF(20).fit(corpus)
 model.print_topics()
 ```
 
-<center>
 
 | Topic ID | Top 10 Words                                                                                    |
 | -------- | ----------------------------------------------------------------------------------------------- |
@@ -47,7 +43,6 @@ model.print_topics()
 |        1 | sale, price, shipping, offer, sell, prices, interested, 00, games, selling                      |
 |         | ....                                |
 
-</center>
 
 
 

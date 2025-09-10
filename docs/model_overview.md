@@ -4,15 +4,12 @@ Turftopic contains implementations of a number of contemporary topic models.
 Some of these models might be similar to each other in a lot of aspects, but they might be different in others.
 It is quite important that you choose the right topic model for your use case.
 
-<center>
 
-| :zap: Speed | :book: Long Documents | :elephant: Scalability | :nut_and_bolt: Flexibility |
-| - | - | - | - |
-| **[SemanticSignalSeparation](s3.md)** | **[KeyNMF](KeyNMF.md)** |  **[KeyNMF](KeyNMF.md)** | **[ClusteringTopicModel](clustering.md)** |
+| ⚡ **Speed** | 📖 **Long Documents** | 🐘 **Scalability** | 🔩 **Flexibility** |
+|-------------|-----------------------|--------------------|---------------------|
+| [SemanticSignalSeparation](s3.md) | [KeyNMF](KeyNMF.md) | [KeyNMF](KeyNMF.md) | [ClusteringTopicModel](clustering.md) |
 
 _Table 1: You should tailor your model choice to your needs_
-
-</center>
 
 
 <figure style="width: 50%; text-align: center; float: right;">
@@ -52,7 +49,6 @@ In general, the most balanced models are $S^3$, Clustering models with `centroid
 
 <br>
 
-<center>
 
 
 | Model | :1234: Multiple Topics per Document  | :hash: Detecting Number of Topics  | :chart_with_upwards_trend: Dynamic Modeling  | :evergreen_tree: Hierarchical Modeling  | :star: Inference over New Documents  | :globe_with_meridians: Cross-Lingual  | :ocean: Online Fitting  |
@@ -66,7 +62,6 @@ In general, the most balanced models are $S^3$, Clustering models with `centroid
 
 _Table 2: Comparison of the models based on their capabilities_
 
-</center>
 
 ## API Reference
 
