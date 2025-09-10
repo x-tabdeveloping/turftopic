@@ -15,8 +15,12 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic.base import ContextualModel, Encoder
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.multimodal import (Image, ImageRepr, MultimodalEmbeddings,
-                                  MultimodalModel)
+from turftopic.multimodal import (
+    Image,
+    ImageRepr,
+    MultimodalEmbeddings,
+    MultimodalModel,
+)
 from turftopic.vectorizers.default import default_vectorizer
 
 
@@ -205,6 +209,12 @@ class AutoEncodingTopicModel(ContextualModel, MultimodalModel):
     def fit(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ):
+        self.fit_transform(raw_documents, y, embeddings=embeddings)
+        return self
+
+    def fit_transform(
+        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
+    ) -> np.ndarray:
         console = Console()
         with console.status("Fitting model") as status:
             if embeddings is None:
@@ -275,14 +285,13 @@ class AutoEncodingTopicModel(ContextualModel, MultimodalModel):
                 )
             self.components_ = np.array(self.model.beta())
             console.log("Model fitting done.")
-        return self
-
-    def fit_transform(
-        self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
-    ) -> np.ndarray:
-        return self.fit(raw_documents, y, embeddings).transform(
-            raw_documents, embeddings
-        )
+            document_topic_matrix = self.transform(
+                raw_documents, embeddings=embeddings
+            )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=document_topic_matrix
+            )
+            return document_topic_matrix
 
     def fit_transform_multimodal(
         self,
@@ -378,6 +387,9 @@ class AutoEncodingTopicModel(ContextualModel, MultimodalModel):
             )
             self.top_images: list[list[Image.Image]] = self.collect_top_images(
                 images, self.image_topic_matrix
+            )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=document_topic_matrix
             )
             console.log("Transformation done.")
         return document_topic_matrix

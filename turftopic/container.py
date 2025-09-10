@@ -110,6 +110,18 @@ class TopicContainer(ABC):
             Indicates whether the highest
             or lowest scoring documents should be returned.
         """
+        if (
+            positive
+            and hasattr(self, "top_documents")
+            and len(self.top_documents[0]) >= top_k
+        ):
+            return [docs[:top_k] for docs in self.top_documents]
+        if (
+            not positive
+            and hasattr(self, "negative_documents")
+            and len(self.negative_documents[0]) >= top_k
+        ):
+            return [docs[:top_k] for docs in self.negative_documents]
         docs = []
         raw_documents = raw_documents or getattr(self, "corpus", None)
         if raw_documents is None:

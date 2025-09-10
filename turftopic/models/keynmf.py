@@ -18,8 +18,11 @@ from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.hierarchical import DivisibleTopicNode
 from turftopic.models._keynmf import KeywordNMF, SBertKeywordExtractor
 from turftopic.models.wnmf import weighted_nmf
-from turftopic.multimodal import (ImageRepr, MultimodalEmbeddings,
-                                  MultimodalModel)
+from turftopic.multimodal import (
+    ImageRepr,
+    MultimodalEmbeddings,
+    MultimodalModel,
+)
 from turftopic.vectorizers.default import default_vectorizer
 
 
@@ -238,6 +241,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         self.hierarchy = DivisibleTopicNode.create_root(
             self, self.components_, self.document_topic_matrix
         )
+        self.top_documents = self.get_top_documents(
+            raw_documents, document_topic_matrix=doc_topic_matrix
+        )
         return doc_topic_matrix
 
     def fit_transform_multimodal(
@@ -284,6 +290,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         self.document_term_matrix = self.model.vectorize(document_keywords)
         self.hierarchy = DivisibleTopicNode.create_root(
             self, self.components_, self.document_topic_matrix
+        )
+        self.top_documents = self.get_top_documents(
+            raw_documents, document_topic_matrix=doc_topic_matrix
         )
         return doc_topic_matrix
 
@@ -563,6 +572,9 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         self.document_term_matrix = self.model.vectorize(keywords)
         self.hierarchy = DivisibleTopicNode.create_root(
             self, self.components_, self.document_topic_matrix
+        )
+        self.top_documents = self.get_top_documents(
+            raw_documents, document_topic_matrix=doc_topic_matrix
         )
         return doc_topic_matrix
 

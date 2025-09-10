@@ -175,6 +175,12 @@ class SemanticSignalSeparation(
                     np.square(self.axial_components_)
                     * self.angular_components_
                 )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.negative_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic, positive=False
+            )
             console.log("Model fitting done.")
         return doc_topic
 
@@ -239,6 +245,12 @@ class SemanticSignalSeparation(
             )
             self.negative_images = self.collect_top_images(
                 images, self.image_topic_matrix, negative=True
+            )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.negative_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic, positive=False
             )
             console.log("Images transformed")
         return doc_topic
@@ -369,6 +381,9 @@ class SemanticSignalSeparation(
 
     def refit_transform(
         self,
+        raw_documents,
+        y=None,
+        embeddings: Optional[np.ndarray] = None,
         n_components: Optional[int] = None,
         max_iter: Optional[int] = None,
         random_state: Optional[int] = None,
@@ -378,6 +393,12 @@ class SemanticSignalSeparation(
 
         Parameters
         ----------
+        raw_documents
+            Corpus on which the model is based.
+        y
+            Ignored, exists for API compatibility.
+        embeddings
+            Ignored, embeddings are already stored, exists for compatibility.
         n_components: int, default None
             Number of topics.
         max_iter: int, default None
@@ -419,6 +440,12 @@ class SemanticSignalSeparation(
                     np.square(self.axial_components_)
                     * self.angular_components_
                 )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.negative_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic, positive=False
+            )
             console.log("Model fitting done.")
         return doc_topic
 
@@ -463,7 +490,9 @@ class SemanticSignalSeparation(
 
     def refit_transform_dynamic(
         self,
+        raw_documents,
         timestamps: list[datetime],
+        embeddings=None,
         bins: Union[int, list[datetime]] = 10,
         n_components: Optional[int] = None,
         max_iter: Optional[int] = None,
@@ -471,6 +500,8 @@ class SemanticSignalSeparation(
     ):
         """Refits $S^3$ to be a dynamic model."""
         document_topic_matrix = self.refit_transform(
+            raw_documents,
+            embeddings=embeddings,
             n_components=n_components,
             max_iter=max_iter,
             random_state=random_state,
@@ -506,6 +537,9 @@ class SemanticSignalSeparation(
 
     def refit(
         self,
+        raw_documents,
+        y=None,
+        embeddings=None,
         n_components: Optional[int] = None,
         max_iter: Optional[int] = None,
         random_state: Optional[int] = None,
@@ -515,6 +549,12 @@ class SemanticSignalSeparation(
 
         Parameters
         ----------
+        raw_documents
+            Corpus on which the model is based.
+        y
+            Ignored, exists for API compatibility.
+        embeddings
+            Ignored, embeddings are already stored, exists for compatibility.
         n_components: int, default None
             Number of topics.
         max_iter: int, default None
@@ -526,7 +566,14 @@ class SemanticSignalSeparation(
         -------
         Refitted model.
         """
-        self.refit_transform(n_components, max_iter, random_state)
+        self.refit_transform(
+            raw_documents,
+            y=y,
+            embeddings=embeddings,
+            n_components=n_components,
+            max_iter=max_iter,
+            random_state=random_state,
+        )
         return self
 
     @property

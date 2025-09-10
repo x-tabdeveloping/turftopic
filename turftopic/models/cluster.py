@@ -524,6 +524,12 @@ class ClusteringTopicModel(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
         console.log("Model fitting done.")
+        self.top_documents = self.get_top_documents(
+            raw_documents=raw_documents,
+            document_topic_matrix=self.transform(
+                raw_documents, embeddings=self.embeddings
+            ),
+        )
         return self.labels_
 
     def fit_transform(
