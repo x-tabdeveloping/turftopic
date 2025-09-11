@@ -13,6 +13,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
+from turftopic.analyzers.base import Analyzer
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
@@ -21,7 +22,6 @@ from turftopic.multimodal import (
     MultimodalEmbeddings,
     MultimodalModel,
 )
-from turftopic.namers.base import TopicNamer
 from turftopic.vectorizers.default import default_vectorizer
 
 NOT_MATCHING_ERROR = (
@@ -358,12 +358,12 @@ class SemanticSignalSeparation(
         )
         return fig
 
-    def _rename_automatic(self, namer: TopicNamer) -> list[str]:
+    def _rename_automatic(self, analyzer: Analyzer) -> list[str]:
         """Names topics with a topic namer in the model.
 
         Parameters
         ----------
-        namer: TopicNamer
+        analyzer: Analyzer
             A Topic namer model to name topics with.
 
         Returns
@@ -371,8 +371,21 @@ class SemanticSignalSeparation(
         list[str]
             List of topic names.
         """
-        positive_names = namer.name_topics(self._top_terms())
-        negative_names = namer.name_topics(self._top_terms(positive=False))
+        try:
+            positive_documents = self.get_top_documents()
+            negative_documents = self.get_top_documents(positive=False)
+        except ValueError as e:
+            warnings.warn(
+                f"Couldn't get top documents, proceeding only with keywords: {e}"
+            )
+            positive_documents = None
+            negative_documents = None
+        positive_names = analyzer.name_topics(
+            self._top_terms(), documents=positive_documents
+        )
+        negative_names = analyzer.name_topics(
+            self._top_terms(positive=False), documents=negative_documents
+        )
         names = []
         for positive, negative in zip(positive_names, negative_names):
             names.append(f"{positive}/{negative}")

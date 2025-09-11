@@ -9,7 +9,7 @@ from PIL import Image
 from rich.console import Console
 from rich.table import Table
 
-from turftopic.namers.base import TopicNamer
+from turftopic.analyzers.base import Analyzer
 from turftopic.utils import export_table
 
 
@@ -177,8 +177,17 @@ class TopicContainer(ABC):
             ims.append(topic_images[:top_k])
         return ims
 
-    def _rename_automatic(self, namer: TopicNamer) -> list[str]:
-        self.topic_names_ = namer.name_topics(self._top_terms())
+    def _rename_automatic(self, analyzer: Analyzer) -> list[str]:
+        try:
+            documents = self.get_top_documents()
+        except ValueError as e:
+            warnings.warn(
+                f"Couldn't get top documents, proceeding only with keywords: {e}"
+            )
+            documents = None
+        self.topic_names_ = analyzer.name_topics(
+            self._top_terms(), documents=documents
+        )
         return self.topic_names_
 
     def _topics_table(
@@ -465,8 +474,57 @@ class TopicContainer(ABC):
             names.append(f"{topic_id}_{concat_words}")
         return names
 
+    def analyze_topics(
+        self, analyzer: Analyzer, use_summaries: Optional[bool] = None
+    ) -> dict:
+        """Analyzes topics in a fitted topic model using an Analyzer.
+
+        Example
+        -------
+        ```python
+        from turftopic.analyzers import T5Analyzer
+
+        model = KeyNMF(10).fit(corpus)
+        analyzer = T5Analyzer()
+        res = model.analyze_topics(analyzer)
+        ```
+
+        Parameters
+        ----------
+        analyzer: Analyzer
+            Large language model to analyze the topics in your topic model.
+        use_summaries: bool, optional
+            Indicates whether the analyzer should first summarize the most relevant documents.
+            This can be beneficial when your corpus includes very long documents.
+
+        Returns
+        -------
+        dict
+            Analysis results. Dictionary containing `topic_names`, `topic_descriptions`
+            and `document_summaries` if relevant.
+        """
+        try:
+            documents = self.get_top_documents()
+        except ValueError as e:
+            warnings.warn(
+                f"Couldn't get top documents, proceeding only with keywords: {e}"
+            )
+            documents = None
+        res = analyzer.analyze_topics(
+            keywords=self._top_terms(),
+            documents=documents,
+            use_summaries=use_summaries,
+        )
+        self.topic_names_ = analyzer.name_topics(
+            self._top_terms(), documents=documents
+        )
+        if "document_summaries" in res:
+            self.top_document_summaries = res["document_summaries"]
+        self.topic_descriptions = res["topic_descriptions"]
+        return res
+
     def rename_topics(
-        self, names: Union[list[str], dict[int, str], TopicNamer]
+        self, names: Union[list[str], dict[int, str], Analyzer]
     ) -> None:
         """Rename topics in a model manually or automatically, using a namer.
 
@@ -476,7 +534,7 @@ class TopicContainer(ABC):
         # Or:
         model.rename_topics({-1: "Outliers", 2: "Christianity"})
         # Or:
-        namer = OpenAITopicNamer()
+        namer = OpenAIAnalyzer()
         model.rename_topics(namer)
         ```
 
@@ -485,7 +543,7 @@ class TopicContainer(ABC):
         names: list[str] or dict[int,str]
             Should be a list of topic names, or a mapping of topic IDs to names.
         """
-        if isinstance(names, TopicNamer):
+        if isinstance(names, Analyzer):
             self._rename_automatic(names)
         elif isinstance(names, dict):
             topic_names = self.topic_names
