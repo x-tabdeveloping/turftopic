@@ -9,7 +9,7 @@ from PIL import Image
 from rich.console import Console
 from rich.table import Table
 
-from turftopic.analyzers.base import Analyzer
+from turftopic.analyzers.base import AnalysisResults, Analyzer
 from turftopic.utils import export_table
 
 
@@ -177,13 +177,17 @@ class TopicContainer(ABC):
             ims.append(topic_images[:top_k])
         return ims
 
-    def _rename_automatic(self, analyzer: Analyzer) -> list[str]:
+    def _rename_automatic(
+        self, analyzer: Analyzer, use_documents: bool = True
+    ) -> list[str]:
         try:
             documents = self.get_top_documents()
         except ValueError as e:
             warnings.warn(
                 f"Couldn't get top documents, proceeding only with keywords: {e}"
             )
+            documents = None
+        if not use_documents:
             documents = None
         self.topic_names_ = analyzer.name_topics(
             self._top_terms(), documents=documents
@@ -201,6 +205,8 @@ class TopicContainer(ABC):
         columns = ["Topic ID"]
         if getattr(self, "topic_names_", None):
             columns.append("Topic Name")
+        if getattr(self, "topic_descriptions", None):
+            columns.append("Topic Descriptions")
         columns.append("Highest Ranking")
         if show_negative:
             columns.append("Lowest Ranking")
@@ -240,6 +246,8 @@ class TopicContainer(ABC):
             row = [f"{topic_id}"]
             if getattr(self, "topic_names_", None):
                 row.append(self.topic_names_[i_topic])
+            if getattr(self, "topic_descriptions", None):
+                row.append(self.topic_descriptions[i_topic])
             row.append(f"{concat_positive}")
             if show_negative:
                 row.append(concat_negative)
@@ -476,7 +484,7 @@ class TopicContainer(ABC):
 
     def analyze_topics(
         self, analyzer: Analyzer, use_summaries: Optional[bool] = None
-    ) -> dict:
+    ) -> AnalysisResults:
         """Analyzes topics in a fitted topic model using an Analyzer.
 
         Example
@@ -499,8 +507,8 @@ class TopicContainer(ABC):
 
         Returns
         -------
-        dict
-            Analysis results. Dictionary containing `topic_names`, `topic_descriptions`
+        AnalysisResults
+            Analysis results. Dataclass containing `topic_names`, `topic_descriptions`
             and `document_summaries` if relevant.
         """
         try:
@@ -518,13 +526,15 @@ class TopicContainer(ABC):
         self.topic_names_ = analyzer.name_topics(
             self._top_terms(), documents=documents
         )
-        if "document_summaries" in res:
-            self.top_document_summaries = res["document_summaries"]
+        if res.document_summaries is not None:
+            self.document_summaries = res["document_summaries"]
         self.topic_descriptions = res["topic_descriptions"]
         return res
 
     def rename_topics(
-        self, names: Union[list[str], dict[int, str], Analyzer]
+        self,
+        names: Union[list[str], dict[int, str], Analyzer],
+        use_documents: bool = True,
     ) -> None:
         """Rename topics in a model manually or automatically, using a namer.
 
@@ -542,9 +552,11 @@ class TopicContainer(ABC):
         ----------
         names: list[str] or dict[int,str]
             Should be a list of topic names, or a mapping of topic IDs to names.
+        use_documents: bool, default True
+            Indicates whether documents should be used when naming topics with an analyzer.
         """
         if isinstance(names, Analyzer):
-            self._rename_automatic(names)
+            self._rename_automatic(names, use_documents=use_documents)
         elif isinstance(names, dict):
             topic_names = self.topic_names
             for topic_id, topic_name in names.items():

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Optional
 
 from rich.console import Console
@@ -38,6 +39,31 @@ When the user asks you to name a topic, you respond with a name for the topic th
 When they ask you to describe the topic briefly, you respond with a couple of sentences explaining what the topic is about.
 When they ask you to summarize a document, you respond with a brief summary.
 """
+
+
+@dataclass
+class AnalysisResults:
+    topic_names: list[str]
+    topic_descriptions: list[str]
+    document_summaries: Optional[list[list[str]]] = None
+
+    def to_dict(self):
+        res = dict(
+            topic_names=self.topic_names,
+            topic_descriptions=self.topic_descriptions,
+        )
+        if self.document_summaries is not None:
+            res["document_summaries"] = self.document_summaries
+        return res
+
+    def to_df(self):
+        try:
+            import pandas as pd
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "You need to pip install pandas to be able to use dataframes."
+            )
+        return pd.DataFrame({})
 
 
 class Analyzer(ABC):
@@ -129,7 +155,7 @@ class Analyzer(ABC):
         keywords: list[list[str]],
         documents: Optional[list[list[str]]] = None,
         use_summaries: Optional[bool] = None,
-    ) -> dict:
+    ) -> AnalysisResults:
         """Analyzes topic model with a language model.
         Generates topic names, descriptions and document summaries (optional).
 
@@ -193,4 +219,4 @@ class Analyzer(ABC):
                     self.describe_topic(keys, documents=None)
                 )
             console.log("Topic descriptions generated.")
-        return output
+        return AnalysisResults(**output)
