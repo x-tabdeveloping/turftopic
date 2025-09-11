@@ -4,6 +4,9 @@ from transformers import pipeline
 
 from turftopic.analyzers.base import Analyzer
 
+T5_NAME_PROMPT = "What is the topic? Keywords: {keywords}"
+T5_DESC_PROMPT = "Summarize in one sentence. Keywords: {keywords}"
+
 
 class T5Analyzer(Analyzer):
     """Analyze topic model with a text-to-text model.
@@ -37,8 +40,8 @@ class T5Analyzer(Analyzer):
         use_summaries: bool = False,
         system_prompt: Optional[str] = None,
         summary_prompt: Optional[str] = None,
-        namer_prompt: Optional[str] = None,
-        description_prompt: Optional[str] = None,
+        namer_prompt: Optional[str] = T5_NAME_PROMPT,
+        description_prompt: Optional[str] = T5_DESC_PROMPT,
         device: str = "cpu",
     ):
         self.device = device
