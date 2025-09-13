@@ -14,6 +14,7 @@ from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import LabelEncoder, normalize, scale
 
@@ -108,34 +109,6 @@ def calculate_topic_vectors(
         centroids.append(centroid)
     centroids = np.stack(centroids)
     return centroids
-
-
-def build_tsne(*args, **kwargs):
-    try:
-        from openTSNE import TSNE
-
-        class OpenTSNEWrapper(TSNE):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-
-            def fit_transform(self, X: np.ndarray, y=None):
-                return super().fit(X)
-
-            def fit(self, X: np.ndarray, y=None):
-                self.fit_transform(X, y)
-                return self
-
-        return OpenTSNEWrapper(*args, **kwargs)
-
-    except ModuleNotFoundError:
-        from sklearn.manifold import TSNE
-
-        warnings.warn(
-            """OpenTSNE is not installed, default scikit-learn implementation will be used.
-        Your model could potentially run orders of magnitudes faster by installing openTSNE.
-        """
-        )
-        return TSNE(*args, **kwargs)
 
 
 class ClusteringTopicModel(
@@ -258,7 +231,7 @@ class ClusteringTopicModel(
         else:
             self.clustering = clustering
         if dimensionality_reduction is None:
-            self.dimensionality_reduction = build_tsne(
+            self.dimensionality_reduction = TSNE(
                 n_components=2,
                 metric="cosine",
                 perplexity=15,
@@ -699,7 +672,18 @@ class ClusteringTopicModel(
         return np.array([class_to_index[label] for label in labels])
 
     def plot_clusters_datamapplot(
-        self, dimensions: tuple[int, int] = (0, 1), *args, **kwargs
+        self,
+        dimensions: tuple[int, int] = (0, 1),
+        *args,
+        font_family="Merriweather",
+        enable_topic_tree=True,
+        topic_tree_kwds={
+            "color_bullets": True,
+        },
+        cluster_boundary_polygons=True,
+        cluster_boundary_line_width=6,
+        polygon_alpha=2,
+        **kwargs,
     ):
         try:
             import datamapplot
@@ -715,7 +699,18 @@ class ClusteringTopicModel(
             i_outlier = np.where(self.classes_ == -1)[0][0]
             kwargs["noise_label"] = self.topic_names[i_outlier]
         plot = datamapplot.create_interactive_plot(
-            coordinates, labels, *args, **kwargs
+            coordinates,
+            labels,
+            *args,
+            font_family=font_family,
+            logo="https://x-tabdeveloping.github.io/turftopic/images/logo.svg",
+            logo_width=80,
+            enable_topic_tree=enable_topic_tree,
+            topic_tree_kwds=topic_tree_kwds,
+            cluster_boundary_polygons=cluster_boundary_polygons,
+            cluster_boundary_line_width=cluster_boundary_line_width,
+            polygon_alpha=polygon_alpha,
+            **kwargs,
         )
 
         def show_fig():
