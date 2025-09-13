@@ -63,7 +63,7 @@ class AnalysisResults:
             raise ModuleNotFoundError(
                 "You need to pip install pandas to be able to use dataframes."
             )
-        return pd.DataFrame({})
+        return pd.DataFrame(self.to_dict())
 
 
 class Analyzer(ABC):
