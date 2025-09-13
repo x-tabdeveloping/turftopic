@@ -527,8 +527,8 @@ class TopicContainer(ABC):
             self._top_terms(), documents=documents
         )
         if res.document_summaries is not None:
-            self.document_summaries = res["document_summaries"]
-        self.topic_descriptions = res["topic_descriptions"]
+            self.document_summaries = res.document_summaries
+        self.topic_descriptions = res.topic_descriptions
         return res
 
     def rename_topics(
