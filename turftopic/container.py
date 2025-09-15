@@ -483,7 +483,10 @@ class TopicContainer(ABC):
         return names
 
     def analyze_topics(
-        self, analyzer: Analyzer, use_summaries: Optional[bool] = None
+        self,
+        analyzer: Analyzer,
+        use_documents: bool = True,
+        use_summaries: Optional[bool] = None,
     ) -> AnalysisResults:
         """Analyzes topics in a fitted topic model using an Analyzer.
 
@@ -501,6 +504,8 @@ class TopicContainer(ABC):
         ----------
         analyzer: Analyzer
             Large language model to analyze the topics in your topic model.
+        use_documents: bool, default True
+            Indicates whether top documents should be involved in analyzing topics.
         use_summaries: bool, optional
             Indicates whether the analyzer should first summarize the most relevant documents.
             This can be beneficial when your corpus includes very long documents.
@@ -518,14 +523,14 @@ class TopicContainer(ABC):
                 f"Couldn't get top documents, proceeding only with keywords: {e}"
             )
             documents = None
+        if not use_documents:
+            documents = None
         res = analyzer.analyze_topics(
             keywords=self._top_terms(),
             documents=documents,
             use_summaries=use_summaries,
         )
-        self.topic_names_ = analyzer.name_topics(
-            self._top_terms(), documents=documents
-        )
+        self.topic_names_ = res.topic_names
         if res.document_summaries is not None:
             self.document_summaries = res.document_summaries
         self.topic_descriptions = res.topic_descriptions
