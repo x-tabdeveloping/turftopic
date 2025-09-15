@@ -534,6 +534,13 @@ class TopicContainer(ABC):
         if res.document_summaries is not None:
             self.document_summaries = res.document_summaries
         self.topic_descriptions = res.topic_descriptions
+        if -1 in getattr(self, "classes_", ()):
+            id_to_idx = dict(zip(self.classes_, range(len(self.classes_))))
+            self.topic_names_[id_to_idx[-1]] = "Outliers"
+            if self.topic_descriptions is not None:
+                self.topic_descriptions[id_to_idx[-1]] = (
+                    "Topic containing outlier documents."
+                )
         return res
 
     def rename_topics(
