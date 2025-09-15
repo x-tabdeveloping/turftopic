@@ -1,6 +1,6 @@
 from typing import Optional
 
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM
 
 from turftopic.analyzers.base import Analyzer
 
@@ -28,6 +28,10 @@ class LLMAnalyzer(Analyzer):
         Prompt template for generating topic descriptions.
     device: str, default "cpu"
         ID of the device to run the language model on.
+    max_new_tokens: int, default 32768
+        Max new tokens to generate when analyzing.
+    enable_thinking: bool, default True
+        Indicates whether thinking mode should be enabled.
     """
 
     def __init__(
@@ -39,19 +43,44 @@ class LLMAnalyzer(Analyzer):
         summary_prompt: Optional[str] = None,
         namer_prompt: Optional[str] = None,
         description_prompt: Optional[str] = None,
+        max_new_tokens: int = 32768,
         device: str = "cpu",
+        enable_thinking: bool = True,
     ):
         self.device = device
         self.model_name = model_name
-        self.pipeline = pipeline(
-            task="text-generation",
-            model=self.model_name,
-            device=self.device,
-        )
+        # load the tokenizer and the model
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.model = AutoModelForCausalLM.from_pretrained(
+            self.model_name,
+        ).to(self.device)
         self.summary_prompt = summary_prompt or self.summary_prompt
         self.namer_prompt = namer_prompt or self.namer_prompt
         self.description_prompt = description_prompt or self.description_prompt
         self.use_summaries = use_summaries
+        self.max_new_tokens = max_new_tokens
+        self.enable_thinking = enable_thinking
 
     def generate_text(self, prompt: str) -> str:
-        return self.pipeline(prompt)
+        thinking = "/think" if self.enable_thinking else "/no_think"
+        system_prompt = self.system_prompt + thinking
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt},
+        ]
+        text = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        model_inputs = self.tokenizer([text], return_tensors="pt").to(
+            self.model.device
+        )
+        # Generate the output
+        generated_ids = self.model.generate(
+            **model_inputs, max_new_tokens=32768
+        )
+        # Get and decode the output
+        output_ids = generated_ids[0][len(model_inputs.input_ids[0]) :]
+        result = self.tokenizer.decode(output_ids, skip_special_tokens=True)
+        return result
