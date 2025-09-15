@@ -29,6 +29,7 @@ from turftopic.feature_importance import (
     linear_classifier,
     soft_ctf_idf,
 )
+from turftopic._datamapplot import build_datamapplot
 from turftopic.models._hierarchical_clusters import (
     VALID_LINKAGE_METHODS,
     ClusterNode,
@@ -674,54 +675,35 @@ class ClusteringTopicModel(
     def plot_clusters_datamapplot(
         self,
         dimensions: tuple[int, int] = (0, 1),
-        *args,
-        font_family="Merriweather",
-        enable_topic_tree=True,
-        topic_tree_kwds={
-            "color_bullets": True,
-        },
-        cluster_boundary_polygons=True,
-        cluster_boundary_line_width=6,
-        polygon_alpha=2,
+        hover_text: Optional[list[str]] = None,
         **kwargs,
     ):
-        try:
-            import datamapplot
-        except ModuleNotFoundError as e:
-            raise ModuleNotFoundError(
-                "You need to install datamapplot to be able to use plot_clusters_datamapplot()."
-            ) from e
+        """Creates an interactive browser plot of the topics in your data using datamapplot.
+
+        Parameters
+        ----------
+        dimensions: tuple (x_coord, y_coord)
+            Indicates which dimensions of the reduced embeddings to use for displaying.
+            Defaults to the first two dimensions.
+        hover_text: list of str, optional
+            Text to show when hovering over a document.
+
+        Returns
+        -------
+        plot
+            Interactive datamap plot, you can call the `.show()` method to
+            display it in your default browser or save it as static HTML using `.write_html()`.
+        """
         coordinates = self.reduced_embeddings[:, dimensions]
-        coordinates = scale(coordinates) * 4
-        indices = self._labels_to_indices(self.labels_, self.classes_)
-        labels = np.array(self.topic_names)[indices]
-        if -1 in self.classes_:
-            i_outlier = np.where(self.classes_ == -1)[0][0]
-            kwargs["noise_label"] = self.topic_names[i_outlier]
-        plot = datamapplot.create_interactive_plot(
-            coordinates,
-            labels,
-            *args,
-            font_family=font_family,
-            logo="https://x-tabdeveloping.github.io/turftopic/images/logo.svg",
-            logo_width=80,
-            enable_topic_tree=enable_topic_tree,
-            topic_tree_kwds=topic_tree_kwds,
-            cluster_boundary_polygons=cluster_boundary_polygons,
-            cluster_boundary_line_width=cluster_boundary_line_width,
-            polygon_alpha=polygon_alpha,
+        plot = build_datamapplot(
+            coordinates=coordinates,
+            topic_names=self.topic_names,
+            labels=self.labels_,
+            classes=self.classes_,
+            hover_text=hover_text,
+            topic_descriptions=getattr(self, "topic_descriptions", None),
             **kwargs,
         )
-
-        def show_fig():
-            with tempfile.TemporaryDirectory() as temp_dir:
-                file_name = Path(temp_dir).joinpath("fig.html")
-                plot.save(file_name)
-                webbrowser.open("file://" + str(file_name.absolute()), new=2)
-                time.sleep(2)
-
-        plot.show = show_fig
-        plot.write_html = plot.save
         return plot
 
     def transform(
