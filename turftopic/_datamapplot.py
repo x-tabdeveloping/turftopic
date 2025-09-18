@@ -7,65 +7,7 @@ from typing import Optional
 import numpy as np
 from sklearn.preprocessing import scale
 
-
-def _labels_to_indices(labels, classes):
-    n_classes = len(classes)
-    class_to_index = dict(zip(classes, np.arange(n_classes)))
-    return np.array([class_to_index[label] for label in labels])
-
-
-def build_datamapplot(
-    coordinates: np.ndarray,
-    topic_names: list[str],
-    labels: np.ndarray,
-    classes: np.ndarray,
-    topic_descriptions: Optional[list[str]] = None,
-    font_family: str = "Merriweather",
-    enable_topic_tree=True,
-    topic_tree_kwds={
-        "color_bullets": True,
-    },
-    cluster_boundary_polygons=True,
-    cluster_boundary_line_width=6,
-    polygon_alpha=2,
-    **kwargs,
-):
-    """Builds a Turftopic interactive datamapplot.
-
-    Parameters
-    ----------
-    coordinates: np.ndarray
-        X and Y coordinates of datapoints.
-    topic_names: list[str]
-        Names of topics in the model.
-    labels: np.ndarray
-        Topic labels for each datapoint (topic_id for each point)
-    classes: np.ndarray
-        List of topic IDs in the model.
-    topic_descriptions: list[str], optional
-        List of descriptions for the given topics.
-    """
-    try:
-        import datamapplot
-    except ModuleNotFoundError as e:
-        raise ModuleNotFoundError(
-            "You need to install datamapplot to be able to use plot_clusters_datamapplot()."
-        ) from e
-    coordinates = scale(coordinates) * 4
-    indices = _labels_to_indices(labels, classes)
-    labels = np.array(topic_names)[indices]
-    if -1 in classes:
-        i_outlier = np.where(classes == -1)[0][0]
-        kwargs["noise_label"] = topic_names[i_outlier]
-    if topic_descriptions is None:
-        topic_descriptions = [""] * len(classes)
-
-    # Sanitizing the names so they don't mess up the HTML
-    topic_names = [name.replace('"', "'") for name in topic_names]
-    topic_descriptions = [
-        desc.replace('"', "'") for desc in topic_descriptions
-    ]
-    custom_css = """
+CUSTOM_CSS = """
 .row {
     display : flex;
     align-items : center;
@@ -135,28 +77,107 @@ p {
 #topic-tree-body {
     padding: 0px;
 }
+#topic-keywords {
+    font-style: italic;
+    margin-bottom: 2px;
+    text-align: left;
+}
+"""
+
+
+def _labels_to_indices(labels, classes):
+    n_classes = len(classes)
+    class_to_index = dict(zip(classes, np.arange(n_classes)))
+    return np.array([class_to_index[label] for label in labels])
+
+
+def build_datamapplot(
+    coordinates: np.ndarray,
+    topic_names: list[str],
+    labels: np.ndarray,
+    classes: np.ndarray,
+    top_words: Optional[list[list[str]]] = None,
+    topic_descriptions: Optional[list[str]] = None,
+    font_family: str = "Merriweather",
+    enable_topic_tree=True,
+    topic_tree_kwds={
+        "color_bullets": True,
+    },
+    cluster_boundary_polygons=True,
+    cluster_boundary_line_width=6,
+    polygon_alpha=2,
+    **kwargs,
+):
+    """Builds a Turftopic interactive datamapplot.
+
+    Parameters
+    ----------
+    coordinates: np.ndarray
+        X and Y coordinates of datapoints.
+    topic_names: list[str]
+        Names of topics in the model.
+    labels: np.ndarray
+        Topic labels for each datapoint (topic_id for each point)
+    classes: np.ndarray
+        List of topic IDs in the model.
+    top_words: list[list[str]], optional
+        List of top keywords for each topic.
+    topic_descriptions: list[str], optional
+        List of descriptions for the given topics.
     """
+    try:
+        import datamapplot
+    except ModuleNotFoundError as e:
+        raise ModuleNotFoundError(
+            "You need to install datamapplot to be able to use plot_clusters_datamapplot()."
+        ) from e
+    coordinates = scale(coordinates) * 4
+    indices = _labels_to_indices(labels, classes)
+    labels = np.array(topic_names)[indices]
+    if -1 in classes:
+        i_outlier = np.where(classes == -1)[0][0]
+        kwargs["noise_label"] = topic_names[i_outlier]
+    # Sanitizing the names so they don't mess up the HTML
+    topic_names = [name.replace('"', "'") for name in topic_names]
+    custom_js = ""
+    custom_js += "const nameToDesc = new Map();\n"
+    if topic_descriptions is not None:
+        topic_descriptions = [
+            desc.replace('"', "'") for desc in topic_descriptions
+        ]
+        for topic_id, name, desc in zip(
+            classes, topic_names, topic_descriptions
+        ):
+            custom_js += 'nameToDesc.set("{name}", "{desc}");\n'.format(
+                name=name,
+                desc=desc,
+            )
+    custom_js += "const nameToKeywords = new Map();\n"
+    if top_words is not None:
+        for name, words in zip(topic_names, top_words):
+            custom_js += (
+                'nameToKeywords.set("{name}", "{keywords}");\n'.format(
+                    name=name, keywords=", ".join(words)
+                )
+            )
     custom_html = ""
     custom_html += """
 <div class="description">
     <h3 id="topic-name">{topic_name}</h3>
+    <p id="topic-keywords">{topic_keywords}</p>
+    <hr>
     <p id="topic-description">{topic_description}</p>
 </div>
     """.format(
-        topic_name=topic_names[1].replace('"', "'"),
-        topic_description=topic_descriptions[1].replace('"', "'"),
+        topic_name=topic_names[0],
+        topic_description=(
+            topic_descriptions[0] if topic_descriptions is not None else ""
+        ),
+        topic_keywords=(
+            "Keywords: "
+            + (", ".join(top_words[0]) if top_words is not None else "")
+        ),
     )
-    custom_js = ""
-    custom_js += """
-const nameToDesc = new Map();
-    """
-    for topic_id, name, desc in zip(classes, topic_names, topic_descriptions):
-        custom_js += """
-nameToDesc.set("{name}", "{desc}");
-        """.format(
-            name=name,
-            desc=desc,
-        )
     custom_js += """
 setTimeout(function(){
     const labelNodes = Array.from(document.getElementsByClassName('topic-tree-label'))
@@ -165,11 +186,23 @@ setTimeout(function(){
         button.addEventListener('click', function(event) {
             const topicName = document.getElementById("topic-name");
             const topicDesc = document.getElementById("topic-description");
-            console.log(button.textContent);
-            console.log(nameToDesc.get(button.textContent));
+            const topicKeywords = document.getElementById("topic-keywords");
             const name = button.textContent.replace(/[\\n\\r\\t]/gm, " ")
             topicName.textContent = name;
-            topicDesc.textContent = nameToDesc.get(name);
+            const description = nameToDesc.get(name);
+            console.log(description)
+            if (description) {
+                topicDesc.textContent = description;
+            } else {
+                topicDesc.textContent = "";
+            }
+            const keywords = nameToKeywords.get(name);
+            console.log(keywords)
+            if (keywords) {
+                topicKeywords.textContent = "Keywords: " + keywords;
+            } else {
+                topicKeywords.textContent = "";
+            }
         });
     });
 }, 200);
@@ -185,7 +218,7 @@ setTimeout(function(){
         cluster_boundary_polygons=cluster_boundary_polygons,
         cluster_boundary_line_width=cluster_boundary_line_width,
         polygon_alpha=polygon_alpha,
-        custom_css=custom_css,
+        custom_css=CUSTOM_CSS,
         custom_html=custom_html,
         custom_js=custom_js,
         **kwargs,

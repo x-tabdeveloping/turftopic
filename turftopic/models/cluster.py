@@ -18,6 +18,7 @@ from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import LabelEncoder, normalize, scale
 
+from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
@@ -29,7 +30,6 @@ from turftopic.feature_importance import (
     linear_classifier,
     soft_ctf_idf,
 )
-from turftopic._datamapplot import build_datamapplot
 from turftopic.models._hierarchical_clusters import (
     VALID_LINKAGE_METHODS,
     ClusterNode,
@@ -700,6 +700,7 @@ class ClusteringTopicModel(
             topic_names=self.topic_names,
             labels=self.labels_,
             classes=self.classes_,
+            top_words=self.get_top_words(),
             hover_text=hover_text,
             topic_descriptions=getattr(self, "topic_descriptions", None),
             **kwargs,
