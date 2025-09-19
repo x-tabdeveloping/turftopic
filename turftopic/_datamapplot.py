@@ -30,8 +30,8 @@ CUSTOM_CSS = """
     bottom: 0;
     left: 0;
     text-align: justify;
-    padding: 15px;
-    margin: 10px;
+    padding: 20px;
+    margin: 15px;
     max-width: 40%;
     background-color: #ffffff;
     border-radius:15px;
@@ -39,7 +39,7 @@ CUSTOM_CSS = """
 }
 h3 {
     margin: 0px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     padding: 0px;
 }
 p {
@@ -81,6 +81,13 @@ p {
     font-style: italic;
     margin-bottom: 2px;
     text-align: left;
+}
+#topic-percent {
+    margin-top: 10px;
+    margin-right: 10px;
+}
+#percent-message {
+    margin-top: 10px;
 }
 """
 
@@ -137,9 +144,19 @@ def build_datamapplot(
     if -1 in classes:
         i_outlier = np.where(classes == -1)[0][0]
         kwargs["noise_label"] = topic_names[i_outlier]
+    # Calculating how much of the corpus is made up of a topic
+    percentages = []
+    for label in topic_names:
+        percentages.append(100 * np.sum(labels == label) / len(labels))
     # Sanitizing the names so they don't mess up the HTML
     topic_names = [name.replace('"', "'") for name in topic_names]
     custom_js = ""
+    custom_js += "const nameToPercent = new Map();\n"
+    for name, percent in zip(topic_names, percentages):
+        custom_js += 'nameToPercent.set("{name}", {percent});\n'.format(
+            name=name,
+            percent=percent,
+        )
     custom_js += "const nameToDesc = new Map();\n"
     if topic_descriptions is not None:
         topic_descriptions = [
@@ -165,18 +182,21 @@ def build_datamapplot(
 <div class="description">
     <h3 id="topic-name">{topic_name}</h3>
     <p id="topic-keywords">{topic_keywords}</p>
+    <progress id="topic-percent" value="{percentage:.2f}" max="100"></progress>
+    <b id="percent-message">{percentage:.2f}% of all documents</b>
     <hr>
     <p id="topic-description">{topic_description}</p>
 </div>
     """.format(
-        topic_name=topic_names[0],
+        topic_name=topic_names[1],
         topic_description=(
-            topic_descriptions[0] if topic_descriptions is not None else ""
+            topic_descriptions[1] if topic_descriptions is not None else ""
         ),
         topic_keywords=(
             "Keywords: "
-            + (", ".join(top_words[0]) if top_words is not None else "")
+            + (", ".join(top_words[1]) if top_words is not None else "")
         ),
+        percentage=percentages[1],
     )
     custom_js += """
 setTimeout(function(){
@@ -187,8 +207,13 @@ setTimeout(function(){
             const topicName = document.getElementById("topic-name");
             const topicDesc = document.getElementById("topic-description");
             const topicKeywords = document.getElementById("topic-keywords");
-            const name = button.textContent.replace(/[\\n\\r\\t]/gm, " ")
+            const topicPercent = document.getElementById("topic-percent");
+            const percentMessage = document.getElementById("percent-message");
+            const name = button.textContent.replace(/[\\n\\r\\t]/gm, " ");
             topicName.textContent = name;
+            const percent = nameToPercent.get(name);
+            topicPercent.value = percent;
+            percentMessage.textContent = percent.toFixed(2) + "% of all documents";
             const description = nameToDesc.get(name);
             console.log(description)
             if (description) {
