@@ -10,7 +10,7 @@ class OpenAIAnalyzer(Analyzer):
 
     Parameters
     ----------
-    model_name: str, default 'gpt-4o-mini'
+    model_name: str, default 'gpt-5-nano'
         OpenAI model to use.
     use_summaries: bool, default False
         Indicates whether the language model should summarize documents before
@@ -30,7 +30,7 @@ class OpenAIAnalyzer(Analyzer):
 
     def __init__(
         self,
-        model_name: str = "gpt-4o-mini",
+        model_name: str = "gpt-5-nano",
         context: Optional[str] = None,
         use_summaries: bool = False,
         system_prompt: Optional[str] = None,
