@@ -19,13 +19,13 @@ model.rename_topics({0: "New name for topic 0", 5: "New name for topic 5"})
 model.rename_topics([f"Topic {i}" for i in range(10)])
 ```
 
-You can also automatically name topics with a [topic namer](namers.md) model.
+You can also automatically name topics with an [analyzer](analyzers.md) large language model.
 
 ```python
-from turftopic.namers import LLMTopicNamer
+from turftopic.analyzers import LLMAnalyzer
 
-namer = LLMTopicNamer("HuggingFaceTB/SmolLM2-1.7B-Instruct")
-model.rename_topics(namer)
+analyzer = LLMAnalyzer()
+model.rename_topics(analyzer, use_documents=False)
 ```
 
 ## Changing the number of topics
