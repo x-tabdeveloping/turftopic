@@ -1,9 +1,7 @@
-# Topic Namers
+# Topic Analyzers
 
-Sometimes, especially when the number of topics grows large,
-it might be convenient to assign human-readable names to topics in an automated manner.
-
-Turftopic allows you to accomplish this with a number of different topic namer models.
+Topic analyzers are large language models, that are capable of interpreting topics' contents and can give human-readable descriptions of topics.
+This can be incredibly useful when manual labour is not an option, and
 
 ## Large Language Models
 
