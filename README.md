@@ -12,7 +12,7 @@
 | SOTA Transformer-based Topic Models | :compass: [S³](https://x-tabdeveloping.github.io/turftopic/s3/), :key: [KeyNMF](https://x-tabdeveloping.github.io/turftopic/KeyNMF/),  :gem: [GMM](https://x-tabdeveloping.github.io/turftopic/GMM/), [Clustering Models (BERTopic and Top2Vec)](https://x-tabdeveloping.github.io/turftopic/GMM/), [Autoencoding models (ZeroShotTM and CombinedTM)](https://x-tabdeveloping.github.io/turftopic/ctm/), [FASTopic](https://x-tabdeveloping.github.io/turftopic/FASTopic/) |
 | Models for all Scenarios | :chart_with_upwards_trend: [Dynamic](https://x-tabdeveloping.github.io/turftopic/dynamic/), :ocean: [Online](https://x-tabdeveloping.github.io/turftopic/online/), :herb: [Seeded](https://x-tabdeveloping.github.io/turftopic/seeded/), :evergreen_tree: [Hierarchical](https://x-tabdeveloping.github.io/turftopic/hierarchical/), and :camera: [Multimodal](https://x-tabdeveloping.github.io/turftopic/multimodal/)  topic modeling |
 | [Easy Interpretation](https://x-tabdeveloping.github.io/turftopic/model_interpretation/) | :bookmark_tabs: Pretty Printing, :bar_chart: Interactive Figures, :art: [topicwizard](https://github.com/x-tabdeveloping/topicwizard) compatible |
-| [Topic Naming](https://x-tabdeveloping.github.io/turftopic/namers/) | :robot: LLM-based, N-gram Retrieval, :wave: Manual |
+| [Topic Analysis](https://x-tabdeveloping.github.io/turftopic/analyzers/) | :robot: LLM-generated names and descriptions, :wave: Manual Topic Naming |
 | [Informative Topic Descriptions](https://x-tabdeveloping.github.io/turftopic/vectorizers/) | :key: Keyphrases, Noun-phrases, Lemmatization, Stemming |
 
 
@@ -140,11 +140,11 @@ Turftopic now allows you to automatically assign human readable names to topics 
 
 ```python
 from turftopic import KeyNMF
-from turftopic.namers import OpenAITopicNamer
+from turftopic.analyzers import OpenAIAnalyzer
 
 model = KeyNMF(10).fit(corpus)
 
-namer = OpenAITopicNamer("gpt-4o-mini")
+namer = OpenAIAnalyzer("gpt-4o-mini")
 model.rename_topics(namer)
 model.print_topics()
 ```
@@ -193,20 +193,19 @@ pip install "turftopic[datamapplot, openai]"
 
 ```python
 from turftopic import ClusteringTopicModel
-from turftopic.namers import OpenAITopicNamer
+from turftopic.analyzers import OpenAIAnalyzer
 
 model = ClusteringTopicModel(feature_importance="centroid").fit(corpus)
 
-namer = OpenAITopicNamer("gpt-4o-mini")
+namer = OpenAIAnalyzer("gpt-5-nano")
 model.rename_topics(namer)
 
 fig = model.plot_clusters_datamapplot()
 fig.show()
 ```
 
-<center>
-  <img src="https://github.com/x-tabdeveloping/turftopic/blob/main/docs/images/cluster_datamapplot.png?raw=true" width="70%" style="margin-left: auto;margin-right: auto;">
-</center>
+<img width="1915" height="2002" alt="image" src="https://github.com/user-attachments/assets/56253aaf-4066-4074-b61a-0d55b8dede73" />
+
 
 In addition, Turftopic is natively supported in [topicwizard](https://github.com/x-tabdeveloping/topicwizard), an interactive topic model visualization library, is compatible with all models from Turftopic.
 
