@@ -1,8 +1,17 @@
 from typing import Optional
 
-from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 from turftopic.analyzers.base import Analyzer
+
+
+def remove_thinking_trace(response: str) -> str:
+    """Removes think tag and all tokens in-between"""
+    if "<think>" not in response:
+        return response
+    before, after = response.split("<think>")
+    between, after = after.split("</think>")
+    return before + after
 
 
 class LLMAnalyzer(Analyzer):
@@ -30,7 +39,7 @@ class LLMAnalyzer(Analyzer):
         ID of the device to run the language model on.
     max_new_tokens: int, default 32768
         Max new tokens to generate when analyzing.
-    enable_thinking: bool, default True
+    enable_thinking: bool, default False
         Indicates whether thinking mode should be enabled.
     """
 
@@ -45,7 +54,7 @@ class LLMAnalyzer(Analyzer):
         description_prompt: Optional[str] = None,
         max_new_tokens: int = 32768,
         device: str = "cpu",
-        enable_thinking: bool = True,
+        enable_thinking: bool = False,
     ):
         self.device = device
         self.model_name = model_name
@@ -83,4 +92,5 @@ class LLMAnalyzer(Analyzer):
         # Get and decode the output
         output_ids = generated_ids[0][len(model_inputs.input_ids[0]) :]
         result = self.tokenizer.decode(output_ids, skip_special_tokens=True)
+        result = remove_thinking_trace(result)
         return result
