@@ -13,8 +13,12 @@ from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.feature_importance import soft_ctf_idf
-from turftopic.multimodal import (Image, ImageRepr, MultimodalEmbeddings,
-                                  MultimodalModel)
+from turftopic.multimodal import (
+    Image,
+    ImageRepr,
+    MultimodalEmbeddings,
+    MultimodalModel,
+)
 from turftopic.vectorizers.default import default_vectorizer
 
 
@@ -134,6 +138,9 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
                 document_topic_matrix, document_term_matrix
             )
             console.log("Model fitting done.")
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=document_topic_matrix
+            )
         return document_topic_matrix
 
     def fit_transform_multimodal(
@@ -173,6 +180,9 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
             )
             self.top_images: list[list[Image.Image]] = self.collect_top_images(
                 images, self.image_topic_matrix
+            )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=document_topic_matrix
             )
             console.log("Transformation done.")
         return document_topic_matrix

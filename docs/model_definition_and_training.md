@@ -5,11 +5,6 @@ There are a wide array of available models in Turftopic that all have their uniq
 On the other hand all models will need to have certain components, and have attributes you can adjust to your needs.
 This page provides a guide on how to define models, train them, and use them for inference.
 
-<figure>
-  <img src="../images/topic_modeling_pipeline.png" width="800px" style="margin-left: auto;margin-right: auto;">
-  <figcaption>Components of a Topic Modeling Pipeline</figcaption>
-</figure>
-
 
 ## Defining a Model
 
@@ -143,21 +138,21 @@ encoder = SentenceTransformer("parahprase-multilingual-MiniLM-L12-v2")
 model = KeyNMF(10, encoder=encoder)
 ```
 
-### 4. [Namer](namers.md) (*optional*)
+### 4. [Analyzer](analyzers.md) (*optional*)
 
-A Namer is an optional part of your topic modeling pipeline, that can automatically assign human-readable names to topics.
-Namers are technically **not part of your topic model**, and should be used *after training*.
-See a detailed guide [here](namers.md).
+Analyzers are large language models, that can be used to generate meaningful topic names and descriptions for a fitted topic model.
+Analyzers are technically **not part of your topic model**, and should be used *after training*.
+See a detailed guide [here](analyzers.md).
 
-=== "LLM from HuggingFace"
+=== "Local LLM"
     ```python
-    from turftopic import KeyNMF
-    from turftopic.namers import LLMTopicNamer
+    from turftopic.analyzers import LLMAnalyzer
 
-    model = KeyNMF(10).fit(corpus)
-    namer = LLMTopicNamer("HuggingFaceTB/SmolLM2-1.7B-Instruct")
-
-    model.rename_topics(namer)
+    # We enable document summaries for topic analysis
+    analyzer = LLMAnalyzer(use_summaries=True)
+    
+    analysis_res = model.analyze_topics(analyzer)
+    print(analysis_res.topic_names)
     ```
 
 === "ChatGPT"
@@ -165,11 +160,14 @@ See a detailed guide [here](namers.md).
     pip install openai
     export OPENAI_API_KEY="sk-<your key goes here>"
     ```
-    ```python
-    from turftopic.namers import OpenAITopicNamer
 
-    namer = OpenAITopicNamer("gpt-4o-mini")
-    model.rename_topics(namer)
+    ```python
+    from turftopic.analyzers import OpenAIAnalyzer
+
+    # We enable document summaries for topic analysis
+    analyzer = OpenAIAnalyzer("gpt-5-nano", use_summaries=True)
+
+    analysis_res = model.analyze_topics(analyzer)
     model.print_topics()
     ```
 

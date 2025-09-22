@@ -14,9 +14,11 @@ from sklearn.base import ClusterMixin, TransformerMixin
 from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import LabelEncoder, normalize, scale
 
+from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
@@ -108,34 +110,6 @@ def calculate_topic_vectors(
         centroids.append(centroid)
     centroids = np.stack(centroids)
     return centroids
-
-
-def build_tsne(*args, **kwargs):
-    try:
-        from openTSNE import TSNE
-
-        class OpenTSNEWrapper(TSNE):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-
-            def fit_transform(self, X: np.ndarray, y=None):
-                return super().fit(X)
-
-            def fit(self, X: np.ndarray, y=None):
-                self.fit_transform(X, y)
-                return self
-
-        return OpenTSNEWrapper(*args, **kwargs)
-
-    except ModuleNotFoundError:
-        from sklearn.manifold import TSNE
-
-        warnings.warn(
-            """OpenTSNE is not installed, default scikit-learn implementation will be used.
-        Your model could potentially run orders of magnitudes faster by installing openTSNE.
-        """
-        )
-        return TSNE(*args, **kwargs)
 
 
 class ClusteringTopicModel(
@@ -258,7 +232,7 @@ class ClusteringTopicModel(
         else:
             self.clustering = clustering
         if dimensionality_reduction is None:
-            self.dimensionality_reduction = build_tsne(
+            self.dimensionality_reduction = TSNE(
                 n_components=2,
                 metric="cosine",
                 perplexity=15,
@@ -524,6 +498,12 @@ class ClusteringTopicModel(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
         console.log("Model fitting done.")
+        self.top_documents = self.get_top_documents(
+            raw_documents=raw_documents,
+            document_topic_matrix=self.transform(
+                raw_documents, embeddings=self.embeddings
+            ),
+        )
         return self.labels_
 
     def fit_transform(
@@ -693,34 +673,38 @@ class ClusteringTopicModel(
         return np.array([class_to_index[label] for label in labels])
 
     def plot_clusters_datamapplot(
-        self, dimensions: tuple[int, int] = (0, 1), *args, **kwargs
+        self,
+        dimensions: tuple[int, int] = (0, 1),
+        hover_text: Optional[list[str]] = None,
+        **kwargs,
     ):
-        try:
-            import datamapplot
-        except ModuleNotFoundError as e:
-            raise ModuleNotFoundError(
-                "You need to install datamapplot to be able to use plot_clusters_datamapplot()."
-            ) from e
+        """Creates an interactive browser plot of the topics in your data using datamapplot.
+
+        Parameters
+        ----------
+        dimensions: tuple (x_coord, y_coord)
+            Indicates which dimensions of the reduced embeddings to use for displaying.
+            Defaults to the first two dimensions.
+        hover_text: list of str, optional
+            Text to show when hovering over a document.
+
+        Returns
+        -------
+        plot
+            Interactive datamap plot, you can call the `.show()` method to
+            display it in your default browser or save it as static HTML using `.write_html()`.
+        """
         coordinates = self.reduced_embeddings[:, dimensions]
-        coordinates = scale(coordinates) * 4
-        indices = self._labels_to_indices(self.labels_, self.classes_)
-        labels = np.array(self.topic_names)[indices]
-        if -1 in self.classes_:
-            i_outlier = np.where(self.classes_ == -1)[0][0]
-            kwargs["noise_label"] = self.topic_names[i_outlier]
-        plot = datamapplot.create_interactive_plot(
-            coordinates, labels, *args, **kwargs
+        plot = build_datamapplot(
+            coordinates=coordinates,
+            topic_names=self.topic_names,
+            labels=self.labels_,
+            classes=self.classes_,
+            top_words=self.get_top_words(),
+            hover_text=hover_text,
+            topic_descriptions=getattr(self, "topic_descriptions", None),
+            **kwargs,
         )
-
-        def show_fig():
-            with tempfile.TemporaryDirectory() as temp_dir:
-                file_name = Path(temp_dir).joinpath("fig.html")
-                plot.save(file_name)
-                webbrowser.open("file://" + str(file_name.absolute()), new=2)
-                time.sleep(2)
-
-        plot.show = show_fig
-        plot.write_html = plot.save
         return plot
 
     def transform(

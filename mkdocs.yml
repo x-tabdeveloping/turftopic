@@ -31,7 +31,7 @@ nav:
     - FASTopic: FASTopic.md
   - Embedding Models: encoders.md
   - Vectorizers (Term extraction): vectorizers.md
-  - Topic Namers: namers.md
+  - Topic Analysis and Naming with LLMs: analyzers.md
 theme:
   name: material
   logo: images/logo.svg

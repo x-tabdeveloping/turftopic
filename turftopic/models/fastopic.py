@@ -165,6 +165,9 @@ class FASTopic(ContextualModel):
             document_topic_matrix = self.transform(
                 raw_documents, embeddings=embeddings
             )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=document_topic_matrix
+            )
         return document_topic_matrix
 
     def transform(

@@ -199,43 +199,91 @@ Almost all figures in the Figures API can be called on the `figures` submodule o
         </center>
 
 
-## Datamapplot (Clustering models)
+## Visualizing with Datamapplot
 
-You can interactively explore clusters using [datamapplot](https://github.com/TutteInstitute/datamapplot) directly in Turftopic!
+You can interactively explore clusters using [datamapplot](https://github.com/TutteInstitute/datamapplot) directly in Turftopic.
+We have made some customizations to datamapplot to allow for easier topic exploration.
 You will first have to install `datamapplot` for this to work:
 
 ```bash
 pip install turftopic[datamapplot]
 ```
 
+
+### Clustering Models
+
+Datamapplot works natively with [clustering topic models](clustering.md) in Turftopic,
+which already reduce document embeddings to a lower number of displayable dimensions and assign cluster labels.
+You can run datamapplot for any clustering model like so:
+
 ```python
 from turftopic import ClusteringTopicModel
-from turftopic.namers import OpenAITopicNamer
+from turftopic.analyzers import OpenAIAnalyzer
 
-model = ClusteringTopicModel(feature_importance="centroid").fit(corpus)
+# Also works with BERTopic and Top2Vec
+model = ClusteringTopicModel().fit(corpus)
 
-namer = OpenAITopicNamer("gpt-4o-mini")
-model.rename_topics(namer)
+analyzer = OpenAIAnalyzer("gpt-5-nano")
+analysis_res = model.analyze_topics(analyzer)
 
-fig = model.plot_clusters_datamapplot()
+# We make sure that the users can hover over points and see the underlying document.
+fig = model.plot_clusters_datamapplot(hover_text=corpus)
 fig.save("clusters_visualization.html")
 fig
 ```
+
 !!! info
     If you are not running Turftopic from a Jupyter notebook, make sure to call `fig.show()`. This will open up a new browser tab with the interactive figure.
 
 <figure>
-  <iframe src="../images/cluster_datamapplot.html", title="Cluster visualization", style="height:800px;width:800px;padding:0px;border:none;"></iframe>
+  <iframe src="../images/datamapplot_new.html", title="Cluster visualization", style="height:800px;width:1200px;padding:0px;border:none;"></iframe>
   <figcaption> Interactive figure to explore cluster structure in a clustering topic model. </figcaption>
 </figure>
 
 
+### Custom Datamapplot
 
-## Naming Topics
+You can now also use Turftopic's custom datamapplot to display information from other topic models, which do not reduce embeddings as part of their pipeline.
+This is not entirely automatized, since there are many choices you have to make about how to calculate positions and color documents.
 
-Topics in Turftopic by default are named based on the highest ranking keywords for a given topic.
-You might however want to get more fitting names for your topics either automatically or assigning them manually.
-See a our detailed guide about [Namers](../namers.md) to learn how you can use LLMs to assign names to topics.
+Here's an example with KeyNMF:
+
+```python
+from sklearn.preprocessing import StandardScaler
+from sklearn.manifold import TSNE
+from turftopic import KeyNMF, build_datamapplot
+
+model = KeyNMF(10)
+document_topic_matrix = model.fit_transform(corpus)
+
+# We use the document-topic-proportions to project to 2D:
+scaled = StandardScaler().fit_transform(document_topic_matrix)
+projected = TSNE(n_components=2).fit_transform(scaled)
+# We assign the most relevant topic label to each document
+labels = np.argmax(document_topic_matrix, axis=1)
+
+fig = build_datamapplot(
+    coordinates=projected,
+    labels=labels,
+    topic_names=model.topic_names,
+    classes=np.arange(model.n_components),
+    # Boundaries are unlikely to be very clear
+    cluster_boundary_polygons=False,
+)
+fig.show()
+
+```
+
+### API Reference
+
+::: turftopic.build_datamapplot
+
+## Analyzing and Naming Topics with LLMS
+
+Analyzers are large language models, that can be used to generate meaningful topic names and descriptions for a fitted topic model.
+See a our detailed guide about [Analyzers](../analyzers.md) to learn how you can use LLMs to assign names to topics.
+
+You can also manually label topics if you wish.
 
 !!! quote "Examples"
 
@@ -243,10 +291,10 @@ See a our detailed guide about [Namers](../namers.md) to learn how you can use L
 
         ```python
         from turftopic import KeyNMF
-        from turftopic.namers import OpenAITopicNamer
+        from turftopic.namers import OpenAIAnalyzer
 
-        namer = OpenAITopicNamer("gpt-4o-mini")
-        model.rename_topics(namer)
+        analyzer = OpenAIAnalyzer("gpt-5-nano")
+        analysis_res = model.analyze_topics(analyzer)
 
         model.print_topics()
         ```

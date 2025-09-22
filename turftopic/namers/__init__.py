@@ -1,11 +1,16 @@
-from turftopic.error import NotInstalled
-from turftopic.namers.hf_transformers import LLMTopicNamer
-from turftopic.namers.ngram import NgramTopicNamer
+import warnings
 
-try:
-    from turftopic.namers.openai import OpenAITopicNamer
-except ModuleNotFoundError:
-    OpenAITopicNamer = NotInstalled("OpenAITopicNamer", "openai")
+from turftopic.analyzers import LLMAnalyzer, OpenAIAnalyzer
 
+warnings.warn(
+    """
+The turftopic.namers is deprecated in favor of turftopic.analyzers and will be fully phased out in 1.1.0!
+For now, we provide aliases to the analyzers module, but we encourage you to use the analyzers module
+directly. """,
+    DeprecationWarning,
+)
 
-__all__ = ["OpenAITopicNamer", "LLMTopicNamer", "NgramTopicNamer"]
+LLMTopicNamer = LLMAnalyzer
+OpenAITopicNamer = OpenAIAnalyzer
+
+__all__ = ["OpenAITopicNamer", "LLMTopicNamer"]

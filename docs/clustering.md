@@ -7,7 +7,7 @@ The first contextually sensitive clustering topic model was introduced with Top2
 If you are looking for a probabilistic/soft-clustering model you should also check out [GMM](GMM.md).
 
 <figure>
-  <iframe src="../images/cluster_datamapplot.html", title="Cluster visualization", style="height:600px;width:800px;padding:0px;border:none;"></iframe>
+  <iframe src="../images/datamapplot_new.html", title="Cluster visualization", style="height:1000px;width:1200px;padding:0px;border:none;"></iframe>
   <figcaption> Figure 1: Interactive figure to explore cluster structure in a clustering topic model. </figcaption>
 </figure>
 
@@ -377,12 +377,12 @@ pip install turftopic[datamapplot]
 
 ```python
 from turftopic import ClusteringTopicModel
-from turftopic.namers import OpenAITopicNamer
+from turftopic.analyzers import OpenAIAnalyzer
 
 model = ClusteringTopicModel(feature_importance="centroid").fit(corpus)
 
-namer = OpenAITopicNamer("gpt-4o-mini")
-model.rename_topics(namer)
+analyzer = OpenAIAnalyzer("gpt-5-nano")
+analysis_res = model.analyze_topics(analyzer)
 
 fig = model.plot_clusters_datamapplot()
 fig.save("clusters_visualization.html")

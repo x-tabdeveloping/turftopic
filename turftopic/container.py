@@ -9,7 +9,7 @@ from PIL import Image
 from rich.console import Console
 from rich.table import Table
 
-from turftopic.namers.base import TopicNamer
+from turftopic.analyzers.base import AnalysisResults, Analyzer
 from turftopic.utils import export_table
 
 
@@ -110,15 +110,28 @@ class TopicContainer(ABC):
             Indicates whether the highest
             or lowest scoring documents should be returned.
         """
+        if (
+            positive
+            and hasattr(self, "top_documents")
+            and len(self.top_documents[0]) >= top_k
+        ):
+            return [docs[:top_k] for docs in self.top_documents]
+        if (
+            not positive
+            and hasattr(self, "negative_documents")
+            and len(self.negative_documents[0]) >= top_k
+        ):
+            return [docs[:top_k] for docs in self.negative_documents]
         docs = []
         raw_documents = raw_documents or getattr(self, "corpus", None)
         if raw_documents is None:
             raise ValueError(
                 "No corpus was passed, can't search for representative documents."
             )
-        document_topic_matrix = document_topic_matrix or getattr(
-            self, "document_topic_matrix", None
-        )
+        if document_topic_matrix is None:
+            document_topic_matrix = getattr(
+                self, "document_topic_matrix", None
+            )
         if document_topic_matrix is None:
             try:
                 document_topic_matrix = self.transform(raw_documents)
@@ -164,8 +177,21 @@ class TopicContainer(ABC):
             ims.append(topic_images[:top_k])
         return ims
 
-    def _rename_automatic(self, namer: TopicNamer) -> list[str]:
-        self.topic_names_ = namer.name_topics(self._top_terms())
+    def _rename_automatic(
+        self, analyzer: Analyzer, use_documents: bool = True
+    ) -> list[str]:
+        try:
+            documents = self.get_top_documents()
+        except ValueError as e:
+            warnings.warn(
+                f"Couldn't get top documents, proceeding only with keywords: {e}"
+            )
+            documents = None
+        if not use_documents:
+            documents = None
+        self.topic_names_ = analyzer.name_topics(
+            self._top_terms(), documents=documents
+        )
         return self.topic_names_
 
     def _topics_table(
@@ -179,6 +205,8 @@ class TopicContainer(ABC):
         columns = ["Topic ID"]
         if getattr(self, "topic_names_", None):
             columns.append("Topic Name")
+        if getattr(self, "topic_descriptions", None):
+            columns.append("Topic Descriptions")
         columns.append("Highest Ranking")
         if show_negative:
             columns.append("Lowest Ranking")
@@ -218,6 +246,8 @@ class TopicContainer(ABC):
             row = [f"{topic_id}"]
             if getattr(self, "topic_names_", None):
                 row.append(self.topic_names_[i_topic])
+            if getattr(self, "topic_descriptions", None):
+                row.append(self.topic_descriptions[i_topic])
             row.append(f"{concat_positive}")
             if show_negative:
                 row.append(concat_negative)
@@ -452,8 +482,71 @@ class TopicContainer(ABC):
             names.append(f"{topic_id}_{concat_words}")
         return names
 
+    def analyze_topics(
+        self,
+        analyzer: Analyzer,
+        use_documents: bool = True,
+        use_summaries: Optional[bool] = None,
+    ) -> AnalysisResults:
+        """Analyzes topics in a fitted topic model using an Analyzer.
+
+        Example
+        -------
+        ```python
+        from turftopic.analyzers import T5Analyzer
+
+        model = KeyNMF(10).fit(corpus)
+        analyzer = T5Analyzer()
+        res = model.analyze_topics(analyzer)
+        ```
+
+        Parameters
+        ----------
+        analyzer: Analyzer
+            Large language model to analyze the topics in your topic model.
+        use_documents: bool, default True
+            Indicates whether top documents should be involved in analyzing topics.
+        use_summaries: bool, optional
+            Indicates whether the analyzer should first summarize the most relevant documents.
+            This can be beneficial when your corpus includes very long documents.
+
+        Returns
+        -------
+        AnalysisResults
+            Analysis results. Dataclass containing `topic_names`, `topic_descriptions`
+            and `document_summaries` if relevant.
+        """
+        try:
+            documents = self.get_top_documents()
+        except ValueError as e:
+            warnings.warn(
+                f"Couldn't get top documents, proceeding only with keywords: {e}"
+            )
+            documents = None
+        if not use_documents:
+            documents = None
+        res = analyzer.analyze_topics(
+            keywords=self._top_terms(),
+            documents=documents,
+            use_summaries=use_summaries,
+        )
+        self.topic_names_ = res.topic_names
+        if res.document_summaries is not None:
+            self.document_summaries = res.document_summaries
+        self.topic_descriptions = res.topic_descriptions
+        if -1 in getattr(self, "classes_", ()):
+            id_to_idx = dict(zip(self.classes_, range(len(self.classes_))))
+            self.topic_names_[id_to_idx[-1]] = "Outliers"
+            if self.topic_descriptions is not None:
+                self.topic_descriptions[id_to_idx[-1]] = (
+                    "Topic containing outlier documents."
+                )
+        return res
+
     def rename_topics(
-        self, names: Union[list[str], dict[int, str], TopicNamer]
+        self,
+        names: Union[list[str], dict[int, str], Analyzer],
+        use_documents: bool = True,
     ) -> None:
         """Rename topics in a model manually or automatically, using a namer.
 
@@ -463,7 +556,7 @@ class TopicContainer(ABC):
         # Or:
         model.rename_topics({-1: "Outliers", 2: "Christianity"})
         # Or:
-        namer = OpenAITopicNamer()
+        namer = OpenAIAnalyzer()
         model.rename_topics(namer)
         ```
 
@@ -471,9 +564,11 @@ class TopicContainer(ABC):
         ----------
         names: list[str] or dict[int,str]
             Should be a list of topic names, or a mapping of topic IDs to names.
+        use_documents: bool, default True
+            Indicates whether documents should be used when naming topics with an analyzer.
         """
-        if isinstance(names, TopicNamer):
-            self._rename_automatic(names)
+        if isinstance(names, Analyzer):
+            self._rename_automatic(names, use_documents=use_documents)
         elif isinstance(names, dict):
             topic_names = self.topic_names
             for topic_id, topic_name in names.items():

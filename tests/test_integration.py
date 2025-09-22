@@ -62,6 +62,7 @@ models = [
     GMM(3, encoder=trf),
     SemanticSignalSeparation(3, encoder=trf),
     KeyNMF(3, encoder=trf),
+    KeyNMF(3, encoder=trf, cross_lingual=True),
     ClusteringTopicModel(
         dimensionality_reduction=PCA(10),
         clustering=KMeans(3),
@@ -215,7 +216,7 @@ def test_topic_joining():
 def test_refitting():
     model = SemanticSignalSeparation(10)
     model.fit(texts, embeddings=embeddings)
-    model.refit(20)
+    model.refit(texts, embeddings=embeddings, n_components=20)
     assert model.components_.shape[0] == 20
 
 
@@ -225,15 +226,3 @@ def test_serialization():
     with tempfile.TemporaryDirectory() as tmp_dir:
         model.to_disk(tmp_dir)
         model = load_model(tmp_dir)
-
-
-def test_cross_lingual():
-    from datasets import load_dataset
-
-    ds = load_dataset(
-        "aiana94/polynews-parallel", "dan_Latn-hun_Latn", split="train"
-    )
-    corpus = list(ds["src"]) + list(ds["tgt"])
-    model = KeyNMF(5, cross_lingual=True)
-    model.fit(corpus)
-    model.print_topics()

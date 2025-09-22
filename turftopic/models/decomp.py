@@ -13,6 +13,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
+from turftopic.analyzers.base import Analyzer
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
@@ -21,7 +22,6 @@ from turftopic.multimodal import (
     MultimodalEmbeddings,
     MultimodalModel,
 )
-from turftopic.namers.base import TopicNamer
 from turftopic.vectorizers.default import default_vectorizer
 
 NOT_MATCHING_ERROR = (
@@ -175,6 +175,12 @@ class SemanticSignalSeparation(
                     np.square(self.axial_components_)
                     * self.angular_components_
                 )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.negative_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic, positive=False
+            )
             console.log("Model fitting done.")
         return doc_topic
 
@@ -239,6 +245,12 @@ class SemanticSignalSeparation(
             )
             self.negative_images = self.collect_top_images(
                 images, self.image_topic_matrix, negative=True
+            )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.negative_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic, positive=False
             )
             console.log("Images transformed")
         return doc_topic
@@ -346,12 +358,12 @@ class SemanticSignalSeparation(
         )
         return fig
 
-    def _rename_automatic(self, namer: TopicNamer) -> list[str]:
+    def _rename_automatic(self, analyzer: Analyzer) -> list[str]:
         """Names topics with a topic namer in the model.
 
         Parameters
         ----------
-        namer: TopicNamer
+        analyzer: Analyzer
             A Topic namer model to name topics with.
 
         Returns
@@ -359,8 +371,21 @@ class SemanticSignalSeparation(
         list[str]
             List of topic names.
         """
-        positive_names = namer.name_topics(self._top_terms())
-        negative_names = namer.name_topics(self._top_terms(positive=False))
+        try:
+            positive_documents = self.get_top_documents()
+            negative_documents = self.get_top_documents(positive=False)
+        except ValueError as e:
+            warnings.warn(
+                f"Couldn't get top documents, proceeding only with keywords: {e}"
+            )
+            positive_documents = None
+            negative_documents = None
+        positive_names = analyzer.name_topics(
+            self._top_terms(), documents=positive_documents
+        )
+        negative_names = analyzer.name_topics(
+            self._top_terms(positive=False), documents=negative_documents
+        )
         names = []
         for positive, negative in zip(positive_names, negative_names):
             names.append(f"{positive}/{negative}")
@@ -369,6 +394,9 @@ class SemanticSignalSeparation(
 
     def refit_transform(
         self,
+        raw_documents,
+        y=None,
+        embeddings: Optional[np.ndarray] = None,
         n_components: Optional[int] = None,
         max_iter: Optional[int] = None,
         random_state: Optional[int] = None,
@@ -378,6 +406,12 @@ class SemanticSignalSeparation(
 
         Parameters
         ----------
+        raw_documents
+            Corpus on which the model is based.
+        y
+            Ignored, exists for API compatibility.
+        embeddings
+            Ignored, embeddings are already stored, exists for compatibility.
         n_components: int, default None
             Number of topics.
         max_iter: int, default None
@@ -419,6 +453,12 @@ class SemanticSignalSeparation(
                     np.square(self.axial_components_)
                     * self.angular_components_
                 )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.negative_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic, positive=False
+            )
             console.log("Model fitting done.")
         return doc_topic
 
@@ -463,7 +503,9 @@ class SemanticSignalSeparation(
 
     def refit_transform_dynamic(
         self,
+        raw_documents,
         timestamps: list[datetime],
+        embeddings=None,
         bins: Union[int, list[datetime]] = 10,
         n_components: Optional[int] = None,
         max_iter: Optional[int] = None,
@@ -471,6 +513,8 @@ class SemanticSignalSeparation(
     ):
         """Refits $S^3$ to be a dynamic model."""
         document_topic_matrix = self.refit_transform(
+            raw_documents,
+            embeddings=embeddings,
             n_components=n_components,
             max_iter=max_iter,
             random_state=random_state,
@@ -506,6 +550,9 @@ class SemanticSignalSeparation(
 
     def refit(
         self,
+        raw_documents,
+        y=None,
+        embeddings=None,
         n_components: Optional[int] = None,
         max_iter: Optional[int] = None,
         random_state: Optional[int] = None,
@@ -515,6 +562,12 @@ class SemanticSignalSeparation(
 
         Parameters
         ----------
+        raw_documents
+            Corpus on which the model is based.
+        y
+            Ignored, exists for API compatibility.
+        embeddings
+            Ignored, embeddings are already stored, exists for compatibility.
         n_components: int, default None
             Number of topics.
         max_iter: int, default None
@@ -526,7 +579,14 @@ class SemanticSignalSeparation(
         -------
         Refitted model.
         """
-        self.refit_transform(n_components, max_iter, random_state)
+        self.refit_transform(
+            raw_documents,
+            y=y,
+            embeddings=embeddings,
+            n_components=n_components,
+            max_iter=max_iter,
+            random_state=random_state,
+        )
         return self
 
     @property
