@@ -43,11 +43,24 @@ When they ask you to summarize a document, you respond with a brief summary.
 
 @dataclass
 class AnalysisResults:
+    """Container class for results of topic analysis.
+
+    Attributes
+    ----------
+    topic_names: list[str]
+        Generated topic names.
+    topic_descriptions: list[str]
+        Genreated topic descriptions.
+    document_summaries: list[list[str]], default None
+        Summaries of top 10 documents for each topic, when use_summaries is enabled.
+    """
+
     topic_names: list[str]
     topic_descriptions: list[str]
     document_summaries: Optional[list[list[str]]] = None
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Returns the analysis result as a dictionary"""
         res = dict(
             topic_names=self.topic_names,
             topic_descriptions=self.topic_descriptions,
@@ -57,6 +70,7 @@ class AnalysisResults:
         return res
 
     def to_df(self):
+        """Turns analysis result object into a dataframe"""
         try:
             import pandas as pd
         except ModuleNotFoundError:
