@@ -49,7 +49,7 @@ print(type(model))
 print(len(model.topic_names))
 # 10
 
-model.refit(n_components=20, random_seed=42)
+model.refit(corpus, embeddings=embeddings, n_components=20, random_seed=42)
 print(len(model.topic_names))
 # 20
 ```
