@@ -215,7 +215,7 @@ def test_topic_joining():
 def test_refitting():
     model = SemanticSignalSeparation(10)
     model.fit(texts, embeddings=embeddings)
-    model.refit(20)
+    model.refit(n_components=20)
     assert model.components_.shape[0] == 20
 
 
