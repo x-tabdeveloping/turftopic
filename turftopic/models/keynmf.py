@@ -60,6 +60,8 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         Describes an aspect of the corpus that the model should explore.
         It can be a free-text query, such as
         "Christian Denominations: Protestantism and Catholicism"
+    seed_exponent: float, default 4.0
+        Exponent that is applied to document weight in relation to the provided seed phrase.
     cross_lingual: bool, default False
         Indicates whether KeyNMF should match terms across languages.
         This is useful when you have a corpus containing multiple languages.
@@ -78,12 +80,14 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         random_state: Optional[int] = None,
         metric: Literal["cosine", "dot"] = "cosine",
         seed_phrase: Optional[str] = None,
+        seed_exponent: float = 4.0,
         cross_lingual: bool = False,
         term_match_threshold: float = 0.9,
     ):
         self.random_state = random_state
         self.n_components = n_components
         self.top_n = top_n
+        self.seed_exponent = seed_exponent
         self.metric = metric
         self.encoder = encoder
         self._has_custom_vectorizer = vectorizer is not None
@@ -140,6 +144,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
             batch_or_document,
             embeddings=embeddings,
             seed_embedding=self.seed_embedding,
+            seed_exponent=self.seed_exponent,
             fitting=fitting,
         )
         if self.cross_lingual:
