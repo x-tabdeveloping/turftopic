@@ -154,6 +154,7 @@ def render_models(models: list[KeyNMF], display_summaries: bool = True) -> str:
     res = """<div class="column">\n"""
     res += """
     <div class="button-container">
+    <div class="floating-label">Seed Phrases</div>
     """
     for model_id, model in enumerate(models):
         res += """
@@ -169,6 +170,7 @@ def render_models(models: list[KeyNMF], display_summaries: bool = True) -> str:
         model_colors = colors[color_start : color_start + n_components]
         container = """
         <div id="topic-container-{model_id}" class="box topic-container" style="display: {visibility}">
+        <div class="floating-label">Concepts</div>
             {content}
         </div>
         """.format(
@@ -183,6 +185,7 @@ def render_models(models: list[KeyNMF], display_summaries: bool = True) -> str:
         model_colors = colors[color_start : color_start + n_components]
         res += """
         <div id="document-viewer-{model_id}" class="box document-viewer" style="display: {visibility};">
+        <div class="floating-label">Example Documents</div>
         """.format(
             model_id=model_id,
             visibility="flex" if model_id == 0 else "none",
@@ -238,6 +241,17 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
 }
+.floating-label {
+    padding: 10px;
+    position: fixed;
+    color: white;
+    background-color: black;
+    border-radius: 10px;
+    z-index: 30;
+    width: fit-content;
+    margin-top: -30px;
+    margin-left: -30px;
+}
 .card {
     padding-top: 2px;
     padding-bottom: 2px;
@@ -256,8 +270,8 @@ body {
 }
 .button-container {
     padding: 10px;
-    margin: 20px;
-    margin-bottom: 0px;
+    margin: 30px;
+    margin-bottom: 5px;
     background-color: "white";
     border-radius: 5px;
     box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
@@ -270,7 +284,7 @@ body {
 }
 .box {
     padding: 10px;
-    margin: 20px;
+    margin: 30px;
     background-color: "white";
     border-radius: 5px;
     box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
