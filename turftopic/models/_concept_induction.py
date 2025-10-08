@@ -5,6 +5,7 @@ from random import shuffle
 from typing import Literal, Optional, Union
 
 import numpy as np
+from sklearn.decomposition import PCA
 
 from turftopic.models.keynmf import KeyNMF
 
@@ -31,17 +32,11 @@ COLOR_PALETTE = [
 ]
 
 
-def render_cards(model, model_id, colors: list[str]):
+def create_bar_plot(model, model_id, topic_names, colors: list[str]):
     dtm = model.document_topic_matrix
     n_docs, n_topics = dtm.shape
     topic_sizes = (~np.isclose(dtm, 0)).sum(axis=0)
     topic_sizes = [int(size) for size in topic_sizes]
-    # Adding the ID if it doesn't already start like that
-    topic_names = [
-        f"{i} - {name}"
-        for i, name in enumerate(model.topic_names)
-        if not name.startswith(str(i))
-    ]
     plot_js = """
     const yValue{model_id} = {topic_sizes};
     const data{model_id} = [
@@ -89,6 +84,17 @@ def render_cards(model, model_id, colors: list[str]):
         plot_js=plot_js,
         model_id=model_id,
     )
+    return res
+
+
+def render_cards(model, model_id, colors: list[str]):
+    # Adding the ID if it doesn't already start like that
+    topic_names = [
+        f"{i} - {name}"
+        for i, name in enumerate(model.topic_names)
+        if not name.startswith(str(i))
+    ]
+    res = create_bar_plot(model, model_id, topic_names, colors)
     for i, (name, keywords, desc, color) in enumerate(
         zip(
             topic_names,
