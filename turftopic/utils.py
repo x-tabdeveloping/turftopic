@@ -56,3 +56,18 @@ def export_table(
     raise ValueError(
         f"Format '{format}' not supported for tables, please use 'markdown', 'latex' or 'csv'"
     )
+
+
+def sanitize_for_html(text: str) -> str:
+    """Sanitizes strings so they can be put into JS or HTML strings"""
+    # Escaping special characters
+    text = (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#39;")
+    )
+    # Removing unnecessary whitespace
+    text = " ".join(text.split())
+    return text

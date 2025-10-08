@@ -103,6 +103,9 @@ def render_cards(model, model_id, colors: list[str]):
             colors,
         ),
     ):
+        desc = desc.replace('"', '"')
+        desc = desc.replace("\n", "")
+        name = name.replace("\n", "")
         res += """
         <div class="card" style="background-color: {color};", id="card-{model_id}-{i}">
         <h3>{name}</h3>

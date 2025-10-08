@@ -1,3 +1,4 @@
+import re
 import tempfile
 import time
 import webbrowser
@@ -6,6 +7,8 @@ from typing import Optional
 
 import numpy as np
 from sklearn.preprocessing import scale
+
+from turftopic.utils import sanitize_for_html
 
 CUSTOM_CSS = """
 .row {
@@ -149,7 +152,7 @@ def build_datamapplot(
     for label in topic_names:
         percentages.append(100 * np.sum(labels == label) / len(labels))
     # Sanitizing the names so they don't mess up the HTML
-    topic_names = [name.replace('"', "'") for name in topic_names]
+    topic_names = [sanitize_for_html(name) for name in topic_names]
     custom_js = ""
     custom_js += "const nameToPercent = new Map();\n"
     for name, percent in zip(topic_names, percentages):
@@ -160,7 +163,7 @@ def build_datamapplot(
     custom_js += "const nameToDesc = new Map();\n"
     if topic_descriptions is not None:
         topic_descriptions = [
-            desc.replace('"', "'") for desc in topic_descriptions
+            sanitize_for_html(desc) for desc in topic_descriptions
         ]
         for topic_id, name, desc in zip(
             classes, topic_names, topic_descriptions
