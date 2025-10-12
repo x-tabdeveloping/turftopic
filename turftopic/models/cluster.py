@@ -23,11 +23,11 @@ from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.feature_importance import (
-    bayes_rule,
     cluster_centroid_distance,
     ctf_idf,
     fighting_words,
     linear_classifier,
+    npmi,
     soft_ctf_idf,
 )
 from turftopic.models._hierarchical_clusters import (
@@ -64,7 +64,7 @@ WordImportance = Literal[
     "soft-c-tf-idf",
     "c-tf-idf",
     "centroid",
-    "bayes",
+    "npmi",
     "linear",
     "fighting-words",
 ]
@@ -157,7 +157,7 @@ class ClusteringTopicModel(
         'c-tf-idf' uses BERTopic's c-tf-idf.
         'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
         be very similar to 'c-tf-idf'.
-        'bayes' uses Bayes' rule.
+        'npmi' uses normalized pointwise information between clusters and words.
         'linear' calculates most predictive directions in embedding space and projects
         words onto them.
         'fighting-words' calculates word importances based on the Fighting Words
@@ -293,7 +293,7 @@ class ClusteringTopicModel(
             'c-tf-idf' uses BERTopic's c-tf-idf.
             'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
             be very similar to 'c-tf-idf'.
-            'bayes' uses Bayes' rule.
+            'npmi' uses normalized pointwise mutual information between clusters and words.
             'linear' calculates most predictive directions in embedding space and projects
             words onto them.
             'fighting-words' calculates word importances based on the Fighting Words
@@ -564,7 +564,7 @@ class ClusteringTopicModel(
             'c-tf-idf' uses BERTopic's c-tf-idf.
             'soft-c-tf-idf' uses Soft c-TF-IDF from GMM, the results should
             be very similar to 'c-tf-idf'.
-            'bayes' uses Bayes' rule.
+            'npmi' uses normalized pointwise information between clusters and words.
             'linear' calculates most predictive directions in embedding space and projects
             words onto them.
 
@@ -605,10 +605,8 @@ class ClusteringTopicModel(
                 self.temporal_components_[i_timebin], _ = soft_ctf_idf(
                     t_doc_topic, t_dtm, return_idf=True
                 )
-            elif feature_importance == "bayes":
-                self.temporal_components_[i_timebin] = bayes_rule(
-                    t_doc_topic, t_dtm
-                )
+            elif feature_importance == "npmi":
+                self.temporal_components_[i_timebin] = npmi(t_doc_topic, t_dtm)
             elif feature_importance == "fighting-words":
                 self.temporal_components_[i_timebin] = fighting_words(
                     t_doc_topic, t_dtm

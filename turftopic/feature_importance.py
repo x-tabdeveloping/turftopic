@@ -207,37 +207,27 @@ def ctf_idf(
         return np.stack(components), idf_diag
 
 
-def bayes_rule(
-    doc_topic_matrix: np.ndarray, doc_term_matrix: spr.csr_matrix
+def npmi(
+    doc_topic_matrix: np.ndarray,
+    doc_term_matrix: spr.csr_matrix,
+    smoothing: int = 1,
 ) -> np.ndarray:
-    """Computes feature importance based on Bayes' rule.
-    The importance of a word for a topic is the probability of the topic conditional on the word.
-
-    $$p(t|w) = \\frac{p(w|t) * p(t)}{p(w)}$$
-
-    Parameters
-    ----------
-    doc_topic_matrix: np.ndarray
-        Document-topic matrix of shape (n_documents, n_topics)
-    doc_term_matrix: np.ndarray
-        Document-term matrix of shape (n_documents, vocab_size)
-
-    Returns
-    -------
-    ndarray of shape (n_topics, vocab_size)
-        Term importance matrix.
-    """
     eps = np.finfo(float).eps
-    p_w = np.squeeze(np.asarray(doc_term_matrix.sum(axis=0)))
+    p_w = np.squeeze(np.asarray(doc_term_matrix.sum(axis=0))) + smoothing
     p_w = p_w / p_w.sum()
     p_w[p_w <= 0] = eps
-    p_t = doc_topic_matrix.sum(axis=0)
+    p_t = doc_topic_matrix.sum(axis=0) + smoothing
     p_t = p_t / p_t.sum()
-    term_importance = doc_topic_matrix.T @ doc_term_matrix
-    overall_in_topic = np.abs(term_importance).sum(axis=1)
-    overall_in_topic[overall_in_topic <= 0] = eps
-    p_wt = (term_importance.T / (overall_in_topic)).T
-    p_wt /= p_wt.sum(axis=1)[:, None]
-    p_tw = (p_wt.T * p_t).T / p_w
-    p_tw /= np.nansum(p_tw, axis=0)
-    return p_tw
+    labels = np.argmax(doc_topic_matrix, axis=1)
+    p_wt = []
+    for i in np.arange(doc_topic_matrix.shape[1]):
+        _p_w = np.squeeze(np.asarray(doc_term_matrix[labels == i].sum(axis=0)))
+        _p_w = _p_w / _p_w.sum()
+        _p_w[_p_w <= 0] = eps
+        p_wt.append(_p_w)
+    p_wt = np.stack(p_wt)
+    log_p_wt = np.log2(p_wt)
+    numerator = log_p_wt - np.log2(p_w)
+    denominator = -(log_p_wt.T - np.log2(p_t)).T
+    res = numerator / denominator
+    return res
