@@ -210,7 +210,7 @@ def ctf_idf(
 def npmi(
     doc_topic_matrix: np.ndarray,
     doc_term_matrix: spr.csr_matrix,
-    smoothing: int = 1,
+    smoothing: int = 5,
 ) -> np.ndarray:
     eps = np.finfo(float).eps
     p_w = np.squeeze(np.asarray(doc_term_matrix.sum(axis=0))) + smoothing
@@ -221,7 +221,10 @@ def npmi(
     labels = np.argmax(doc_topic_matrix, axis=1)
     p_wt = []
     for i in np.arange(doc_topic_matrix.shape[1]):
-        _p_w = np.squeeze(np.asarray(doc_term_matrix[labels == i].sum(axis=0)))
+        _p_w = (
+            np.squeeze(np.asarray(doc_term_matrix[labels == i].sum(axis=0)))
+            + smoothing
+        )
         _p_w = _p_w / _p_w.sum()
         _p_w[_p_w <= 0] = eps
         p_wt.append(_p_w)
