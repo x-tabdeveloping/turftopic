@@ -212,6 +212,29 @@ def npmi(
     doc_term_matrix: spr.csr_matrix,
     smoothing: int = 5,
 ) -> np.ndarray:
+    """Uses normalized pointwise mutual information between
+    clusters and terms to calculate term importance scores.
+
+    To not underestimate individual words' occurrances (overfit),
+    a smoothing term is added, which is mathematically equivalent
+    to using the MAP estimate of a symmetric dirichlet-multinomial model.
+
+    Parameters
+    ----------
+    doc_topic_matrix: np.ndarray
+        Document-topic matrix of shape (n_documents, n_topics)
+    doc_term_matrix: np.ndarray
+        Document-term matrix of shape (n_documents, vocab_size)
+    smoothing: int, default 5
+        Alpha parameter of the symmetric Dirichlet-multinomial.
+        Corresponds to assuming that each term and cluster
+        occurred this many more times than the observed.
+
+    Returns
+    -------
+    ndarray of shape (n_topics, vocab_size)
+        Term importance matrix.
+    """
     eps = np.finfo(float).eps
     p_w = np.squeeze(np.asarray(doc_term_matrix.sum(axis=0))) + smoothing
     p_w = p_w / p_w.sum()
