@@ -2,7 +2,6 @@ from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel
 from turftopic.error import NotInstalled
 from turftopic.models.cluster import BERTopic, ClusteringTopicModel, Top2Vec
-from turftopic.models.concept_induction import ConceptInduction
 from turftopic.models.decomp import SemanticSignalSeparation
 from turftopic.models.fastopic import FASTopic
 from turftopic.models.gmm import GMM
@@ -25,7 +24,6 @@ __all__ = [
     "FASTopic",
     "Top2Vec",
     "BERTopic",
-    "ConceptInduction",
     "load_model",
     "build_datamapplot",
 ]
