@@ -113,7 +113,7 @@ def build_datamapplot(
     topic_tree_kwds={
         "color_bullets": True,
     },
-    cluster_boundary_polygons=True,
+    cluster_boundary_polygons=False,
     cluster_boundary_line_width=6,
     polygon_alpha=2,
     **kwargs,
