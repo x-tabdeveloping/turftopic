@@ -122,6 +122,7 @@ By and large there are two types of methods that can be used for importance esti
 | - | - | - | - |
 | `soft-c-tf-idf` *(default)* | Lexical | A c-tf-idf mehod that can interpret soft cluster assignments. | Can interpret soft cluster assignment in models like Gaussian Mixtures, less sensitive to stop words than vanilla c-tf-idf. |
 | `fighting-words` **(NEW)** | Lexical | Compute word importance based on cluster differences using the Fightin' Words algorithm by Monroe et al. | A theoretically motivated probabilistic model that was explicitly designed for discovering lexical differences in groups of text. See [Fightin' Words paper](https://languagelog.ldc.upenn.edu/myl/Monroe.pdf). |
+| `npmi` **(NEW)** | Lexical | Estimate term importance from mutual information between cluster labels and term occurrence. | Theoretically motivated, fast, and usually produces clean topics. |
 | `c-tf-idf` | Lexical | Compute how unique terms are in a cluster with a tf-idf style weighting scheme. This is the default in BERTopic. | Very fast, easy to understand and is not affected by cluster shape. |
 | `centroid` | Semantic | Word importance based on words' proximity to cluster centroid vectors. This is the default in Top2Vec. | Produces clean topics, easily interpretable. |
 | `linear` **(NEW, EXPERIMENTAL)** | Semantic | Project words onto the parameter vectors of a linear classifier (LDA). | Topic differences are measured in embedding space and are determined by predictive power, and are therefore accurate and clean. |
@@ -195,6 +196,14 @@ By and large there are two types of methods that can be used for importance esti
         model = ClusteringTopicModel(feature_importance="linear")
         ```
 
+    === "NPMI"
+
+        ```python
+        from turftopic import ClusteringTopicModel
+
+        model = ClusteringTopicModel(feature_importance="npmi")
+        ```
+        
 
 
 You can also choose to recalculate term importances with a different method after fitting the model:

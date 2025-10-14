@@ -10,11 +10,11 @@ from sklearn.metrics.pairwise import pairwise_distances
 
 from turftopic.base import ContextualModel
 from turftopic.feature_importance import (
-    bayes_rule,
     cluster_centroid_distance,
     ctf_idf,
     fighting_words,
     linear_classifier,
+    npmi,
     soft_ctf_idf,
 )
 from turftopic.hierarchical import TopicNode
@@ -221,8 +221,8 @@ class ClusterNode(TopicNode):
                     self.model.embeddings,
                     self.model.vocab_embeddings,
                 )
-        elif self.model.feature_importance == "bayes":
-            components = bayes_rule(
+        elif self.model.feature_importance == "npmi":
+            components = npmi(
                 document_topic_matrix, self.model.doc_term_matrix
             )
         else:
