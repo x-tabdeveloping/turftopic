@@ -8,8 +8,12 @@ import igraph as ig
 import numpy as np
 import scipy.sparse as spr
 from sklearn.base import clone
-from sklearn.decomposition._nmf import (NMF, MiniBatchNMF, _initialize_nmf,
-                                        _update_coordinate_descent)
+from sklearn.decomposition._nmf import (
+    NMF,
+    MiniBatchNMF,
+    _initialize_nmf,
+    _update_coordinate_descent,
+)
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -169,6 +173,7 @@ class SBertKeywordExtractor:
         documents: list[str],
         embeddings: Optional[np.ndarray] = None,
         seed_embedding: Optional[np.ndarray] = None,
+        seed_exponent: float = 4.0,
         fitting: bool = True,
     ) -> list[dict[str, float]]:
         if not len(documents):
@@ -199,6 +204,7 @@ class SBertKeywordExtractor:
             else:
                 document_relevance = np.dot(embeddings, seed_embedding)
             document_relevance[document_relevance < 0] = 0
+            document_relevance = np.power(document_relevance, seed_exponent)
         for i in range(total):
             terms = document_term_matrix[i, :].todense()
             embedding = embeddings[i].reshape(1, -1)

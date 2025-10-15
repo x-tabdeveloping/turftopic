@@ -9,7 +9,7 @@ profile = "black"
 
 [project]
 name = "turftopic"
-version = "0.18.0"
+version = "0.19.0"
 description = "Topic modeling with contextual representations from sentence transformers."
 authors = [
    { name = "Márton Kardos <power.up1163@gmail.com>", email = "martonkardos@cas.au.dk" }
