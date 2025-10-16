@@ -12,6 +12,7 @@ nav:
     - Hierarchical Topic Modeling: hierarchical.md
     - Cross-Lingual Topic Modeling: cross_lingual.md
     - Multimodal Modeling (BETA): multimodal.md
+    - Concept Induction (BETA): concept_induction.md
     - Modifying and Finetuning Models: finetuning.md
     - Saving and Loading: persistence.md
     - Using TopicData: topic_data.md
