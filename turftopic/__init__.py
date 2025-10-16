@@ -1,3 +1,4 @@
+from turftopic._concept_browser import create_browser
 from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel
 from turftopic.error import NotInstalled
@@ -13,6 +14,7 @@ try:
 except ModuleNotFoundError:
     AutoEncodingTopicModel = NotInstalled("AutoEncodingTopicModel", "pyro-ppl")
 
+create_concept_browser = create_browser
 
 __all__ = [
     "ClusteringTopicModel",
@@ -26,4 +28,5 @@ __all__ = [
     "BERTopic",
     "load_model",
     "build_datamapplot",
+    "create_concept_browser",
 ]
