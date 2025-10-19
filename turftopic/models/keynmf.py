@@ -71,7 +71,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
 
     def __init__(
         self,
-        n_components: int,
+        n_components: Union[int, Literal["auto"]],
         encoder: Union[
             Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",
