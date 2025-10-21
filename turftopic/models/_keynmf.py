@@ -330,7 +330,7 @@ class KeywordNMF:
                 decomp_class=NMF,
                 X=X,
             )
-            n_components = optimize_n_components(bic_fn, verbose=True)
+            n_components = optimize_n_components(bic_fn, min_n=1, verbose=True)
             self.n_components = n_components
         check_non_negative(X, "NMF (input X)")
         W, H = _initialize_nmf(X, self.n_components, random_state=self.seed)
