@@ -51,6 +51,8 @@ def encode_chunks(
                         encoder.tokenizer.decode(
                             features["input_ids"][i_doc, chunk_start:chunk_end]
                         )
+                        .replace("[CLS]", "")
+                        .replace("[SEP]", "")
                     )
     if not return_chunks:
         chunks = None
