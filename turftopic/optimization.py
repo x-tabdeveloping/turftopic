@@ -43,7 +43,7 @@ def decomposition_gaussian_bic(
 
 
 def optimize_n_components(
-    f_ic: Callable[int, float], max_n: int = 250, verbose=False
+    f_ic: Callable[int, float], min_n: int = 2, max_n: int = 250, verbose=False
 ) -> int:
     """Optimizes the nuber of components using the Brent minimum finding
     algorithm given an information criterion.
@@ -53,9 +53,13 @@ def optimize_n_components(
     ----------
     f_ic: Callable[int, float]
         Information criterion given N components.
+    min_n: int
+        Minimum value of N.
     max_n: int
         Maximum value of N, in case the algorithm doesn't converge.
     """
+    if verbose:
+        print("Optimizing N based on an information criterion...")
 
     # Caching and adding debugging statements
     @cache
@@ -65,48 +69,46 @@ def optimize_n_components(
         n_components = int(n_components)
         val = f_ic(n_components)
         if verbose:
-            print(
-                f"Running information criterion with {n_components}: {val:.2f}"
-            )
+            print(f" - IC(N={n_components})={val:.2f}")
         return val
 
     # Finding bracket
     if verbose:
-        print("Finding bracket...")
-    low = 1
+        print(" - Finding bracket...")
+    low = min_n
     n_comp = 2
-    while not _f_ic(n_comp) < _f_ic(1):
+    while not _f_ic(n_comp) < _f_ic(min_n):
         n_comp += 1
         if n_comp >= 10:
             if verbose:
                 print(
-                    "Couldn't find lower value than n=1 up to n=10, stopping."
+                    " - Couldn't find lower value than n=1 up to n=10, stopping."
                 )
             return 1
-    min_n = n_comp
-    current = _f_ic(min_n)
+    middle = n_comp
+    current = _f_ic(middle)
     inc = 5
-    while not current > _f_ic(min_n):
+    while not current > _f_ic(middle):
         n_comp += inc
         if n_comp >= max_n:
             if verbose:
-                print(f"Bracket didn't converge, returning max N: {max_n}")
+                print(f" - Bracket didn't converge, returning max N: {max_n}")
             return max_n
         current = _f_ic(n_comp)
-        if current < _f_ic(min_n):
+        if current < _f_ic(middle):
             low = n_comp - inc
-            min_n = n_comp
+            middle = n_comp
         inc *= 2
-    bracket = low, min_n, n_comp
+    bracket = low, middle, n_comp
     if verbose:
-        print(f"Running optimization with bracket: {bracket}")
+        print(f" - Running optimization with bracket: {bracket}")
     # Optimizing
     res = optimize.minimize_scalar(
         _f_ic,
         method="brent",
-        bracket=(low, min_n, n_comp),
+        bracket=(low, middle, n_comp),
         options=dict(xtol=0.2),
     )
     if verbose:
-        print(f"Converged after {res.nit} iterations.")
+        print(f" - Converged after {res.nit} iterations.")
     return int(res.x)
