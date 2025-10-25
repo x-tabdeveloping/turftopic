@@ -46,56 +46,55 @@ LexicalWordImportance = Literal[
 
 class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
     """Multivariate Gaussian Mixture Model over document embeddings.
-    Models topics as mixture components.
+        Models topics as mixture components.
 
-    ```python
-    from turftopic import GMM
-
+        ```python
+        from turftopic import GMM
     corpus: list[str] = ["some text", "more text", ...]
 
-    model = GMM(10, weight_prior="dirichlet_process").fit(corpus)
-    model.print_topics()
-    ```
+        model = GMM(10, weight_prior="dirichlet_process").fit(corpus)
+        model.print_topics()
+        ```
 
-    Parameters
-    ----------
-    n_components: int or "auto"
-        Number of topics.
-        If "auto", the Bayesian Information criterion
-        will be used to estimate this quantity.
-        *Note that "auto" can only be used when no priors as specified*.
-    encoder: str or SentenceTransformer
-        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
-    vectorizer: CountVectorizer, default None
-        Vectorizer used for term extraction.
-        Can be used to prune or filter the vocabulary.
-    weight_prior: 'dirichlet', 'dirichlet_process' or None, default 'dirichlet'
-        Prior to impose on component weights, if None,
-        maximum likelihood is optimized with expectation maximization,
-        otherwise variational inference is used.
-    gamma: float, default None
-        Concentration parameter of the symmetric prior.
-        By default 1/n_components is used.
-        Ignored when weight_prior is None.
-    dimensionality_reduction: TransformerMixin, default None
-        Optional dimensionality reduction step before GMM is run.
-        This is recommended for very large datasets with high dimensionality,
-        as the number of parameters grows vast in the model otherwise.
-        We recommend using PCA, as it is a linear solution, and will likely
-        result in Gaussian components.
-        For even larger datasets you can use IncrementalPCA to reduce
-        memory load.
-    feature_importance: LexicalWordImportance, default 'soft-c-tf-idf'
-        Feature importance method to use.
-        *Note that only lexical methods can be used with GMM,
-        not embedding-based ones.*
-    random_state: int, default None
-        Random state to use so that results are exactly reproducible.
+        Parameters
+        ----------
+        n_components: int or "auto"
+            Number of topics.
+            If "auto", the Bayesian Information criterion
+            will be used to estimate this quantity.
+            *Note that "auto" can only be used when no priors as specified*.
+        encoder: str or SentenceTransformer
+            Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+        vectorizer: CountVectorizer, default None
+            Vectorizer used for term extraction.
+            Can be used to prune or filter the vocabulary.
+        weight_prior: 'dirichlet', 'dirichlet_process' or None, default 'dirichlet'
+            Prior to impose on component weights, if None,
+            maximum likelihood is optimized with expectation maximization,
+            otherwise variational inference is used.
+        gamma: float, default None
+            Concentration parameter of the symmetric prior.
+            By default 1/n_components is used.
+            Ignored when weight_prior is None.
+        dimensionality_reduction: TransformerMixin, default None
+            Optional dimensionality reduction step before GMM is run.
+            This is recommended for very large datasets with high dimensionality,
+            as the number of parameters grows vast in the model otherwise.
+            We recommend using PCA, as it is a linear solution, and will likely
+            result in Gaussian components.
+            For even larger datasets you can use IncrementalPCA to reduce
+            memory load.
+        feature_importance: LexicalWordImportance, default 'soft-c-tf-idf'
+            Feature importance method to use.
+            *Note that only lexical methods can be used with GMM,
+            not embedding-based ones.*
+        random_state: int, default None
+            Random state to use so that results are exactly reproducible.
 
-    Attributes
-    ----------
-    weights_: ndarray of shape (n_components)
-        Weights of the different mixture components.
+        Attributes
+        ----------
+        weights_: ndarray of shape (n_components)
+            Weights of the different mixture components.
     """
 
     def __init__(
