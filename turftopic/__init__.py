@@ -7,6 +7,7 @@ from turftopic.models.decomp import SemanticSignalSeparation
 from turftopic.models.fastopic import FASTopic
 from turftopic.models.gmm import GMM
 from turftopic.models.keynmf import KeyNMF
+from turftopic.models.topeax import Topeax
 from turftopic.serialization import load_model
 
 try:
@@ -20,6 +21,7 @@ __all__ = [
     "ClusteringTopicModel",
     "SemanticSignalSeparation",
     "GMM",
+    "Topeax",
     "KeyNMF",
     "AutoEncodingTopicModel",
     "ContextualModel",
