@@ -9,8 +9,9 @@ from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.mixture import BayesianGaussianMixture, GaussianMixture
-from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.pipeline import Pipeline
 
+from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
@@ -363,3 +364,146 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
             self.temporal_components_[i_timebin] = components
             self.temporal_importance_[i_timebin] = topic_importances
         return doc_topic_matrix
+
+    def plot_components_datamapplot(
+        self,
+        coordinates: Optional[np.ndarray] = None,
+        hover_text: Optional[list[str]] = None,
+        **kwargs,
+    ):
+        """Creates an interactive browser plot of the topics in your data using datamapplot.
+
+        Parameters
+        ----------
+        coordinates: np.ndarray, default None
+            Lower dimensional projection of the embeddings.
+            If None, will try to use the projections from the
+            dimensionality_reduction method of the model.
+        hover_text: list of str, optional
+            Text to show when hovering over a document.
+
+        Returns
+        -------
+        plot
+            Interactive datamap plot, you can call the `.show()` method to
+            display it in your default browser or save it as static HTML using `.write_html()`.
+        """
+        if coordinates is None:
+            if not hasattr(self, "reduced_embeddings"):
+                raise ValueError(
+                    "Coordinates not specified, but the model does not contain reduced embeddings."
+                )
+            coordinates = self.reduced_embeddings[:, (0, 1)]
+        labels = np.argmax(self.doc_topic_matrix, axis=1)
+        plot = build_datamapplot(
+            coordinates=coordinates,
+            topic_names=self.topic_names,
+            labels=labels,
+            classes=np.arange(self.gmm_.n_components),
+            top_words=self.get_top_words(),
+            hover_text=hover_text,
+            topic_descriptions=getattr(self, "topic_descriptions", None),
+            **kwargs,
+        )
+        return plot
+
+    def plot_density(
+        self, hover_text: list[str] = None, show_points=False, light_mode=False
+    ):
+        try:
+            import plotly.graph_objects as go
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+
+        if not hasattr(self, "reduced_embeddings"):
+            raise ValueError(
+                "No reduced embeddings found, can't display in 2d space."
+            )
+        if self.reduced_embeddings.shape[1] != 2:
+            warnings.warn(
+                "Embeddings are not in 2d space, only using first 2 dimensions"
+            )
+
+        coord_min, coord_max = np.min(self.reduced_embeddings), np.max(
+            self.reduced_embeddings
+        )
+        coord_spread = coord_max - coord_min
+        coord_min = coord_min - coord_spread * 0.05
+        coord_max = coord_max + coord_spread * 0.05
+        coord = np.linspace(coord_min, coord_max, num=100)
+        z = []
+        for yval in coord:
+            points = np.stack([coord, np.full(coord.shape, yval)]).T
+            prob = np.exp(self.gmm_.score_samples(points))
+            z.append(prob)
+        z = np.stack(z)
+        color_grid = [0.0, 0.25, 0.5, 0.75, 1.0]
+        colorscale = [
+            "#01014B",
+            "#000080",
+            "#5D5DEF",
+            "#B7B7FF",
+            "#ffffff",
+        ]
+        if light_mode:
+            colorscale = colorscale[::-1]
+        traces = [
+            go.Contour(
+                z=z,
+                colorscale=list(zip(color_grid, colorscale)),
+                showscale=False,
+                x=coord,
+                y=coord,
+                hoverinfo="skip",
+            ),
+        ]
+        if show_points:
+            scatter = go.Scatter(
+                x=self.reduced_embeddings[:, 0],
+                y=self.reduced_embeddings[:, 1],
+                mode="markers",
+                showlegend=False,
+                text=hover_text,
+                marker=dict(
+                    symbol="circle",
+                    opacity=0.5,
+                    color="white",
+                    size=8,
+                    line=dict(width=1),
+                ),
+            )
+            traces.append(scatter)
+        fig = go.Figure(data=traces)
+        fig = fig.update_layout(
+            showlegend=False, margin=dict(r=0, l=0, t=0, b=0)
+        )
+        fig = fig.update_xaxes(showticklabels=False)
+        fig = fig.update_yaxes(showticklabels=False)
+        for mean, name, keywords in zip(
+            self.gmm_.means_, self.topic_names, self.get_top_words()
+        ):
+            _keys = ""
+            for i, key in enumerate(keywords):
+                if (i % 5) == 0:
+                    _keys += "<br> "
+                _keys += key
+                if i < (len(keywords) - 1):
+                    _keys += ","
+                _keys += " "
+            text = f"<b>{name}</b> <i>{_keys}</i> "
+            fig.add_annotation(
+                text=text,
+                x=mean[0],
+                y=mean[1],
+                align="left",
+                showarrow=False,
+                xshift=0,
+                yshift=50,
+                font=dict(family="Roboto Mono", size=18, color="black"),
+                bgcolor="rgba(255,255,255,0.9)",
+                bordercolor="black",
+                borderwidth=2,
+            )
+        return fig
