@@ -1,37 +1,27 @@
-from functools import partial
-from typing import Literal, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 from scipy.ndimage.filters import maximum_filter
 from scipy.ndimage.morphology import binary_erosion, generate_binary_structure
 from scipy.stats import gaussian_kde
-from sklearn.base import BaseEstimator, ClusterMixin, TransformerMixin
+from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.manifold import TSNE
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.mixture import GaussianMixture
+from sklearn.mixture._gaussian_mixture import (
+    _compute_precision_cholesky,
+    _estimate_gaussian_parameters,
+)
 
 from turftopic.base import Encoder
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.feature_importance import (
-    ctf_idf,
-    fighting_words,
-    npmi,
-    soft_ctf_idf,
-)
-from turftopic.models.gmm import GMM
+from turftopic.models.gmm import GMM, LexicalWordImportance
 
-FEATURE_IMPORTANCE_METHODS = {
-    "soft-c-tf-idf": soft_ctf_idf,
-    "c-tf-idf": ctf_idf,
-    "fighting-words": fighting_words,
-    "npmi": partial(npmi, smoothing=2),
-}
-LexicalWordImportance = Literal[
-    "soft-c-tf-idf",
-    "c-tf-idf",
-    "npmi",
-    "fighting-words",
-]
+
+def minmax(a):
+    min_a = np.min(a)
+    return (a - min_a) / (np.max(a) - min_a)
 
 
 def detect_peaks(image):
@@ -55,6 +45,18 @@ def detect_peaks(image):
     return detected_peaks
 
 
+class FixedMeanGaussianMixture(GaussianMixture):
+    def _m_step(self, X, log_resp):
+        # Skipping mean update
+        self.weights_, _, self.covariances_ = _estimate_gaussian_parameters(
+            X, np.exp(log_resp), self.reg_covar, self.covariance_type
+        )
+        self.weights_ /= self.weights_.sum()
+        self.precisions_cholesky_ = _compute_precision_cholesky(
+            self.covariances_, self.covariance_type
+        )
+
+
 class Peax(ClusterMixin, BaseEstimator):
     def __init__(self, random_state: Optional[int] = None):
         self.random_state = random_state
@@ -74,7 +76,24 @@ class Peax(ClusterMixin, BaseEstimator):
         peak_pos = np.stack([coord[peak_ind[0]], coord[peak_ind[1]]]).T
         weights = self.density.pdf(peak_pos.T)
         weights = weights / weights.sum()
-        self.gmm_ = GaussianMixture(
+        self.gmm_ = FixedMeanGaussianMixture(
+            peak_pos.shape[0],
+            means_init=peak_pos,
+            weights_init=weights,
+            random_state=self.random_state,
+        )
+        self.labels_ = self.gmm_.fit_predict(X)
+        # Checking whether there are close to zero components
+        is_zero = np.isclose(self.gmm_.weights_, 0)
+        n_zero = np.sum(is_zero)
+        if n_zero > 0:
+            print(
+                f"{n_zero} components have zero weight, removing them and refitting."
+            )
+        peak_pos = peak_pos[~is_zero]
+        weights = self.gmm_.weights_[~is_zero]
+        weights = weights / weights.sum()
+        self.gmm_ = FixedMeanGaussianMixture(
             peak_pos.shape[0],
             means_init=peak_pos,
             weights_init=weights,
@@ -83,7 +102,12 @@ class Peax(ClusterMixin, BaseEstimator):
         self.labels_ = self.gmm_.fit_predict(X)
         self.classes_ = np.sort(np.unique(self.labels_))
         self.means_ = self.gmm_.means_
+        self.weights_ = self.gmm_.weights_
         return self.labels_
+
+    @property
+    def n_components(self) -> int:
+        return self.gmm_.n_components
 
     def predict_proba(self, X):
         return self.gmm_.predict_proba(X)
@@ -102,20 +126,62 @@ class Topeax(GMM):
             Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",
         vectorizer: Optional[CountVectorizer] = None,
-        dimensionality_reduction: Optional[TransformerMixin] = None,
-        feature_importance: LexicalWordImportance = "soft-c-tf-idf",
+        perplexity: int = 50,
         random_state: Optional[int] = None,
     ):
-        if dimensionality_reduction is None:
-            dimensionality_reduction = TSNE(2, metric="cosine", perplexity=100)
+        dimensionality_reduction = TSNE(
+            2,
+            metric="cosine",
+            perplexity=perplexity,
+            random_state=random_state,
+        )
         super().__init__(
             n_components=0,
             encoder=encoder,
             vectorizer=vectorizer,
             dimensionality_reduction=dimensionality_reduction,
-            feature_importance=feature_importance,
             random_state=random_state,
         )
+
+    def estimate_components(
+        self,
+        feature_importance: Optional[LexicalWordImportance] = None,
+        doc_topic_matrix=None,
+        doc_term_matrix=None,
+    ) -> np.ndarray:
+        doc_topic_matrix = (
+            doc_topic_matrix
+            if doc_topic_matrix is not None
+            else self.doc_topic_matrix
+        )
+        doc_term_matrix = (
+            doc_term_matrix
+            if doc_term_matrix is not None
+            else self.doc_term_matrix
+        )
+        lexical_components = super().estimate_components(
+            "npmi", doc_topic_matrix, doc_term_matrix
+        )
+        vocab = self.get_vocab()
+        if getattr(self, "vocab_embeddings", None) is None or (
+            self.vocab_embeddings.shape[0] != vocab.shape[0]
+        ):
+            self.vocab_embeddings = self.encode_documents(vocab)
+        topic_embeddings = []
+        for weight in doc_topic_matrix.T:
+            topic_embeddings.append(
+                np.average(self.embeddings, axis=0, weights=weight)
+            )
+        self.topic_embeddings = np.stack(topic_embeddings)
+        semantic_components = cosine_similarity(
+            self.topic_embeddings, self.vocab_embeddings
+        )
+        # Transforming to positive values from 0 to 1
+        # Then taking geometric average of the two values
+        self.components_ = np.sqrt(
+            ((1 + lexical_components) / 2) * ((1 + semantic_components) / 2)
+        )
+        return self.components_
 
     def _init_model(self, n_components: int):
         mixture = Peax()
