@@ -1,8 +1,11 @@
 from typing import Optional, Union
 
 import numpy as np
-from scipy.ndimage.filters import maximum_filter
-from scipy.ndimage.morphology import binary_erosion, generate_binary_structure
+from scipy.ndimage import (
+    binary_erosion,
+    generate_binary_structure,
+    maximum_filter,
+)
 from scipy.stats import gaussian_kde
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.feature_extraction.text import CountVectorizer
@@ -17,11 +20,6 @@ from sklearn.mixture._gaussian_mixture import (
 from turftopic.base import Encoder
 from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.models.gmm import GMM, LexicalWordImportance
-
-
-def minmax(a):
-    min_a = np.min(a)
-    return (a - min_a) / (np.max(a) - min_a)
 
 
 def detect_peaks(image):
@@ -58,6 +56,14 @@ class FixedMeanGaussianMixture(GaussianMixture):
 
 
 class Peax(ClusterMixin, BaseEstimator):
+    """Clustering model based on density peaks.
+
+    Parameters
+    ----------
+    random_state: int, default None
+        Random seed to use for fitting gaussian mixture to peaks.
+    """
+
     def __init__(self, random_state: Optional[int] = None):
         self.random_state = random_state
 
@@ -120,6 +126,23 @@ class Peax(ClusterMixin, BaseEstimator):
 
 
 class Topeax(GMM):
+    """Topic model based on the Peax clustering algorithm.
+    The algorithm discovers the number of topics automatically, and is based on GMM.
+
+    Parameters
+    ----------
+    encoder: str or SentenceTransformer
+        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
+    vectorizer: CountVectorizer, default None
+        Vectorizer used for term extraction.
+        Can be used to prune or filter the vocabulary.
+    perplexity: int, default 50
+        Number of neighbours to take into account when running TSNE.
+    random_state: int, default None
+        Random state to use so that results are exactly reproducible.
+
+    """
+
     def __init__(
         self,
         encoder: Union[
