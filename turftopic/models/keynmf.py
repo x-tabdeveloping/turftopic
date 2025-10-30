@@ -43,8 +43,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
 
     Parameters
     ----------
-    n_components: int
+    n_components: int or "auto"
         Number of topics.
+        Auto selects the number of topics using
+        the Bayesian Information Criterion.
     encoder: str or SentenceTransformer
         Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
     vectorizer: CountVectorizer, default None
@@ -71,7 +73,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
 
     def __init__(
         self,
-        n_components: int,
+        n_components: Union[int, Literal["auto"]],
         encoder: Union[
             Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/all-MiniLM-L6-v2",

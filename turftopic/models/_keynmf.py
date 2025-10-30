@@ -2,7 +2,8 @@ import itertools
 import warnings
 from collections import defaultdict
 from datetime import datetime
-from typing import Iterable, Literal, Optional
+from functools import partial
+from typing import Iterable, Literal, Optional, Union
 
 import igraph as ig
 import numpy as np
@@ -21,6 +22,10 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_non_negative
 
 from turftopic.base import Encoder
+from turftopic.optimization import (
+    decomposition_gaussian_bic,
+    optimize_n_components,
+)
 
 NOT_MATCHING_ERROR = (
     "Document embedding dimensionality ({n_dims}) doesn't match term embedding dimensionality ({n_word_dims}). "
@@ -242,7 +247,7 @@ class SBertKeywordExtractor:
 class KeywordNMF:
     def __init__(
         self,
-        n_components: int,
+        n_components: Union[int, Literal["auto"]],
         seed: Optional[int] = None,
         top_n: Optional[int] = None,
     ):
@@ -318,6 +323,15 @@ class KeywordNMF:
 
     def fit_transform(self, keywords: list[dict[str, float]]) -> np.ndarray:
         X = self.vectorize(keywords, fitting=True)
+        if self.n_components == "auto":
+            # Finding N components with BIC
+            bic_fn = partial(
+                decomposition_gaussian_bic,
+                decomp_class=NMF,
+                X=X,
+            )
+            n_components = optimize_n_components(bic_fn, min_n=1, verbose=True)
+            self.n_components = n_components
         check_non_negative(X, "NMF (input X)")
         W, H = _initialize_nmf(X, self.n_components, random_state=self.seed)
         W, H, self.n_iter = NMF(
@@ -339,6 +353,10 @@ class KeywordNMF:
         return W.astype(X.dtype)
 
     def partial_fit(self, keyword_batch: list[dict[str, float]]):
+        if self.n_components == "auto":
+            raise ValueError(
+                "Cannot infer number of components with BIC when online fitting the model."
+            )
         X = self.vectorize(keyword_batch, fitting=True)
         try:
             check_non_negative(X, "NMF (input X)")
@@ -365,6 +383,15 @@ class KeywordNMF:
         n_bins = len(time_bin_edges) - 1
         document_term_matrix = self.vectorize(keywords, fitting=True)
         check_non_negative(document_term_matrix, "NMF (input X)")
+        if self.n_components == "auto":
+            # Finding N components with BIC
+            bic_fn = partial(
+                decomposition_gaussian_bic,
+                decomp_class=NMF,
+                X=X,
+            )
+            n_components = optimize_n_components(bic_fn, verbose=True)
+            self.n_components = n_components
         document_topic_matrix, H = _initialize_nmf(
             document_term_matrix,
             self.n_components,
