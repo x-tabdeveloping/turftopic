@@ -295,6 +295,10 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
         return self.doc_topic_matrix
 
     @property
+    def labels_(self):
+        return np.argmax(self.doc_topic_matrix, axis=1)
+
+    @property
     def weights_(self) -> np.ndarray:
         if isinstance(self.gmm_, Pipeline):
             model = self.gmm_.steps[-1][1]
