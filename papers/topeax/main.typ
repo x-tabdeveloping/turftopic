@@ -1,5 +1,6 @@
 #show title: set text(size: 18pt)
 #show title: set align(left)
+#show figure.caption: set align(left)
 
 #set text(
   size: 12pt,
@@ -214,12 +215,32 @@ Ideally a model should both have high intrinsic and extrinsic coherence, and thu
 estimate of topic quality: $accent(C, -) = sqrt(C_("in") dot C_("ex"))$.
 In addition an aggregate metric of topic quality can be calculated by taking the geometric mean of coherence and diversity $I = sqrt(accent(C, -) dot d)$.
 
-== Robustness checks
+== Sensitivity to Perplexity
 
-+ Hyperparameters (perplexity)
-+ Corpus Subsampling
+Both TSNE and UMAP, have a hyperparameter that determines, how many neighbours of a given point are considered when generating lower-dimensional projections, this hyperparameter is usually referred to as _perplexity_.
+It is also known that both methods are sensitive to the choice of hyperparameters, and depending on these, structures, that do not exist in the higher-dimensional feature space might occur (cite Distill article and "Understanding UMAP").
+In order to see how this affects the Topeax algorithm, and how robust it is to the choice of this hyperparameter in comparison with other clustering topic models, I fitted each model to the 20 Newsgroups corpus using `all-MiniLM-L6-v2` with `perplexities=[2, 5, 30, 50, 100]`.
+This choice of values was inspired by (cite Distill). Each model was evaluated on the metrics outlined above.
+
+== Subsampling Invariance
 
 = Results
 
-== Cluster Recovery
 
+== Perplexity
+
+Metrics of quality and number of topics across perplexity values can are displayed on @perplexity_robustness.
+Topeax converges very early on the number of topics with perplexity, and remains stable from `perplexity=5`, while converges at around `perplexity=30` for quality metrics. In light of this, it is reasonable to conclude that 50 is a reasonable recommendation and default value.
+Meanwhile, BERTopic converges at around `perplexity=50`, and has the lowest performance on all metrics. Top2Vec does not seem to converge at all for the values of perplexity tested, and is most unstable. It does seem to improve with larger values of the hyperparameter.
+Keep in mind, that while BERTopic and Top2Vec improve with higher values, their default is set at `perplexity=15`, which, according to these evaluations seems rather unreasonable.
+
+
+#figure(
+  image("figures/perplexity_robustness.png", width: 100%),
+  caption: [Clustering model's performance at different perplexity values.\
+  _Left_: Fowlkes-Mallows Index at different perplexity values,
+  _Middle_: Topic Interpretability Score at different values of Perplexity,
+  _Right_: Number of Topics at each value of perplexity against Gold label.
+
+],
+) <perplexity_robustness>
