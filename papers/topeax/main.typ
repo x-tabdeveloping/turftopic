@@ -43,6 +43,15 @@
 #set heading(numbering: "1.")
 
 = Introduction
+
+== Clustering Topic Models
+
+#figure(
+  image("figures/clustering_models.png", width: 100%),
+  caption: [Schematic overview of clustering topic models' steps.],
+) <clustering_topic_models>
+
+
 = Model Specification
 
 I introduce Topeax, a novel topic modelling approach based on document clustering.
@@ -51,7 +60,7 @@ The model differs in a number of aspects from traditional clustering topic model
 #figure(
   image("figures/peax.png", width: 100%),
   caption: [A schematic overview of the Peax clustering algorithm.
-  \ _The illustrations were generated from the *political ideologies* dataset._],
+  \ Illustrations were generated from the _political ideologies dataset#footnote[https://huggingface.co/datasets/JyotiNayak/political_ideologies]._],
 ) <peax>
 
 == Dimensionality Reduction
@@ -214,17 +223,77 @@ as well as internal word embedding coherence $C_("in")$ with a GloVe model train
 Ideally a model should both have high intrinsic and extrinsic coherence, and thus an aggregate measure of coherence can give a better
 estimate of topic quality: $accent(C, -) = sqrt(C_("in") dot C_("ex"))$.
 In addition an aggregate metric of topic quality can be calculated by taking the geometric mean of coherence and diversity $I = sqrt(accent(C, -) dot d)$.
+We will also refer to this quantity as _interpretability_.
 
 == Sensitivity to Perplexity
 
 Both TSNE and UMAP, have a hyperparameter that determines, how many neighbours of a given point are considered when generating lower-dimensional projections, this hyperparameter is usually referred to as _perplexity_.
 It is also known that both methods are sensitive to the choice of hyperparameters, and depending on these, structures, that do not exist in the higher-dimensional feature space might occur (cite Distill article and "Understanding UMAP").
-In order to see how this affects the Topeax algorithm, and how robust it is to the choice of this hyperparameter in comparison with other clustering topic models, I fitted each model to the 20 Newsgroups corpus using `all-MiniLM-L6-v2` with `perplexities=[2, 5, 30, 50, 100]`.
+In order to see how this affects the Topeax algorithm, and how robust it is to the choice of this hyperparameter in comparison with other clustering topic models, I fitted each model to the 20 Newsgroups corpus from `scikit-learn`, using `all-MiniLM-L6-v2` with `perplexities=[2, 5, 30, 50, 100]`.
 This choice of values was inspired by (cite Distill). Each model was evaluated on the metrics outlined above.
 
 == Subsampling Invariance
 
+Ideally, a good topic model should roughly recover the same topics, and same number of topics in a corpus even when we only have access to a subsample of that corpus, assuming that the underlying categories are the same.
+On the other hand, we would reasonably assume that a model having access to the full corpus, instead of a subsample, should increase the accuracy of the results, not decrease it.
+To evaluate models' ability to cope with subsampling, I fit each model on the same corpus and embeddings as in the perplexity sensitivity test, and evaluate them on the previously outlined metrics.
+Subsample sizes are the following: `[250, 1000, 5000, 10_000, "full"]`.
+
 = Results
+
+Topeax substantially outperformed both Top2Vec and BERTopic in cluster recovery, as well as the quality of the topic keywords (see @performance).
+A regression analysis predicting Fowlkes-Mallows index from model type, with random effects and intercepts for encoders and datasets was conducted.
+The regression was significant at $alpha=0.05$. ($R^2=0.127$, $F=4.368$, $p=0.0169$).
+Both BERTopic and Top2Vec had significantly negative slopes (see @coeffs).
+
+#figure(
+  table(
+    columns: 4,
+    align: (left, center, center, center),
+    stroke: none,
+    table.hline(),
+    table.header([*Coefficients*], [*Estimate*], [*p-value*], [*95% CI*]),
+    table.hline(),
+    [Intercept (_Topeax_)], [0.3405], [0.000], [[0.267, 0.414]],
+    [Topeax], [-0.1106], [0.038], [[-0.215, -0.006]],
+    [BERTopic], [-0.1479], [0.006], [[-0.252, -0.044]],
+    table.hline(),
+    
+  ),
+  caption: [Regression coefficients for predicting Fowlkes-Mallows Index from choice of topic model]
+) <coeffs>
+
+Topeax also exhibited the lowest absolute percentage error in recovering the number of topics (see @performance) with $"MAPE" = 60.52$ ($"SD"=26.19$),
+while Top2Vec ($M=1797.29%, "SD"=2622.52$) and Top2Vec ($M = 2438.91%,"SD" = 3011.63$) drastically deviated from the number of gold labels in the datasets.
+It is also important to note the opposite directionality of these errors.
+While Topeax almost universally underestimated the number of topics, especially in `StackExchangeClusteringP2P` and `MedrxivClusteringP2P`, where the number of unique labels was very large, Top2Vec and BERTopic almost always grossly overestimated the number of clusters in the data.
+This is undesirable behaviour for a topic model, as topic interpretation requires manual effort, and vast numbers of topics (>500) become difficult and labour-intensive to label for any individual.
+
+
+#figure(
+table(
+  columns: 5,
+  align: (left, center, center, center, center),
+  stroke: none,
+  table.hline(),
+  table.vline(x: 4),
+  table.header([*Model*], [*$C_("in")$*], [*$C_("ex")$*], [*$d$*], [*$I$*]),
+  table.hline(),
+  [Topeax], [*0.35±0.15*], [#underline[0.32±0.09]], [*0.96±0.05*], [*0.55±0.10*],
+  [Top2Vec], [0.21±0.11], [*0.39±0.09*], [#underline[0.57±0.29]], [#underline[0.38±0.15]],
+  [BERTopic], [#underline[0.24±0.12]], [0.17±0.04], [0.64±0.17], [0.35±0.10],
+  table.hline(),
+),
+caption: [Metrics of topic quality compared between different models. Best bold, second best underlined. Uncertainty is standard deviation.]
+) <topic_quality>
+
+#figure(
+  image("figures/performance.png", width: 100%),
+  caption: [Performance comparison of clustering topic models.\ 
+  _Left (Higher is better)_: Fowlkes-Mallows Index against topic interpretability. Large point with error bar represents mean with bootstrapped 95% confidence interval. \
+  _Right (Lower is better)_: Distribution of absolute percentage error in finding the number of topics. 
+  ],
+) <performance>
 
 
 == Perplexity
@@ -232,7 +301,7 @@ This choice of values was inspired by (cite Distill). Each model was evaluated o
 Metrics of quality and number of topics across perplexity values can are displayed on @perplexity_robustness.
 Topeax converges very early on the number of topics with perplexity, and remains stable from `perplexity=5`, while converges at around `perplexity=30` for quality metrics. In light of this, it is reasonable to conclude that 50 is a reasonable recommendation and default value.
 Meanwhile, BERTopic converges at around `perplexity=50`, and has the lowest performance on all metrics. Top2Vec does not seem to converge at all for the values of perplexity tested, and is most unstable. It does seem to improve with larger values of the hyperparameter.
-Keep in mind, that while BERTopic and Top2Vec improve with higher values, their default is set at `perplexity=15`, which, according to these evaluations seems rather unreasonable.
+Keep in mind, that while BERTopic and Top2Vec improve with higher values, their default is set at `perplexity=15`, which, in light of these evaluations, seems rather unreasonable.
 
 
 #figure(
@@ -244,3 +313,21 @@ Keep in mind, that while BERTopic and Top2Vec improve with higher values, their 
 
 ],
 ) <perplexity_robustness>
+
+== Subsampling
+
+Number of topics, topic quality and cluster quality are displayed on @subsampling.
+Topeax is relatively well-behaved, and converges to the highest performance when it has access to the full corpus.
+The number of topics is also relatively stable across from a sample size of 5000 (hovers around 10-12).
+In contrast, BERTopic and Top2Vec do not converge to a single value of N topics and keep growing with the size of the subsample.
+This also has an impact on cluster and topic quality. BERTopic has highest performance on the smallest subsamples (250-1000), while Top2Vec has best performance on a subsample of 5000, both methods decrease in performance as the number of topics grows with sample size. This behaviour is far from ideal, and it is apparent that Topeax is much more reliable at determining the number and structure of clusters in subsampled and full corpora.
+
+#figure(
+  image("figures/subsampling.png", width: 100%),
+  caption: [Topic models' performance at different subsample sizes.\
+  _Left_: Fowlkes-Mallows Index as a function of sample size,
+  _Middle_: Topic Interpretability Score at different subsamples,
+  _Right_: Number of Topics discovered in each subsample per sample size.
+
+],
+) <subsampling>
