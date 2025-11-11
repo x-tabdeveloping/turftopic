@@ -109,6 +109,7 @@ class Peax(ClusterMixin, BaseEstimator):
         self.classes_ = np.sort(np.unique(self.labels_))
         self.means_ = self.gmm_.means_
         self.weights_ = self.gmm_.weights_
+        self.covariances_ = self.gmm_.covariances_
         return self.labels_
 
     @property
@@ -158,6 +159,7 @@ class Topeax(GMM):
             perplexity=perplexity,
             random_state=random_state,
         )
+        self.perplexity = perplexity
         super().__init__(
             n_components=0,
             encoder=encoder,

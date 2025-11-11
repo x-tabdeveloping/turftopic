@@ -16,6 +16,12 @@
   extent: 3pt
 )
 
+#let appendix(body) = {
+  set heading(numbering: "A", supplement: [Appendix])
+  counter(heading).update(0)
+  body
+}
+
 #title[
   #highlight[Topeax] -
    An Improved Clustering Topic Model with Density Peak Detection and Lexical-Semantic Term Importance
@@ -31,13 +37,16 @@
 == Abstract
 
 #text[
-  Text clustering is today the most popular paradigm of topic modelling both in research and industry settings.
+  Text clustering is today the most popular paradigm for topic modelling, both in academia and industry.
   Despite clustering topic models' apparent success, we identify a number of issues in Top2Vec and BERTopic, which remain largely unsolved.
-  Firstly, these approaches are unreliable at discovering the number of topics in a corpus, due to sensitivity to hyperparameters.
-  Secondly, while BERTopic ignores the semantic distance of keywords to topic vectors, Top2Vec ignores word counts in the corpus.
-  This results in, on the one hand, hardly interpretable topics due to the presence of stop words and junk words, and lack of variety and trust on the other.
+  Firstly, these approaches are unreliable at discovering natural clusters in corpora, due to extreme sensitivity to sample size and hyperparameters, the default values of which result in suboptimal behaviour.
+  Secondly, when estimating term importance, BERTopic ignores the semantic distance of keywords to topic vectors, while Top2Vec ignores word counts in the corpus.
+  This results in, on the one hand, less coherent topics due to the presence of stop words and junk words,
+  and lack of variety and trust on the other.
   In this paper, I introduce a new approach, *#highlight[Topeax]*, which discovers the number of clusters from peaks in density estimates,
-  and combines lexical and semantic term importance to gain high-quality topic keywords.
+  and combines lexical and semantic indices of term importance to gain high-quality topic keywords.
+  Topeax is demonstrated to be better at both cluster recovery and cluster description than Top2Vec and BERTopic,
+  while also exhibiting less erratic behaviour in response to changing sample size and hyperparameters.
 ]
 
 #set heading(numbering: "1.")
@@ -55,7 +64,8 @@
 = Model Specification
 
 I introduce Topeax, a novel topic modelling approach based on document clustering.
-The model differs in a number of aspects from traditional clustering topic models like BERTopic and Top2Vec.
+The model differs in a number of aspects from traditional clustering topic models like BERTopic and Top2Vec. The model is implemented in the Turftopic Python package (cite), following scikit-learn API conventions.
+Example usage is presented in @example_code.
 
 #figure(
   image("figures/peax.png", width: 100%),
@@ -102,8 +112,12 @@ The Peax algorithm consists of the following steps:
 
 #figure(
   placement: top,
-  image("figures/bbc_news_density.png", width: 100%),
-  caption: [Topeax model illustrated on the BBC News dataset. Topics are identified at density peaks, and keywords get selected based on combined term importance.],
+  image("figures/bbc_news_light.png", width: 80%),
+  caption: [Topeax model illustrated on the BBC News dataset. Topics are identified at density peaks, and keywords get selected based on combined term importance.\
+  _Left_: Density plot in 2D with topic names and keywords.
+  _Right_: Density landscape in 3D with topic names.
+
+],
 ) <bbc_news_density>
 
 == Term Importance Estimation
@@ -167,6 +181,8 @@ In this section I will outline the criteria and considerations taken into accoun
   Topic models should, in theory, aid the understanding of a corpus. Using a topic model becomes impractical when the number of topics one has to interpret is over a couple hundred.
 + Topics should be distinct and easily readable.
 
+Reproducible scripts used for evaluation, along with instructions on how to run them, are made available in the `x-tabdeveloping/topeax-eval`#footnote("https://github.com/x-tabdeveloping/topeax-eval") Github repository. Results for all evaluations can be found in the `results/` directory.
+
 == Datasets
 
 In order to evaluate these properties, I used a number of openly available datasets with gold-standard category metadata.
@@ -200,10 +216,10 @@ To compare Topeax with existing approaches, it was run on all corpora alongside 
 Implementations were sourced from the Turftopic (cite) Python package.
 For the main analysis, default hyperparameters were used from the original BERTopic and Top2Vec packages respectively,
 as these give different clusterings, despite having the same pipeline.
-All models were run with both the `all-MiniLM-L6-v2`, and the slightly larger and higher performing `all-mpnet-base-v2` sentence encoders (cite sbert)
-to to control for embedding size and quality.
+All models were run with both the `all-MiniLM-L6-v2`, the slightly larger and higher performing `all-mpnet-base-v2` sentence encoders (cite sbert), as well as Google's `embeddinggemma-300m`
+to control for embedding size and quality.
 The models were fitted without filtering for stop words and uncommon terms,
-since state-of-the art topic models are able to handle such information without issues (cite S3).
+since state-of-the art topic models have been shown to be able to handle such information without issues (cite S3).
 
 == Metrics
 
@@ -264,7 +280,7 @@ Both BERTopic and Top2Vec had significantly negative slopes (see @coeffs).
 ) <coeffs>
 
 Topeax also exhibited the lowest absolute percentage error in recovering the number of topics (see @performance) with $"MAPE" = 60.52$ ($"SD"=26.19$),
-while Top2Vec ($M=1797.29%, "SD"=2622.52$) and Top2Vec ($M = 2438.91%,"SD" = 3011.63$) drastically deviated from the number of gold labels in the datasets.
+while Top2Vec ($M=1797.29%, "SD"=2622.52$) and BERTopic ($M = 2438.91%,"SD" = 3011.63$) drastically deviated from the number of gold labels in the datasets.
 It is also important to note the opposite directionality of these errors.
 While Topeax almost universally underestimated the number of topics, especially in `StackExchangeClusteringP2P` and `MedrxivClusteringP2P`, where the number of unique labels was very large, Top2Vec and BERTopic almost always grossly overestimated the number of clusters in the data.
 This is undesirable behaviour for a topic model, as topic interpretation requires manual effort, and vast numbers of topics (>500) become difficult and labour-intensive to label for any individual.
@@ -284,7 +300,7 @@ table(
   [BERTopic], [#underline[0.24±0.12]], [0.17±0.04], [0.64±0.17], [0.35±0.10],
   table.hline(),
 ),
-caption: [Metrics of topic quality compared between different models. Best bold, second best underlined. Uncertainty is standard deviation.]
+caption: [Metrics of topic quality compared between different models. Best bold, second best underlined. Uncertainty is standard deviation. Higher is better.]
 ) <topic_quality>
 
 #figure(
@@ -299,13 +315,13 @@ caption: [Metrics of topic quality compared between different models. Best bold,
 == Perplexity
 
 Metrics of quality and number of topics across perplexity values can are displayed on @perplexity_robustness.
-Topeax converges very early on the number of topics with perplexity, and remains stable from `perplexity=5`, while converges at around `perplexity=30` for quality metrics. In light of this, it is reasonable to conclude that 50 is a reasonable recommendation and default value.
+Topeax converges very early on the number of topics with perplexity, and remains stable from `perplexity=5`, while converges at around `perplexity=30` for quality metrics. It is reasonable to conclude that 50 is a reasonable recommendation and default value.
 Meanwhile, BERTopic converges at around `perplexity=50`, and has the lowest performance on all metrics. Top2Vec does not seem to converge at all for the values of perplexity tested, and is most unstable. It does seem to improve with larger values of the hyperparameter.
 Keep in mind, that while BERTopic and Top2Vec improve with higher values, their default is set at `perplexity=15`, which, in light of these evaluations, seems rather unreasonable.
 
 
 #figure(
-  image("figures/perplexity_robustness.png", width: 100%),
+  image("figures/robustness_perplexity.png", width: 100%),
   caption: [Clustering model's performance at different perplexity values.\
   _Left_: Fowlkes-Mallows Index at different perplexity values,
   _Middle_: Topic Interpretability Score at different values of Perplexity,
@@ -314,8 +330,8 @@ Keep in mind, that while BERTopic and Top2Vec improve with higher values, their 
 ],
 ) <perplexity_robustness>
 
-== Subsampling
 
+== Subsampling
 Number of topics, topic quality and cluster quality are displayed on @subsampling.
 Topeax is relatively well-behaved, and converges to the highest performance when it has access to the full corpus.
 The number of topics is also relatively stable across from a sample size of 5000 (hovers around 10-12).
@@ -323,7 +339,7 @@ In contrast, BERTopic and Top2Vec do not converge to a single value of N topics 
 This also has an impact on cluster and topic quality. BERTopic has highest performance on the smallest subsamples (250-1000), while Top2Vec has best performance on a subsample of 5000, both methods decrease in performance as the number of topics grows with sample size. This behaviour is far from ideal, and it is apparent that Topeax is much more reliable at determining the number and structure of clusters in subsampled and full corpora.
 
 #figure(
-  image("figures/subsampling.png", width: 100%),
+  image("figures/robustness_sample_size.png", width: 100%),
   caption: [Topic models' performance at different subsample sizes.\
   _Left_: Fowlkes-Mallows Index as a function of sample size,
   _Middle_: Topic Interpretability Score at different subsamples,
@@ -331,3 +347,109 @@ This also has an impact on cluster and topic quality. BERTopic has highest perfo
 
 ],
 ) <subsampling>
+
+== Qualitative Considerations
+
+As per the experimental evaluations presented above, Topeax systematically underestimates the number of clusters in a given dataset, despite matching the gold labels better as per the Fowlkes-Mallows index.
+This warrants further investigation. A Topeax model was run on 20 Newsgroups with `all-MiniLM-L6-v2` embeddings, where the estimated number of clusters was 11, while the original dataset contains data from 20 categories, as suggested by its name.
+Adjusted mutual information was calculated between each topic discovered by the model and each newsgroup (see @20ng_groups).
+
+#figure(
+  image("figures/20ng_groups.png", width: 100%),
+  caption: [Topeax model fit on the 20 Newsgroups Corpus in relation to the gold labels provided in the corpus.\
+  _Left_: Density estimate and density peaks annotated with top 4 keywords from each topic.\
+  _Right_: Adjusted Mutual Information between cluster labels in the model, and gold labels in the corpus.
+],
+) <20ng_groups>
+While, indeed the number of clusters is less than the categories in the original dataset, the clustering provided by Topeax is arguably just as natural.
+Most clusters ended up compressing information from one or two newsgroups, that were in some way related.
+For instance the `1_god_atheism_christians_christianity` topic contained documents from `alt.atheism`, `talk.religion.misc` and `soc.religion.christian`, thereby combining discourse on religion into a single topic. Likewise `6_car_bikes_bmw` compresses the `rec.autos` and `rec.motorcycles` newsgroups.
+In addition, the model uncovered a topic of outlier documents (`7_yer_umm_ahh__i_`), which were either empty, or only contained a few words, no coherent sentences.
+
+Meanwhile, BERTopic discovered 232, and Top2Vec 145 topics in the same corpus using the same embeddings, while labelling 34.15% and 35.07% of documents as outliers respectively.
+While different users and use cases might have different tolerance levels for time spent on analyzing topics, and the number of outliers, this behaviour seems far from ideal under most circumstances.
+Interpreting, and labelling the topics would take a considerable amount of time in both cases.
+In addition, regarding more than a third of documents as outliers means that a substantial amount of information is not covered by these models.
+This will inevitably prompt users of these topic models to a) hierarchically reduce topics, where they are required to specify the number of topics or b) fiddle with hyperparameters until they arrive at a result they deem sensible.
+It is thus questionable, how much these models are at all able to identify the number of natural clusters in a corpus, and until better and more rigorous heuristics are established for hyperparameter selection, their use remains highly subjective and circular.
+
+= Conclusion
+
+I propose a novel method, Topeax for finding natural clusters in text data, and assigning keywords to these clusters
+based on peak finding in kernel-density estimates.
+The model is compared to popular clustering topic models, Top2Vec and BERTopic on a number of clustering datasets from the Massive Text Embedding Benchmark.
+In addition, models' robustness and stability to sample size and hyperparameter choices is evaluated.
+Topeax approximates human clusterings significantly more faithfully than previous approaches and describes topics with more diverse and coherent keywords.
+Furthermore, the model exhibits much more sensible behaviour under changing circumstances and hyperparameters.
+It is found, however, that Topeax underestimates the number of clusters systematically.
+Qualitative investigation suggests that this is due to the model grouping together related clusters in the case of 20 Newsgroups.
+In light of these findings, Topeax seems a better choice for text clustering, 
+
+= Limitations
+
+While the model has been shown to perform better than the baselines discussed, there are a number of issues it still exhibits:
++ Topeax underestimates the number of clusters, compared to humans.
++ The model, as of now, cannot be used in an online setting, when new topics have are as new information comes in.
+
+Some of these issues might be addressed by using emerging dimensionality reduction techniques that allow for aligning between multiple datasets, and projection of out-of-distribution points.
+These issues should be subject to further investigation.
+
+In addition the evaluation methodology also has a number of limitations of its own:
++ Quantitative metrics of topic quality, while roughly correlate with human preference, do not perfectly capture interpretability. Preferably, future research should evaluate topic quality with human subjects.
++ Subsampling and perplexity were only tested on the 20NG corpus in the interest of time and compute. This is of course a limitation, and evaluation on multiple corpora would be preferable.
+
+#pagebreak()
+#heading(level:1, numbering: none, "Appendix")
+
+#show: appendix
+
+= Example code <example_code>
+
+Due to the model being implemented in Turftopic,
+it is very easy to run on a new corpus. One first has to install the package:
+
+```bash
+pip install turftopic
+```
+
+Then run fit the model to a corpus, here's an example with 20 Newsgroups:
+
+```python
+from sklearn.datasets import fetch_20newsgroups
+from turftopic import Topeax
+
+ds = fetch_20newsgroups(
+    subset="all",
+    remove=("headers", "footers", "quotes"),
+)
+corpus = ds.data
+
+model = Topeax()
+model.fit(corpus)
+model.print_topics()
+```
+
+#figure(
+  caption: [Topics found in the 20 Newsgroups corpus],
+  table(
+    columns: 2,
+    stroke: none,
+    align: (right, left),
+    table.hline(),
+    table.header([ *ID* ], [*Highest Ranking*]),
+    table.hline(),
+    [ 0 ], [armenians, armenian, israel, israeli, jews, genocide, turkish, palestinians, palestinian, israelis ],
+    [ 1 ], [god, christians, atheism, christianity, bible, scripture, christian, theology, faith, church ],
+    [ 2 ], [ pitching, pitcher, hitter, baseball, braves, batting, pitchers, cubs, sox, fielder ],
+    [ 3] ,[ hockey, nhl, puck, leafs, sabres, bruins, flyers, islanders, team, canucks ],
+    [ 4],[ gun, guns, militia, amendment, firearms, homicides, nra, fbi, crime, homicide],
+    [ 5],[ patients, disease, medical, treatment, doctor, clinical, vitamin, medicine, treatments, infection ],
+    [ 6],[ car, bike, cars, bmw, honda, engine, motorcycle, ford, dealer, bikes ],
+    [ 7], [yer, umm, ahhh, \_i\_, \_you\_, cheek, expresses, reacted, ths, advertisement ],
+    [ 8], [ ax, nasa, spacecraft, a86, satellite, detectors, satellites, spaceflight, max, langley ],
+    [ 9],[ encryption, nsa, key, privacy, security, clipper, chip, encrypted, crypto, cryptography ],
+    [ 10], [motherboard, scsi, card, ram, mhz, chipset, bios, hardware, monitor, modem ],
+    [ 11],[ windows, xfree86, x11r5, x11, openwindows, jpeg, window, xterm, x11r4, microsoft ],
+    table.hline(),
+  ),
+)
