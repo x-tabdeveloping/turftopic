@@ -708,4 +708,4 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
             )
             fig.add_trace(scatter)
         fig = fig.update_layout(coloraxis=dict(showscale=False))
-        fig.show()
+        return fig
