@@ -28,6 +28,7 @@ from turftopic.multimodal import (
     MultimodalModel,
 )
 from turftopic.optimization import optimize_n_components
+from turftopic.utils import confidence_ellipse
 from turftopic.vectorizers.default import default_vectorizer
 
 FEATURE_IMPORTANCE_METHODS = {
@@ -411,7 +412,11 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
         return plot
 
     def plot_density(
-        self, hover_text: list[str] = None, show_points=False, light_mode=False
+        self,
+        hover_text: list[str] = None,
+        show_keywords=True,
+        show_points=False,
+        light_mode=False,
     ):
         try:
             import plotly.graph_objects as go
@@ -428,9 +433,9 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
             warnings.warn(
                 "Embeddings are not in 2d space, only using first 2 dimensions"
             )
-
-        coord_min, coord_max = np.min(self.reduced_embeddings), np.max(
-            self.reduced_embeddings
+        reduced_embeddings = self.reduced_embeddings[:, :2]
+        coord_min, coord_max = np.min(reduced_embeddings), np.max(
+            reduced_embeddings
         )
         coord_spread = coord_max - coord_min
         coord_min = coord_min - coord_spread * 0.05
@@ -464,8 +469,8 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
         ]
         if show_points:
             scatter = go.Scatter(
-                x=self.reduced_embeddings[:, 0],
-                y=self.reduced_embeddings[:, 1],
+                x=reduced_embeddings[:, 0],
+                y=reduced_embeddings[:, 1],
                 mode="markers",
                 showlegend=False,
                 text=hover_text,
@@ -488,13 +493,14 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
             self.gmm_.means_, self.topic_names, self.get_top_words()
         ):
             _keys = ""
-            for i, key in enumerate(keywords):
-                if (i % 5) == 0:
-                    _keys += "<br> "
-                _keys += key
-                if i < (len(keywords) - 1):
-                    _keys += ","
-                _keys += " "
+            if show_keywords:
+                for i, key in enumerate(keywords):
+                    if (i % 5) == 0:
+                        _keys += "<br> "
+                    _keys += key
+                    if i < (len(keywords) - 1):
+                        _keys += ","
+                    _keys += " "
             text = f"<b>{name}</b> <i>{_keys}</i> "
             fig.add_annotation(
                 text=text,
@@ -510,3 +516,196 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
                 borderwidth=2,
             )
         return fig
+
+    def plot_density_3d(self, show_keywords=False):
+        try:
+            import plotly.graph_objects as go
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+
+        if not hasattr(self, "reduced_embeddings"):
+            raise ValueError(
+                "No reduced embeddings found, can't display in 2d space."
+            )
+        if self.reduced_embeddings.shape[1] != 2:
+            warnings.warn(
+                "Embeddings are not in 2d space, only using first 2 dimensions"
+            )
+        reduced_embeddings = self.reduced_embeddings[:, :2]
+        coord_min, coord_max = np.min(reduced_embeddings), np.max(
+            reduced_embeddings
+        )
+        coord_spread = coord_max - coord_min
+        coord_min = coord_min - coord_spread * 0.05
+        coord_max = coord_max + coord_spread * 0.05
+        coord = np.linspace(coord_min, coord_max, num=100)
+        z = []
+        for yval in coord:
+            points = np.stack([coord, np.full(coord.shape, yval)]).T
+            prob = np.exp(self.gmm_.score_samples(points))
+            z.append(prob)
+        z = np.stack(z)
+        means = self.gmm_.means_
+        means_z = np.exp(self.gmm_.score_samples(means))
+        annotations = []
+        for (x_mean, y_mean), z_mean, name, keywords in zip(
+            means, means_z, self.topic_names, self.get_top_words()
+        ):
+            _keys = ""
+            if show_keywords:
+                for i, key in enumerate(keywords):
+                    if (i % 5) == 0:
+                        _keys += "<br> "
+                    _keys += key
+                    if i < (len(keywords) - 1):
+                        _keys += ","
+                    _keys += " "
+            text = f"<b>{name}</b> <i>{_keys}</i> "
+            annotations.append(
+                dict(
+                    showarrow=True,
+                    x=x_mean,
+                    y=y_mean,
+                    z=z_mean,
+                    text=text,
+                    font=dict(family="Roboto Mono", size=18, color="black"),
+                    bgcolor="rgba(255,255,255,0.9)",
+                    bordercolor="black",
+                    borderwidth=2,
+                )
+            )
+        color_grid = [0.0, 0.25, 0.5, 0.75, 1.0]
+        colorscale = [
+            "#01014B",
+            "#000080",
+            "#5D5DEF",
+            "#B7B7FF",
+            "#ffffff",
+        ]
+        fig = go.Figure(
+            data=[
+                go.Surface(
+                    z=z,
+                    x=coord,
+                    y=coord,
+                    colorscale=list(zip(color_grid, colorscale)),
+                )
+            ]
+        )
+        fig = fig.update_layout(
+            margin=dict(l=0, r=0, b=0, t=0),
+            template="plotly_white",
+            scene=dict(annotations=annotations),
+        )
+        return fig
+
+    def plot_components(
+        self,
+        show_points=False,
+        show_keywords=True,
+        hover_text: Optional[list[str]] = None,
+    ):
+        try:
+            import plotly.express as px
+            import plotly.graph_objects as go
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+
+        if not hasattr(self, "reduced_embeddings"):
+            raise ValueError(
+                "No reduced embeddings found, can't display in 2d space."
+            )
+        if self.reduced_embeddings.shape[1] != 2:
+            warnings.warn(
+                "Embeddings are not in 2d space, only using first 2 dimensions"
+            )
+        reduced_embeddings = self.reduced_embeddings[:, :2]
+        coord_min, coord_max = np.min(reduced_embeddings), np.max(
+            reduced_embeddings
+        )
+        coord_spread = coord_max - coord_min
+        coord_min = coord_min - coord_spread * 0.05
+        coord_max = coord_max + coord_spread * 0.05
+        coord = np.linspace(coord_min, coord_max, num=100)
+        z = []
+        for yval in coord:
+            points = np.stack([coord, np.full(coord.shape, yval)]).T
+            prob = np.exp(self.gmm_.score_samples(points))
+            z.append(prob)
+        z = np.stack(z)
+        fig = go.Figure(
+            [
+                go.Contour(
+                    z=z,
+                    x=coord,
+                    y=coord,
+                    colorscale="Greys",
+                    opacity=0.25,
+                    hoverinfo="skip",
+                    showscale=False,
+                ),
+            ]
+        )
+        gmm_colors = px.colors.qualitative.Antique
+        for i_std, n_std in enumerate(np.linspace(0.1, 3.0, num=5)):
+            for color, mean, cov in zip(
+                gmm_colors, self.gmm_.means_, self.gmm_.covariances_
+            ):
+                fig.add_shape(
+                    type="path",
+                    path=confidence_ellipse(mean, cov, n_std=n_std),
+                    fillcolor=color,
+                    opacity=0.2,
+                )
+        for mean, name, keywords in zip(
+            self.gmm_.means_, self.topic_names, self.get_top_words()
+        ):
+            _keys = ""
+            if show_keywords:
+                for i, key in enumerate(keywords):
+                    if (i % 5) == 0:
+                        _keys += "<br> "
+                    _keys += key
+                    if i < (len(keywords) - 1):
+                        _keys += ","
+                    _keys += " "
+            text = f"<b>{name}</b> <i>{_keys}</i> "
+            fig.add_annotation(
+                text=text,
+                x=mean[0],
+                y=mean[1],
+                align="left",
+                showarrow=False,
+                xshift=0,
+                yshift=50,
+                font=dict(family="Roboto Mono", size=18, color="black"),
+                bgcolor="rgba(255,255,255,0.9)",
+                bordercolor="black",
+                borderwidth=2,
+            )
+        fig = fig.update_layout(
+            margin=dict(l=0, r=0, b=0, t=0),
+            template="plotly_white",
+        )
+        if show_points:
+            scatter = go.Scatter(
+                x=reduced_embeddings[:, 0],
+                y=reduced_embeddings[:, 1],
+                mode="markers",
+                showlegend=False,
+                text=hover_text,
+                marker=dict(
+                    symbol="circle",
+                    opacity=0.5,
+                    color="white",
+                    size=8,
+                    line=dict(width=1),
+                ),
+            )
+            fig.add_trace(scatter)
+        fig = fig.update_layout(coloraxis=dict(showscale=False))
+        fig.show()
