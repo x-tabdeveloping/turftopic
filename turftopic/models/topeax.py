@@ -311,7 +311,6 @@ class Topeax(GMM):
             height=800,
             autosize=False,
             margin=dict(r=0, l=0, t=40, b=0),
-            legend=dict(yanchor="top", y=0.45),
         )
         fig = fig.update_scenes(
             annotations=[
