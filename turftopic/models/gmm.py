@@ -591,6 +591,7 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
                     x=coord,
                     y=coord,
                     colorscale=list(zip(color_grid, colorscale)),
+                    showscale=False,
                 )
             ]
         )
@@ -650,16 +651,24 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
                 ),
             ]
         )
-        gmm_colors = px.colors.qualitative.Antique
+        gmm_colors = px.colors.qualitative.Dark24
         for i_std, n_std in enumerate(np.linspace(0.1, 3.0, num=5)):
-            for color, mean, cov in zip(
-                gmm_colors, self.gmm_.means_, self.gmm_.covariances_
+            for name, color, mean, cov in zip(
+                self.topic_names,
+                gmm_colors,
+                self.gmm_.means_,
+                self.gmm_.covariances_,
             ):
                 fig.add_shape(
+                    legend="legend",
+                    showlegend=False,
                     type="path",
                     path=confidence_ellipse(mean, cov, n_std=n_std),
+                    legendgroup=name,
+                    name=0,
+                    legendwidth=0,
                     fillcolor=color,
-                    opacity=0.2,
+                    opacity=0.1,
                 )
         for mean, name, keywords in zip(
             self.gmm_.means_, self.topic_names, self.get_top_words()
@@ -692,20 +701,36 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
             template="plotly_white",
         )
         if show_points:
-            scatter = go.Scatter(
-                x=reduced_embeddings[:, 0],
-                y=reduced_embeddings[:, 1],
-                mode="markers",
-                showlegend=False,
-                text=hover_text,
-                marker=dict(
-                    symbol="circle",
-                    opacity=0.5,
-                    color="white",
-                    size=8,
-                    line=dict(width=1),
-                ),
-            )
-            fig.add_trace(scatter)
+            for i, (name, color) in enumerate(
+                zip(self.topic_names, gmm_colors)
+            ):
+                include = self.labels_ == i
+                text = (
+                    None
+                    if hover_text is None
+                    else [
+                        text
+                        for text, in_cluster in zip(hover_text, include)
+                        if in_cluster
+                    ]
+                )
+                scatter = go.Scatter(
+                    x=reduced_embeddings[:, 0][include],
+                    y=reduced_embeddings[:, 1][include],
+                    mode="markers",
+                    showlegend=False,
+                    text=text,
+                    name=name,
+                    legendgroup=name,
+                    hovertemplate=f"<b>{name}</b><br>%{{text}}",
+                    marker=dict(
+                        symbol="circle",
+                        opacity=0.5,
+                        color=color,
+                        size=6,
+                        line=dict(width=1),
+                    ),
+                )
+                fig.add_trace(scatter)
         fig = fig.update_layout(coloraxis=dict(showscale=False))
         return fig
