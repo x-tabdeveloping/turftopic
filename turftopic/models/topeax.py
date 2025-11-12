@@ -109,6 +109,7 @@ class Peax(ClusterMixin, BaseEstimator):
         self.classes_ = np.sort(np.unique(self.labels_))
         self.means_ = self.gmm_.means_
         self.weights_ = self.gmm_.weights_
+        self.covariances_ = self.gmm_.covariances_
         return self.labels_
 
     @property
@@ -158,6 +159,7 @@ class Topeax(GMM):
             perplexity=perplexity,
             random_state=random_state,
         )
+        self.perplexity = perplexity
         super().__init__(
             n_components=0,
             encoder=encoder,
@@ -209,3 +211,118 @@ class Topeax(GMM):
     def _init_model(self, n_components: int):
         mixture = Peax()
         return mixture
+
+    def plot_steps(self, hover_text=None):
+        try:
+            import plotly.express as px
+            from plotly.subplots import make_subplots
+        except (ImportError, ModuleNotFoundError) as e:
+            raise ModuleNotFoundError(
+                "Please install plotly if you intend to use plots in Turftopic."
+            ) from e
+        dens_3d = self.plot_density_3d()
+        component_plot = self.plot_components(
+            show_points=True, hover_text=hover_text
+        )
+        points_plot = px.scatter(
+            x=self.reduced_embeddings[:, 0],
+            y=self.reduced_embeddings[:, 1],
+            template="plotly_white",
+        )
+        points_plot = points_plot.update_layout(
+            margin=dict(l=0, r=0, b=0, t=0),
+        )
+        points_plot = points_plot.update_traces(
+            marker=dict(
+                color="#B7B7FF",
+                size=6,
+                opacity=0.5,
+                line=dict(color="#01014B", width=2),
+            )
+        )
+        colormap = {
+            name: color
+            for name, color in zip(
+                self.topic_names, px.colors.qualitative.Dark24
+            )
+        }
+        bar = px.bar(
+            y=self.topic_names,
+            x=self.weights_,
+            template="plotly_white",
+            color_discrete_map=colormap,
+            color=self.topic_names,
+            text=[f"{p:.2f}" for p in self.weights_],
+        )
+        bar = bar.update_traces(
+            marker_line_color="black",
+            marker_line_width=1.5,
+            opacity=0.8,
+        )
+
+        def update_annotation(a):
+            name = a.text.removeprefix("<b>").split("<")[0]
+            return a.update(
+                # text=name,
+                font=dict(size=8, color=colormap[name]),
+                arrowsize=1,
+                arrowhead=1,
+                arrowwidth=1,
+                bgcolor=None,
+                opacity=0.7,
+                # bgcolor=colormap[name],
+                bordercolor=colormap[name],
+                borderwidth=0,
+            )
+
+        fig = make_subplots(
+            horizontal_spacing=0.0,
+            vertical_spacing=0.1,
+            rows=2,
+            cols=2,
+            subplot_titles=[
+                "t-SN Embeddings",
+                "Peaks in Kernel Density Estimate",
+                "Gaussian Mixture Approximation",
+                "Component Probabilities",
+            ],
+            specs=[
+                [
+                    {"type": "xy"},
+                    {"type": "surface"},
+                ],
+                [
+                    {"type": "xy"},
+                    {"type": "bar"},
+                ],
+            ],
+        )
+        for i, sub in enumerate([points_plot, dens_3d, component_plot, bar]):
+            row = i // 2
+            col = i % 2
+            for trace in sub.data:
+                fig.add_trace(trace, row=row + 1, col=col + 1)
+            for shape in sub.layout.shapes:
+                fig.add_shape(shape, row=row + 1, col=col + 1)
+        fig = fig.update_layout(
+            template="plotly_white",
+            font=dict(family="Merriweather", size=14, color="black"),
+            width=1200,
+            height=800,
+            autosize=False,
+            margin=dict(r=0, l=0, t=40, b=0),
+        )
+        fig = fig.update_scenes(
+            annotations=[
+                update_annotation(annotation)
+                for annotation in dens_3d.layout.scene.annotations
+            ],
+            col=2,
+            row=1,
+        )
+        fig = fig.for_each_annotation(lambda a: a.update(yshift=0))
+        fig = fig.update_yaxes(visible=False, row=2, col=2)
+        fig = fig.update_xaxes(
+            title=dict(text="$P(z)$", font=dict(size=16)), row=2, col=2
+        )
+        return fig
