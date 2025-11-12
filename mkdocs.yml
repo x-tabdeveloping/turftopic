@@ -26,6 +26,7 @@ nav:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md
     - KeyNMF: KeyNMF.md
+    - Topeax: Topeax.md
     - GMM: GMM.md
     - Clustering Models (BERTopic & Top2Vec): clustering.md
     - Autoencoding Models (ZeroShotTM & CombinedTM): ctm.md
