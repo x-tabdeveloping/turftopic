@@ -11,8 +11,10 @@ from sklearn.decomposition import FastICA
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LinearRegression
+from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
+from turftopic._datamapplot import build_datamapplot
 from turftopic.analyzers.base import Analyzer
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
@@ -1114,3 +1116,35 @@ class S4(SemanticSignalSeparation):
             font=dict(family="Merriweather", size=16),
         )
         return fig
+
+    def plot_components_datamapplot(
+        self, hover_text: Optional[list[str]] = None, **kwargs
+    ):
+        """Creates an interactive browser plot of the topics in your data using datamapplot.
+
+        Parameters
+        ----------
+        hover_text: list of str, optional
+            Text to show when hovering over a document.
+
+        Returns
+        -------
+        plot
+            Interactive datamap plot, you can call the `.show()` method to
+            display it in your default browser or save it as static HTML using `.write_html()`.
+        """
+        doc_topic = self.document_topic_matrix
+        coords = TSNE(2, metric="cosine").fit_transform(doc_topic)
+        labels = np.argmax(doc_topic, axis=1)
+        fig = build_datamapplot(
+            coords,
+            labels=labels,
+            topic_names=self.topic_names,
+            top_words=self.get_top_words(),
+            hover_text=hover_text,
+            topic_descriptions=getattr(self, "topic_descriptions", None),
+            classes=np.arange(self.n_components),
+            # Boundaries are unlikely to be very clear
+            cluster_boundary_polygons=False,
+        )
+        fig.show()
