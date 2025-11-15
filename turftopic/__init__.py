@@ -3,7 +3,7 @@ from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel
 from turftopic.error import NotInstalled
 from turftopic.models.cluster import BERTopic, ClusteringTopicModel, Top2Vec
-from turftopic.models.decomp import SemanticSignalSeparation
+from turftopic.models.decomp import S3, S4, SemanticSignalSeparation
 from turftopic.models.fastopic import FASTopic
 from turftopic.models.gmm import GMM
 from turftopic.models.keynmf import KeyNMF
@@ -31,4 +31,6 @@ __all__ = [
     "load_model",
     "build_datamapplot",
     "create_concept_browser",
+    "S3",
+    "S4",
 ]
