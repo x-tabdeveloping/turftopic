@@ -1012,7 +1012,7 @@ class S4(SemanticSignalSeparation):
             "axial", "angular", "combined"
         ] = "combined",
         random_state: Optional[int] = None,
-        sparsity: float = 0.5,
+        sparsity: float = 0.25,
     ):
         decomposition = SNMF(
             n_components,

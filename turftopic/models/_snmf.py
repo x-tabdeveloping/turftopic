@@ -75,7 +75,7 @@ class SNMF(TransformerMixin, BaseEstimator):
         max_iter: int = 200,
         progress_bar: bool = True,
         random_state: Optional[int] = None,
-        l1_reg: float = 0.5,
+        l1_reg: float = 0.0,
     ):
         self.n_components = n_components
         self.tol = tol
