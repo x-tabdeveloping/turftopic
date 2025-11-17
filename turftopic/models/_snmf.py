@@ -120,3 +120,18 @@ class SNMF(TransformerMixin, BaseEstimator):
     def transform(self, X: np.ndarray):
         G = jnp.maximum(X @ jnp.linalg.pinv(self.components_), 0)
         return np.array(G)
+
+    def inverse_transform(self, X):
+        """Transform data back to its original space.
+
+        Parameters
+        ----------
+        X : ndarray of shape (n_samples, n_components)
+            Transformed data matrix.
+
+        Returns
+        -------
+        X_original : ndarray of shape (n_samples, n_features)
+            Returns a data matrix of the original shape.
+        """
+        return X @ self.components_
