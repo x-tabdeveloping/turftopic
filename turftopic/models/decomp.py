@@ -1014,7 +1014,7 @@ class S4(SemanticSignalSeparation):
             "axial", "angular", "combined"
         ] = "combined",
         random_state: Optional[int] = None,
-        sparsity: float = 0.25,
+        sparsity: float = 1,
     ):
         decomposition = SNMF(
             n_components,
@@ -1147,4 +1147,4 @@ class S4(SemanticSignalSeparation):
             # Boundaries are unlikely to be very clear
             cluster_boundary_polygons=False,
         )
-        fig.show()
+        return fig
