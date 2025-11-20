@@ -74,6 +74,7 @@ class SNMF(TransformerMixin, BaseEstimator):
         progress_bar: bool = True,
         random_state: Optional[int] = None,
         l1_reg: float = 0.0,
+        verbose: bool = False,
     ):
         self.n_components = n_components
         self.tol = tol
@@ -81,6 +82,7 @@ class SNMF(TransformerMixin, BaseEstimator):
         self.progress_bar = progress_bar
         self.random_state = random_state
         self.l1_reg = l1_reg
+        self.verbose = verbose
 
     def fit_transform(self, X: np.ndarray, y=None):
         G = init_G(X.T, self.n_components)
@@ -99,13 +101,15 @@ class SNMF(TransformerMixin, BaseEstimator):
             if (error < error_at_init) and (
                 (prev_error - error) / error_at_init
             ) < self.tol:
-                print(f"Converged after {i} iterations")
+                if self.verbose:
+                    print(f"Converged after {i} iterations")
                 self.n_iter_ = i
                 break
             prev_error = error
-            print(
-                f"Iteration: {i}, Error: {error}, init_error: {error_at_init}, difference from previous: {difference}"
-            )
+            if self.verbose:
+                print(
+                    f"Iteration: {i}, Error: {error}, init_error: {error_at_init}, difference from previous: {difference}"
+                )
         else:
             warnings.warn(
                 "SNMF did not converge, try specifying a higher max_iter."
