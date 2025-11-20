@@ -4,8 +4,6 @@ import warnings
 from typing import Optional
 
 import numpy as np
-from datasets import load_dataset
-from sentence_transformers import SentenceTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import label_binarize
