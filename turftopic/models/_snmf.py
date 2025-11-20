@@ -85,7 +85,7 @@ class SNMF(TransformerMixin, BaseEstimator):
         self.verbose = verbose
 
     def fit_transform(self, X: np.ndarray, y=None):
-        G = init_G(X.T, self.n_components)
+        G = init_G(X.T, self.n_components, random_state=self.random_state)
         F = update_F(X.T, G)
         error_at_init = rec_err(X.T, F, G)
         prev_error = error_at_init
