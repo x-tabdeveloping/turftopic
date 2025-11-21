@@ -1,9 +1,8 @@
 import warnings
 from datetime import datetime
-from typing import Iterable, Literal, Optional, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
-from PIL import Image
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
@@ -11,15 +10,12 @@ from sklearn.decomposition import FastICA
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LinearRegression
-from sklearn.manifold import TSNE
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
-from turftopic._datamapplot import build_datamapplot
 from turftopic.analyzers.base import Analyzer
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.models._snmf import SNMF
 from turftopic.multimodal import (
     ImageRepr,
     MultimodalEmbeddings,
@@ -970,181 +966,3 @@ class SemanticSignalSeparation(
 
 # Alias for base class SemanticSignalSeparation
 S3 = SemanticSignalSeparation
-
-
-class S4(SemanticSignalSeparation):
-    """Semi-nonnegative Semantic Signal Separation.
-
-    ```python
-    from turftopic import S4
-
-    corpus: list[str] = ["some text", "more text", ...]
-
-    model = S4(10).fit(corpus)
-    model.print_topics()
-    ```
-
-    Parameters
-    ----------
-    n_components: int, default 10
-        Number of topics.
-    encoder: str or SentenceTransformer
-        Model to encode documents/terms, all-MiniLM-L6-v2 is the default.
-    vectorizer: CountVectorizer, default None
-        Vectorizer used for term extraction.
-        Can be used to prune or filter the vocabulary.
-    max_iter: int, default 200
-        Maximum number of iterations for S-NMF.
-    feature_importance: "axial", "angular" or "combined", default "combined"
-        Defines whether the word's position on an axis ('axial'), it's angle to the axis ('angular')
-        or their combination ('combined') should determine the word's importance for a topic.
-    random_state: int, default None
-        Random state to use so that results are exactly reproducible.
-    """
-
-    def __init__(
-        self,
-        n_components: int = 10,
-        encoder: Union[
-            Encoder, str, MultimodalEncoder
-        ] = "sentence-transformers/all-MiniLM-L6-v2",
-        vectorizer: Optional[CountVectorizer] = None,
-        max_iter: int = 200,
-        feature_importance: Literal[
-            "axial", "angular", "combined"
-        ] = "combined",
-        random_state: Optional[int] = None,
-        sparsity: float = 1,
-    ):
-        decomposition = SNMF(
-            n_components,
-            max_iter=max_iter,
-            random_state=random_state,
-            progress_bar=False,
-            l1_reg=sparsity,
-        )
-        self.sparsity = sparsity
-        super().__init__(
-            n_components=n_components,
-            encoder=encoder,
-            vectorizer=vectorizer,
-            max_iter=max_iter,
-            feature_importance=feature_importance,
-            random_state=random_state,
-            decomposition=decomposition,
-        )
-
-    @property
-    def has_negative_side(self) -> bool:
-        return False
-
-    def plot_topics_over_time(
-        self,
-        top_k: int = 6,
-        color_discrete_sequence: Optional[Iterable[str]] = None,
-        color_discrete_map: Optional[dict[str, str]] = None,
-    ):
-        return ContextualModel.plot_topics_over_time(
-            self, top_k, color_discrete_sequence, color_discrete_map
-        )
-
-    def _topics_over_time(
-        self,
-        top_k: int = 5,
-        show_scores: bool = False,
-        date_format: str = "%Y %m %d",
-    ) -> list[list[str]]:
-        return ContextualModel._topics_over_time(
-            self, top_k, show_scores, date_format
-        )
-
-    def plot_topic_decay(self):
-        try:
-            import plotly.graph_objects as go
-        except (ImportError, ModuleNotFoundError) as e:
-            raise ModuleNotFoundError(
-                "Please install plotly if you intend to use plots in Turftopic."
-            ) from e
-        doc_topic = self.document_topic_matrix
-        topic_proportions = []
-        for dt in doc_topic:
-            sum_dt = dt.sum()
-            if sum_dt > 0:
-                dt /= sum_dt
-            dt = -np.sort(-dt)
-            topic_proportions.append(dt)
-        topic_proportions = np.stack(topic_proportions)
-        med_prop = np.median(topic_proportions, axis=0)
-        upper = np.quantile(topic_proportions, 0.975, axis=0)
-        lower = np.quantile(topic_proportions, 0.025, axis=0)
-        fig = go.Figure(
-            [
-                go.Scatter(
-                    name="Median",
-                    x=np.arange(self.n_components),
-                    y=med_prop,
-                    mode="lines",
-                    line=dict(color="rgb(31, 119, 180)"),
-                ),
-                go.Scatter(
-                    name="Upper Bound",
-                    x=np.arange(self.n_components),
-                    y=upper,
-                    mode="lines",
-                    marker=dict(color="#444"),
-                    line=dict(width=0),
-                    showlegend=False,
-                ),
-                go.Scatter(
-                    name="Lower Bound",
-                    x=np.arange(self.n_components),
-                    y=lower,
-                    marker=dict(color="#444"),
-                    line=dict(width=0),
-                    mode="lines",
-                    fillcolor="rgba(68, 68, 68, 0.3)",
-                    fill="tonexty",
-                    showlegend=False,
-                ),
-            ]
-        )
-        fig = fig.update_layout(
-            template="plotly_white",
-            xaxis_title="Topic Rank",
-            yaxis_title="Topic Proportion",
-            title="Topic Decay",
-            font=dict(family="Merriweather", size=16),
-        )
-        return fig
-
-    def plot_components_datamapplot(
-        self, hover_text: Optional[list[str]] = None, **kwargs
-    ):
-        """Creates an interactive browser plot of the topics in your data using datamapplot.
-
-        Parameters
-        ----------
-        hover_text: list of str, optional
-            Text to show when hovering over a document.
-
-        Returns
-        -------
-        plot
-            Interactive datamap plot, you can call the `.show()` method to
-            display it in your default browser or save it as static HTML using `.write_html()`.
-        """
-        doc_topic = self.document_topic_matrix
-        coords = TSNE(2, metric="cosine").fit_transform(doc_topic)
-        labels = np.argmax(doc_topic, axis=1)
-        fig = build_datamapplot(
-            coords,
-            labels=labels,
-            topic_names=self.topic_names,
-            top_words=self.get_top_words(),
-            hover_text=hover_text,
-            topic_descriptions=getattr(self, "topic_descriptions", None),
-            classes=np.arange(self.n_components),
-            # Boundaries are unlikely to be very clear
-            cluster_boundary_polygons=False,
-        )
-        return fig

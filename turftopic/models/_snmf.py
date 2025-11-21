@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import label_binarize
+from sklearn.utils import check_array
 from tqdm import trange
 
 EPSILON = np.finfo(np.float32).eps
@@ -47,12 +48,12 @@ def update_F(X, G):
 
 
 @jit
-def update_G(X, G, F, l1_reg=0):
+def update_G(X, G, F, sparsity=0):
     pos_xtf, neg_xtf = separate(X.T @ F)
     pos_gftf, neg_gftf = separate(G @ (F.T @ F))
     numerator = pos_xtf + neg_gftf
     denominator = neg_xtf + pos_gftf
-    denominator += l1_reg
+    denominator += sparsity
     denominator = jnp.maximum(denominator, EPSILON)
     delta_G = jnp.sqrt(numerator / denominator)
     G *= delta_G
@@ -73,7 +74,7 @@ class SNMF(TransformerMixin, BaseEstimator):
         max_iter: int = 200,
         progress_bar: bool = True,
         random_state: Optional[int] = None,
-        l1_reg: float = 0.0,
+        sparsity: float = 0.0,
         verbose: bool = False,
     ):
         self.n_components = n_components
@@ -81,7 +82,7 @@ class SNMF(TransformerMixin, BaseEstimator):
         self.max_iter = max_iter
         self.progress_bar = progress_bar
         self.random_state = random_state
-        self.l1_reg = l1_reg
+        self.sparsity = sparsity
         self.verbose = verbose
 
     def fit_transform(self, X: np.ndarray, y=None):
@@ -94,7 +95,7 @@ class SNMF(TransformerMixin, BaseEstimator):
             desc="Iterative updates.",
             disable=not self.progress_bar,
         ):
-            G = update_G(X.T, G, F, self.l1_reg)
+            G = update_G(X.T, G, F, self.sparsity)
             F = update_F(X.T, G)
             error = rec_err(X.T, F, G)
             difference = prev_error - error
@@ -118,6 +119,10 @@ class SNMF(TransformerMixin, BaseEstimator):
         self.reconstruction_err_ = error
         self.n_iter_ = i
         return np.array(G)
+
+    def fit_timeslice(self, X_t: np.ndarray, G_t: np.ndarray):
+        F = update_F(X_t.T, G_t)
+        return F.T
 
     def transform(self, X: np.ndarray):
         G = jnp.maximum(X @ jnp.linalg.pinv(self.components_), 0)
