@@ -18,6 +18,8 @@ from turftopic import (
     FASTopic,
     KeyNMF,
     SemanticSignalSeparation,
+    SensTopic,
+    Topeax,
     load_model,
 )
 
@@ -79,6 +81,8 @@ models = [
     ),
     AutoEncodingTopicModel(3, combined=True),
     FASTopic(3, batch_size=None),
+    SensTopic(),
+    Topeax(),
 ]
 
 dynamic_models = [

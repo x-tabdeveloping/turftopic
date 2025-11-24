@@ -25,6 +25,7 @@ nav:
   - Topic Models:
     - Model Overview: model_overview.md
     - Semantic Signal Separation (S³): s3.md
+    - SensTopic (BETA): SensTopic.md
     - KeyNMF: KeyNMF.md
     - Topeax: Topeax.md
     - GMM: GMM.md

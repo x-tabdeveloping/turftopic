@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Literal, Optional, Union
 
 import numpy as np
-from PIL import Image
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
@@ -131,7 +130,7 @@ class SemanticSignalSeparation(
 
     @property
     def has_negative_side(self) -> bool:
-        return False
+        return True
 
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
@@ -181,6 +180,7 @@ class SemanticSignalSeparation(
             self.negative_documents = self.get_top_documents(
                 raw_documents, document_topic_matrix=doc_topic, positive=False
             )
+            self.document_topic_matrix = doc_topic
             console.log("Model fitting done.")
         return doc_topic
 
@@ -484,7 +484,7 @@ class SemanticSignalSeparation(
         )
         self.temporal_importance_ = np.zeros((n_bins, n_comp))
         whitened_embeddings = np.copy(self.embeddings)
-        if getattr(self.decomposition, "whiten"):
+        if getattr(self.decomposition, "whiten", False):
             whitened_embeddings -= self.decomposition.mean_
         # doc_topic = np.dot(X, self.components_.T)
         for i_timebin in np.unique(time_labels):
@@ -641,19 +641,21 @@ class SemanticSignalSeparation(
 
     def print_topics(
         self,
-        top_k: int = 5,
+        top_k: int = 10,
         show_scores: bool = False,
-        show_negative: bool = True,
+        show_negative: bool = False,
     ):
+        show_negative = self.has_negative_side
         super().print_topics(top_k, show_scores, show_negative)
 
     def export_topics(
         self,
-        top_k: int = 5,
+        top_k: int = 10,
         show_scores: bool = False,
         show_negative: bool = True,
         format: str = "csv",
     ) -> str:
+        show_negative = self.has_negative_side
         return super().export_topics(top_k, show_scores, show_negative, format)
 
     def print_representative_documents(
@@ -661,9 +663,10 @@ class SemanticSignalSeparation(
         topic_id,
         raw_documents,
         document_topic_matrix=None,
-        top_k=5,
-        show_negative: bool = True,
+        top_k=10,
+        show_negative: bool = False,
     ):
+        show_negative = self.has_negative_side
         super().print_representative_documents(
             topic_id,
             raw_documents,
@@ -677,10 +680,11 @@ class SemanticSignalSeparation(
         topic_id,
         raw_documents,
         document_topic_matrix=None,
-        top_k=5,
-        show_negative: bool = True,
+        top_k=10,
+        show_negative: bool = False,
         format: str = "csv",
     ):
+        show_negative = self.has_negative_side
         return super().export_representative_documents(
             topic_id,
             raw_documents,
@@ -958,3 +962,7 @@ class SemanticSignalSeparation(
                 fields.append(concat_words)
             rows.append(fields)
         return [columns, *rows]
+
+
+# Alias for base class SemanticSignalSeparation
+S3 = SemanticSignalSeparation
