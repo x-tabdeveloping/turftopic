@@ -1,35 +1,30 @@
 name: Tests
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+
+on: [push]
 
 jobs:
-  pytest:
+  build:
+
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
-          #
-    # This allows a subsequently queued workflow run to interrupt previous runs
-    concurrency:
-      group: "${{ github.workflow }}-${{ matrix.python-version}}-${{ matrix.os }} @ ${{ github.ref }}"
-      cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v5
+      - name: Set up Python
+        # This is the version of the action for setting up Python, not the Python version.
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          # Semantic version range syntax or exact version of a Python version
+          python-version: '3.11'
+          # Optional - x64 or x86 architecture, defaults to x64
+          architecture: 'x64'
           cache: "pip"
       # You can test your matrix by printing the current Python version
       - name: Display Python version
-        run: python3 -c "import sys; print(sys.version)"
-
-      - name: Install dependencies
-        run: python3 -m pip install --upgrade turftopic[pyro-ppl] pandas pytest plotly igraph datasets pillow
+        run: python -c "import sys; print(sys.version)"
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[dev]
+          pip install pytest
       - name: Run tests
-        run: python3 -m pytest tests/
-
+        run: python -m pytest tests/
