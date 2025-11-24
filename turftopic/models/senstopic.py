@@ -81,6 +81,10 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         or their combination ('combined') should determine the word's importance for a topic.
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
+    sparsity: float, default 1
+        L1 penalty applied to document-topic proportions.
+        Higher values push the model to assign fewer topics to a single document,
+        while lower values will distribute topics across documents.
     """
 
     def __init__(
