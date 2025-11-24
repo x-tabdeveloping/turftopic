@@ -7,7 +7,6 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import label_binarize
-from sklearn.utils import check_array
 from tqdm import trange
 
 EPSILON = np.finfo(np.float32).eps
