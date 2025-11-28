@@ -62,6 +62,7 @@ def rec_err(X, F, G):
     return jnp.linalg.norm(err)
 
 
+@jit
 def step(G, F, X, sparsity=0):
     G = update_G(X.T, G, F, sparsity)
     F = update_F(X.T, G)
@@ -93,7 +94,7 @@ class SNMF(TransformerMixin, BaseEstimator):
         F = update_F(X.T, G)
         error_at_init = rec_err(X.T, F, G)
         prev_error = error_at_init
-        _step = jit(partial(step, sparsity=self.sparsity, X=X))
+        _step = partial(step, sparsity=self.sparsity, X=X)
         for i in trange(
             self.max_iter,
             desc="Iterative updates.",
