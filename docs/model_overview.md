@@ -7,7 +7,7 @@ It is quite important that you choose the right topic model for your use case.
 
 | ⚡ **Speed** | 📖 **Long Documents** | 🐘 **Scalability** | 🔩 **Flexibility** |
 |-------------|-----------------------|--------------------|---------------------|
-| [SemanticSignalSeparation](s3.md) | [KeyNMF](KeyNMF.md) | [KeyNMF](KeyNMF.md) | [ClusteringTopicModel](clustering.md) |
+| [SensTopic](SensTopic.md); [SemanticSignalSeparation](s3.md) | [KeyNMF](KeyNMF.md) | [KeyNMF](KeyNMF.md) | [ClusteringTopicModel](clustering.md) |
 
 _Table 1: You should tailor your model choice to your needs_
 
@@ -53,7 +53,9 @@ In general, the most balanced models are $S^3$, Clustering models with `centroid
 
 | Model | :1234: Multiple Topics per Document  | :hash: Detecting Number of Topics  | :chart_with_upwards_trend: Dynamic Modeling  | :evergreen_tree: Hierarchical Modeling  | :star: Inference over New Documents  | :globe_with_meridians: Cross-Lingual  | :ocean: Online Fitting  |
 | - | - | - | - | - | - | - | - |
-| **[KeyNMF](KeyNMF.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark: |
+| **[KeyNMF](KeyNMF.md)** | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:  | :heavy_check_mark: |
+| **[SensTopic](SensTopic.md)** | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark:  | :x: |
+| **[Topeax](Topeax.md)** | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: | :x: | :x:  | :x: |
 | **[SemanticSignalSeparation](s3.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
 | **[ClusteringTopicModel](clustering.md)** | :x: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: |
 | **[GMM](GMM.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |

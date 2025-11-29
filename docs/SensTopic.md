@@ -12,6 +12,13 @@ If you want to enable hardware acceleration and JIT compilation, make sure to in
 pip install jax
 ```
 
+SensTopic produces the same quality of topics as $S^3$ without having to interpret negative topic descriptions, and also has better scaling properties. Our implementation of SNMF is considerably faster than FastICA, which $S^3$ is based on.
+
+<figure>
+  <iframe src="../images/fastica_vs_nmf.html", title="FastICA vs SNMF runtime on the 20 newsgroups dataset with different number of topics.", style="height:275px;width:625px;padding:0px;border:none;"></iframe>
+  <figcaption> FastICA vs SNMF runtime on the 20 newsgroups dataset with different number of topics. </figcaption>
+</figure>
+
 Here's an example of running SensTopic on the 20 Newsgroups dataset:
 
 ```python
