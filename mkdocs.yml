@@ -24,6 +24,7 @@ nav:
      - Customer Dissatisfaction Analysis: tutorials/reviews.md
   - Topic Models:
     - Model Overview: model_overview.md
+    - Model Leaderboard: benchmark.md
     - Semantic Signal Separation (S³): s3.md
     - SensTopic (BETA): SensTopic.md
     - KeyNMF: KeyNMF.md

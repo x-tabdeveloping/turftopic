@@ -4,7 +4,6 @@ Turftopic contains implementations of a number of contemporary topic models.
 Some of these models might be similar to each other in a lot of aspects, but they might be different in others.
 It is quite important that you choose the right topic model for your use case.
 
-
 | ⚡ **Speed** | 📖 **Long Documents** | 🐘 **Scalability** | 🔩 **Flexibility** |
 |-------------|-----------------------|--------------------|---------------------|
 | [SensTopic](SensTopic.md); [SemanticSignalSeparation](s3.md) | [KeyNMF](KeyNMF.md) | [KeyNMF](KeyNMF.md) | [ClusteringTopicModel](clustering.md) |
