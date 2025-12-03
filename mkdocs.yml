@@ -22,8 +22,9 @@ nav:
      - Discourse Analysis on Morality and Religion: tutorials/religious.md
      - Discovering a Data-driven Political Compass: tutorials/ideologies.md
      - Customer Dissatisfaction Analysis: tutorials/reviews.md
-  - Topic Models:
+  - Topic Models (Overview and Performance):
     - Model Overview: model_overview.md
+    - Model Leaderboard: benchmark.md
     - Semantic Signal Separation (S³): s3.md
     - SensTopic (BETA): SensTopic.md
     - KeyNMF: KeyNMF.md

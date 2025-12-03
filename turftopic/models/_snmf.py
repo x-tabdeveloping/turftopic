@@ -1,6 +1,7 @@
 """This file implements semi-NMF, where doc_topic proportions are not allowed to be negative, but components are unbounded."""
 
 import warnings
+from functools import partial
 from typing import Optional
 
 import numpy as np
@@ -33,7 +34,6 @@ def init_G(
     return G + constant
 
 
-@jit
 def separate(A):
     abs_A = jnp.abs(A)
     pos = (abs_A + A) / 2
@@ -41,12 +41,10 @@ def separate(A):
     return pos, neg
 
 
-@jit
 def update_F(X, G):
     return X @ G @ jnp.linalg.inv(G.T @ G)
 
 
-@jit
 def update_G(X, G, F, sparsity=0):
     pos_xtf, neg_xtf = separate(X.T @ F)
     pos_gftf, neg_gftf = separate(G @ (F.T @ F))
@@ -59,10 +57,17 @@ def update_G(X, G, F, sparsity=0):
     return G
 
 
-@jit
 def rec_err(X, F, G):
     err = X - (F @ G.T)
     return jnp.linalg.norm(err)
+
+
+@jit
+def step(G, F, X, sparsity=0):
+    G = update_G(X.T, G, F, sparsity)
+    F = update_F(X.T, G)
+    error = rec_err(X.T, F, G)
+    return G, F, error
 
 
 class SNMF(TransformerMixin, BaseEstimator):
@@ -89,14 +94,13 @@ class SNMF(TransformerMixin, BaseEstimator):
         F = update_F(X.T, G)
         error_at_init = rec_err(X.T, F, G)
         prev_error = error_at_init
+        _step = partial(step, sparsity=self.sparsity, X=X)
         for i in trange(
             self.max_iter,
             desc="Iterative updates.",
             disable=not self.progress_bar,
         ):
-            G = update_G(X.T, G, F, self.sparsity)
-            F = update_F(X.T, G)
-            error = rec_err(X.T, F, G)
+            G, F, error = _step(G, F)
             difference = prev_error - error
             if (error < error_at_init) and (
                 (prev_error - error) / error_at_init
