@@ -9,8 +9,6 @@ All models were run on an older, but still powerful Dell Precision laptop, with 
 as some models ran out of memory on some of the larger datasets.
 Due to this, and the fact that the scale of the scores is different for different tasks, we present the **average percentile** scores on these metrics in the table bellow.
 
-For models that are able to detect the number of topics, we ran the test with this setting, this is marked as ***(Auto)*** in our tables and plots.
-For models, where users can set the number of topics, we also ran the benchmark setting the correct number of topics a-priori.
 
 ??? info "Click to see Benchmark code"
     ```python
@@ -257,7 +255,6 @@ For models, where users can set the number of topics, we also ran the benchmark 
         print("DONE")
     ```
 
-## Model Performance
 
 <iframe
 	src="https://kardosdrur-turftopic-benchmark-table.hf.space"
@@ -267,6 +264,8 @@ For models, where users can set the number of topics, we also ran the benchmark 
 	height="620"
 ></iframe>
 
+For models that are able to detect the number of topics, we ran the test with this setting, this is marked as ***(Auto)*** in our tables and plots.
+For models, where users can set the number of topics, we also ran the benchmark setting the correct number of topics a-priori.
 
 #### Topic Quality
 
@@ -276,6 +275,19 @@ Out of non-auto models, KeyNMF, GMM, ZeroShotTM, FASTopic and SensTopic did best
 #### Cluster Quality
 
 Clear winners in cluster quality were GMM, Topeax(also GMM-based) and SensTopic. FASTopic also did reasonably well when recovering gold clusters in the data.
+
+<figure >
+  <iframe
+    src="../images/radar_chart.html"
+    frameborder="0"
+    style="padding: 0; margin: 0;"
+    width="1000px"
+    height="520px"
+  ></iframe>
+  <figcaption>Performance profile of all models on different metrics.
+    Top 5 models on average performance are highlighted, click on legend to show the others.
+  </figcaption>
+</figure>
 
 ## Computational Efficiency
 
