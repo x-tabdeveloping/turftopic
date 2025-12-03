@@ -1,7 +1,7 @@
 # Model Leaderboard
 
 To aid you in choosing the best model for your use case, we have made a topic model benchmark and leaderboard.
-The benchmark consists of all English clustering tasks from the most recent version of [MTEB](https://huggingface.co/spaces/mteb/leaderboard), plus a tweet and a news dataset, as these are not present in MTEB.
+The benchmark consists of all English P2P clustering tasks from the most recent version of [MTEB](https://huggingface.co/spaces/mteb/leaderboard), plus a tweet and a news dataset, as these are not present in MTEB.
 
 Models were tested for topic quality using the methodology of [Kardos et al. 2025](https://aclanthology.org/2025.acl-long.32/),
 and cluster quality using adjusted mutual information (AMI), the Fowlkes-Mallows index (FMI) and V-measure scores.
@@ -287,13 +287,14 @@ Clear winners in cluster quality were GMM, Topeax(also GMM-based) and SensTopic.
     width="675px"
     height="420px"
   ></iframe>
-  <figcaption> Figure 1: Speed of Different Models on 20 Newsgroups </figcaption>
 </figure>
 
 #### Speed
 
-We recorded documents per second for each topic model for each run, not including the time it takes to produce embeddings.
-
+We recorded the amount of documents a model could process per second for each of the runs.
+It seems that matrix factorization approaches were fastest ($S^3$, SensTopic, KeyNMF), while neural approaches (FASTopic, ZeroShotTM) the slowest.
+While in our investigations, SensTopic seems slower than SemanticSignalSeparation, it is important to note, that SensTopic has built-in JIT compilation capabilities, once JAX is installed, and is therefore likely to be even faster than $S^3$. For more detail, see [SensTopic](SensTopic.md).
+We plotted model speed versus performance on the interactive graph to the right. Model size represents the Fowlkes-Mallows Index.
 
 <figure style="text-align: center; float: left;">
   <iframe
@@ -303,7 +304,32 @@ We recorded documents per second for each topic model for each run, not includin
     width="475px"
     height="320px"
   ></iframe>
-  <figcaption> Figure 1: Speed of Different Models on 20 Newsgroups </figcaption>
 </figure>
 
 #### Out of Memory
+
+While we did not record memory usage, three models stood out for being unable to complete some of the more challenging tasks on the test hardware.
+FASTopic failed twice, on some of the larger corpora, while Top2Vec and BERTopic had problems when trying to reduce the number of topics to a desired amount.
+This is likely due to the computational and memory burden of hierarchical clustering, and thus we recommend that you do not use topic reduction if you are unsure whether your hardware will be able to handle it.
+If you got your heart set on using FASTopic, we recommend that you get a lot of memory, and preferably a GPU too.
+Unfortunately neural topic modelling still takes a lot of resources to run.
+
+## Discovering the Number of Topics
+
+A number of methods are, in theory, able to discover the number of topics in a dataset.
+We have tested this, and found that this claim is rather exaggerated, especially in the case of BERTopic and Top2Vec,
+which consistently overestimated the number of topics, sometimes by orders of magnitude.
+This effect gets worse with larger corpora.
+Topeax was the most accurate at this task, mostly when run on larger corpora, but it was still very much off most of the time.
+KeyNMF and SensTopic also got reasonably close sometimes, while completely missing the mark in others.
+
+We conclude that this area needs a lot of improvement.
+
+| Model        | ArXivHierarchical (23) | BBCNews (5) | Biorxiv (26) | Medrxiv (51) | StackExchange (524) | TweetTopic (6) | TwentyNewsgroups (20) |
+|--------------|--------------------------|-------------|---------------|---------------|-----------------------|----------------|-------------------------|
+| BERTopic     | **25**                   | 42          | 602           | 1583          | 2542                  | 76             | 1861                    |
+| KeyNMF       | 3                        | **5**       | 250           | 250           | **250**               | <u>2</u>            | <u>10</u>                    |
+| SensTopic    | 8                        | <u>6</u>         | <u>14</u>          | <u>14</u>          | 6                     | 11             | 4                       |
+| Top2Vec      | <u>18</u>                     | 18          | 405           | 1000          | 1495                  | 49             | 1612                    |
+| Topeax       | 6                        | 8           | **19**        | **23**        | <u>21</u>                  | **8**          | **13**                  |
+
