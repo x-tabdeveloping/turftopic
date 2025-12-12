@@ -44,7 +44,7 @@ def detect_peaks(image):
 
 
 class FixedMeanGaussianMixture(GaussianMixture):
-    def _m_step(self, X, log_resp):
+    def _m_step(self, X, log_resp, xp=None):
         # Skipping mean update
         self.weights_, _, self.covariances_ = _estimate_gaussian_parameters(
             X, np.exp(log_resp), self.reg_covar, self.covariance_type
