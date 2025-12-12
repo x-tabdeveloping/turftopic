@@ -1,5 +1,5 @@
 @article{turftopic, doi = {10.21105/joss.08183}, url = {https://doi.org/10.21105/joss.08183}, year = {2025}, publisher = {The Open Journal}, volume = {10}, number = {111}, pages = {8183}, author = {Kardos, Márton and Enevoldsen, Kenneth C. and Kostkan, Jan and Kristensen-McLachlan, Ross Deans and Rocca, Roberta}, title = {Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers}, journal = {Journal of Open Source Software} }
-                                                              //
+
 @article{tsne,
   author  = {Laurens van der Maaten and Geoffrey Hinton},
   title   = {Visualizing Data using t-SNE},
@@ -270,4 +270,54 @@ eprint = {
   abstract = 	 {Many machine learning algorithms require the  input to be represented as a fixed length feature  vector. When it comes to texts, one of the most  common representations is bag-of-words. Despite their popularity, bag-of-words models have  two major weaknesses: they lose the ordering  of the words and they also ignore semantics of  the words. For example, "powerful," "strong"  and "Paris" are equally distant. In this paper,  we propose an unsupervised algorithm that learns  vector representations of sentences and text documents. This algorithm represents each document by a dense vector which is trained to predict  words in the document. Its construction gives our  algorithm the potential to overcome the weaknesses of bag-of-words models. Empirical results show that our technique outperforms bag-of-words models as well as other techniques for  text representations. Finally, we achieve new  state-of-the-art results on several text classification and sentiment analysis tasks.}
 }
 
+@inproceedings{npmi_colloc,
+  title={Normalized (pointwise) mutual information in collocation extraction},
+  author={Gerlof J. Bouma},
+  year={2009},
+  url={https://api.semanticscholar.org/CorpusID:2762657}
+}
+
+@inproceedings{npmi_coherence,
+author = {R\"{o}der, Michael and Both, Andreas and Hinneburg, Alexander},
+title = {Exploring the Space of Topic Coherence Measures},
+year = {2015},
+isbn = {9781450333177},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2684822.2685324},
+doi = {10.1145/2684822.2685324},
+abstract = {Quantifying the coherence of a set of statements is a long standing problem with many potential applications that has attracted researchers from different sciences. The special case of measuring coherence of topics has been recently studied to remedy the problem that topic models give no guaranty on the interpretablity of their output. Several benchmark datasets were produced that record human judgements of the interpretability of topics. We are the first to propose a framework that allows to construct existing word based coherence measures as well as new ones by combining elementary components. We conduct a systematic search of the space of coherence measures using all publicly available topic relevance data for the evaluation. Our results show that new combinations of components outperform existing measures with respect to correlation to human ratings. nFinally, we outline how our results can be transferred to further applications in the context of text mining, information retrieval and the world wide web.},
+booktitle = {Proceedings of the Eighth ACM International Conference on Web Search and Data Mining},
+pages = {399–408},
+numpages = {10},
+keywords = {topic coherence, topic evaluation, topic model},
+location = {Shanghai, China},
+series = {WSDM '15}
+}
+
+@article{tweet_dataset,
+  title={Finding Core Topics: Topic Extraction with Clustering on Tweet},
+  author={Sungchul Kim and Sungho Jeon and Jinha Kim and Young-Ho Park and Hwanjo Yu},
+  journal={2012 Second International Conference on Cloud and Green Computing},
+  year={2012},
+  pages={777-782},
+  url={https://api.semanticscholar.org/CorpusID:7986603}
+}
+
+@inproceedings{bbc_news_dataset,
+author = {Greene, Derek and Cunningham, P\'{a}draig},
+title = {Practical solutions to the problem of diagonal dominance in kernel document clustering},
+year = {2006},
+isbn = {1595933832},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/1143844.1143892},
+doi = {10.1145/1143844.1143892},
+abstract = {In supervised kernel methods, it has been observed that the performance of the SVM classifier is poor in cases where the diagonal entries of the Gram matrix are large relative to the off-diagonal entries. This problem, referred to as diagonal dominance, often occurs when certain kernel functions are applied to sparse high-dimensional data, such as text corpora. In this paper we investigate the implications of diagonal dominance for unsupervised kernel methods, specifically in the task of document clustering. We propose a selection of strategies for addressing this issue, and evaluate their effectiveness in producing more accurate and stable clusterings.},
+booktitle = {Proceedings of the 23rd International Conference on Machine Learning},
+pages = {377–384},
+numpages = {8},
+location = {Pittsburgh, Pennsylvania, USA},
+series = {ICML '06}
+}
 @article{umap, title={Uniform manifold approximation and projection}, volume={4}, url={https://www.nature.com/articles/s43586-024-00363-x#citeas}, DOI={10.1038/s43586-024-00363-x}, number={1}, journal={Nature Reviews Methods Primers}, author={Healy, John and McInnes, Leland}, year={2024}, month=nov }
