@@ -43,7 +43,28 @@ theme:
     text: Ubuntu
   navigation_depth: 3
   palette:
-    primary: '#01034A'
+    # System preference (auto)
+    - media: "(prefers-color-scheme)"
+      scheme: default
+      primary: '#01034A'
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: '#01034A'
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
   features:
       - toc.integrate
       - navigation.tabs
