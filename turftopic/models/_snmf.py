@@ -54,6 +54,7 @@ def update_G(X, G, F, sparsity=0):
     denominator = jnp.maximum(denominator, EPSILON)
     delta_G = jnp.sqrt(numerator / denominator)
     G *= delta_G
+    G = G / jnp.linalg.norm(G)
     return G
 
 
@@ -128,7 +129,24 @@ class SNMF(TransformerMixin, BaseEstimator):
         return F.T
 
     def transform(self, X: np.ndarray):
-        G = jnp.maximum(X @ jnp.linalg.pinv(self.components_), 0)
+        G = init_G(
+            X.T,
+            n_components=self.n_components,
+            random_state=self.random_state,
+        )
+        F = self.components_T
+        update = jit(lambda G: update_G(X.T, G, F, sparsity=self.sparsity))
+        error_at_init = rec_err(X.T, F, G)
+        prev_error = error_at_init
+        for i in range(self.max_iter):
+            G = update(G)
+            err = rec_err(X.T, F, G)
+            if (err < error_at_init) and (
+                (prev_error - err) / error_at_init
+            ) < self.tol:
+                if self.verbose:
+                    print(f"Converged after {i} iterations")
+                break
         return np.array(G)
 
     def inverse_transform(self, X):
