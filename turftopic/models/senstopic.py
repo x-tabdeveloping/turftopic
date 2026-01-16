@@ -205,6 +205,11 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             console.log("Model fitting done.")
         return doc_topic
 
+    def transform(self, raw_documents, embeddings=None):
+        if embeddings is None:
+            embeddings = self.encoder_.encode(raw_documents)
+        return self.decomposition.transform(embeddings)
+
     def fit_transform_multimodal(
         self,
         raw_documents: list[str],
