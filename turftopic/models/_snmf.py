@@ -134,7 +134,7 @@ class SNMF(TransformerMixin, BaseEstimator):
             n_components=self.n_components,
             random_state=self.random_state,
         )
-        F = self.components_T
+        F = self.components_.T
         update = jit(lambda G: update_G(X.T, G, F, sparsity=self.sparsity))
         error_at_init = rec_err(X.T, F, G)
         prev_error = error_at_init
