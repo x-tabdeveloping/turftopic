@@ -18,43 +18,63 @@ def batched(iterable, n: int) -> Iterable[List[str]]:
 
 def encode_chunks(
     encoder,
-    sentences,
+    texts,
     batch_size=64,
     window_size=50,
     step_size=40,
-    return_chunks=False,
-    show_progress_bar=False,
 ):
-    chunks = []
+    """
+    Returns
+    -------
+    chunk_embeddings: list[np.ndarray]
+        Embedding matrix of chunks for each document.
+    chunk_positions: list[list[tuple[int, int]]]
+        List of start and end character index of chunks for each document.
+    """
+    chunk_positions = []
     chunk_embeddings = []
     for start_index in trange(
         0,
-        len(sentences),
+        len(texts),
         batch_size,
         desc="Encoding batches...",
-        disable=not show_progress_bar,
     ):
-        batch = sentences[start_index : start_index + batch_size]
+        batch = texts[start_index : start_index + batch_size]
         features = encoder.tokenize(batch)
         with torch.no_grad():
             output_features = encoder.forward(features)
         n_tokens = output_features["attention_mask"].sum(axis=1)
+        # Find first nonzero elements in each document
+        # The document could be padded from the left, so we have to watch out for this.
+        start_token = torch.argmax(
+            (output_features["attention_mask"] > 0).to(torch.long), axis=1
+        )
+        end_token = start_token + n_tokens
         for i_doc in range(len(batch)):
-            for chunk_start in range(0, n_tokens[i_doc], step_size):
-                chunk_end = min(chunk_start + window_size, n_tokens[i_doc])
+            _chunk_embeddings = []
+            _chunk_positions = []
+            for chunk_start in range(
+                start_token[i_doc], end_token[i_doc], step_size
+            ):
+                chunk_end = min(chunk_start + window_size, end_token[i_doc])
                 _emb = output_features["token_embeddings"][
                     i_doc, chunk_start:chunk_end, :
                 ].mean(axis=0)
-                chunk_embeddings.append(_emb)
-                if return_chunks:
-                    chunks.append(
-                        encoder.tokenizer.decode(
-                            features["input_ids"][i_doc, chunk_start:chunk_end]
-                        )
-                        .replace("[CLS]", "")
-                        .replace("[SEP]", "")
+                _chunk_embeddings.append(_emb)
+                chunk_text = (
+                    encoder.tokenizer.decode(
+                        features["input_ids"][i_doc, chunk_start:chunk_end],
+                        skip_special_tokens=True,
                     )
-    if not return_chunks:
-        chunks = None
-    chunk_embeddings = np.stack(chunk_embeddings)
-    return chunk_embeddings, chunks
+                    .replace("[CLS]", "")
+                    .replace("[SEP]", "")
+                    .strip()
+                )
+                doc_text = texts[start_index + i_doc]
+                start_char = doc_text.find(chunk_text)
+                end_char = start_char + len(chunk_text)
+                _chunk_positions.append((start_char, end_char))
+            _chunk_embeddings = np.stack(_chunk_embeddings)
+            chunk_embeddings.append(_chunk_embeddings)
+            chunk_positions.append(_chunk_positions)
+    return chunk_embeddings, chunk_positions
