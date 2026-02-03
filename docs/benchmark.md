@@ -345,3 +345,16 @@ We conclude that this area needs a lot of improvement.
 | Top2Vec      | <u>18</u>                     | 18          | 405           | 1000          | 1495                  | 49             | 1612                    |
 | Topeax       | 6                        | 8           | **19**        | **23**        | <u>21</u>                  | **8**          | **13**                  |
 
+## Cite the Leaderboard
+
+If you intend to reference the Topic Leaderboard in your research, please cite us:
+
+```bibtex
+@online{TopicLeaderboard2026,
+  title     = {The Topic Model Leaderboard},
+  author    = {Márton Kardos},
+  year      = 2026,
+  url       = {https://x-tabdeveloping.github.io/turftopic/benchmark/},
+  urldate   = {2026-02-03}
+}
+```
