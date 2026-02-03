@@ -1,0 +1,1552 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An all-in-one library for topic modeling with sentence embeddings.">
+      
+      
+      
+      
+        <link rel="prev" href="../concept_induction/">
+      
+      
+        <link rel="next" href="../persistence/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
+    
+    
+      
+        <title>Modifying and Finetuning Models - Turftopic</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Ubuntu";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#modifying-and-finetuning-models" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Turftopic" class="md-header__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="../images/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Turftopic
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Modifying and Finetuning Models
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href=".." class="md-tabs__link">
+          
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../tutorials/overview/" class="md-tabs__link">
+          
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../model_overview/" class="md-tabs__link">
+          
+  
+    
+  
+  Topic Models (Overview and Performance)
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../encoders/" class="md-tabs__link">
+        
+  
+    
+  
+  Embedding Models
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../vectorizers/" class="md-tabs__link">
+        
+  
+    
+  
+  Vectorizers (Term extraction)
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../analyzers/" class="md-tabs__link">
+        
+  
+    
+  
+  Topic Analysis and Naming with LLMs
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Turftopic" class="md-nav__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="../images/logo.svg" alt="logo">
+
+    </a>
+    Turftopic
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    User Guide
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_definition_and_training/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Defining and Fitting Topic Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_interpretation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Interpreting and Visualizing Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../seeded/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Seeded Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dynamic Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../online/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Online Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hierarchical/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hierarchical Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_lingual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cross-Lingual Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multimodal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multimodal Modeling (BETA)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concept_induction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concept Induction (BETA)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Modifying and Finetuning Models
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Modifying and Finetuning Models
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#namingrenaming-topics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Naming/renaming topics
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changing-the-number-of-topics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changing the number of topics
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#finetuning-models-on-a-new-corpus" class="md-nav__link">
+    <span class="md-ellipsis">
+      Finetuning models on a new corpus.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#re-estimating-word-importance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Re-estimating word importance
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../persistence/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Saving and Loading
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topic_data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using TopicData
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tutorial Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/arxiv_ml/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Analyzing the Landscape of Machine Learning Research
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/religious/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Discourse Analysis on Morality and Religion
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/ideologies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Discovering a Data-driven Political Compass
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/reviews/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Customer Dissatisfaction Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Topic Models (Overview and Performance)
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Topic Models (Overview and Performance)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmark/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model Leaderboard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Semantic Signal Separation (S³)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SensTopic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SensTopic (BETA)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KeyNMF/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KeyNMF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Topeax/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Topeax
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GMM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GMM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clustering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clustering Models (BERTopic & Top2Vec)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ctm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Autoencoding Models (ZeroShotTM & CombinedTM)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FASTopic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FASTopic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../encoders/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Embedding Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vectorizers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Vectorizers (Term extraction)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analyzers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Topic Analysis and Naming with LLMs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="modifying-and-finetuning-models">Modifying and finetuning models</h1>
+<p>Some models in Turftopic can be flexibly modified after being fitted.
+This allows users to fit pretrained topic models to their specific use cases.</p>
+<h2 id="namingrenaming-topics">Naming/renaming topics</h2>
+<p>Topics can be freely renamed in all topic models.
+This can be beneficial when interpreting models, as it allows you to assign labels to the topics you've already looked at. </p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+
+<span class="c1"># you can specify a dict mapping IDs to names</span>
+<span class="n">model</span><span class="o">.</span><span class="n">rename_topics</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;New name for topic 0&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;New name for topic 5&quot;</span><span class="p">})</span>
+<span class="c1"># or a list of topic names</span>
+<span class="n">model</span><span class="o">.</span><span class="n">rename_topics</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;Topic </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)])</span>
+</code></pre></div>
+<p>You can also automatically name topics with an <a href="../analyzers/">analyzer</a> large language model.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.analyzers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMAnalyzer</span>
+
+<span class="n">analyzer</span> <span class="o">=</span> <span class="n">LLMAnalyzer</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">rename_topics</span><span class="p">(</span><span class="n">analyzer</span><span class="p">,</span> <span class="n">use_documents</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="changing-the-number-of-topics">Changing the number of topics</h2>
+<p>Multiple models allow you to change the number of topics in a model after fitting them.</p>
+<h3 id="refitting-s3-with-different-number-of-topics">Refitting <span class="arithmatex">\(S^3\)</span> with different number of topics</h3>
+<p><span class="arithmatex">\(S^3\)</span> models store all information that is needed to refit them using a different number of topics, iterations or random seed.
+This process is incredibly fast and allows you to explore semantics in a corpora on multiple levels of detail.
+Moreover, any model you load from a third party can be refitted at will.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_model</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;hf_user/some_s3_model&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+<span class="c1"># turftopic.models.decomp.SemanticSignalSeparation</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">topic_names</span><span class="p">))</span>
+<span class="c1"># 10</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">refit</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">topic_names</span><span class="p">))</span>
+<span class="c1"># 20</span>
+</code></pre></div>
+<h3 id="merging-topics-in-clustering-models">Merging topics in clustering models</h3>
+<p>Clustering models are very flexible in this regard, as they allow you to merge clusters after the model has been fitted.</p>
+<h4 id="manual-topic-merging">Manual topic merging</h4>
+<p>You can merge topics manually in a clustering model by using the <code>join_topics()</code> method:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+
+<span class="c1"># This will join topic 0, 5 and 4 into topic 0</span>
+<span class="n">model</span><span class="o">.</span><span class="n">join_topics</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+</code></pre></div>
+<h4 id="hierarchical-merging">Hierarchical merging</h4>
+<p>You can also merge clusters automatically into a desired number of topics.
+This can be done with the <code>reduce_topics()</code> method:</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>For more info on topic merging methods, check out <a href="../clustering/">this page</a></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">reduce_topics</span><span class="p">(</span><span class="n">n_reduce_to</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">reduction_method</span><span class="o">=</span><span class="s2">&quot;smallest&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="finetuning-models-on-a-new-corpus">Finetuning models on a new corpus.</h2>
+<p>Currently, you can only finetune KeyNMF to a new corpus.
+You can do this by using the <code>partial_fit()</code> method on texts the model hasn't seen before:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_model</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;pretrained_keynmf_model&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">))</span>
+<span class="c1"># turftopic.models.keynmf.KeyNMF</span>
+
+<span class="n">new_corpus</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="c1"># Finetune the model to the new corpus</span>
+<span class="n">model</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">new_corpus</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">to_disk</span><span class="p">(</span><span class="s2">&quot;finetuned_model/&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="re-estimating-word-importance">Re-estimating word importance</h2>
+<p>Both <span class="arithmatex">\(S^3\)</span> and Clustering models come with multiple ways of estimating the importance of words for topics.
+Since both of these models use post-hoc measures, these scores can be calculated without fitting a new model or refitting an old one.
+This allows you to play around with different types of feature importance estimation measures for the same model (same underlying clusters or axes).</p>
+<p>Here's an example with <span class="arithmatex">\(S^3\)</span>:
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticSignalSeparation</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">SemanticSignalSeparation</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;combined&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+<span class="err">┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓</span>
+<span class="err">┃</span> <span class="n">Topic</span> <span class="n">ID</span> <span class="err">┃</span> <span class="n">Highest</span> <span class="n">Ranking</span>                                              <span class="err">┃</span> <span class="n">Lowest</span> <span class="n">Ranking</span>                                        <span class="err">┃</span>
+<span class="err">┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩</span>
+<span class="err">│</span>        <span class="mi">0</span> <span class="err">│</span> <span class="n">hypocrisy</span><span class="p">,</span> <span class="n">hypocritical</span><span class="p">,</span> <span class="n">fallacy</span><span class="p">,</span> <span class="n">debated</span><span class="p">,</span> <span class="n">skeptics</span>          <span class="err">│</span> <span class="n">xfree86</span><span class="p">,</span> <span class="n">emulator</span><span class="p">,</span> <span class="n">codes</span><span class="p">,</span> <span class="mi">9600</span><span class="p">,</span> <span class="n">cd300</span>                 <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">1</span> <span class="err">│</span> <span class="n">spectrometer</span><span class="p">,</span> <span class="n">dblspace</span><span class="p">,</span> <span class="n">statistically</span><span class="p">,</span> <span class="n">nutritional</span><span class="p">,</span> <span class="n">makefile</span> <span class="err">│</span> <span class="n">uh</span><span class="p">,</span> <span class="n">um</span><span class="p">,</span> <span class="n">yeah</span><span class="p">,</span> <span class="n">hm</span><span class="p">,</span> <span class="n">oh</span>                                  <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">2</span> <span class="err">│</span> <span class="n">bullpen</span><span class="p">,</span> <span class="n">goaltenders</span><span class="p">,</span> <span class="n">pitchers</span><span class="p">,</span> <span class="n">goaltender</span><span class="p">,</span> <span class="n">pitching</span>         <span class="err">│</span> <span class="n">intel</span><span class="p">,</span> <span class="n">nsa</span><span class="p">,</span> <span class="n">spying</span><span class="p">,</span> <span class="n">encrypt</span><span class="p">,</span> <span class="n">terrorism</span>                <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">3</span> <span class="err">│</span> <span class="n">espionage</span><span class="p">,</span> <span class="n">wiretapping</span><span class="p">,</span> <span class="n">cia</span><span class="p">,</span> <span class="n">fbi</span><span class="p">,</span> <span class="n">wiretaps</span>                   <span class="err">│</span> <span class="n">agnosticism</span><span class="p">,</span> <span class="n">agnostic</span><span class="p">,</span> <span class="n">upgrading</span><span class="p">,</span> <span class="n">affordable</span><span class="p">,</span> <span class="n">cheaper</span> <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">4</span> <span class="err">│</span> <span class="n">affordable</span><span class="p">,</span> <span class="n">dealers</span><span class="p">,</span> <span class="n">warrants</span><span class="p">,</span> <span class="n">handguns</span><span class="p">,</span> <span class="n">dealership</span>          <span class="err">│</span> <span class="n">semitic</span><span class="p">,</span> <span class="n">theologians</span><span class="p">,</span> <span class="n">judaism</span><span class="p">,</span> <span class="n">persecuted</span><span class="p">,</span> <span class="n">pagan</span>      <span class="err">│</span>
+<span class="err">└──────────┴──────────────────────────────────────────────────────────────┴───────────────────────────────────────────────────────┘</span>
+
+
+<span class="n">model</span><span class="o">.</span><span class="n">estimate_components</span><span class="p">(</span><span class="s2">&quot;angular&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+<span class="err">┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓</span>
+<span class="err">┃</span> <span class="n">Topic</span> <span class="n">ID</span> <span class="err">┃</span> <span class="n">Highest</span> <span class="n">Ranking</span>                                              <span class="err">┃</span> <span class="n">Lowest</span> <span class="n">Ranking</span>                                           <span class="err">┃</span>
+<span class="err">┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩</span>
+<span class="err">│</span>        <span class="mi">0</span> <span class="err">│</span> <span class="n">hypocritical</span><span class="p">,</span> <span class="n">debated</span><span class="p">,</span> <span class="n">hypotheses</span><span class="p">,</span> <span class="n">misconceptions</span><span class="p">,</span> <span class="n">fallacy</span>   <span class="err">│</span> <span class="n">diagnostics</span><span class="p">,</span> <span class="n">win31</span><span class="p">,</span> <span class="n">modems</span><span class="p">,</span> <span class="n">cd300</span><span class="p">,</span> <span class="n">gd3004</span>                <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">1</span> <span class="err">│</span> <span class="n">spectrometer</span><span class="p">,</span> <span class="n">dblspace</span><span class="p">,</span> <span class="n">statistically</span><span class="p">,</span> <span class="n">makefile</span><span class="p">,</span> <span class="n">nutritional</span> <span class="err">│</span> <span class="n">ye</span><span class="p">,</span> <span class="n">sub</span><span class="p">,</span> <span class="n">naked</span><span class="p">,</span> <span class="n">experiences</span><span class="p">,</span> <span class="n">uh</span>                          <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">2</span> <span class="err">│</span> <span class="n">bullpen</span><span class="p">,</span> <span class="n">puckett</span><span class="p">,</span> <span class="n">hitters</span><span class="p">,</span> <span class="n">clemens</span><span class="p">,</span> <span class="n">jenks</span>                    <span class="err">│</span> <span class="n">encryption</span><span class="p">,</span> <span class="n">encrypt</span><span class="p">,</span> <span class="n">intel</span><span class="p">,</span> <span class="n">cryptosystem</span><span class="p">,</span> <span class="n">cryptosystems</span>  <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">3</span> <span class="err">│</span> <span class="n">journalists</span><span class="p">,</span> <span class="n">cdc</span><span class="p">,</span> <span class="n">chlorine</span><span class="p">,</span> <span class="n">npr</span><span class="p">,</span> <span class="n">briefing</span>                    <span class="err">│</span> <span class="n">values</span><span class="p">,</span> <span class="n">ratios</span><span class="p">,</span> <span class="n">upgrading</span><span class="p">,</span> <span class="n">calculations</span><span class="p">,</span> <span class="n">inherit</span>         <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">4</span> <span class="err">│</span> <span class="n">handguns</span><span class="p">,</span> <span class="n">warrants</span><span class="p">,</span> <span class="n">warranty</span><span class="p">,</span> <span class="n">reliability</span><span class="p">,</span> <span class="n">handgun</span>           <span class="err">│</span> <span class="n">nutritional</span><span class="p">,</span> <span class="n">metabolism</span><span class="p">,</span> <span class="n">deuteronomy</span><span class="p">,</span> <span class="n">pathology</span><span class="p">,</span> <span class="n">hormone</span> <span class="err">│</span>
+<span class="err">└──────────┴──────────────────────────────────────────────────────────────┴──────────────────────────────────────────────────────────┘</span>
+</code></pre></div></p>
+<p>And one with clustering models:</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Remember, these are the same underlying clusters, just described in two different ways. For further details, check out <a href="../clustering/">this page</a></p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusteringTopicModel</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">ClusteringTopicModel</span><span class="p">(</span><span class="n">n_reduce_to</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;soft-c-tf-idf&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+<span class="err">┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓</span>
+<span class="err">┃</span> <span class="n">Topic</span> <span class="n">ID</span> <span class="err">┃</span> <span class="n">Highest</span> <span class="n">Ranking</span>                                                            <span class="err">┃</span>
+<span class="err">┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩</span>
+<span class="err">│</span>       <span class="o">-</span><span class="mi">1</span> <span class="err">│</span> <span class="n">like</span><span class="p">,</span> <span class="n">just</span><span class="p">,</span> <span class="n">don</span><span class="p">,</span> <span class="n">use</span><span class="p">,</span> <span class="n">does</span><span class="p">,</span> <span class="n">know</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">good</span><span class="p">,</span> <span class="n">people</span><span class="p">,</span> <span class="n">edu</span>                  <span class="err">│</span>
+<span class="err">├──────────┼────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">0</span> <span class="err">│</span> <span class="n">people</span><span class="p">,</span> <span class="n">said</span><span class="p">,</span> <span class="n">god</span><span class="p">,</span> <span class="n">president</span><span class="p">,</span> <span class="n">mr</span><span class="p">,</span> <span class="n">think</span><span class="p">,</span> <span class="n">going</span><span class="p">,</span> <span class="n">say</span><span class="p">,</span> <span class="n">did</span><span class="p">,</span> <span class="n">myers</span>            <span class="err">│</span>
+<span class="err">├──────────┼────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">1</span> <span class="err">│</span> <span class="nb">max</span><span class="p">,</span> <span class="n">g9v</span><span class="p">,</span> <span class="n">b8f</span><span class="p">,</span> <span class="n">a86</span><span class="p">,</span> <span class="n">pl</span><span class="p">,</span> <span class="mi">00</span><span class="p">,</span> <span class="mi">145</span><span class="p">,</span> <span class="mi">1</span><span class="n">d9</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="mi">34</span><span class="n">u</span>                             <span class="err">│</span>
+<span class="err">├──────────┼────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">2</span> <span class="err">│</span> <span class="n">msg</span><span class="p">,</span> <span class="n">cancer</span><span class="p">,</span> <span class="n">food</span><span class="p">,</span> <span class="n">battery</span><span class="p">,</span> <span class="n">water</span><span class="p">,</span> <span class="n">candida</span><span class="p">,</span> <span class="n">medical</span><span class="p">,</span> <span class="n">vitamin</span><span class="p">,</span> <span class="n">yeast</span><span class="p">,</span> <span class="n">diet</span>  <span class="err">│</span>
+<span class="err">├──────────┼────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">3</span> <span class="err">│</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="n">pit</span><span class="p">,</span> <span class="n">det</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="n">la</span><span class="p">,</span> <span class="n">bos</span><span class="p">,</span> <span class="mi">03</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span>                                 <span class="err">│</span>
+<span class="err">├──────────┼────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">4</span> <span class="err">│</span> <span class="n">insurance</span><span class="p">,</span> <span class="n">car</span><span class="p">,</span> <span class="n">dog</span><span class="p">,</span> <span class="n">radar</span><span class="p">,</span> <span class="n">health</span><span class="p">,</span> <span class="n">bike</span><span class="p">,</span> <span class="n">helmet</span><span class="p">,</span> <span class="n">private</span><span class="p">,</span> <span class="n">detector</span><span class="p">,</span> <span class="n">speed</span> <span class="err">│</span>
+<span class="err">└──────────┴────────────────────────────────────────────────────────────────────────────┘</span>
+
+
+<span class="n">model</span><span class="o">.</span><span class="n">estimate_components</span><span class="p">(</span><span class="n">feature_importance</span><span class="o">=</span><span class="s2">&quot;centroid&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+
+<span class="err">┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓</span>
+<span class="err">┃</span> <span class="n">Topic</span> <span class="n">ID</span> <span class="err">┃</span> <span class="n">Highest</span> <span class="n">Ranking</span>                                                                                      <span class="err">┃</span>
+<span class="err">┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩</span>
+<span class="err">│</span>       <span class="o">-</span><span class="mi">1</span> <span class="err">│</span> <span class="n">documented</span><span class="p">,</span> <span class="n">concerns</span><span class="p">,</span> <span class="n">dubious</span><span class="p">,</span> <span class="n">obsolete</span><span class="p">,</span> <span class="n">concern</span><span class="p">,</span> <span class="n">alternative</span><span class="p">,</span> <span class="n">et4000</span><span class="p">,</span> <span class="n">complaints</span><span class="p">,</span> <span class="n">cx</span><span class="p">,</span> <span class="n">discussed</span>     <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">0</span> <span class="err">│</span> <span class="n">persecutions</span><span class="p">,</span> <span class="n">persecution</span><span class="p">,</span> <span class="n">condemning</span><span class="p">,</span> <span class="n">condemnation</span><span class="p">,</span> <span class="n">fundamentalists</span><span class="p">,</span> <span class="n">persecuted</span><span class="p">,</span> <span class="n">fundamentalism</span><span class="p">,</span>    <span class="err">│</span>
+<span class="err">│</span>          <span class="err">│</span> <span class="n">theology</span><span class="p">,</span> <span class="n">advocating</span><span class="p">,</span> <span class="n">fundamentalist</span>                                                                 <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">1</span> <span class="err">│</span> <span class="n">xfree86</span><span class="p">,</span> <span class="n">pcx</span><span class="p">,</span> <span class="n">emulation</span><span class="p">,</span> <span class="n">microsoft</span><span class="p">,</span> <span class="n">hardware</span><span class="p">,</span> <span class="n">emulator</span><span class="p">,</span> <span class="n">x11r5</span><span class="p">,</span> <span class="n">netware</span><span class="p">,</span> <span class="n">workstations</span><span class="p">,</span> <span class="n">chipset</span>        <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">2</span> <span class="err">│</span> <span class="n">contamination</span><span class="p">,</span> <span class="n">fungal</span><span class="p">,</span> <span class="n">precautions</span><span class="p">,</span> <span class="n">harmful</span><span class="p">,</span> <span class="n">poisoning</span><span class="p">,</span> <span class="n">chemicals</span><span class="p">,</span> <span class="n">treatments</span><span class="p">,</span> <span class="n">toxicity</span><span class="p">,</span> <span class="n">dangers</span><span class="p">,</span>    <span class="err">│</span>
+<span class="err">│</span>          <span class="err">│</span> <span class="n">prevention</span>                                                                                           <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">3</span> <span class="err">│</span> <span class="n">nhl</span><span class="p">,</span> <span class="n">bullpen</span><span class="p">,</span> <span class="n">goaltenders</span><span class="p">,</span> <span class="n">standings</span><span class="p">,</span> <span class="n">sabres</span><span class="p">,</span> <span class="n">canucks</span><span class="p">,</span> <span class="n">braves</span><span class="p">,</span> <span class="n">mlb</span><span class="p">,</span> <span class="n">flyers</span><span class="p">,</span> <span class="n">playoffs</span>                 <span class="err">│</span>
+<span class="err">├──────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span>        <span class="mi">4</span> <span class="err">│</span> <span class="n">automotive</span><span class="p">,</span> <span class="n">vehicle</span><span class="p">,</span> <span class="n">vehicles</span><span class="p">,</span> <span class="n">speeding</span><span class="p">,</span> <span class="n">automobile</span><span class="p">,</span> <span class="n">automobiles</span><span class="p">,</span> <span class="n">driving</span><span class="p">,</span> <span class="n">motorcycling</span><span class="p">,</span>             <span class="err">│</span>
+<span class="err">│</span>          <span class="err">│</span> <span class="n">motorcycles</span><span class="p">,</span> <span class="n">highways</span>                                                                                <span class="err">│</span>
+<span class="err">└──────────┴───────────────────────────────────────────────────────────────────────────</span><span class="c1">#───────────────────────────┘</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["toc.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

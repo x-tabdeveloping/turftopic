@@ -1,0 +1,2666 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An all-in-one library for topic modeling with sentence embeddings.">
+      
+      
+      
+      
+        <link rel="prev" href="../encoders/">
+      
+      
+        <link rel="next" href="../analyzers/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
+    
+    
+      
+        <title>Vectorizers (Term extraction) - Turftopic</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Ubuntu";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vectorizers" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Turftopic" class="md-header__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="../images/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Turftopic
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Vectorizers (Term extraction)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../tutorials/overview/" class="md-tabs__link">
+          
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../model_overview/" class="md-tabs__link">
+          
+  
+    
+  
+  Topic Models (Overview and Performance)
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../encoders/" class="md-tabs__link">
+        
+  
+    
+  
+  Embedding Models
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+    
+  
+  Vectorizers (Term extraction)
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../analyzers/" class="md-tabs__link">
+        
+  
+    
+  
+  Topic Analysis and Naming with LLMs
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Turftopic" class="md-nav__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="../images/logo.svg" alt="logo">
+
+    </a>
+    Turftopic
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    User Guide
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_definition_and_training/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Defining and Fitting Topic Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_interpretation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Interpreting and Visualizing Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../seeded/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Seeded Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dynamic Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../online/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Online Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hierarchical/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hierarchical Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_lingual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cross-Lingual Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multimodal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multimodal Modeling (BETA)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concept_induction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concept Induction (BETA)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../finetuning/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modifying and Finetuning Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../persistence/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Saving and Loading
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topic_data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using TopicData
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tutorial Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/arxiv_ml/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Analyzing the Landscape of Machine Learning Research
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/religious/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Discourse Analysis on Morality and Religion
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/ideologies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Discovering a Data-driven Political Compass
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/reviews/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Customer Dissatisfaction Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Topic Models (Overview and Performance)
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Topic Models (Overview and Performance)
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmark/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model Leaderboard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Semantic Signal Separation (S³)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SensTopic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SensTopic (BETA)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KeyNMF/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KeyNMF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Topeax/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Topeax
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GMM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GMM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clustering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clustering Models (BERTopic & Top2Vec)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ctm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Autoencoding Models (ZeroShotTM & CombinedTM)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FASTopic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FASTopic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../encoders/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Embedding Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Vectorizers (Term extraction)
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Vectorizers (Term extraction)
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#phrase-vectorizers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phrase Vectorizers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lemmatizing-and-stemming-vectorizers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Lemmatizing and Stemming Vectorizers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-english-vectorization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non-English Vectorization
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Reference
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analyzers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Topic Analysis and Naming with LLMs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="vectorizers">Vectorizers</h1>
+<p>One of the most important attributes of a topic model you will have to choose is the vectorizer.
+A vectorizer is responsible for extracting term-features from text.
+It determines for which terms word-importance scores will be calculated.</p>
+<p>By default, Turftopic uses sklearn's <a href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html">CountVectorizer</a>,
+which naively counts word/n-gram occurrences in text. This usually works quite well, but your use case might require you to use a different or more sophisticated approach.
+This is why we provide a <code>vectorizers</code> module, where a wide range of useful options is available to you.</p>
+<div class="admonition question">
+<p class="admonition-title">How is this different from preprocessing?</p>
+<p>You might think that preprocessing the documents might result in the same effect as some of these vectorizers, but this is not entirely the case.
+When you remove stop words or lemmatize texts in preprocessing, you remove a lot of valuable information that your topic model then can't use.
+By defining a custom vectorizer you <em>limit the vocabulary</em> of your model, thereby only learning word importance scores for certain words, but <strong>you keep your documents fully intact</strong>.</p>
+</div>
+<h2 id="phrase-vectorizers">Phrase Vectorizers</h2>
+<p>You might want to get phrases in your topic descriptions instead of individual words.
+This could prove a very reasonable choice as it's often not words in themselves but phrases made up by them that describe a topic most accurately.
+Turftopic supports multiple ways of using phrases as fundamental terms.</p>
+<h3 id="n-gram-features-with-countvectorizer">N-gram Features with <code>CountVectorizer</code></h3>
+<p><code>CountVectorizer</code> supports n-gram extraction right out of the box.
+Just define a custom vectorizer with an <code>n_gram_range</code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>While this option is naive, and will likely yield the lowest quality results, it is also incredibly fast in comparison to other phrase vectorization techniques.
+It might, however be slower, if the topic model encodes its vocabulary when fitting.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_extraction.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">CountVectorizer</span>
+
+<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">stop_words</span><span class="o">=</span><span class="s2">&quot;english&quot;</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">vectorizer</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Highest Ranking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>bronx away sank, blew bronx away, blew bronx, bronx away, sank manhattan, stay blew bronx, manhattan sea, away sank manhattan, said queens stay, queens stay</td>
+</tr>
+<tr>
+<td>1</td>
+<td>faq alt atheism, alt atheism archive, atheism overview alt, alt atheism resources, atheism faq frequently, archive atheism overview, alt atheism faq, overview alt atheism, titles alt atheism, readers alt atheism</td>
+</tr>
+<tr>
+<td>2</td>
+<td>theism factor fanatism, theism leads fanatism, fanatism caused theism, theism correlated fanaticism, fanatism point theism, fanatism deletion theism, fanatics tend theism, fanaticism said fanatism, correlated fanaticism belief, strongly correlated fanaticism</td>
+</tr>
+<tr>
+<td>3</td>
+<td>alt atheism, atheism archive, alt atheism archive, archive atheism, atheism atheism, atheism faq, archive atheism introduction, atheism archive introduction, atheism introduction alt, atheism introduction</td>
+</tr>
+<tr>
+<td></td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<h3 id="noun-phrases-with-nounphrasecountvectorizer">Noun phrases with <code>NounPhraseCountVectorizer</code></h3>
+<p>Turftopic can also use noun phrases by utilizing the <a href="https://spacy.io/">SpaCy</a> package.
+For Noun phrase vectorization to work, you will have to install SpaCy.</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>spacy<span class="o">]</span>
+</code></pre></div>
+<p>You will also need to install a relevant SpaCy pipeline for the language you intend to use.
+The default pipeline is English, and you should install it before attempting to use <code>NounPhraseCountVectorizer</code>.</p>
+<p>You can find a model that fits your needs <a href="https://spacy.io/models">here</a>.</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>spacy<span class="w"> </span>download<span class="w"> </span>en_core_web_sm
+</code></pre></div>
+<p>Using SpaCy pipelines will substantially slow down model fitting, but the results might be more correct and higher quality than with naive n-gram extraction.
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.spacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">NounPhraseCountVectorizer</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span>
+    <span class="n">n_components</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">vectorizer</span><span class="o">=</span><span class="n">NounPhraseCountVectorizer</span><span class="p">(</span><span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div></p>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Highest Ranking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>atheists, atheism, atheist, belief, beliefs, theists, faith, gods, christians, abortion</td>
+</tr>
+<tr>
+<td>1</td>
+<td>alt atheism, usenet alt atheism resources, usenet alt atheism introduction, alt atheism faq, newsgroup alt atheism, atheism faq resource txt, alt atheism groups, atheism, atheism faq intro txt, atheist resources</td>
+</tr>
+<tr>
+<td>2</td>
+<td>religion, christianity, faith, beliefs, religions, christian, belief, science, cult, justification</td>
+</tr>
+<tr>
+<td>3</td>
+<td>fanaticism, theism, fanatism, all fanatism, theists, strong theism, strong atheism, fanatics, precisely some theists, all theism</td>
+</tr>
+<tr>
+<td>4</td>
+<td>religion foundation darwin fish bumper stickers, darwin fish, atheism, 3d plastic fish, fish symbol, atheist books, atheist organizations, negative atheism, positive atheism, atheism index</td>
+</tr>
+<tr>
+<td></td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<h3 id="keyphrases-with-keyphrasevectorizers">Keyphrases with <a href="https://github.com/TimSchopf/KeyphraseVectorizers/tree/master">KeyphraseVectorizers</a></h3>
+<p>You can extract candidate keyphrases from text using KeyphraseVectorizers.
+KeyphraseVectorizers uses POS tag patterns to identify phrases instead of word dependency graphs, like <code>NounPhraseCountVectorizer</code>.
+KeyphraseVectorizers can potentially be faster as the dependency parser component is not needed in the SpaCy pipeline.
+This vectorizer is not part of the Turftopic package, but can be easily used with it out of the box.</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>keyphrase-vectorizers
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">keyphrase_vectorizers</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyphraseCountVectorizer</span>
+
+<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">KeyphraseCountVectorizer</span><span class="p">()</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">vectorizer</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="lemmatizing-and-stemming-vectorizers">Lemmatizing and Stemming Vectorizers</h2>
+<p>Since the same word can appear in multiple forms in a piece of text, one can sometimes obtain higher quality results by stemming or lemmatizing words in a text before processing them.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You should <strong>NEVER</strong> lemmatize or stem texts before passing them to a topic model in Turftopic, but rather, use a vectorizer that limits the model's vocabulary to the terms you are interested in.</p>
+</div>
+<h3 id="extracting-lemmata-with-lemmacountvectorizer">Extracting lemmata with <code>LemmaCountVectorizer</code></h3>
+<p>Similarly to <code>NounPhraseCountVectorizer</code>, <code>LemmaCountVectorizer</code> relies on a <a href="https://spacy.io/">SpaCy</a> pipeline for extracting lemmas from a piece of text.
+This means you will have to install SpaCy and a SpaCy pipeline to be able to use it.</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>spacy<span class="o">]</span>
+python<span class="w"> </span>-m<span class="w"> </span>spacy<span class="w"> </span>download<span class="w"> </span>en_core_web_sm
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.spacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">LemmaCountVectorizer</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">LemmaCountVectorizer</span><span class="p">(</span><span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Highest Ranking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>atheist, theist, belief, christians, agnostic, christian, mythology, asimov, abortion, read</td>
+</tr>
+<tr>
+<td>1</td>
+<td>morality, moral, immoral, objective, society, animal, natural, societal, murder, morally</td>
+</tr>
+<tr>
+<td>2</td>
+<td>religion, religious, christianity, belief, christian, faith, cult, church, secular, christians</td>
+</tr>
+<tr>
+<td>3</td>
+<td>atheism, belief, agnosticism, religious, faq, lack, existence, theism, atheistic, allah</td>
+</tr>
+<tr>
+<td>4</td>
+<td>islam, muslim, islamic, rushdie, khomeini, bank, imam, bcci, law, secular</td>
+</tr>
+<tr>
+<td></td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<h3 id="stemming-words-with-stemmingcountvectorizer">Stemming words with <code>StemmingCountVectorizer</code></h3>
+<p>You might find that lemmatization isn't aggressive enough for your purposes and still many forms of the same word penetrate topic descriptions.
+In that case you should try stemming! Stemming is available in Turftopic via the <a href="https://snowballstem.org/">Snowball Stemmer</a>, so it has to be installed before using stemming vectorization.</p>
+<div class="admonition question">
+<p class="admonition-title">Should I choose stemming or lemmatization?</p>
+<p>In almost all cases you should <strong>prefer lemmatizaion</strong> over stemming, as it provides higher quality and more correct results. You should only use a stemmer if </p>
+<ol>
+<li>You need something fast (lemmatization is slower due to a more involved pipeline)</li>
+<li>You know what you want and it is definitely stemming.</li>
+</ol>
+</div>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>snowball<span class="o">]</span>
+</code></pre></div>
+<p>Then you can initialize a topic model with this vectorizer:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.snowball</span><span class="w"> </span><span class="kn">import</span> <span class="n">StemmingCountVectorizer</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">StemmingCountVectorizer</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">&quot;english&quot;</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Highest Ranking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>atheism, belief, alt, theism, agnostic, stalin, lack, sceptic, exist, faith</td>
+</tr>
+<tr>
+<td>1</td>
+<td>religion, belief, religi, cult, faith, theism, secular, theist, scientist, dogma</td>
+</tr>
+<tr>
+<td>2</td>
+<td>bronx, manhattan, sank, queen, sea, away, said, com, bob, blew</td>
+</tr>
+<tr>
+<td>3</td>
+<td>moral, human, instinct, murder, kill, law, behaviour, action, behavior, ethic</td>
+</tr>
+<tr>
+<td>4</td>
+<td>atheist, theist, belief, asimov, philosoph, mytholog, strong, faq, agnostic, weak</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="non-english-vectorization">Non-English Vectorization</h2>
+<p>You may find that, especially with non-Indo-European languages, <code>CountVectorizer</code> does not perform that well.
+In these cases we recommend that you use a vectorizer with its own language-specific tokenization rules and stop-word list:</p>
+<h3 id="vectorizing-any-language-with-tokencountvectorizer">Vectorizing Any Language with <code>TokenCountVectorizer</code></h3>
+<p>The <a href="https://spacy.io/">SpaCy</a> package includes language-specific tokenization and stop-word rules for just about any language.
+We provide a vectorizer that you can use with the language of your choice.</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>spacy<span class="o">]</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that you do not have to install any SpaCy pipelines for this to work.
+No pipelines or models will be loaded with <code>TokenCountVectorizer</code> only a language-specific tokenizer.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.spacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenCountVectorizer</span>
+
+<span class="c1"># CountVectorizer for Arabic</span>
+<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TokenCountVectorizer</span><span class="p">(</span><span class="s2">&quot;ar&quot;</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span>
+    <span class="n">n_components</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">vectorizer</span><span class="o">=</span><span class="n">vectorizer</span><span class="p">,</span>
+    <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;Omartificial-Intelligence-Space/Arabic-MiniLM-L12-v2-all-nli-triplet&quot;</span>
+<span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="extracting-chinese-tokens-with-chinesecountvectorizer">Extracting Chinese Tokens with <code>ChineseCountVectorizer</code></h3>
+<p>The Chinese language does not separate tokens by whitespace, unlike most Indo-European languages.
+You thus need to use special tokenization rules for Chinese.
+Turftopic provides tools for Chinese tokenization via the <a href="https://github.com/fxsjy/jieba">Jieba</a> package.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We recommend that you use Jieba over SpaCy for topic modeling with Chinese.</p>
+</div>
+<p>You will need to install the package in order to be able to use our Chinese vectorizer.</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>turftopic<span class="o">[</span>jieba<span class="o">]</span>
+</code></pre></div>
+<p>You can then use the <code>ChineseCountVectorizer</code> object, which comes preloaded with the jieba tokenizer along with a Chinese stop word list.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeyNMF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.vectorizers.chinese</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChineseCountVectorizer</span>
+
+<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">ChineseCountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">stop_words</span><span class="o">=</span><span class="s2">&quot;chinese&quot;</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">KeyNMF</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">=</span><span class="n">vectorizer</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="s2">&quot;BAAI/bge-small-zh-v1.5&quot;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Highest Ranking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>消息, 时间, 科技, 媒体报道, 美国, 据, 国外, 讯, 宣布, 称</td>
+</tr>
+<tr>
+<td>1</td>
+<td>体育讯, 新浪, 球员, 球队, 赛季, 火箭, nba, 已经, 主场, 时间</td>
+</tr>
+<tr>
+<td>2</td>
+<td>记者, 本报讯, 昨日, 获悉, 新华网, 基金, 通讯员, 采访, 男子, 昨天</td>
+</tr>
+<tr>
+<td>3</td>
+<td>股, 下跌, 上涨, 震荡, 板块, 大盘, 股指, 涨幅, 沪, 反弹</td>
+</tr>
+<tr>
+<td></td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<h2 id="api-reference">API Reference</h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.vectorizers.spacy.NounPhraseCountVectorizer" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.vectorizers.spacy.NounPhraseCountVectorizer</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sklearn.feature_extraction.text.CountVectorizer">CountVectorizer</span></code></p>
+
+  
+      <p>Extracts Noun phrases from text using SpaCy.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>nlp</code></td>
+          <td>
+                <code><span title="typing.Union">Union</span>[<span title="spacy.language.Language">Language</span>, str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>A Spacy pipeline or its name.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;en_core_web_sm&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/vectorizers/spacy.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NounPhraseCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts Noun phrases from text using SpaCy.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nlp: spacy.Language or str, default &quot;en_core_web_sm&quot;</span>
+<span class="sd">        A Spacy pipeline or its name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">nlp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Language</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="nb">input</span><span class="o">=</span><span class="s2">&quot;content&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="n">decode_error</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">,</span>
+        <span class="n">strip_accents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lowercase</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocessor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stop_words</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">token_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;(?u)\b\w\w+\b&quot;</span><span class="p">,</span>
+        <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">analyzer</span><span class="o">=</span><span class="s2">&quot;word&quot;</span><span class="p">,</span>
+        <span class="n">max_df</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">min_df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vocabulary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlp</span> <span class="o">=</span> <span class="n">nlp</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span> <span class="o">=</span> <span class="n">nlp</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="nb">input</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
+            <span class="n">decode_error</span><span class="o">=</span><span class="n">decode_error</span><span class="p">,</span>
+            <span class="n">strip_accents</span><span class="o">=</span><span class="n">strip_accents</span><span class="p">,</span>
+            <span class="n">lowercase</span><span class="o">=</span><span class="n">lowercase</span><span class="p">,</span>
+            <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+            <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+            <span class="n">stop_words</span><span class="o">=</span><span class="n">stop_words</span><span class="p">,</span>
+            <span class="n">token_pattern</span><span class="o">=</span><span class="n">token_pattern</span><span class="p">,</span>
+            <span class="n">ngram_range</span><span class="o">=</span><span class="n">ngram_range</span><span class="p">,</span>
+            <span class="n">analyzer</span><span class="o">=</span><span class="n">analyzer</span><span class="p">,</span>
+            <span class="n">max_df</span><span class="o">=</span><span class="n">max_df</span><span class="p">,</span>
+            <span class="n">min_df</span><span class="o">=</span><span class="n">min_df</span><span class="p">,</span>
+            <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+            <span class="n">vocabulary</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">,</span>
+            <span class="n">binary</span><span class="o">=</span><span class="n">binary</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">nounphrase_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">noun_chunks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">is_stop</span><span class="p">:</span>
+                <span class="n">chunk</span> <span class="o">=</span> <span class="n">chunk</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">phrase</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">phrase</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^\w\s]&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">phrase</span><span class="p">)</span>
+            <span class="n">phrase</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phrase</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">phrase</span><span class="p">:</span>
+                <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phrase</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tokens</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nounphrase_tokenize</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.vectorizers.spacy.LemmaCountVectorizer" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.vectorizers.spacy.LemmaCountVectorizer</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sklearn.feature_extraction.text.CountVectorizer">CountVectorizer</span></code></p>
+
+  
+      <p>Extracts lemmata from text using SpaCy.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>nlp</code></td>
+          <td>
+                <code><span title="typing.Union">Union</span>[<span title="spacy.language.Language">Language</span>, str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>A Spacy pipeline or its name.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;en_core_web_sm&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/vectorizers/spacy.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LemmaCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts lemmata from text using SpaCy.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    nlp: spacy.Language or str, default &quot;en_core_web_sm&quot;</span>
+<span class="sd">        A Spacy pipeline or its name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">nlp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Language</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="nb">input</span><span class="o">=</span><span class="s2">&quot;content&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="n">decode_error</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">,</span>
+        <span class="n">strip_accents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lowercase</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocessor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stop_words</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">token_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;(?u)\b\w\w+\b&quot;</span><span class="p">,</span>
+        <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">analyzer</span><span class="o">=</span><span class="s2">&quot;word&quot;</span><span class="p">,</span>
+        <span class="n">max_df</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">min_df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vocabulary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlp</span> <span class="o">=</span> <span class="n">nlp</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nlp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span> <span class="o">=</span> <span class="n">nlp</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="nb">input</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
+            <span class="n">decode_error</span><span class="o">=</span><span class="n">decode_error</span><span class="p">,</span>
+            <span class="n">strip_accents</span><span class="o">=</span><span class="n">strip_accents</span><span class="p">,</span>
+            <span class="n">lowercase</span><span class="o">=</span><span class="n">lowercase</span><span class="p">,</span>
+            <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+            <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+            <span class="n">stop_words</span><span class="o">=</span><span class="n">stop_words</span><span class="p">,</span>
+            <span class="n">token_pattern</span><span class="o">=</span><span class="n">token_pattern</span><span class="p">,</span>
+            <span class="n">ngram_range</span><span class="o">=</span><span class="n">ngram_range</span><span class="p">,</span>
+            <span class="n">analyzer</span><span class="o">=</span><span class="n">analyzer</span><span class="p">,</span>
+            <span class="n">max_df</span><span class="o">=</span><span class="n">max_df</span><span class="p">,</span>
+            <span class="n">min_df</span><span class="o">=</span><span class="n">min_df</span><span class="p">,</span>
+            <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+            <span class="n">vocabulary</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">,</span>
+            <span class="n">binary</span><span class="o">=</span><span class="n">binary</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">lemma_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">is_stop</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">token</span><span class="o">.</span><span class="n">is_alpha</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">tokens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">lemma_</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">tokens</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lemma_tokenize</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.vectorizers.spacy.TokenCountVectorizer" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.vectorizers.spacy.TokenCountVectorizer</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sklearn.feature_extraction.text.CountVectorizer">CountVectorizer</span></code></p>
+
+  
+      <p>Tokenizes text with SpaCy using its language-specific tokenization rules and stop-word lists</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>language_code</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Language code for the language you intend to use.</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;en&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>remove_stop_words</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Indicates whether stop words should be removed.</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>remove_nonalpha</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Indicates whether only tokens containing alphabetical characters should be kept.</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/vectorizers/spacy.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TokenCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tokenizes text with SpaCy using its language-specific tokenization rules and stop-word lists</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    language_code: str, default &quot;en&quot;</span>
+<span class="sd">        Language code for the language you intend to use.</span>
+<span class="sd">    remove_stop_words: bool, default True</span>
+<span class="sd">        Indicates whether stop words should be removed.</span>
+<span class="sd">    remove_nonalpha: bool, default True</span>
+<span class="sd">        Indicates whether only tokens containing alphabetical characters should be kept.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">language_code</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+        <span class="n">remove_stop_words</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">remove_nonalpha</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="nb">input</span><span class="o">=</span><span class="s2">&quot;content&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="n">decode_error</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">,</span>
+        <span class="n">strip_accents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lowercase</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocessor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stop_words</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">token_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;(?u)\b\w\w+\b&quot;</span><span class="p">,</span>
+        <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">analyzer</span><span class="o">=</span><span class="s2">&quot;word&quot;</span><span class="p">,</span>
+        <span class="n">max_df</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">min_df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vocabulary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">language_code</span> <span class="o">=</span> <span class="n">language_code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_stop_words</span> <span class="o">=</span> <span class="n">remove_stop_words</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_nonalpha</span> <span class="o">=</span> <span class="n">remove_nonalpha</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="nb">input</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
+            <span class="n">decode_error</span><span class="o">=</span><span class="n">decode_error</span><span class="p">,</span>
+            <span class="n">strip_accents</span><span class="o">=</span><span class="n">strip_accents</span><span class="p">,</span>
+            <span class="n">lowercase</span><span class="o">=</span><span class="n">lowercase</span><span class="p">,</span>
+            <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+            <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+            <span class="n">stop_words</span><span class="o">=</span><span class="n">stop_words</span><span class="p">,</span>
+            <span class="n">token_pattern</span><span class="o">=</span><span class="n">token_pattern</span><span class="p">,</span>
+            <span class="n">ngram_range</span><span class="o">=</span><span class="n">ngram_range</span><span class="p">,</span>
+            <span class="n">analyzer</span><span class="o">=</span><span class="n">analyzer</span><span class="p">,</span>
+            <span class="n">max_df</span><span class="o">=</span><span class="n">max_df</span><span class="p">,</span>
+            <span class="n">min_df</span><span class="o">=</span><span class="n">min_df</span><span class="p">,</span>
+            <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+            <span class="n">vocabulary</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">,</span>
+            <span class="n">binary</span><span class="o">=</span><span class="n">binary</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">blank</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language_code</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_stop_words</span> <span class="ow">and</span> <span class="n">tok</span><span class="o">.</span><span class="n">is_stop</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_nonalpha</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tok</span><span class="o">.</span><span class="n">is_alpha</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tok</span><span class="o">.</span><span class="n">orth_</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="n">tokenize</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.vectorizers.snowball.StemmingCountVectorizer" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.vectorizers.snowball.StemmingCountVectorizer</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sklearn.feature_extraction.text.CountVectorizer">CountVectorizer</span></code></p>
+
+  
+      <p>Extractes stemmed words from documents using Snowball.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/vectorizers/snowball.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">StemmingCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extractes stemmed words from documents using Snowball.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">language</span><span class="o">=</span><span class="s2">&quot;english&quot;</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="nb">input</span><span class="o">=</span><span class="s2">&quot;content&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="n">decode_error</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">,</span>
+        <span class="n">strip_accents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lowercase</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocessor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">stop_words</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">token_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;(?u)\b\w\w+\b&quot;</span><span class="p">,</span>
+        <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">analyzer</span><span class="o">=</span><span class="s2">&quot;word&quot;</span><span class="p">,</span>
+        <span class="n">max_df</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">min_df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vocabulary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">language</span> <span class="o">=</span> <span class="n">language</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stemmer</span> <span class="o">=</span> <span class="n">snowballstemmer</span><span class="o">.</span><span class="n">stemmer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="nb">input</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
+            <span class="n">decode_error</span><span class="o">=</span><span class="n">decode_error</span><span class="p">,</span>
+            <span class="n">strip_accents</span><span class="o">=</span><span class="n">strip_accents</span><span class="p">,</span>
+            <span class="n">lowercase</span><span class="o">=</span><span class="n">lowercase</span><span class="p">,</span>
+            <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+            <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+            <span class="n">stop_words</span><span class="o">=</span><span class="n">stop_words</span><span class="p">,</span>
+            <span class="n">token_pattern</span><span class="o">=</span><span class="n">token_pattern</span><span class="p">,</span>
+            <span class="n">ngram_range</span><span class="o">=</span><span class="n">ngram_range</span><span class="p">,</span>
+            <span class="n">analyzer</span><span class="o">=</span><span class="n">analyzer</span><span class="p">,</span>
+            <span class="n">max_df</span><span class="o">=</span><span class="n">max_df</span><span class="p">,</span>
+            <span class="n">min_df</span><span class="o">=</span><span class="n">min_df</span><span class="p">,</span>
+            <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+            <span class="n">vocabulary</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">,</span>
+            <span class="n">binary</span><span class="o">=</span><span class="n">binary</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">super_tokenizer</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_tokenizer</span><span class="p">()</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stemmer</span><span class="o">.</span><span class="n">stemWords</span><span class="p">(</span><span class="n">super_tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">tokenizer</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.vectorizers.chinese.ChineseCountVectorizer" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.vectorizers.chinese.ChineseCountVectorizer</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sklearn.feature_extraction.text.CountVectorizer">CountVectorizer</span></code></p>
+
+  
+      <p>Chinese count vectorizer. Does word segmentation with Jieba, and includes a chinese stop words list.
+You have to specify stop_words="chinese" for this to kick into effect.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/vectorizers/chinese.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1079</span>
+<span class="normal">1080</span>
+<span class="normal">1081</span>
+<span class="normal">1082</span>
+<span class="normal">1083</span>
+<span class="normal">1084</span>
+<span class="normal">1085</span>
+<span class="normal">1086</span>
+<span class="normal">1087</span>
+<span class="normal">1088</span>
+<span class="normal">1089</span>
+<span class="normal">1090</span>
+<span class="normal">1091</span>
+<span class="normal">1092</span>
+<span class="normal">1093</span>
+<span class="normal">1094</span>
+<span class="normal">1095</span>
+<span class="normal">1096</span>
+<span class="normal">1097</span>
+<span class="normal">1098</span>
+<span class="normal">1099</span>
+<span class="normal">1100</span>
+<span class="normal">1101</span>
+<span class="normal">1102</span>
+<span class="normal">1103</span>
+<span class="normal">1104</span>
+<span class="normal">1105</span>
+<span class="normal">1106</span>
+<span class="normal">1107</span>
+<span class="normal">1108</span>
+<span class="normal">1109</span>
+<span class="normal">1110</span>
+<span class="normal">1111</span>
+<span class="normal">1112</span>
+<span class="normal">1113</span>
+<span class="normal">1114</span>
+<span class="normal">1115</span>
+<span class="normal">1116</span>
+<span class="normal">1117</span>
+<span class="normal">1118</span>
+<span class="normal">1119</span>
+<span class="normal">1120</span>
+<span class="normal">1121</span>
+<span class="normal">1122</span>
+<span class="normal">1123</span>
+<span class="normal">1124</span>
+<span class="normal">1125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ChineseCountVectorizer</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chinese count vectorizer. Does word segmentation with Jieba, and includes a chinese stop words list.</span>
+<span class="sd">    You have to specify stop_words=&quot;chinese&quot; for this to kick into effect.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="nb">input</span><span class="o">=</span><span class="s2">&quot;content&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="n">decode_error</span><span class="o">=</span><span class="s2">&quot;strict&quot;</span><span class="p">,</span>
+        <span class="n">strip_accents</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lowercase</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">preprocessor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenize_zh</span><span class="p">,</span>
+        <span class="n">stop_words</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">token_pattern</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;(?u)\b\w\w+\b&quot;</span><span class="p">,</span>
+        <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">analyzer</span><span class="o">=</span><span class="s2">&quot;word&quot;</span><span class="p">,</span>
+        <span class="n">max_df</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">min_df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">vocabulary</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">stop_words</span> <span class="o">==</span> <span class="s2">&quot;chinese&quot;</span><span class="p">:</span>
+            <span class="n">stop_words</span> <span class="o">=</span> <span class="n">chinese_stop_words</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="nb">input</span><span class="o">=</span><span class="nb">input</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
+            <span class="n">decode_error</span><span class="o">=</span><span class="n">decode_error</span><span class="p">,</span>
+            <span class="n">strip_accents</span><span class="o">=</span><span class="n">strip_accents</span><span class="p">,</span>
+            <span class="n">lowercase</span><span class="o">=</span><span class="n">lowercase</span><span class="p">,</span>
+            <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
+            <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+            <span class="n">stop_words</span><span class="o">=</span><span class="n">stop_words</span><span class="p">,</span>
+            <span class="n">token_pattern</span><span class="o">=</span><span class="n">token_pattern</span><span class="p">,</span>
+            <span class="n">ngram_range</span><span class="o">=</span><span class="n">ngram_range</span><span class="p">,</span>
+            <span class="n">analyzer</span><span class="o">=</span><span class="n">analyzer</span><span class="p">,</span>
+            <span class="n">max_df</span><span class="o">=</span><span class="n">max_df</span><span class="p">,</span>
+            <span class="n">min_df</span><span class="o">=</span><span class="n">min_df</span><span class="p">,</span>
+            <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+            <span class="n">vocabulary</span><span class="o">=</span><span class="n">vocabulary</span><span class="p">,</span>
+            <span class="n">binary</span><span class="o">=</span><span class="n">binary</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["toc.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
