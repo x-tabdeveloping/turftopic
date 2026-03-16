@@ -1,10 +1,10 @@
 import json
 import warnings
+from importlib.metadata import version
 from pathlib import Path
 from typing import Union
 
 import joblib
-import pkg_resources
 from huggingface_hub import snapshot_download
 
 IMPORTANT_PACKAGES = [
@@ -61,10 +61,7 @@ We recommend that you install the same, or compatible versions of these packages
 
 
 def get_package_versions() -> dict[str, str]:
-    return {
-        package: pkg_resources.get_distribution(package).version
-        for package in IMPORTANT_PACKAGES
-    }
+    return {package: version(package) for package in IMPORTANT_PACKAGES}
 
 
 def validate_package_versions(remote_versions: dict[str, str]):
