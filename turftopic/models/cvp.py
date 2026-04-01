@@ -35,7 +35,7 @@ class ConceptVectorProjection(BaseEstimator, TransformerMixin):
         seeds: Union[Seeds, list[tuple[str, Seeds]], OrderedDict[str, Seeds]],
         encoder: Union[
             Encoder, str, MultimodalEncoder
-        ] = "sentence-transformers/all-MiniLM-L6-v2",
+        ] = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
     ):
         self.seeds = seeds
         if isinstance(seeds, OrderedDict):
