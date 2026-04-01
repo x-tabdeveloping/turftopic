@@ -25,7 +25,7 @@ doc_topic_matrix = model.fit_transform(documents)
 model.print_topics()
 ```
 
-## References
+## Citation
 
 Please cite the authors of the paper, and  Turftopic when using the FASTopic model:
 

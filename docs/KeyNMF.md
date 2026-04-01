@@ -1,6 +1,6 @@
 # KeyNMF
 
-KeyNMF is a topic model that relies on contextually sensitive embeddings for keyword retrieval and term importance estimation,
+KeyNMF (Kristensen-McLachlan et al., 2024) is a topic model that relies on contextually sensitive embeddings for keyword retrieval and term importance estimation,
 while taking inspiration from classical matrix-decomposition approaches for extracting topics.
 
 <figure>
@@ -512,6 +512,44 @@ model = KeyNMF(10, encoder=encoder)
 ```
 
 Setting the default prompt to `query` is especially important, when you are precomputing embeddings, as `query` should always be your default prompt to embed documents with.
+
+## Citation
+
+Please cite Turftopic and Kristensen-McLachlan et al. (2024) when using KeyNMF:
+
+```bibtex
+@article{
+  Kardos2025,
+  title = {Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers},
+  doi = {10.21105/joss.08183},
+  url = {https://doi.org/10.21105/joss.08183},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {111},
+  pages = {8183},
+  author = {Kardos, Márton and Enevoldsen, Kenneth C. and Kostkan, Jan and Kristensen-McLachlan, Ross Deans and Rocca, Roberta},
+  journal = {Journal of Open Source Software} 
+}
+
+@inproceedings{keynmf,
+  title = "Context is Key(NMF):: Modelling Topical Information Dynamics in Chinese Diaspora Media",
+  abstract = "Does the People{\textquoteright}s Republic of China (PRC) interfere with European elections through ethnic Chinese diaspora media? This question forms the basis of an ongoing research project exploring how PRC narratives about European elections are represented in Chinese diaspora media, and thus the objectives of PRC news media manipulation. In order to study diaspora media ef{\"I}ciently and at scale, it is necessary to use techniques derived from quantitative text analysis, such as topic modelling. In this paper, we present a pipeline for studying information dynamics in Chinese media. Firstly, we present KeyNMF, a new approach to static and dynamic topic modelling using transformer-based contextual embedding models. We provide benchmark evaluations to demonstrate that our approach is competitive on a number of Chinese datasets and metrics. Secondly, we integrate KeyNMF with existing methods for describing information dynamics in complex systems. We apply this pipeline to data from five news sites, focusing on the period of time leading up to the 2024 European parliamentary elections. Our methods and results demonstrate the effectiveness of KeyNMF for studying information dynamics in Chinese media and lay groundwork for further work addressing the broader research questions.",
+  keywords = "Chinese, contextual topic models, information dynamics, keywords, novelty",
+  author = "Kristensen-McLachlan, \{Ross Deans\} and Hicke, \{Rebecca Marie Matouschek\} and M{\'a}rton Kardos and Mette Thun{\o}",
+  year = "2024",
+  month = dec,
+  language = "English",
+  volume = "3834",
+  series = "CEUR Workshop Proceedings",
+  publisher = "CEUR-WS",
+  pages = "829--847",
+  editor = "Haverals, \{Wouter \} and Koolen, \{Marijn \} and Thompson, \{Laure \}",
+  booktitle = "Proceedings of the Computational Humanities Research Conference 2024",
+  address = "Germany",
+}
+```
+
 
 ## API Reference
 

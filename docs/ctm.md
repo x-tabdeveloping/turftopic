@@ -1,6 +1,6 @@
 # Variational Autoencoding Topic Models
 
-Topic models based on Variational Autoencoding are generative models based on ProdLDA (citation) enhanced with contextual representations.
+Topic models based on Variational Autoencoding are generative models based on ProdLDA (Bianchi et al, 2021) enhanced with contextual representations.
 
 <figure>
   <img src="../images/CTM_plate.png" width="60%" style="margin-left: auto;margin-right: auto;">
@@ -55,6 +55,46 @@ This has a number of implications, most notably:
  - Inference in CTM might be faster, as it uses a specific implementation that does not need to be universal in opposition to Pyro.
 
 Turftopic, similarly to Clustering models might not contain some model specific utilites, that CTM boasts.
+
+## Citation
+
+Please cite Turftopic and Bianchi et al. (2021) when using Autoencoding models in Turftopic
+```bibtex
+
+@article{
+  Kardos2025,
+  title = {Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers},
+  doi = {10.21105/joss.08183},
+  url = {https://doi.org/10.21105/joss.08183},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {111},
+  pages = {8183},
+  author = {Kardos, Márton and Enevoldsen, Kenneth C. and Kostkan, Jan and Kristensen-McLachlan, Ross Deans and Rocca, Roberta},
+  journal = {Journal of Open Source Software} 
+}
+
+@inproceedings{bianchi-etal-2021-pre,
+    title = "Pre-training is a Hot Topic: Contextualized Document Embeddings Improve Topic Coherence",
+    author = "Bianchi, Federico  and
+      Terragni, Silvia  and
+      Hovy, Dirk",
+    editor = "Zong, Chengqing  and
+      Xia, Fei  and
+      Li, Wenjie  and
+      Navigli, Roberto",
+    booktitle = "Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 2: Short Papers)",
+    month = aug,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.acl-short.96/",
+    doi = "10.18653/v1/2021.acl-short.96",
+    pages = "759--766",
+    abstract = "Topic models extract groups of words from documents, whose interpretation as a topic hopefully allows for a better understanding of the data. However, the resulting word groups are often not coherent, making them harder to interpret. Recently, neural topic models have shown improvements in overall coherence. Concurrently, contextual embeddings have advanced the state of the art of neural models in general. In this paper, we combine contextualized representations with neural topic models. We find that our approach produces more meaningful and coherent topics than traditional bag-of-words topic models and recent neural models. Our results indicate that future improvements in language models will translate into better topic models."
+}
+```
 
 ## API Reference
 
