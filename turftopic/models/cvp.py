@@ -1,12 +1,18 @@
+import json
+import tempfile
 from collections import OrderedDict
+from pathlib import Path
 from typing import Union
 
+import joblib
 import numpy as np
+from huggingface_hub import HfApi
 from sentence_transformers import SentenceTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from turftopic.base import Encoder
 from turftopic.encoders.multimodal import MultimodalEncoder
+from turftopic.serialization import create_readme, get_package_versions
 
 Seeds = tuple[list[str], list[str]]
 
@@ -105,3 +111,39 @@ class ConceptVectorProjection(BaseEstimator, TransformerMixin):
             Prevalance of each concept in each document.
         """
         return self.fit_transform(raw_documents, embeddings=embeddings)
+
+    def to_disk(self, out_dir: Union[Path, str]):
+        """Persists model to directory on your machine.
+
+        Parameters
+        ----------
+        out_dir: Path | str
+            Directory to save the model to.
+        """
+        out_dir = Path(out_dir)
+        out_dir.mkdir(exist_ok=True)
+        package_versions = get_package_versions()
+        with out_dir.joinpath("package_versions.json").open("w") as ver_file:
+            ver_file.write(json.dumps(package_versions))
+        joblib.dump(self, out_dir.joinpath("model.joblib"))
+
+    def push_to_hub(self, repo_id: str):
+        """Uploads model to HuggingFace Hub
+
+        Parameters
+        ----------
+        repo_id: str
+            Repository to upload the model to.
+        """
+        api = HfApi()
+        api.create_repo(repo_id, exist_ok=True)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            readme_path = Path(tmp_dir).joinpath("README.md")
+            with readme_path.open("w") as readme_file:
+                readme_file.write(create_readme(self, repo_id))
+            self.to_disk(tmp_dir)
+            api.upload_folder(
+                folder_path=tmp_dir,
+                repo_id=repo_id,
+                repo_type="model",
+            )
