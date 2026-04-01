@@ -3,6 +3,7 @@ from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel
 from turftopic.error import NotInstalled
 from turftopic.models.cluster import BERTopic, ClusteringTopicModel, Top2Vec
+from turftopic.models.cvp import ConceptVectorProjection
 from turftopic.models.decomp import S3, SemanticSignalSeparation
 from turftopic.models.fastopic import FASTopic
 from turftopic.models.gmm import GMM
@@ -34,4 +35,5 @@ __all__ = [
     "create_concept_browser",
     "S3",
     "SensTopic",
+    "ConceptVectorProjection",
 ]
