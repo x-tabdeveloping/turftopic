@@ -403,7 +403,50 @@ _See Figure 1_
 !!! info
     If you are not running Turftopic from a Jupyter notebook, make sure to call `fig.show()`. This will open up a new browser tab with the interactive figure.
 
+## Citation
 
+Please cite Turftopic when using clustering models:
+
+```bibtex
+
+@article{
+  Kardos2025,
+  title = {Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers},
+  doi = {10.21105/joss.08183},
+  url = {https://doi.org/10.21105/joss.08183},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {111},
+  pages = {8183},
+  author = {Kardos, Márton and Enevoldsen, Kenneth C. and Kostkan, Jan and Kristensen-McLachlan, Ross Deans and Rocca, Roberta},
+  journal = {Journal of Open Source Software} 
+}
+```
+
+In addition, cite Grootendorst (2022) or Angelov (2020) when using BERTopic or Top2Vec respectively:
+
+```bibtex
+@misc{grootendorst2022bertopicneuraltopicmodeling,
+      title={BERTopic: Neural topic modeling with a class-based TF-IDF procedure}, 
+      author={Maarten Grootendorst},
+      year={2022},
+      eprint={2203.05794},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2203.05794}, 
+}
+
+@misc{angelov2020top2vecdistributedrepresentationstopics,
+      title={Top2Vec: Distributed Representations of Topics}, 
+      author={Dimo Angelov},
+      year={2020},
+      eprint={2008.09470},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2008.09470}, 
+}
+```
 
 ## API Reference
 

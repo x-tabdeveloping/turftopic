@@ -162,6 +162,26 @@ model.print_topics()
 | 4 | tennis, competing, federer, wimbledon, iaaf, olympic, tournament, athlete, rugby, olympics |
 | 5 | gdp, stock, economy, earnings, investments, investment, invest, exports, finance, economies |
 
+## Citation
+
+Please cite Turftopic when using the SensTopic model:
+
+```bibtex
+@article{
+  Kardos2025,
+  title = {Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers},
+  doi = {10.21105/joss.08183},
+  url = {https://doi.org/10.21105/joss.08183},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {111},
+  pages = {8183},
+  author = {Kardos, Márton and Enevoldsen, Kenneth C. and Kostkan, Jan and Kristensen-McLachlan, Ross Deans and Rocca, Roberta},
+  journal = {Journal of Open Source Software} 
+}
+```
+
 
 ## API Reference
 
