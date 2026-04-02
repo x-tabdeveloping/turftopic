@@ -18,54 +18,7 @@ Offsets = list[tuple[int, int]]
 Lengths = list[int]
 
 
-def flatten_embeddings(
-    embeddings: list[np.ndarray],
-) -> tuple[np.ndarray, Lengths]:
-    """Flattens ragged array to normal array.
-
-    Parameters
-    ----------
-    embeddings: list[ndarray]
-        Ragged embedding array.
-
-    Returns
-    -------
-    flat_embeddings: ndarray
-        Flattened embedding array.
-    lengths: list[int]
-        Length of each document in the corpus.
-    """
-    lengths = [emb.shape[0] for emb in embeddings]
-    return np.concatenate(embeddings, axis=0), lengths
-
-
-def unflatten_embeddings(
-    flat_embeddings: np.ndarray, lengths: Lengths
-) -> list[np.ndarray]:
-    """Unflattens flat array to ragged array.
-
-    Parameters
-    ----------
-    flat_embeddings: ndarray
-        Flattened embedding array.
-    lengths: list[int]
-        Length of each document in the corpus.
-
-    Returns
-    -------
-    embeddings: list[ndarray]
-        Ragged embedding array.
-
-    """
-    embeddings = []
-    start_index = 0
-    for length in lengths:
-        embeddings.append(flat_embeddings[start_index:length])
-        start_index += length
-    return embeddings
-
-
-class ContextTransformer(SentenceTransformer):
+class LateTransformer(SentenceTransformer):
     def encode(
         self, sentences: Union[str, list[str], np.ndarray], *args, **kwargs
     ):
