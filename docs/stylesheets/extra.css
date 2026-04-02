@@ -1,0 +1,11 @@
+.md-tabs__item {
+    height: 70px; 
+    align-items: center;
+    display: flex;
+}
+.md-tabs__link {
+    text-align: center;
+}
+.subtext {
+    font-size: small;
+}
