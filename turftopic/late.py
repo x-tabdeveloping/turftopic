@@ -7,8 +7,9 @@ import torch
 from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
 from sklearn.preprocessing import normalize
-from tokenizers import Tokenizer
 from tqdm import trange
+
+from turftopic.base import ContextualModel
 
 Offsets = list[tuple[int, int]]
 Lengths = list[int]
@@ -39,13 +40,11 @@ class LateSentenceTransformer(SentenceTransformer):
         """
         token_embeddings = []
         offsets = []
-        tokenizer = Tokenizer.from_pretrained(self.model_card_data.base_model)
         for start_index in trange(
             0,
             len(texts),
             batch_size,
-            disable=not show_progress_bar,
-            desc="Encoding tokens...",
+            desc="Encoding batches...",
         ):
             batch = texts[start_index : start_index + batch_size]
             features = self.tokenize(batch)
@@ -59,10 +58,18 @@ class LateSentenceTransformer(SentenceTransformer):
             )
             end_token = start_token + n_tokens
             for i_doc in range(len(batch)):
-                _token_embeddings = output_features["token_embeddings"][
-                    i_doc, start_token[i_doc] : end_token[i_doc], :
-                ].numpy(force=True)
-                _offsets = tokenizer.encode(batch[i_doc]).offsets
+                _token_embeddings = (
+                    output_features["token_embeddings"][
+                        i_doc, start_token[i_doc] : end_token[i_doc], :
+                    ]
+                    .float()
+                    .numpy(force=True)
+                )
+                _n = _token_embeddings.shape[0]
+                # We extract the character offsets and prune it at the maximum context length
+                _offsets = self.tokenizer(
+                    batch[i_doc], return_offsets_mapping=True, verbose=False
+                )["offset_mapping"][:_n]
                 token_embeddings.append(_token_embeddings)
                 offsets.append(_offsets)
         return token_embeddings, offsets
@@ -145,11 +152,12 @@ class LateSentenceTransformer(SentenceTransformer):
         for emb, offs in zip(token_embeddings, token_offsets):
             _offsets = []
             _embeddings = []
-            for start_index in trange(0, len(emb), step_size):
+            for start_index in range(0, len(emb), step_size):
                 end_index = start_index + window_size
                 window_emb = np.mean(emb[start_index:end_index], axis=0)
+                off = offs[start_index:end_index]
                 _embeddings.append(window_emb)
-                _offsets.append((offs[start_index][0], offs[end_index][1]))
+                _offsets.append((off[0][0], off[-1][1]))
             window_embeddings.append(normalize(np.stack(_embeddings)))
             window_offsets.append(_offsets)
         return window_embeddings, window_offsets
@@ -197,7 +205,7 @@ def unflatten_repr(
     repr = []
     start_index = 0
     for length in lengths:
-        repr.append(flat_repr[start_index:length])
+        repr.append(flat_repr[start_index : start_index + length])
         start_index += length
     return repr
 
@@ -217,11 +225,11 @@ def get_document_chunks(
     chunks = []
     for doc, _offs in zip(raw_documents, offsets):
         for start_char, end_char in _offs:
-            chunks.append(raw_documents[start_char, end_char])
+            chunks.append(doc[start_char:end_char])
     return chunks
 
 
-class LateModel(TransformerMixin):
+class LateWrapper(ContextualModel, TransformerMixin):
     def __init__(
         self,
         model: TransformerMixin,
@@ -236,7 +244,7 @@ class LateModel(TransformerMixin):
         self.window_size = window_size
         self.step_size = step_size
 
-    def encode_documents(
+    def encode_late(
         self, raw_documents: list[str]
     ) -> tuple[np.ndarray, list[Offsets]]:
         if self.window_size is None:
@@ -264,7 +272,7 @@ class LateModel(TransformerMixin):
         offsets: list[Offsets] = None,
     ):
         if (embeddings is None) or (offsets is None):
-            embeddings, offsets = self.encode_documents(raw_documents)
+            embeddings, offsets = self.encode_late(raw_documents)
         flat_embeddings, lengths = flatten_repr(embeddings)
         chunks = get_document_chunks(raw_documents, offsets)
         out_array = self.model.transform(chunks, embeddings=flat_embeddings)
@@ -281,7 +289,7 @@ class LateModel(TransformerMixin):
         offsets: list[Offsets] = None,
     ):
         if (embeddings is None) or (offsets is None):
-            embeddings, offsets = self.encode_documents(raw_documents)
+            embeddings, offsets = self.encode_late(raw_documents)
         flat_embeddings, lengths = flatten_repr(embeddings)
         chunks = get_document_chunks(raw_documents, offsets)
         out_array = self.model.fit_transform(
@@ -291,3 +299,23 @@ class LateModel(TransformerMixin):
             return unflatten_repr(out_array, lengths)
         else:
             return pool_flat(out_array, lengths)
+
+    @property
+    def components_(self):
+        return self.model.components_
+
+    @property
+    def hierarchy(self):
+        return self.model.hierarchy
+
+    @property
+    def topic_names(self):
+        return self.model.topic_names
+
+    @property
+    def classes_(self):
+        return self.model.classes_
+
+    @property
+    def vectorizer(self):
+        return self.model.vectorizer
