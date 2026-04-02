@@ -44,8 +44,8 @@ from turftopic.multimodal import (
 )
 from turftopic.types import VALID_DISTANCE_METRICS, DistanceMetric
 from turftopic.utils import safe_binarize
-from turftopic.vectorizers import PhraseVectorizer
 from turftopic.vectorizers.default import default_vectorizer
+from turftopic.vectorizers.phrases import PhraseVectorizer
 
 integer_message = """
 You tried to pass an integer to ClusteringTopicModel as its first argument.
@@ -719,12 +719,12 @@ class ClusteringTopicModel(
             X = self.vectorizer.transform(raw_documents)
             X = normalize(X, axis=1, norm="l1", copy=False)
             X = X * idf_diag
-            doc_topic_matrix = np.exp(cosine_similarity(X, self.components_))
+            doc_topic_matrix = cosine_similarity(X, self.components_)
         elif self.feature_importance == "centroid":
             if embeddings is None:
                 embeddings = self.encode_documents(raw_documents)
-            doc_topic_matrix = np.exp(
-                cosine_similarity(embeddings, self._calculate_topic_vectors())
+            doc_topic_matrix = cosine_similarity(
+                embeddings, self._calculate_topic_vectors()
             )
         else:
             doc_topic_matrix = safe_binarize(
@@ -909,7 +909,7 @@ class CTop2Vec(LateWrapper):
         reduction_topic_representation: TopicRepresentation = "centroid",
         window_size: Optional[int] = 50,
         step_size: Optional[int] = 40,
-        pooling: Optional[Callable] = np.mean,
+        pooling: Optional[Callable] = np.nanmean,
         random_state: Optional[int] = None,
     ):
         if dimensionality_reduction is None:
@@ -933,7 +933,10 @@ class CTop2Vec(LateWrapper):
                 cluster_selection_method="eom",
             )
         self.encoder = encoder
-        self.vectorizer = vectorizer
+        if isinstance(encoder, str):
+            encoder = LateSentenceTransformer(encoder)
+        if vectorizer is None:
+            vectorizer = PhraseVectorizer()
         self.dimensionality_reduction = dimensionality_reduction
         self.clustering = clustering
         self.feature_importance = feature_importance
@@ -942,7 +945,7 @@ class CTop2Vec(LateWrapper):
         self.reduction_distance_metric = reduction_distance_metric
         self.reduction_topic_representation = reduction_topic_representation
         self.random_state = random_state
-        self.model = ClusteringTopicModel(
+        model = ClusteringTopicModel(
             encoder=encoder,
             vectorizer=vectorizer,
             dimensionality_reduction=dimensionality_reduction,
@@ -955,8 +958,8 @@ class CTop2Vec(LateWrapper):
             reduction_topic_representation=reduction_topic_representation,
         )
         super().__init__(
-            self.model,
-            window_size=self.window_size,
-            step_size=self.step_size,
-            pooling=self.pooling,
+            model,
+            window_size=window_size,
+            step_size=step_size,
+            pooling=pooling,
         )
