@@ -16,12 +16,15 @@ Lengths = list[int]
 
 
 class LateSentenceTransformer(SentenceTransformer):
+    has_used_token_level = False
+
     def encode(
         self, sentences: Union[str, list[str], np.ndarray], *args, **kwargs
     ):
-        warnings.warn(
-            "Encoder is contextual but topic model is not using contextual embeddings. Perhaps you wanted to use another topic model."
-        )
+        if not self.has_used_token_level:
+            warnings.warn(
+                "Encoder is contextual but topic model is not using contextual embeddings. Perhaps you wanted to use another topic model."
+            )
         return super().encode(sentences, *args, **kwargs)
 
     def _encode_tokens(
@@ -38,6 +41,7 @@ class LateSentenceTransformer(SentenceTransformer):
         offsets: list[list[tuple[int, int]]]
             Start and end character of each token in each document.
         """
+        self.has_used_token_level = True
         token_embeddings = []
         offsets = []
         for start_index in trange(
