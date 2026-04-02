@@ -210,11 +210,13 @@ def unflatten_repr(
     return repr
 
 
-def pool_flat(flat_repr: np.ndarray, lengths: Lengths, agg=np.mean):
+def pool_flat(flat_repr: np.ndarray, lengths: Lengths, agg=np.nanmean):
     pooled = []
     start_index = 0
     for length in lengths:
-        pooled.append(agg(flat_repr[start_index:length], axis=0))
+        pooled.append(
+            agg(flat_repr[start_index : start_index + length], axis=0)
+        )
         start_index += length
     return np.stack(pooled)
 
