@@ -16,6 +16,17 @@ Lengths = list[int]
 
 
 class LateSentenceTransformer(SentenceTransformer):
+    """SentenceTransformer model that can produce token and window-level embeddings.
+    Its output can be used by topic models that can use multi-vector document representations.
+
+    !!! warning
+        This is not checked yet in the library,
+        but we recommend that you use SentenceTransformers that are
+        a) **Mean pooled**
+        b) **L2 Normalized**
+        This will guarrantee that the token/window embeddings are in the same embedding space as the documents.
+    """
+
     has_used_token_level = False
 
     def encode(
@@ -215,6 +226,20 @@ def unflatten_repr(
 
 
 def pool_flat(flat_repr: np.ndarray, lengths: Lengths, agg=np.nanmean):
+    """Pools vectors within documents using the agg function.
+
+    Parameters
+    ----------
+    flat_repr: ndarray of shape (n_total_tokens, n_dims)
+        Flattened document representations.
+    lengths: Lengths
+        Number of tokens in each document.
+
+    Returns
+    -------
+    ndarray of shape (n_documents, n_dims)
+        Pooled representation for each document.
+    """
     pooled = []
     start_index = 0
     for length in lengths:
@@ -228,6 +253,20 @@ def pool_flat(flat_repr: np.ndarray, lengths: Lengths, agg=np.nanmean):
 def get_document_chunks(
     raw_documents: list[str], offsets: list[Offsets]
 ) -> list[str]:
+    """Extracts text chunks from documents based on token/window offsets.
+
+    Parameters
+    ----------
+    raw_documents: list[str]
+        Text documents.
+    offsets: list[Offsets]
+        Offsets returned when encoding.
+
+    Returns
+    -------
+    list[str]
+        Text chunks of tokens/windows in the documents.
+    """
     chunks = []
     for doc, _offs in zip(raw_documents, offsets):
         for start_char, end_char in _offs:
@@ -236,6 +275,35 @@ def get_document_chunks(
 
 
 class LateWrapper(ContextualModel, TransformerMixin):
+    """Wraps existing Turftopic model so that they can accept and create
+    multi-vector document representations.
+
+    !!! warning
+        The model HAS TO HAVE a late interaction encoder model
+        (e.g. `LateSentenceTransformer`)
+
+    Parameters
+    ----------
+    model
+        Turftopic model to turn into late-interaction model.
+    batch_size: int, default 32
+        Batch size of the transformer.
+    window_size: int, default None
+        Size of the sliding window to average tokens over.
+        If None, documents will be represented at a token level.
+    step_size: int, default None
+        Step size of the window.
+        If (step_size == None) or (step_size == window_size), then windows are separate.
+        If step_size < window_size, windows will overlap.
+        If step_size > window_size, there will be gaps between the windows.
+        In this case, we throw a warning, as this is probably unintended behaviour.
+    pooling: Callable, default None
+        Indicates whether and how to pool document-topic matrices.
+        If None, multi-vector topic proportions are returned in a ragged array.
+        If Callable, multiple vectors are averaged with the callable in each document.
+        You could for example take the mean by specifying `pooling=np.nanmean`.
+    """
+
     def __init__(
         self,
         model: TransformerMixin,
