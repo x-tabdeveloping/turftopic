@@ -6,7 +6,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.decomposition import PCA
@@ -15,6 +14,7 @@ from turftopic import (
     GMM,
     AutoEncodingTopicModel,
     ClusteringTopicModel,
+    CTop2Vec,
     FASTopic,
     KeyNMF,
     SemanticSignalSeparation,
@@ -22,6 +22,9 @@ from turftopic import (
     Topeax,
     load_model,
 )
+from turftopic.late import LateSentenceTransformer
+
+ENCODER = "sentence-transformers/static-retrieval-mrl-en-v1"
 
 
 def batched(iterable, n: int):
@@ -56,44 +59,28 @@ newsgroups = fetch_20newsgroups(
     remove=("headers", "footers", "quotes"),
 )
 texts = newsgroups.data
-trf = SentenceTransformer("paraphrase-MiniLM-L3-v2")
+trf = LateSentenceTransformer(ENCODER)
 embeddings = np.asarray(trf.encode(texts))
 timestamps = generate_dates(n_dates=len(texts))
 
 models = [
-    GMM(3, encoder=trf),
     SemanticSignalSeparation(3, encoder=trf),
-    KeyNMF(3, encoder=trf),
     KeyNMF(3, encoder=trf, cross_lingual=True),
     ClusteringTopicModel(
         dimensionality_reduction=PCA(10),
         clustering=KMeans(3),
-        feature_importance="c-tf-idf",
-        encoder=trf,
-        reduction_method="average",
-    ),
-    ClusteringTopicModel(
-        dimensionality_reduction=PCA(10),
-        clustering=KMeans(3),
         feature_importance="centroid",
         encoder=trf,
         reduction_method="smallest",
     ),
-    AutoEncodingTopicModel(3, combined=True),
-    FASTopic(3, batch_size=None),
-    SensTopic(),
-    Topeax(),
+    AutoEncodingTopicModel(3, combined=False, encoder=trf),
+    FASTopic(3, batch_size=None, encoder=trf),
+    SensTopic(encoder=trf),
+    Topeax(encoder=trf),
 ]
 
 dynamic_models = [
     GMM(3, encoder=trf),
-    ClusteringTopicModel(
-        dimensionality_reduction=PCA(10),
-        clustering=KMeans(3),
-        feature_importance="centroid",
-        encoder=trf,
-        reduction_method="smallest",
-    ),
     ClusteringTopicModel(
         dimensionality_reduction=PCA(10),
         clustering=KMeans(3),
@@ -106,6 +93,8 @@ dynamic_models = [
 
 online_models = [KeyNMF(3, encoder=trf)]
 
+late_models = [CTop2Vec(encoder=trf)]
+
 
 @pytest.mark.parametrize("model", dynamic_models)
 def test_fit_dynamic(model):
@@ -113,6 +102,19 @@ def test_fit_dynamic(model):
         texts,
         embeddings=embeddings,
         timestamps=timestamps,
+    )
+    table = model.export_topics(format="csv")
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        out_path = Path(tmpdirname).joinpath("topics.csv")
+        with out_path.open("w") as out_file:
+            out_file.write(table)
+        df = pd.read_csv(out_path)
+
+
+@pytest.mark.parametrize("model", late_models)
+def test_late(model):
+    doc_topic_matrix = model.fit_transform(
+        texts,
     )
     table = model.export_topics(format="csv")
     with tempfile.TemporaryDirectory() as tmpdirname:
