@@ -2,7 +2,12 @@ from turftopic._concept_browser import create_browser
 from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel
 from turftopic.error import NotInstalled
-from turftopic.models.cluster import BERTopic, ClusteringTopicModel, Top2Vec
+from turftopic.models.cluster import (
+    BERTopic,
+    ClusteringTopicModel,
+    CTop2Vec,
+    Top2Vec,
+)
 from turftopic.models.cvp import ConceptVectorProjection
 from turftopic.models.decomp import S3, SemanticSignalSeparation
 from turftopic.models.fastopic import FASTopic
@@ -29,6 +34,7 @@ __all__ = [
     "ContextualModel",
     "FASTopic",
     "Top2Vec",
+    "CTop2Vec",
     "BERTopic",
     "load_model",
     "build_datamapplot",
