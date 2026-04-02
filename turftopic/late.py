@@ -3,6 +3,8 @@ from typing import Callable, Optional
 import numpy as np
 from sklearn.base import TransformerMixin
 
+from turftopic.encoders.contextual import Offsets
+
 Lengths = list[int]
 
 
@@ -62,7 +64,17 @@ def pool_flat(flat_repr: np.ndarray, lengths: Lengths, agg=np.mean):
     return np.stack(pooled)
 
 
-class TokenLevel(TransformerMixin):
+def get_document_chunks(
+    raw_documents: list[str], offsets: list[Offsets]
+) -> list[str]:
+    chunks = []
+    for doc, _offs in zip(raw_documents, offsets):
+        for start_char, end_char in _offs:
+            chunks.append(raw_documents[start_char, end_char])
+    return chunks
+
+
+class LateModel(TransformerMixin):
     def __init__(
         self,
         model: TransformerMixin,
@@ -74,16 +86,18 @@ class TokenLevel(TransformerMixin):
         self.pooling = pooling
 
     def transform(
-        self, raw_documents: list[str], embeddings: list[np.ndarray] = None
+        self,
+        raw_documents: list[str],
+        embeddings: list[np.ndarray] = None,
+        offsets: list[Offsets] = None,
     ):
-        if embeddings is None:
-            embeddings = self.model.encoder.encode_tokens(
+        if (embeddings is None) or (offsets is None):
+            embeddings, offsets = self.model.encoder.encode_tokens(
                 raw_documents, batch_size=self.batch_size
             )
         flat_embeddings, lengths = flatten_repr(embeddings)
-        out_array = self.model.transform(
-            raw_documents, embeddings=flat_embeddings
-        )
+        chunks = get_document_chunks(raw_documents, offsets)
+        out_array = self.model.transform(chunks, embeddings=flat_embeddings)
         if self.pooling is None:
             return unflatten_repr(out_array, lengths)
         else:
@@ -94,61 +108,16 @@ class TokenLevel(TransformerMixin):
         raw_documents: list[str],
         y=None,
         embeddings: list[np.ndarray] = None,
+        offsets: list[Offsets] = None,
     ):
-        if embeddings is None:
-            embeddings = self.model.encoder.encode_tokens(
+        if (embeddings is None) or (offsets is None):
+            embeddings, offsets = self.model.encoder.encode_tokens(
                 raw_documents, batch_size=self.batch_size
             )
         flat_embeddings, lengths = flatten_repr(embeddings)
+        chunks = get_document_chunks(raw_documents, offsets)
         out_array = self.model.fit_transform(
-            raw_documents, y, embeddings=flat_embeddings
-        )
-        if self.pooling is None:
-            return unflatten_repr(out_array, lengths)
-        else:
-            return pool_flat(out_array, lengths)
-
-
-class Windowed(TransformerMixin):
-    def __init__(
-        self,
-        model: TransformerMixin,
-        batch_size: int = 32,
-        pooling: Optional[Callable] = None,
-    ):
-        self.model = model
-        self.batch_size = batch_size
-        self.pooling = pooling
-
-    def transform(
-        self, raw_documents: list[str], embeddings: list[np.ndarray] = None
-    ):
-        if embeddings is None:
-            embeddings = self.model.encoder.encode_tokens(
-                raw_documents, batch_size=self.batch_size
-            )
-        flat_embeddings, lengths = flatten_repr(embeddings)
-        out_array = self.model.transform(
-            raw_documents, embeddings=flat_embeddings
-        )
-        if self.pooling is None:
-            return unflatten_repr(out_array, lengths)
-        else:
-            return pool_flat(out_array, lengths)
-
-    def fit_transform(
-        self,
-        raw_documents: list[str],
-        y=None,
-        embeddings: list[np.ndarray] = None,
-    ):
-        if embeddings is None:
-            embeddings = self.model.encoder.encode_tokens(
-                raw_documents, batch_size=self.batch_size
-            )
-        flat_embeddings, lengths = flatten_repr(embeddings)
-        out_array = self.model.fit_transform(
-            raw_documents, y, embeddings=flat_embeddings
+            chunks, embeddings=flat_embeddings
         )
         if self.pooling is None:
             return unflatten_repr(out_array, lengths)

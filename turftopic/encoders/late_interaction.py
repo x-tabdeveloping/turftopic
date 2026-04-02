@@ -18,7 +18,7 @@ Offsets = list[tuple[int, int]]
 Lengths = list[int]
 
 
-class LateTransformer(SentenceTransformer):
+class LateSentenceTransformer(SentenceTransformer):
     def encode(
         self, sentences: Union[str, list[str], np.ndarray], *args, **kwargs
     ):
