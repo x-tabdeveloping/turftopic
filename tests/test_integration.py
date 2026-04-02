@@ -24,7 +24,7 @@ from turftopic import (
 )
 from turftopic.late import LateSentenceTransformer
 
-ENCODER = "sentence-transformers/static-retrieval-mrl-en-v1"
+ENCODER = "sentence-transformers/paraphrase-MiniLM-L3-v2"
 
 
 def batched(iterable, n: int):
@@ -58,7 +58,7 @@ newsgroups = fetch_20newsgroups(
     ],
     remove=("headers", "footers", "quotes"),
 )
-texts = newsgroups.data
+texts = newsgroups.data[:400]
 trf = LateSentenceTransformer(ENCODER)
 embeddings = np.asarray(trf.encode(texts))
 timestamps = generate_dates(n_dates=len(texts))
