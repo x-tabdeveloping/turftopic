@@ -220,14 +220,14 @@ def test_topic_joining():
 
 
 def test_refitting():
-    model = SemanticSignalSeparation(10)
+    model = SemanticSignalSeparation(10, encoder=trf)
     model.fit(texts, embeddings=embeddings)
     model.refit(texts, embeddings=embeddings, n_components=20)
     assert model.components_.shape[0] == 20
 
 
 def test_serialization():
-    model = SemanticSignalSeparation(10)
+    model = SemanticSignalSeparation(10, encoder=trf)
     model.fit(texts, embeddings=embeddings)
     with tempfile.TemporaryDirectory() as tmp_dir:
         model.to_disk(tmp_dir)
