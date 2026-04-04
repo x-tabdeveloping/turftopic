@@ -1,0 +1,737 @@
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.plot.ly/plotly-3.1.0.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Merriweather">
+    <style>
+    
+body {
+    font-family: "Merriweather", Times New Roman;
+}
+.topic-container {
+    max-width: 600px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.floating-label {
+    padding: 10px;
+    position: fixed;
+    color: white;
+    background-color: black;
+    border-radius: 10px;
+    z-index: 30;
+    width: fit-content;
+    margin-top: -30px;
+    margin-left: -30px;
+}
+.card {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    background-color: #E6F3FF;
+    border: solid;
+    box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+    border-color: #999999;
+    border-width: 1px;
+    border-radius: 5px;
+    border-color: black;
+}
+.button-container {
+    padding: 10px;
+    margin: 30px;
+    margin-bottom: 5px;
+    background-color: "white";
+    border-radius: 5px;
+    box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+    align-self: stretch;
+    flex-grow: 1;
+    flex-shrink: 1;
+    display: flex;
+    flex-direction: row;
+    max-width: 600px;
+}
+.box {
+    padding: 10px;
+    margin: 30px;
+    background-color: "white";
+    border-radius: 5px;
+    box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+    align-self: stretch;
+    flex-grow: 0;
+    flex-shrink: 1;
+}
+.document {
+    padding: 20px;
+    margin: 5px;
+    border-radius: 5px;
+    border: solid;
+    box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+    border-color: #999999;
+    border-width: 1px;
+    max-height: 150px;
+    flex-shrink: 0;
+    text-align: left;
+    text-overflow: ellipsis;
+    font-style: italic;
+    overflow: hidden;
+}
+.model-switcher {
+    font-size: 16px;
+    font-family: "Merriweather", Times New Roman;
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    align-content: center;
+    border: solid;
+    border-color: #999999;
+    border-width: 1px;
+    border-radius: 5px;
+    background-color: white;
+    margin: 5px;
+    color: black;
+    padding: 10px;
+    justify-content: left;
+    text-decoration: none;
+}
+.model-switcher:hover {
+    border-color: black;
+}
+.document-viewer {
+    flex-basis: 600px;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+#container {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 0;
+    justify-content: center;
+    align-items: stretch;
+    align-content: stretch;
+    max-height: 1000px;
+}
+.column {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-basis: fit-content;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="container">
+    <div class="column">
+
+    <div class="button-container">
+    <div class="floating-label">Seed Phrases</div>
+    
+        <button id="button-0" class="box model-switcher" style="background-color: rgba(160,188,233, 0.4);"><b>Taxation</b></button>
+        
+        <button id="button-1" class="box model-switcher" style="background-color: white;"><b>Stance on immigration</b></button>
+        
+        <button id="button-2" class="box model-switcher" style="background-color: white;"><b>Environmental policy</b></button>
+        </div>
+
+        <div id="topic-container-0" class="box topic-container" style="display: block">
+        <div class="floating-label">Concepts</div>
+            
+    <div id="plot-0" class="plot"></div>
+    <script>
+    
+    const yValue0 = [112, 164, 311];
+    const data0 = [
+        {
+            x: ['0 - Tax Policy and Economic Growth', '1 - Progressive Taxation for Economic Equity', '2 - Fiscal responsibility and free markets'],
+            y: yValue0,
+            type: "bar",
+            hoverinfo: 'none',
+            textposition: 'auto',
+            text: yValue0.map(n => `n=${n}`).map(String),
+            marker: {
+                color: ['rgba(116,221,201, 0.25)', 'rgba(235,171,204, 0.25)', 'rgba(181,217,160, 0.25)'],
+                line: {
+                color: 'black',
+                width: 1
+                }
+            }
+        }
+    ];
+    const layout0 = {
+        font: {family: "Merriweather, sans-serif", size: 16},
+        margin: {t: 0, l: 30, b:15, r: 30},
+        height: 200,
+        width: 600,
+        yaxis: {
+            showticklabels: false
+        },
+        xaxis: {
+            showticklabels: false
+        },
+    };
+    Plotly.newPlot("plot-0", data0, layout0)
+    
+    </script>
+    
+        <div class="card" style="background-color: rgba(116,221,201, 0.25);", id="card-0-0">
+        <h3>0 - Tax Policy and Economic Growth</h3>
+        <p><b>Keywords: </b><i>taxation, tax, economic, growth, innovation, prosperity, entrepreneurship, issue, power, work</i></p>
+        <p><b>Description: </b>These documents center on taxation policy as a driver of economic growth, innovation, entrepreneurship, and overall prosperity. They advocate lowering tax burdens and simplifying the tax code to spur investment, job creation, and hard work, while emphasizing fiscal responsibility; they also reflect a debate over balancing equity through progressive taxation with policies that avoid stifling growth.<p>
+        </div>
+        
+        <div class="card" style="background-color: rgba(235,171,204, 0.25);", id="card-0-1">
+        <h3>1 - Progressive Taxation for Economic Equity</h3>
+        <p><b>Keywords: </b><i>progressive, wealth, society, income, inequality, equitable, economic, social, education, tax</i></p>
+        <p><b>Description: </b>The contents advocate reducing wealth and income inequality through progressive taxation and increased public investment. They argue that higher taxes on the wealthy fund essential services like education, healthcare, and social safety nets, which in turn promote economic mobility and create a more equitable society.<p>
+        </div>
+        
+        <div class="card" style="background-color: rgba(181,217,160, 0.25);", id="card-0-2">
+        <h3>2 - Fiscal responsibility and free markets</h3>
+        <p><b>Keywords: </b><i>government, economic, responsibility, prosperity, growth, fiscal, economy, market, innovation, taxes</i></p>
+        <p><b>Description: </b>Content emphasizes fiscal responsibility and restrained government intervention as foundations for long-term prosperity. It promotes free-market principles—lower taxes, reduced regulation and spending, debt reduction—and entrepreneurship as engines of economic growth and innovation.<p>
+        </div>
+        
+        </div>
+        
+        <div id="topic-container-1" class="box topic-container" style="display: none">
+        <div class="floating-label">Concepts</div>
+            
+    <div id="plot-1" class="plot"></div>
+    <script>
+    
+    const yValue1 = [301, 359, 1459];
+    const data1 = [
+        {
+            x: ['0 - Immigration and Racial Justice', '1 - Border Security and Immigration Policy', '2 - Traditional Conservatism'],
+            y: yValue1,
+            type: "bar",
+            hoverinfo: 'none',
+            textposition: 'auto',
+            text: yValue1.map(n => `n=${n}`).map(String),
+            marker: {
+                color: ['rgba(197,179,239, 0.25)', 'rgba(222,202,142, 0.25)', 'rgba(160,188,233, 0.25)'],
+                line: {
+                color: 'black',
+                width: 1
+                }
+            }
+        }
+    ];
+    const layout1 = {
+        font: {family: "Merriweather, sans-serif", size: 16},
+        margin: {t: 0, l: 30, b:15, r: 30},
+        height: 200,
+        width: 600,
+        yaxis: {
+            showticklabels: false
+        },
+        xaxis: {
+            showticklabels: false
+        },
+    };
+    Plotly.newPlot("plot-1", data1, layout1)
+    
+    </script>
+    
+        <div class="card" style="background-color: rgba(197,179,239, 0.25);", id="card-1-0">
+        <h3>0 - Immigration and Racial Justice</h3>
+        <p><b>Keywords: </b><i>racial, immigration, justice, society, race, nation, immigrants, citizenship, racism, equal</i></p>
+        <p><b>Description: </b>It centers on reforming immigration policy to be humane and inclusive, advocating for a clear path to citizenship for immigrants who contribute to society while balancing national security. It also emphasizes racial justice, highlighting systemic racism in institutions and insisting on equal rights, opportunities, and dignity for all people, regardless of race or origin, to strengthen a diverse and inclusive nation.<p>
+        </div>
+        
+        <div class="card" style="background-color: rgba(222,202,142, 0.25);", id="card-1-1">
+        <h3>1 - Border Security and Immigration Policy</h3>
+        <p><b>Keywords: </b><i>immigration, national, nation, security, citizens, importance, borders, crucial, prioritize, sovereignty</i></p>
+        <p><b>Description: </b>The content treats immigration as a matter of national sovereignty and security, prioritizing border integrity, the rule of law, and the protection of citizens’ safety, jobs, and economic stability. It argues for a balanced approach that combines humane considerations for migrants with strict, efficient legal processes to ensure compliance, self-sustainability, and the preservation of national interests.<p>
+        </div>
+        
+        <div class="card" style="background-color: rgba(160,188,233, 0.25);", id="card-1-2">
+        <h3>2 - Traditional Conservatism</h3>
+        <p><b>Keywords: </b><i>believe, society, importance, responsibility, government, rights, family, freedom, crucial, economic</i></p>
+        <p><b>Description: </b>These descriptions advocate traditional family values, personal responsibility, and self-reliance, upheld by a limited government and a free-market economy to promote individual freedoms and prosperity. They also emphasize lawful, merit-based immigration, equal opportunity, and a separation of church and state as core principles for balancing security, liberty, and economic growth.<p>
+        </div>
+        
+        </div>
+        
+        <div id="topic-container-2" class="box topic-container" style="display: none">
+        <div class="floating-label">Concepts</div>
+            
+    <div id="plot-2" class="plot"></div>
+    <script>
+    
+    const yValue2 = [533, 386, 277];
+    const data2 = [
+        {
+            x: ['0 - Balanced Green Growth', '1 - Renewable Energy and Climate Action', '2 - Sustainable Development and Economic Growth'],
+            y: yValue2,
+            type: "bar",
+            hoverinfo: 'none',
+            textposition: 'auto',
+            text: yValue2.map(n => `n=${n}`).map(String),
+            marker: {
+                color: ['rgba(234,177,158, 0.25)', 'rgba(129,209,231, 0.25)', 'rgba(207,198,216, 0.25)'],
+                line: {
+                color: 'black',
+                width: 1
+                }
+            }
+        }
+    ];
+    const layout2 = {
+        font: {family: "Merriweather, sans-serif", size: 16},
+        margin: {t: 0, l: 30, b:15, r: 30},
+        height: 200,
+        width: 600,
+        yaxis: {
+            showticklabels: false
+        },
+        xaxis: {
+            showticklabels: false
+        },
+    };
+    Plotly.newPlot("plot-2", data2, layout2)
+    
+    </script>
+    
+        <div class="card" style="background-color: rgba(234,177,158, 0.25);", id="card-2-0">
+        <h3>0 - Balanced Green Growth</h3>
+        <p><b>Keywords: </b><i>environmental, economic, environment, growth, innovation, importance, crucial, future, regulations, prosperity</i></p>
+        <p><b>Description: </b>It argues for balancing environmental protection with economic growth, warning against heavy-handed regulations that hinder innovation and jobs, while ensuring a sustainable path for the future. It promotes market-based, technology-driven solutions and private-sector involvement to address environmental challenges, with a focus on responsible resource use and policies that support prosperity and competitiveness.<p>
+        </div>
+        
+        <div class="card" style="background-color: rgba(129,209,231, 0.25);", id="card-2-1">
+        <h3>1 - Renewable Energy and Climate Action</h3>
+        <p><b>Keywords: </b><i>renewable, change, energy, future, carbon, climate, planet, sources, generations, emissions</i></p>
+        <p><b>Description: </b>These documents argue that urgent action is needed to curb environmental deterioration by transitioning from fossil fuels to renewable energy and by reducing carbon emissions. They emphasize sustainable practices, stronger regulations, investment in green technologies, and conservation efforts to protect the planet and ensure a healthy future for generations to come.<p>
+        </div>
+        
+        <div class="card" style="background-color: rgba(207,198,216, 0.25);", id="card-2-2">
+        <h3>2 - Sustainable Development and Economic Growth</h3>
+        <p><b>Keywords: </b><i>sustainable, environment, practices, environmental, needs, future, economic, conservation, environmentally, stewardship</i></p>
+        <p><b>Description: </b>These documents discuss finding a pragmatic balance between protecting the environment and sustaining economic growth, emphasizing conservation and responsible management of natural resources for future generations. They advocate sustainable development through market-based, technology-driven solutions and corporate responsibility, promoting incentives and innovation over heavy-handed regulation to encourage environmentally sound practices while safeguarding economic prosperity.<p>
+        </div>
+        
+        </div>
+        
+</div>
+
+        <div id="document-viewer-0" class="box document-viewer" style="display: flex;">
+        <div class="floating-label">Example Documents</div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        I firmly believe that reducing tax burdens and simplifying our tax code are essential to stimulate economic growth. Over-regulation and excessive taxation stifle business innovation, entrepreneurship, and free-market competition. As such, the government should take a step back, allowing the free market to flourish, leading to job creation and higher standards of living for everyone.
+        </div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        In light of the ongoing debates about taxation, I firmly believe in the importance of incentivizing entrepreneurship and hard work through tax relief. Excessive taxation on high earners could stifle innovation and lead to economic stagnation. A fair and balanced tax system, that promotes economic growth and prosperity while also ensuring that everyone contributes their fair share, should be the goal for our nation.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        The current level of government spending is excessive and unsustainable, putting future generations at risk of bearing the burden of our debt. We must prioritize fiscal responsibility and balance our budget, stimulating economic growth through free-market policies, not increasing government control. It&#39;s crucial we respect the individual&#39;s right to economic freedom and incentivize entrepreneurship and hard work rather than penalizing success through high taxation.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        The growing wealth inequality in our society is deeply concerning. It&#39;s essential that we implement tax policies that ensure the richest individuals and corporations pay their fair share, investing that revenue back into public services and systems that support everyone. Additionally, expanding access to quality education and healthcare can help level the playing field and create more opportunities for all.
+        </div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        On the topic of taxation, I firmly believe that a lower tax rate is beneficial to stimulate economic growth. It provides businesses with more resources to invest, expand and thereby create more jobs. This approach fosters an environment where hard work and innovation are rewarded, thus driving the power of the American economy.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        Ensuring fiscal responsibility is crucial to the health of our nation. Overreliance on unnecessary government spending and high taxes burden hardworking citizens and stifle economic growth. Instead, we should focus on encouraging personal responsibility and promoting free-market principles to foster innovation and prosperity.
+        </div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        When it comes to the issue of taxation, I firmly believe in fostering an economic environment that encourages growth and prosperity for all. This can be achieved through lower taxes, which stimulate business development, individual wealth creation, and job opportunities. By empowering citizens to keep more of their hard-earned money, we enable them to play a more active role in contributing to their communities and the broader economy.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        I firmly believe in the power of progressive taxation, where those with higher income contribute more to our society&#39;s shared infrastructure, education, healthcare, and other public services. This is not about penalizing success, but rather fostering a society where every individual gets a fair shot. It&#39;s essential to remember that a thriving middle class stimulates economic growth, which benefits everyone in the long run.
+        </div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        The issue of federal taxation requires serious reform. Our current system seems to deter business expansion and penalize hard work and financial success. I strongly believe in fostering a climate of economic growth, innovation, and individual prosperity, which could better be achieved with lower tax burdens and simplified tax codes.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        I believe that a fair and equitable distribution of wealth is essential to the health and sustainability of any society. In my view, progressive taxation is a crucial tool to alleviate wealth inequality and promote economic mobility. An investment in public education, health care, and social safety nets, funded by these taxes, can provide a level playing field for all, irrespective of their socioeconomic status.
+        </div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        While I believe in progressive taxation, I also think it&#39;s critical to avoid overburdening corporations and the wealthy with excessive tax rates. High taxes can stifle growth, innovation, and job creation. It&#39;s important to strike a balance that supports both social programs and economic prosperity.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        While it is crucial to foster a healthy and competitive environment for businesses to thrive, it&#39;s equally important to ensure that the wealth generated doesn&#39;t disproportionately concentrate at the top. Hence, tax policies need to be progressive, with the affluent contributing a larger share of their income, ensuring funds are available for essential public services. Further, a robust social safety net, including universal healthcare and strong public education, can help ensure opportunity for everyone, regardless of their economic status at birth.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        I strongly believe in the paramount importance of a progressive taxation system where the wealthy pay a higher proportion of their income in taxes. This not only promotes economic equality and fairness but also helps generate sufficient revenue for funding vital public services. Moreover, investing more in education and healthcare will empower our society&#39;s most vulnerable members, thereby fostering a more inclusive economy.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        I firmly believe in the power of free markets and limited government intervention in the economy. High taxation rates can stifle entrepreneurial spirit and limit economic growth. Therefore, it&#39;s crucial that we promote policies that encourage individual financial responsibility and create an environment conducive to business development and economic prosperity.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        Fiscal responsibility is essential for the growth and stability of our nation. It is crucial that we prioritize curbing excessive government spending and work towards reducing the national debt. By encouraging entrepreneurship and free market principles, we can foster an environment conducive to economic prosperity and individual freedom.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        I firmly believe in the principles of fiscal responsibility and individual liberty. Raising taxes doesn&#39;t necessarily solve our budget issues, it&#39;s more about controlling the spending and prioritizing the allocation of funds. The role of government should be minimized, allowing for the private sector and individual citizens to make decisions that best suit their needs.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        The widening wealth gap in our nation underscores the urgent need for progressive tax reform. It is crucial we ensure that the wealthiest among us are contributing their fair share to the collective pool, facilitating greater investment in public goods and services. By bolstering our social safety nets, we can work towards a more equitable society where economic opportunity is not predetermined by one&#39;s starting point in life.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        I firmly believe in the importance of progressive tax systems, where those with higher income contribute a greater percentage towards the public treasury. This not only enables the equitable distribution of wealth but also fuels the funding of vital public services such as healthcare and education. At the same time, the government should maintain regulations to protect consumers and workers, ensuring that businesses cannot exploit them for profit.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        I firmly believe that wealth distribution in our nation is askew, with an unhealthy accumulation at the top. In this regard, I am in favor of progressive taxation, ensuring that those with the highest incomes contribute an equitable share. Not only does this approach foster economic equality, but it also provides essential funding for public services that pave the way for upward mobility and social equity.
+        </div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        I firmly believe in the power of progressive taxation, where those with higher income contribute more to our society&#39;s shared infrastructure, education, healthcare, and other public services. This is not about penalizing success, but rather fostering a society where every individual gets a fair shot. It&#39;s essential to remember that a thriving middle class stimulates economic growth, which benefits everyone in the long run.
+        </div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        The issue of tax reform necessitates careful consideration and responsible action. High taxation, particularly on small businesses and hardworking citizens, can stifle economic growth, innovation, and the spirit of entrepreneurship. Therefore, it is crucial that we work toward fair and effective tax policies that nurture economic prosperity without overburdening taxpayers.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        Strong fiscal responsibility is key to ensuring the prosperity and longevity of our nation. Lower taxes and minimized governmental intervention stimulate economic growth by providing businesses and individuals with more financial freedom. Moreover, it is crucial that we prioritize reducing the national debt in order to secure a prosperous future for the next generation.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        I firmly believe in the importance of an equitable distribution of wealth to ensure the well-being of all members of society. Tax policies should aim to bridge the widening gap between the rich and poor in our society. There is also a need for significant investments in public services such as healthcare, education, and social services, which are essential for creating equal opportunities for every individual.
+        </div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        When it comes to the issue of taxation, I firmly believe in the principle of individual responsibility and the power of free markets. High tax rates can stifle enterprise, discourage hard work, and impede economic growth. Therefore, a limited taxation policy, which encourages personal responsibility and free enterprise, should be a significant cornerstone of our economic system.
+        </div>
+        
+        <div class="document" style="background-color: rgba(116,221,201, 0.25);">
+        On the topic of taxation, I believe in fiscal responsibility and policies that encourage economic growth. Overbearing tax burdens on businesses and hardworking Americans can stifle innovation and entrepreneurship. Therefore, it&#39;s essential that our government promotes a tax code that is equitable, encourages investment, and does not penalize success.
+        </div>
+        
+        <div class="document" style="background-color: rgba(235,171,204, 0.25);">
+        I believe that a progressive tax system is essential for our society to address income inequality. Access to quality education, healthcare, and basic social services should not be privileges for the few, but rights for all. By ensuring wealthier individuals contribute a larger proportion of their income, we can fund these necessary programs and foster a more equitable society.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        Fiscal responsibility is paramount for any thriving nation. By encouraging individual initiative and creating an environment conducive to economic growth, we can ensure prosperity. Additionally, reducing excessive government spending and focusing on free market principles can foster competition, innovation, and job creation.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        I firmly believe in fiscal responsibility, advocating for policies that reduce excessive government spending and promote private sector growth. Free-market capitalism, I feel, encourages innovation and competition, driving our economy forward. A reduced tax burden on businesses fosters much-needed job creation and facilitates an environment conducive to economic prosperity.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        Strong fiscal responsibility is paramount for the health and prosperity of a nation. Lower taxes and less governmental regulation can stimulate economic growth by fostering entrepreneurship and investments. I believe in the power of the free market to balance itself and provide opportunities for all willing to work hard.
+        </div>
+        
+        <div class="document" style="background-color: rgba(181,217,160, 0.25);">
+        I believe strongly in the principle of fiscal responsibility and limited government intervention in the marketplace. High taxes and excessive regulation can stifle business growth and innovation. It&#39;s essential to prioritize a balanced budget and encourage private sector development to sustain a prosperous economy.
+        </div>
+        
+</div>
+
+        <div id="document-viewer-1" class="box document-viewer" style="display: none;">
+        <div class="floating-label">Example Documents</div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        When considering immigration issues, it is crucial to emphasize the rule of law. Our nation&#39;s border integrity and sovereignty should not be compromised. While empathizing with those seeking a better life, we must not disregard the importance of legal processes in ensuring national security, economic stability, and the protection of American jobs.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        I firmly believe in the importance of safeguarding individual liberties and promoting economic prosperity through free-market capitalism. An issue close to my heart is maintaining the integrity of our nation’s immigration system, which I feel should prioritize lawfulness and merit to ensure the continued prosperity of our great nation. Moreover, I value the principle of limited government intervention, as I perceive this to be vital in upholding the freedoms of the American people.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        I believe in the importance of upholding traditional family values, as they are the bedrock of a stable society. Furthermore, I stand by the principle of personal responsibility and self-reliance, as I think it&#39;s crucial for individuals to take charge of their own lives and not rely excessively on government support. On the topic of immigration, while I recognize its significance in our nation&#39;s development, I also think that it must be managed with proper laws and regulations to ensure national security and economic stability.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        I believe in the strength of individual responsibility, family values, and the importance of a robust economy, and I see these as critical factors in addressing social issues. It&#39;s crucial that we foster a society in which everyone has the opportunity to succeed through hard work and determination. Government intervention should be limited, allowing for a free market system where economic growth can thrive and create opportunities for all.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        I firmly believe in the importance of upholding traditional family values as the fundamental unit of our society. Also, I hold the perspective that there needs to be a greater emphasis on personal responsibility and less reliance on government assistance, to promote self-reliance and individual achievement. I also value the concept of limited government interference in our daily lives, and I strongly support measures that protect and uphold our individual freedoms and rights.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        It is essential that we continue striving for a society that truly values equality, necessitating comprehensive racial justice reforms including an end to systemic racism within our criminal justice system. In terms of immigration, it&#39;s crucial to remember that our nation was built by immigrants and we should have policies that reflect this history, fostering a welcoming environment that provides a path to citizenship for those who seek refuge or a better life. Most importantly, the principles of human dignity and compassion should always be at the forefront of our decisions and actions.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        I firmly believe in the importance of upholding the separation of church and state as outlined in our Constitution, ensuring that all individuals have the freedom to practice (or not practice) any religion without government intervention. As such, I strongly advocate for policies that protect these freedoms and oppose legislation that seeks to impose specific religious beliefs on all citizens. Upholding this principle fosters a more inclusive and diverse society, reflective of our country&#39;s foundational values.
+        </div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        The issue of illegal immigration continues to be a complex one. I believe in the importance of strong, secure borders, promoting the respect of law and order, and prioritizing the security of our citizens. While the need for humanitarian considerations is undeniable, any immigration policy must first and foremost safeguard the interests of our nation and its people.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        I believe in the urgency and necessity of comprehensive immigration reform that includes a fair and expedient path to citizenship for undocumented individuals who contribute to our nation&#39;s social and economic fabric. The systemic racial disparities in our justice system require proactive and substantial reform to ensure equal justice for all. Our country&#39;s strength lies in its diversity, and we must foster an inclusive environment that respects the rights and dignity of all individuals, regardless of their race or immigration status.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        I strongly believe in the necessity of comprehensive immigration reform that provides a pathway to citizenship for individuals and families who are contributing positively to our society, while also ensuring our national security. Equally imperative is the need for us to address systemic racial disparities that exist in our society, including our education, healthcare, and criminal justice systems. We must strive for a society in which every person, regardless of their race or country of origin, is treated with dignity, respect, and fairness.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        Balancing compassion and pragmatism, I believe that immigration should be regulated and lawful, to maintain the integrity and security of our nation. We should be a land of opportunities for those who respect our laws and wish to contribute positively to our society. Furthermore, on the topic of racial justice, I advocate for equal opportunity for all citizens, emphasizing the importance of personal responsibility and the value of hard work over government reliance.
+        </div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        On the issue of immigration, I firmly believe in the importance of maintaining strong national security, as well as the rule of law. While I acknowledge that America is a nation of immigrants, it is imperative that we uphold a consistent, efficient, and lawful immigration system. Every individual wishing to live and work in the United States should follow an established legal process.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        I believe in the importance of tradition, family values, and personal responsibility. These principles serve as the foundation of a prosperous and just society. Furthermore, we need to ensure our economic policies promote individual freedom and enterprise, as it is through these means that our nation has achieved its prosperity and can continue to do so.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        The ongoing debate around immigration policies compels us to reflect on the ethos that founded this nation: a beacon of hope for those seeking a better life. It&#39;s imperative that our policies reflect a humanitarian approach, balancing national security with the dignity and rights of every individual. Equally, the struggle for racial justice has been an enduring and defining trait of our society, calling us to perpetually strive for a more equitable and inclusive system.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        The current state of racial justice and immigration in our nation deeply concerns me. We should strive for a society where everyone, regardless of their race or country of origin, is afforded the same opportunities, rights, and protections. It is imperative that we enact comprehensive immigration reform and work towards eliminating systemic racial biases, fostering an environment of acceptance, inclusivity, and equal justice.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        I firmly believe in the importance of individual freedoms and personal responsibility. When it comes to the issue of welfare, I think it is critical that we support those genuinely in need, but we also need measures that encourage self-reliance and prevent dependency. It&#39;s about striking a balance that respects the dignity of each person and promotes the overall wellbeing and prosperity of our society.
+        </div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        The current approach to immigration needs a serious re-evaluation. We must prioritize national security and economic stability, ensuring that those entering the country are thoroughly vetted and have a clear path towards self-sustainability. While we should always remain compassionate to those seeking refuge, it is crucial that our policies protect the interests and safety of American citizens first and foremost.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        The foundation of our great nation lies in the rule of law and equal opportunities for all. The key to addressing the ongoing immigration issue is ensuring the enforcement of our immigration laws, while simultaneously providing a legal pathway for those who seek to contribute positively to our nation&#39;s development. Furthermore, on racial justice, instead of focusing on differences, we should emphasize on the shared values that unite us, and work towards ensuring that every citizen, regardless of their race, ethnicity or background, has access to the same opportunities.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        I believe in the importance of preserving traditional family values, which serve as the bedrock of our society. It&#39;s crucial that we maintain fiscal responsibility and encourage self-reliance, ensuring a robust and prosperous future for generations to come. Furthermore, I strongly support the concept of limited government, as it allows for individual freedoms and liberties to flourish.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        While recognizing the rich cultural heritage and economic vigor that immigrants bring to our nation, it&#39;s also vital that we prioritize a comprehensive and humane approach to immigration, including a clear path to citizenship. By doing so, we can respect the rights of individuals fleeing difficult circumstances, while simultaneously strengthening the diversity and inclusivity that has always been a part of our national ethos. On the issue of racial justice, it&#39;s essential to acknowledge that systemic racism remains a pervasive element of our society, and concerted efforts must be made to eradicate these entrenched injustices. Ensuring equal opportunities, enhancing police accountability, and promoting social equity are all paramount to accomplishing this goal.
+        </div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        The issue of immigration is a complex one. While it&#39;s essential to respect the rights and dreams of those seeking a better life in our country, it is equally important to preserve the sanctity of our laws and borders. Any policy should strike a balance between compassion and lawful conduct, ensuring the country&#39;s security and its citizens&#39; well-being.
+        </div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        Securing our nation&#39;s borders should be a fundamental priority. A robust immigration policy should not only focus on maintaining law and order but also safeguarding our citizens&#39; economic interests. It&#39;s paramount to preserve our heritage, values, and the rule of law while also respecting the human rights of individuals seeking refuge.
+        </div>
+        
+        <div class="document" style="background-color: rgba(160,188,233, 0.25);">
+        I believe in the importance of preserving traditional family values as a bedrock for a stable society. My stance on issues like marriage is that it should remain between a man and a woman. Moreover, I think it&#39;s crucial to have limited government intervention in daily life, allowing individuals to make their own decisions and take personal responsibility for their actions.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        Our nation&#39;s beauty lies in its diversity, an amalgamation of cultures, traditions, and races. The current immigration policies need to be revised to be more humanitarian, focusing on keeping families together and providing a clear path to citizenship. For racial justice, it is vital that we acknowledge systemic racism, and tirelessly work towards eradicating it from our society, ensuring equal rights, opportunities and justice for all regardless of their racial or ethnic backgrounds.
+        </div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        The issue of immigration requires a balanced approach that is rooted in the law of the land. Prioritizing border security and adhering to immigration laws is of utmost importance for the country&#39;s stability and security. However, it is equally vital to ensure that those who seek refuge or a better life in the United States are treated with respect and dignity, keeping in line with the country&#39;s long-standing values of compassion and openness.
+        </div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        It is paramount that we maintain a strong national defense to ensure the protection of our country&#39;s values, freedom, and democracy. The United States must prioritize its own interests, while still acknowledging the importance of fostering healthy international relations. A robust and nuanced approach to immigration policy is also essential, balancing the need for border security with a recognition of the valuable contributions immigrants have made to our nation.
+        </div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        The importance of national sovereignty cannot be overstated, as the capacity to self-govern allows a nation to uphold its unique customs, values, and way of life. On the issue of international immigration, while it&#39;s essential to show compassion and respect for human rights, it is equally crucial to uphold the rule of law and maintain stringent border controls to ensure national security. At the end of the day, a country must prioritize the interests and welfare of its own citizens first and foremost.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        I believe in a compassionate, comprehensive immigration policy that respects the human rights of individuals, regardless of their origin. It is important to create a pathway to citizenship for undocumented immigrants who have made a life here, contributing to our society and economy. On racial justice, we must work tirelessly to address systemic racism, ensuring equal opportunity for all, regardless of race or ethnicity.
+        </div>
+        
+        <div class="document" style="background-color: rgba(222,202,142, 0.25);">
+        When it comes to immigration, I firmly believe in the importance of a strong and secure border. It&#39;s necessary to have a system in place that ensures individuals enter the country legally, as this not only helps maintain order but also upholds national security. However, I also see the value in compassionate policies that recognize and address the struggles faced by refugees and those seeking the American dream.
+        </div>
+        
+        <div class="document" style="background-color: rgba(197,179,239, 0.25);">
+        Improving our immigration system should be a priority, with an emphasis on compassion, fairness, and economic pragmatism. The current system is unwieldy and often inefficient, leaving many families in a state of uncertainty for years. Meanwhile, in terms of racial justice, it is essential to acknowledge and rectify the systemic disparities in our society, and work towards policies that promote equality and opportunity for all, regardless of race or ethnicity.
+        </div>
+        
+</div>
+
+        <div id="document-viewer-2" class="box document-viewer" style="display: none;">
+        <div class="floating-label">Example Documents</div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        On matters of environment, it&#39;s crucial to strike a balanced approach between ecological conservation efforts and the economic prosperity of our nation. I believe in pragmatic environmental policies that support sustainable development rather than impede growth. It&#39;s essential to leverage technological innovations and market-driven solutions to address environmental challenges, ensuring both our economy and environment flourish.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        Climate change is an urgent and pressing issue that demands immediate attention, not just as a matter of environmental concern, but also as a social justice issue. We must transition to renewable energy sources and environmentally friendly practices to reduce carbon emissions and other pollutants. It is necessary to ensure sustainable development and preserve our planet for future generations.
+        </div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        While I understand and respect the importance of protecting our natural environment for future generations, I firmly believe that economic growth should not be stifled in the name of environmental protection. Policies need to strike a balance, ensuring that businesses can continue to thrive and create jobs, while also adhering to reasonable, scientifically-backed standards for pollution and waste. An overregulated market can detrimentally impact our economy and the livelihoods of everyday Americans, and therefore, any environmental legislation must be sensible and considerate of these factors.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        Protecting our environment for future generations is not just idealistic, it&#39;s a responsibility. We must actively reduce our greenhouse gas emissions and transition to renewable energy resources to combat climate change. Investing in clean technologies not only promotes job growth and economic prosperity but also ensures a sustainable and healthy planet for all.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        I firmly believe in the urgent need to address climate change and the necessity for comprehensive policy adaptations to reduce our carbon footprint. Our dependence on fossil fuels and the resultant environmental degradation is not only detrimental to our planet&#39;s health but also a grave threat to future generations. Prioritizing renewable energy sources, investing in green technology, and stronger regulations on industries contributing heavily to pollution, in my opinion, should be paramount in our nation&#39;s agenda.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        I firmly believe in the imminent need to address climate change and advocate for sustainable practices. The rapid depletion of natural resources and the increasing pollution levels are alarming. It&#39;s our collective responsibility, as inhabitants of this planet, to focus on adopting renewable energy sources, reducing our carbon footprint, and preserving our biodiversity for future generations.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        While I firmly believe in preserving the environment for future generations, it is crucial to balance the need for conservation with realistic economic considerations. Overregulation can have detrimental effects on our nation&#39;s economy and job market. Innovative, market-based solutions should be pursued to incentivize sustainable practices among businesses, instead of relying heavily on government mandates.
+        </div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        While I deeply respect and appreciate the importance of safeguarding our environment for future generations, I believe it is crucial to strike a balance between environmental regulations and economic growth. Our policies should encourage businesses to innovate and develop cleaner technologies, rather than penalizing them with heavy taxes or regulations. It&#39;s also important to utilize our natural resources responsibly, as they can be a significant driver of economic growth and job creation.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        Our planet&#39;s ecological health is currently on a razor&#39;s edge due to human behavior and industrialization. Clean, renewable energy sources such as wind, solar, and hydroelectric power are not only feasible but essential in reducing the harmful emissions contributing to climate change. Furthermore, we should work diligently towards ending deforestation and promoting reforestation to preserve biodiversity and counteract carbon dioxide levels.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        Protecting our planet and its natural resources is an imperative that transcends partisan lines. It is, I believe, essential for us to prioritize sustainable policies, increasing renewable energy research and development, and imposing stricter regulations on industries contributing heavily to carbon emissions. Our collective commitment to combat climate change will not only ensure a safer, healthier world for ourselves, but also for the generations to come.
+        </div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        While I believe in the importance of preserving our natural resources for future generations, it&#39;s critical that we approach environmental regulations with a measured, balanced perspective. Imposing unrealistic standards often burdens small businesses and can slow down economic growth. Hence, any environmental policy should be designed to protect the environment without stifering innovation and business competitiveness.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        While it&#39;s important to ensure the preservation of our environment for future generations, we must balance this with the economic needs of today. Over-regulation in the name of environmental protection can stifle business growth and job creation. Our goal should be to incentivize sustainable practices within industry, rather than punitive measures that can hinder economic prosperity.
+        </div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        While I fully support the necessary actions to protect our environment and ensure the sustainability of our natural resources, I believe that it is vital to strike a balance between environmental regulations and economic growth. Overreach in policy can often stifle innovation and job creation, which are key aspects of our nation&#39;s prosperity. We need to leverage market forces and encourage private-sector solutions for environmental challenges, as they often prove more efficient and effective.
+        </div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        While I fully acknowledge the significant role we all must play in preserving our natural resources and environment, it is also crucial to balance this with economic growth and individual freedoms. Policies aimed at environmental conservation should not stifle businesses or impose undue regulations. Thus, finding innovative solutions that protect our planet without jeopardizing American industries and livelihoods is of paramount importance.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        While I firmly believe in the importance of preserving our environment for future generations, I also recognize the economic realities associated with drastic environmental measures. We need to strike a balance between environmental protection and economic growth, ensuring we don&#39;t impose unnecessary burdens on businesses and individuals. Clean energy and sustainable practices should be pursued, but done so in a way that promotes innovation, competition, and economic prosperity.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        I believe that climate change is a pressing issue that needs immediate attention and action from all sectors of society. Our use of non-renewable energy sources and lack of clean waste management practices are major causes of environmental degradation. It&#39;s vital we switch to sustainable energy sources, reduce our carbon emissions, and intensify recycling and waste reduction efforts to protect our planet for future generations.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        While it is pivotal that we respect and protect our environment, it is equally important to balance this with the needs of our economy and industry. Sustainable practices shouldn&#39;t hinder progress and growth, but work in tandem with them. Each proposed environmental policy should be judiciously evaluated for its potential impact on job creation and economic prosperity.
+        </div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        While I firmly believe in protecting our environment and maintaining our natural resources, it is crucial not to lose sight of the economic ramifications of overly restrictive environmental regulations. We should thoroughly evaluate the long-term economic sustainability of such regulations and ensure that they do not unduly burden small businesses or impede our nation&#39;s economic growth. It is essential to strike a balance between economic progress and environmental preservation.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        The progressive deterioration of our environment, epitomized by climate change, requires urgent and steadfast action. We must prioritize sustainable practices, renewable energy sources, and stringent corporate regulations to reduce our carbon footprint. Our ultimate goal should be to preserve the earth for future generations, as we have a moral responsibility to leave our planet in a better condition than we found it.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        Climate change has become the defining issue of our generation, and it urgently requires our collective attention. It is crucial that we join forces to invest in renewable energy sources, reduce our carbon emissions, and transition away from the over-reliance on fossil fuels. By doing so, we afford future generations a healthy, sustainable planet and a promising future.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        While I heartily support initiatives to maintain our beautiful country&#39;s natural resources, I firmly believe that this should not stifle economic growth and individual freedoms. Any environmental policy should be balanced with the needs of businesses and job creation. By fostering innovation and free market solutions, we can achieve a cleaner, more sustainable environment without imposing burdensome regulations on our industries.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        On matters of environment, it&#39;s crucial to strike a balanced approach between ecological conservation efforts and the economic prosperity of our nation. I believe in pragmatic environmental policies that support sustainable development rather than impede growth. It&#39;s essential to leverage technological innovations and market-driven solutions to address environmental challenges, ensuring both our economy and environment flourish.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        While it&#39;s undeniably important to protect and preserve our natural resources for future generations, it&#39;s also crucial to balance this goal with the economic needs of our present society. Environmental policies should be sensible, prioritizing sustainable development, and should not obstruct growth or burden businesses excessively. It&#39;s imperative to explore feasible technological and market-based solutions to environmental problems that encourage both economic prosperity and environmental stewardship.
+        </div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        While I fully acknowledge the importance of preserving our environment and natural resources, I believe it is essential to approach environmental regulations in a way that does not stifle economic growth and individual liberties. It is possible to achieve a balance between environmental stewardship and economic prosperity through innovation and responsible business practices. We must encourage market-based solutions and private sector involvement to tackle environmental issues effectively.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        While it is undeniable that our environment needs protection, I believe we must find a balance between sustainability and economic growth. We should encourage the responsible use and management of our natural resources, as opposed to outright banning industries that contribute to pollution. Implementing innovative technology and fostering corporate responsibility are key steps towards achieving a sustainable future.
+        </div>
+        
+        <div class="document" style="background-color: rgba(129,209,231, 0.25);">
+        I firmly believe that we need to prioritize sustainable practices and renewable energy sources to combat climate change. Our dependency on fossil fuels is not only detrimental to our environment but also unsustainable in the long run. Implementing policy changes to reduce carbon footprint and investing in green technologies are paramount for the health of our planet and future generations.
+        </div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        While it&#39;s important to protect and preserve our environment, we must also recognize the need to balance environmental policy with economic growth and job creation. Overregulation can impede progress and stifle innovative solutions. A free-market approach, fostering competition and encouraging technological advancements, will be more beneficial for both our economy and the environment.
+        </div>
+        
+        <div class="document" style="background-color: rgba(234,177,158, 0.25);">
+        While it&#39;s undeniably crucial to foster and protect our environment for future generations, we must also take into account the economic implications of environmental policies. Overly restrictive regulations can often hinder economic growth and job creation. Therefore, it&#39;s essential to strike a balance between preserving our natural resources and maintaining a thriving economy.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        While it&#39;s paramount to safeguard our natural resources for future generations, it&#39;s equally important to ensure that environmental policies do not stifle economic growth and personal freedoms. We should prioritize market-based solutions and innovations to address environmental challenges rather than heavy-handed regulation. Sustainable development can be genuinely achieved when economic prosperity goes hand in hand with environmental stewardship.
+        </div>
+        
+        <div class="document" style="background-color: rgba(207,198,216, 0.25);">
+        I firmly believe that while we need to protect our environment and natural resources, this goal should not hinder economic growth and development. The adoption of sustainable practices and technologies should be incentivized rather than enforced through overbearing regulation. Balancing economic progress with environmental stewardship is the practical way forward.
+        </div>
+        
+</div>
+
+    <script>
+    const modelSwitchers = Array.from(document.getElementsByClassName('model-switcher'))
+    modelSwitchers.forEach(button => {
+        console.log("Found this button")
+        button.addEventListener('click', function(event) {
+            const modelId = button.id.split("-")[1];
+            const containers = Array.from(document.getElementsByClassName('topic-container'))
+            containers.forEach(container => {
+                const containerId = container.id.split("-")[2];
+                if (containerId == modelId) {
+                    container.style = "display: block";
+                } else {
+                    container.style = "display: none";
+                }
+            })
+            const documentViewers = Array.from(document.getElementsByClassName('document-viewer'))
+            documentViewers.forEach(container => {
+                const containerId = container.id.split("-")[2];
+                if (containerId == modelId) {
+                    container.style = "display: flex";
+                } else {
+                    container.style = "display: none";
+                }
+            })
+            modelSwitchers.forEach(button => {
+                button.style = "background-color: white;";
+            })
+            button.style = "background-color: rgba(160,188,233, 0.4);";
+        });
+    });
+    </script>
+    
+    </div>
+  </body>
+</html>
