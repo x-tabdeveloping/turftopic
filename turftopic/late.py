@@ -351,7 +351,7 @@ class LateWrapper(ContextualModel, TransformerMixin):
         chunks = get_document_chunks(raw_documents, offsets)
         out_array = self.model.transform(chunks, embeddings=flat_embeddings)
         if self.pooling is None:
-            return unflatten_repr(out_array, lengths)
+            return unflatten_repr(out_array, lengths), offsets
         else:
             return pool_flat(out_array, lengths)
 
@@ -370,7 +370,7 @@ class LateWrapper(ContextualModel, TransformerMixin):
             chunks, embeddings=flat_embeddings
         )
         if self.pooling is None:
-            return unflatten_repr(out_array, lengths)
+            return unflatten_repr(out_array, lengths), offsets
         else:
             return pool_flat(out_array, lengths)
 
