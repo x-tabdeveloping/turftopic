@@ -1,6 +1,6 @@
 # Topeax
 
-Topeax is a probabilistic topic model based on the Peax clustering model, which finds topics based on peaks in point density in the embedding space. The model can recover the number of topics automatically.
+Topeax (Kardos, 2026) is a probabilistic topic model based on the Peax clustering model, which finds topics based on peaks in point density in the embedding space. The model can recover the number of topics automatically.
 
 In the following example I run a Topeax model on the BBC News corpus, and plot the steps of the algorithm to inspect how our documents have been clustered and why:
 
@@ -122,6 +122,36 @@ topeax.plot_components_datamapplot()
   <iframe src="../images/topeax_components_datamapplot.html", title="", style="height:620px;width:1050px;padding:0px;border:none;"></iframe>
   <figcaption> Figure 5: Datapoints colored by mixture components on a datamapplot. </figcaption>
 </figure>
+
+## Citation
+
+Please cite Turftopic and Kardos (2026) when using the Topeax model:
+
+```bibtex
+@article{
+  Kardos2025,
+  title = {Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers},
+  doi = {10.21105/joss.08183},
+  url = {https://doi.org/10.21105/joss.08183},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {111},
+  pages = {8183},
+  author = {Kardos, Márton and Enevoldsen, Kenneth C. and Kostkan, Jan and Kristensen-McLachlan, Ross Deans and Rocca, Roberta},
+  journal = {Journal of Open Source Software} 
+}
+
+@misc{kardos2026topeaximprovedclustering,
+      title={Topeax -- An Improved Clustering Topic Model with Density Peak Detection and Lexical-Semantic Term Importance}, 
+      author={Márton Kardos},
+      year={2026},
+      eprint={2601.21465},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2601.21465}, 
+}
+```
 
 ## API Reference
 

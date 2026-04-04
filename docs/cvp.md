@@ -110,6 +110,40 @@ fig.show()
     <figcaption> Figure 2: Concepts evolving over tokens in the first document. </figcaption>
 </figure>
 
+
+## Citation
+
+Please cite Lyngbæk et al. (2025) and Turftopic when using Concept Vector Projection in publications:
+
+```bibtex
+@article{
+  Kardos2025,
+  title = {Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers},
+  doi = {10.21105/joss.08183},
+  url = {https://doi.org/10.21105/joss.08183},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {111},
+  pages = {8183},
+  author = {Kardos, Márton and Enevoldsen, Kenneth C. and Kostkan, Jan and Kristensen-McLachlan, Ross Deans and Rocca, Roberta},
+  journal = {Journal of Open Source Software} 
+}
+
+@incollection{Lyngbaek2025,
+  title = {Continuous Sentiment Scores for Literary and Multilingual
+Contexts},
+  author = {Laurits Lyngbaek and Pascale Feldkamp and Yuri Bizzoni and Kristoffer L. Nielbo and Kenneth Enevoldsen},
+  year = {2025},
+  booktitle = {Computational Humanities Research 2025},
+  publisher = {Anthology of Computers and the Humanities},
+  pages = {480--497},
+  editor = {Taylor Arnold and Margherita Fantoli and Ruben Ros},
+  doi = {10.63744/nVu1Zq5gRkuD}
+}
+```
+
+
 ## API Reference
 
 

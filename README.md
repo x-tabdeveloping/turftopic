@@ -15,7 +15,6 @@
 | [Topic Analysis](https://x-tabdeveloping.github.io/turftopic/analyzers/) | :robot: LLM-generated names and descriptions, :wave: Manual Topic Naming |
 | [Informative Topic Descriptions](https://x-tabdeveloping.github.io/turftopic/vectorizers/) | :key: Keyphrases, Noun-phrases, Lemmatization, Stemming |
 
-
 ## Basics
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/x-tabdeveloping/turftopic/blob/main/examples/basic_example_20newsgroups.ipynb)
 
@@ -227,6 +226,26 @@ topicwizard.visualize(corpus, model=model)
 </center>
 
 Alternatively you can use the [Figures API](https://x-tabdeveloping.github.io/topicwizard/figures.html) in topicwizard for individual HTML figures.
+
+## Citation
+
+Please cite us when using Turftopic:
+
+```bibtex
+@article{
+  Kardos2025,
+  title = {Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers},
+  doi = {10.21105/joss.08183},
+  url = {https://doi.org/10.21105/joss.08183},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {111},
+  pages = {8183},
+  author = {Kardos, Márton and Enevoldsen, Kenneth C. and Kostkan, Jan and Kristensen-McLachlan, Ross Deans and Rocca, Roberta},
+  journal = {Journal of Open Source Software} 
+}
+```
 
 ## References
 - Kardos, M., Kostkan, J., Vermillet, A., Nielbo, K., Enevoldsen, K., & Rocca, R. (2024, June 13). $S^3$ - Semantic Signal separation. arXiv.org. https://arxiv.org/abs/2406.09556
