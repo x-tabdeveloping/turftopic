@@ -37,6 +37,47 @@ doc_topic_matrix = model.fit_transform(corpus)
 model.print_topics()
 ```
 
+## Citation
+
+Please cite Angelov and Inkpen (2024) and Turftopic when using C-Top2Vec in publications:
+
+```bibtex
+@article{
+  Kardos2025,
+  title = {Turftopic: Topic Modelling with Contextual Representations from Sentence Transformers},
+  doi = {10.21105/joss.08183},
+  url = {https://doi.org/10.21105/joss.08183},
+  year = {2025},
+  publisher = {The Open Journal},
+  volume = {10},
+  number = {111},
+  pages = {8183},
+  author = {Kardos, Márton and Enevoldsen, Kenneth C. and Kostkan, Jan and Kristensen-McLachlan, Ross Deans and Rocca, Roberta},
+  journal = {Journal of Open Source Software} 
+}
+
+@inproceedings{angelov-inkpen-2024-topic,
+    title = "Topic Modeling: Contextual Token Embeddings Are All You Need",
+    author = "Angelov, Dimo  and
+      Inkpen, Diana",
+    editor = "Al-Onaizan, Yaser  and
+      Bansal, Mohit  and
+      Chen, Yun-Nung",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2024",
+    month = nov,
+    year = "2024",
+    address = "Miami, Florida, USA",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.findings-emnlp.790/",
+    doi = "10.18653/v1/2024.findings-emnlp.790",
+    pages = "13528--13539",
+    abstract = "The goal of topic modeling is to find meaningful topics that capture the information present in a collection of documents. The main challenges of topic modeling are finding the optimal number of topics, labeling the topics, segmenting documents by topic, and evaluating topic model performance. Current neural approaches have tackled some of these problems but none have been able to solve all of them. We introduce a novel topic modeling approach, Contextual-Top2Vec, which uses document contextual token embeddings, it creates hierarchical topics, finds topic spans within documents and labels topics with phrases rather than just words. We propose the use of BERTScore to evaluate topic coherence and to evaluate how informative topics are of the underlying documents. Our model outperforms the current state-of-the-art models on a comprehensive set of topic model evaluation metrics."
+}
+
+```
+
+
+
 ## API Reference 
 
 ::: turftopic.models.cluster.CTop2Vec
