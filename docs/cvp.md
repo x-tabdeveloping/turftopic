@@ -71,6 +71,45 @@ print(concept_df)
 1  0.269454  0.009495
 ```
 
+## Sentiment Arcs
+
+Sometimes you might want to get a more granular understanding of how concepts evolve in a document.
+`ConceptVectorProjection` can be used with [late-interaction/multi-vector functionality](late_interaction.md) in Turftopic, and thus you can easily generate sentiment arcs within documents that either span individual tokens or contextualized rolling windows.
+
+!!! tip
+    To get a more in-depth understanding of late-interaction/multi-vector models, read our [User Guide](late_interaction.md).
+
+```python
+from turftopic.late import LateWrapper, LateSentenceTransformer
+# For plotting:
+import plotly.express as px
+import plotly.graph_objects as go
+
+seeds = [("cuteness", cuteness_seeds), ("bullish", bullish_seeds)]
+
+cvp = LateWrapper(
+    ConceptVectorProjection(seeds=seeds, encoder=LateSentenceTransformer("all-MiniLM-L6-v2"))
+)
+test_documents = ["What an awesome investment", "Tiny beautiful kitty-cat"]
+doc_concept_matrix, offsets = cvp.transform(test_documents)
+
+# We will plot document 0's' sentiment arcs
+fig = go.Figure()
+# We extract the tokens
+tokens = [test_documents[0][start:end] for start, end in offsets[0]]
+# First token is [CLS]
+tokens[0] = "[CLS]"
+fig = fig.add_scatter(x=tokens, y=doc_concept_matrix[0][:, 0], name="Cuteness")
+fig = fig.add_scatter(x=tokens, y=doc_concept_matrix[0][:, 1], name="Bullish")
+fig.show()
+
+```
+
+<figure>
+    <iframe src="../images/sentiment_arcs.html", title="Concepts evolving over tokens in the first document", style="height:500px;width:1000px;padding:0px;border:none;"></iframe>
+    <figcaption> Figure 2: Concepts evolving over tokens in the first document. </figcaption>
+</figure>
+
 ## API Reference
 
 

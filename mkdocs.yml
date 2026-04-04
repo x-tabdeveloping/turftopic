@@ -11,7 +11,7 @@ nav:
     - Online Topic Modeling: online.md
     - Hierarchical Topic Modeling: hierarchical.md
     - Cross-Lingual Topic Modeling: cross_lingual.md
-    - Late Interaction Models (Experimental): late_interaction.md
+    - Late Interaction (Multi-vector) Topic Models: late_interaction.md
     - Multimodal Modeling (Experimental): multimodal.md
     - Concept Induction: concept_induction.md
     - Modifying and Finetuning Models: finetuning.md
@@ -33,6 +33,7 @@ nav:
     - Topeax: Topeax.md
     - GMM: GMM.md
     - Clustering Models (BERTopic & Top2Vec): clustering.md
+    - C-Top2Vec: c_top2vec.md
     - Autoencoding Models (ZeroShotTM & CombinedTM): ctm.md
     - FASTopic: FASTopic.md
   - <span>Other Models<span> <br> <i class="subtext">(e.g. Sentiment Analysis)</i>:
