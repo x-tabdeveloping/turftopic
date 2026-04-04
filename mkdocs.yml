@@ -37,7 +37,7 @@ nav:
     - FASTopic: FASTopic.md
   - <span>Other Models<span> <br> <i class="subtext">(e.g. Sentiment Analysis)</i>:
     - Concept Vector Projection (Continuous Sentiment Scoring): cvp.md
-  - Embedding Models: encoders.md
+  - <span>Embeddings and Encoders <span><br> <i class="subtext">(Transformer Models)</i>: encoders.md
   - <span>Vectorizers<span> <br> <i class="subtext">(Term extraction)</i>: vectorizers.md
   - Topic Analysis and Naming with LLMs: analyzers.md
 theme:
