@@ -5,7 +5,7 @@ import warnings
 import webbrowser
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable, Literal, Optional, Sequence, Union
+from typing import Any, Callable, Iterable, Literal, Optional, Sequence, Union
 
 import numpy as np
 from rich.console import Console
@@ -30,6 +30,7 @@ from turftopic.feature_importance import (
     npmi,
     soft_ctf_idf,
 )
+from turftopic.late import LateSentenceTransformer, LateWrapper
 from turftopic.models._hierarchical_clusters import (
     VALID_LINKAGE_METHODS,
     ClusterNode,
@@ -44,6 +45,7 @@ from turftopic.multimodal import (
 from turftopic.types import VALID_DISTANCE_METRICS, DistanceMetric
 from turftopic.utils import safe_binarize
 from turftopic.vectorizers.default import default_vectorizer
+from turftopic.vectorizers.phrases import PhraseVectorizer
 
 integer_message = """
 You tried to pass an integer to ClusteringTopicModel as its first argument.
@@ -717,12 +719,12 @@ class ClusteringTopicModel(
             X = self.vectorizer.transform(raw_documents)
             X = normalize(X, axis=1, norm="l1", copy=False)
             X = X * idf_diag
-            doc_topic_matrix = np.exp(cosine_similarity(X, self.components_))
+            doc_topic_matrix = cosine_similarity(X, self.components_)
         elif self.feature_importance == "centroid":
             if embeddings is None:
                 embeddings = self.encode_documents(raw_documents)
-            doc_topic_matrix = np.exp(
-                cosine_similarity(embeddings, self._calculate_topic_vectors())
+            doc_topic_matrix = cosine_similarity(
+                embeddings, self._calculate_topic_vectors()
             )
         else:
             doc_topic_matrix = safe_binarize(
@@ -864,4 +866,100 @@ class Top2Vec(ClusteringTopicModel):
             reduction_method=reduction_method,
             reduction_distance_metric=reduction_distance_metric,
             reduction_topic_representation=reduction_topic_representation,
+        )
+
+
+class CTop2Vec(LateWrapper):
+    """Convenience function to construct a CTop2Vec model in Turftopic.
+    The model is essentially the same as ClusteringTopicModel in a Late Wrapper
+    with defaults that resemble CTop2Vec. This includes:
+
+    1. A late interaction embedding model, with windowed aggregation
+    2. UMAP reduction
+    3. HDBSCAN clustering
+    4. Centroid term importance
+    5. Phrase vectorizer
+
+    ```bash
+    pip install turftopic[umap-learn]
+    ```
+
+    ```python
+    from turftopic import CTop2Vec
+
+    corpus: list[str] = ["some text", "more text", ...]
+
+    model = CTop2Vec().fit(corpus)
+    model.print_topics()
+    ```
+    """
+
+    def __init__(
+        self,
+        encoder: Union[
+            Encoder, str, MultimodalEncoder
+        ] = "sentence-transformers/all-MiniLM-L6-v2",
+        vectorizer: Optional[CountVectorizer] = None,
+        dimensionality_reduction: Optional[TransformerMixin] = None,
+        clustering: Optional[ClusterMixin] = None,
+        feature_importance: WordImportance = "centroid",
+        n_reduce_to: Optional[int] = None,
+        reduction_method: LinkageMethod = "smallest",
+        reduction_distance_metric: DistanceMetric = "cosine",
+        reduction_topic_representation: TopicRepresentation = "centroid",
+        window_size: Optional[int] = 50,
+        step_size: Optional[int] = 40,
+        pooling: Optional[Callable] = np.nanmean,
+        random_state: Optional[int] = None,
+    ):
+        if dimensionality_reduction is None:
+            try:
+                from umap import UMAP
+            except ModuleNotFoundError as e:
+                raise ModuleNotFoundError(
+                    "UMAP is not installed in your environment, but Top2Vec requires it."
+                ) from e
+            dimensionality_reduction = UMAP(
+                n_neighbors=15,
+                n_components=5,
+                min_dist=0.0,
+                metric="cosine",
+                random_state=random_state,
+            )
+        if clustering is None:
+            clustering = HDBSCAN(
+                min_cluster_size=15,
+                metric="euclidean",
+                cluster_selection_method="eom",
+            )
+        self.encoder = encoder
+        if isinstance(encoder, str):
+            encoder = LateSentenceTransformer(encoder)
+        if vectorizer is None:
+            vectorizer = PhraseVectorizer()
+        self.dimensionality_reduction = dimensionality_reduction
+        self.clustering = clustering
+        self.feature_importance = feature_importance
+        self.n_reduce_to = n_reduce_to
+        self.reduction_method = reduction_method
+        self.reduction_distance_metric = reduction_distance_metric
+        self.reduction_topic_representation = reduction_topic_representation
+        self.random_state = random_state
+        model = ClusteringTopicModel(
+            encoder=encoder,
+            vectorizer=vectorizer,
+            dimensionality_reduction=dimensionality_reduction,
+            clustering=clustering,
+            n_reduce_to=n_reduce_to,
+            random_state=random_state,
+            feature_importance=feature_importance,
+            reduction_method=reduction_method,
+            reduction_distance_metric=reduction_distance_metric,
+            reduction_topic_representation=reduction_topic_representation,
+        )
+        super().__init__(
+            model,
+            window_size=window_size,
+            step_size=step_size,
+            pooling=pooling,
         )
