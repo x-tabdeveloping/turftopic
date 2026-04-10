@@ -63,6 +63,9 @@ class LateSentenceTransformer(SentenceTransformer):
         ):
             batch = texts[start_index : start_index + batch_size]
             features = self.tokenize(batch)
+            features = {
+                key: value.to(self.device) for key, value in features.items()
+            }
             with torch.no_grad():
                 output_features = self.forward(features)
             n_tokens = output_features["attention_mask"].sum(axis=1)
