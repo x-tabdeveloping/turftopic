@@ -149,7 +149,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         with console.status("Fitting model") as status:
             if self.embeddings is None:
                 status.update("Encoding documents")
-                self.embeddings = self.encoder_.encode(raw_documents)
+                self.embeddings = self.encode_documents(raw_documents)
                 console.log("Documents encoded.")
             if self.n_components == "auto":
                 status.update("Finding the number of components.")
@@ -177,7 +177,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             console.log("Term extraction done.")
             if getattr(self, "vocab_embeddings", None) is None:
                 status.update("Encoding vocabulary")
-                self.vocab_embeddings = self.encoder_.encode(vocab)
+                self.vocab_embeddings = self.encode_documents(vocab)
             if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
                 raise ValueError(
                     NOT_MATCHING_ERROR.format(

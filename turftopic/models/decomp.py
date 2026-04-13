@@ -140,7 +140,7 @@ class SemanticSignalSeparation(
         with console.status("Fitting model") as status:
             if self.embeddings is None:
                 status.update("Encoding documents")
-                self.embeddings = self.encoder_.encode(raw_documents)
+                self.embeddings = self.encode_documents(raw_documents)
                 console.log("Documents encoded.")
             status.update("Decomposing embeddings")
             if isinstance(self.decomposition, FastICA) and (y is not None):
@@ -153,7 +153,7 @@ class SemanticSignalSeparation(
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
             console.log("Term extraction done.")
             status.update("Encoding vocabulary")
-            self.vocab_embeddings = self.encoder_.encode(vocab)
+            self.vocab_embeddings = self.encode_documents(vocab)
             if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
                 raise ValueError(
                     NOT_MATCHING_ERROR.format(
@@ -636,7 +636,7 @@ class SemanticSignalSeparation(
             Document-topic matrix.
         """
         if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
+            embeddings = self.encode_documents(raw_documents)
         return self.decomposition.transform(embeddings)
 
     def print_topics(

@@ -206,7 +206,7 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
         with console.status("Fitting model") as status:
             if embeddings is None:
                 status.update("Encoding documents")
-                embeddings = self.encoder_.encode(raw_documents)
+                embeddings = self.encode_documents(raw_documents)
                 console.log("Documents encoded.")
             self.embeddings = embeddings
             status.update("Extracting terms.")
@@ -325,7 +325,7 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
             Document-topic matrix.
         """
         if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
+            embeddings = self.encode_documents(raw_documents)
         if self.dimensionality_reduction is not None:
             embeddings = self.dimensionality_reduction.transform(embeddings)
         return self.gmm_.predict_proba(embeddings)
