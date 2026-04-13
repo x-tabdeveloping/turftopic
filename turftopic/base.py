@@ -41,7 +41,7 @@ class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
         """
         if not hasattr(self.encoder_, "encode"):
             return self.encoder.get_text_embeddings(list(raw_documents))
-        return self.encoder_.encode(raw_documents)
+        return self.encoder_.encode(list(raw_documents))
 
     @abstractmethod
     def fit_transform(

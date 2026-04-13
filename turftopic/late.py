@@ -53,40 +53,20 @@ class LateSentenceTransformer(SentenceTransformer):
             Start and end character of each token in each document.
         """
         self.has_used_token_level = True
-        token_embeddings = []
-        offsets = []
-        for start_index in trange(
-            0,
-            len(texts),
-            batch_size,
-            desc="Encoding batches...",
-        ):
-            batch = texts[start_index : start_index + batch_size]
-            features = self.tokenize(batch)
-            with torch.no_grad():
-                output_features = self.forward(features)
-            n_tokens = output_features["attention_mask"].sum(axis=1)
-            # Find first nonzero elements in each document
-            # The document could be padded from the left, so we have to watch out for this.
-            start_token = torch.argmax(
-                (output_features["attention_mask"] > 0).to(torch.long), axis=1
-            )
-            end_token = start_token + n_tokens
-            for i_doc in range(len(batch)):
-                _token_embeddings = (
-                    output_features["token_embeddings"][
-                        i_doc, start_token[i_doc] : end_token[i_doc], :
-                    ]
-                    .float()
-                    .numpy(force=True)
-                )
-                _n = _token_embeddings.shape[0]
-                # We extract the character offsets and prune it at the maximum context length
-                _offsets = self.tokenizer(
-                    batch[i_doc], return_offsets_mapping=True, verbose=False
-                )["offset_mapping"][:_n]
-                token_embeddings.append(_token_embeddings)
-                offsets.append(_offsets)
+        token_embeddings = self.encode(
+            texts, output_value="token_embeddings", batch_size=batch_size
+        )
+        offsets = self.tokenizer(
+            texts, return_offsets_mapping=True, verbose=False
+        )["offset_mapping"]
+        offsets = [
+            offs[: len(embs)] for offs, embs in zip(offsets, token_embeddings)
+        ]
+        token_embeddings = [
+            embs.numpy(force=True)
+            for embs in token_embeddings
+            if torch.is_tensor(embs)
+        ]
         return token_embeddings, offsets
 
     def encode_tokens(
