@@ -54,7 +54,10 @@ class LateSentenceTransformer(SentenceTransformer):
         """
         self.has_used_token_level = True
         token_embeddings = self.encode(
-            texts, output_value="token_embeddings", batch_size=batch_size
+            texts,
+            output_value="token_embeddings",
+            batch_size=batch_size,
+            show_progress_bar=show_progress_bar,
         )
         offsets = self.tokenizer(
             texts, return_offsets_mapping=True, verbose=False
@@ -63,7 +66,7 @@ class LateSentenceTransformer(SentenceTransformer):
             offs[: len(embs)] for offs, embs in zip(offsets, token_embeddings)
         ]
         token_embeddings = [
-            embs.numpy(force=True)
+            embs.float().numpy(force=True)
             for embs in token_embeddings
             if torch.is_tensor(embs)
         ]
