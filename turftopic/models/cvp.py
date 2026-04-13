@@ -62,8 +62,8 @@ class ConceptVectorProjection(BaseEstimator, TransformerMixin):
         self.classes_ = np.array([name for name in self._seeds])
         self.concept_matrix_ = []
         for _, (positive, negative) in self._seeds.items():
-            positive_emb = self.encoder_.encode(positive)
-            negative_emb = self.encoder_.encode(negative)
+            positive_emb = self.encoder_.encode(list(positive))
+            negative_emb = self.encoder_.encode(list(negative))
             cv = np.mean(positive_emb, axis=0) - np.mean(negative_emb, axis=0)
             self.concept_matrix_.append(cv / np.linalg.norm(cv))
         self.concept_matrix_ = np.stack(self.concept_matrix_)
@@ -92,7 +92,7 @@ class ConceptVectorProjection(BaseEstimator, TransformerMixin):
                 "Either embeddings or raw_documents has to be passed, both are None."
             )
         if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
+            embeddings = self.encoder_.encode(list(raw_documents))
         return embeddings @ self.concept_matrix_.T
 
     def transform(self, raw_documents=None, embeddings=None):

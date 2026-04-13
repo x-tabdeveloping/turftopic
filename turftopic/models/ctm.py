@@ -193,7 +193,7 @@ class AutoEncodingTopicModel(ContextualModel, MultimodalModel):
             Document-topic matrix.
         """
         if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
+            embeddings = self.encode_documents(raw_documents)
         if self.combined:
             bow = self.vectorizer.fit_transform(raw_documents)
             contextual_embeddings = np.concatenate(
@@ -219,7 +219,7 @@ class AutoEncodingTopicModel(ContextualModel, MultimodalModel):
         with console.status("Fitting model") as status:
             if embeddings is None:
                 status.update("Encoding documents")
-                embeddings = self.encoder_.encode(raw_documents)
+                embeddings = self.encode_documents(raw_documents)
                 console.log("Documents encoded.")
             status.update("Extracting terms.")
             document_term_matrix = self.vectorizer.fit_transform(raw_documents)
