@@ -1,0 +1,3457 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An all-in-one library for topic modeling with sentence embeddings.">
+      
+      
+      
+      
+        <link rel="prev" href="../cross_lingual/">
+      
+      
+        <link rel="next" href="../multimodal/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.6">
+    
+    
+      
+        <title>Late Interaction (Multi-vector) Topic Models - Turftopic</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Ubuntu";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#late-interaction-topic-models" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Turftopic" class="md-header__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="../images/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Turftopic
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Late Interaction (Multi-vector) Topic Models
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9h-1.9M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69m-9.15 3.96h2.3L12 9l-1.15 3.65Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="#01034A" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href=".." class="md-tabs__link">
+          
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../tutorials/overview/" class="md-tabs__link">
+          
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../model_overview/" class="md-tabs__link">
+          
+  
+    
+  
+  <span>Topic Models<span> <br> <i class="subtext">(Overview and Performance)</i>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../cvp/" class="md-tabs__link">
+          
+  
+    
+  
+  <span>Other Models<span> <br> <i class="subtext">(e.g. Sentiment Analysis)</i>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../encoders/" class="md-tabs__link">
+        
+  
+    
+  
+  <span>Embeddings and Encoders <span><br> <i class="subtext">(Transformer Models)</i>
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../vectorizers/" class="md-tabs__link">
+        
+  
+    
+  
+  <span>Vectorizers<span> <br> <i class="subtext">(Term extraction)</i>
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../analyzers/" class="md-tabs__link">
+        
+  
+    
+  
+  Topic Analysis and Naming with LLMs
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Turftopic" class="md-nav__button md-logo" aria-label="Turftopic" data-md-component="logo">
+      
+  <img src="../images/logo.svg" alt="logo">
+
+    </a>
+    Turftopic
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/x-tabdeveloping/turftopic" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    User Guide
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_definition_and_training/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Defining and Fitting Topic Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_interpretation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Interpreting and Visualizing Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../seeded/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Seeded Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dynamic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dynamic Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../online/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Online Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hierarchical/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hierarchical Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_lingual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cross-Lingual Topic Modeling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Late Interaction (Multi-vector) Topic Models
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Late Interaction (Multi-vector) Topic Models
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#encoding-tokens-and-ragged-array-manipulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Encoding Tokens, and Ragged Array Manipulation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#turning-regular-models-into-multi-vector-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      Turning Regular Models into Multi-Vector Models
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c-top2vec" class="md-nav__link">
+    <span class="md-ellipsis">
+      C-Top2Vec
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Reference
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multimodal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Multimodal Modeling (Experimental)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concept_induction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concept Induction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../finetuning/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Modifying and Finetuning Models
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../persistence/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Saving and Loading
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topic_data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Using TopicData
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../custom_model/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Implement a Wrapper/Custom Model
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tutorial Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/arxiv_ml/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Analyzing the Landscape of Machine Learning Research
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/religious/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Discourse Analysis on Morality and Religion
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/ideologies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Discovering a Data-driven Political Compass
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/reviews/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Customer Dissatisfaction Analysis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    <span>Topic Models<span> <br> <i class="subtext">(Overview and Performance)</i>
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Topic Models<span> <br> <i class="subtext">(Overview and Performance)</i>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../benchmark/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Model Leaderboard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Semantic Signal Separation (S³)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SensTopic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SensTopic (BETA)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../KeyNMF/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    KeyNMF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Topeax/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Topeax
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GMM/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GMM
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clustering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clustering Models (BERTopic & Top2Vec)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c_top2vec/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    C-Top2Vec
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ctm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Autoencoding Models (ZeroShotTM & CombinedTM)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../FASTopic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FASTopic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    <span>Other Models<span> <br> <i class="subtext">(e.g. Sentiment Analysis)</i>
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Other Models<span> <br> <i class="subtext">(e.g. Sentiment Analysis)</i>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cvp/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Concept Vector Projection (Continuous Sentiment Scoring)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../encoders/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    <span>Embeddings and Encoders <span><br> <i class="subtext">(Transformer Models)</i>
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vectorizers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    <span>Vectorizers<span> <br> <i class="subtext">(Term extraction)</i>
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../analyzers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Topic Analysis and Naming with LLMs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="late-interaction-topic-models">Late Interaction Topic Models</h1>
+<p>Late interaction, or multi-vector models use token representations from a Sentence Transformer before pooling them all together into a single document embedding.
+This can be particularly useful for clustering models, as they, by default assign one topic to a single document, but when accessing token representations, can assign topics on a per-token basis.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>There are currently no native late-interaction models in Turftopic, meaning models that explicitly model token representations in the context of a document.
+We are currently working on implementing such models, but for the time being, wrappers are included, that can force regular models to use embeddings of higher granularity.
+<strong>Visualization utilities</strong> are also on the way.</p>
+</div>
+<h2 id="encoding-tokens-and-ragged-array-manipulation">Encoding Tokens, and Ragged Array Manipulation</h2>
+<p>Turftopic provides a convenience class for encoding documents on a token-level using Sentence Transformers instead of pooling them together into document embeddings.
+In order to initialize an encoder, load <code>LateSentenceTransformer</code>, and specify which model you would like to use:</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>While you could use any encoder model with <code>LateSentenceTransformer</code>, we recommend that you stick to ones that have mean pooling, and normalize embeddings.
+This is because in these models, you can be sure that the pooled document embeddings and the token embeddings will be in the same semantic space.</p>
+</div>
+<h3 id="token-embeddings">Token Embeddings</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.late</span><span class="w"> </span><span class="kn">import</span> <span class="n">LateSentenceTransformer</span>
+
+<span class="n">documents</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;This is a text&quot;</span><span class="p">,</span> <span class="s2">&quot;This is another but slightly longer text&quot;</span><span class="p">]</span>
+
+<span class="n">encoder</span> <span class="o">=</span> <span class="n">LateSentenceTransformer</span><span class="p">(</span><span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">)</span>
+<span class="n">token_embeddings</span><span class="p">,</span> <span class="n">offsets</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode_tokens</span><span class="p">(</span><span class="n">documents</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">token_embeddings</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">offsets</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+  <span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.01135089</span><span class="p">,</span>  <span class="mf">0.04170538</span><span class="p">,</span>  <span class="mf">0.00379963</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span>  <span class="mf">0.01383126</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.00274855</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.05360783</span><span class="p">],</span>
+        <span class="o">...</span>
+       <span class="p">[</span> <span class="mf">0.05069249</span><span class="p">,</span>  <span class="mf">0.03840942</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03545087</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span>  <span class="mf">0.03142243</span><span class="p">,</span>
+         <span class="mf">0.01929936</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.09216172</span><span class="p">]],</span>
+        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">384</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">),</span>
+  <span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.00047079</span><span class="p">,</span>  <span class="mf">0.03402771</span><span class="p">,</span>  <span class="mf">0.00037086</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span>  <span class="mf">0.0228903</span> <span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.01734272</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.04073172</span><span class="p">],</span>
+       <span class="o">...</span><span class="p">,</span>
+       <span class="p">[</span><span class="o">-</span><span class="mf">0.02586325</span><span class="p">,</span>  <span class="mf">0.03737643</span><span class="p">,</span>  <span class="mf">0.02260585</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span>  <span class="mf">0.05613737</span><span class="p">,</span>
+        <span class="o">-</span><span class="mf">0.01032581</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.03799873</span><span class="p">]],</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">384</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="p">[[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="p">(</span><span class="mi">29</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span> <span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]]</span>
+</code></pre></div>
+<p>As you can see, <code>encode_tokens</code> returns two arrays, one of them being the token embeddings. This is a ragged array, where longer document can have more embeddings.
+<code>offsets</code> contains a list of tuples for each document, where the first element of the tuple is the start character of the given token, and the second element is the end character.</p>
+<h3 id="rolling-window-embeddings">Rolling Window Embeddings</h3>
+<p>You can also pool these embeddings over a rolling window of tokens.
+This way, you still represent your document with multiple vectors, but don't need to model each token individually:</p>
+<div class="highlight"><pre><span></span><code><span class="n">window_embeddings</span><span class="p">,</span> <span class="n">window_offsets</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">encode_windows</span><span class="p">(</span><span class="n">documents</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">doc_emb</span><span class="p">,</span> <span class="n">doc_off</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">window_embeddings</span><span class="p">,</span> <span class="n">window_offsets</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">doc_emb</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">doc_off</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">384</span><span class="p">)</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">384</span><span class="p">)</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+</code></pre></div>
+<h3 id="ragged-array-manipulation">Ragged array manipulation</h3>
+<p>These ragged datastructures are hard to deal with, especially when using array operations, so we include convenience functions for manipulating them:
+<strong><code>flatten_repr</code></strong> flattens the ragged array into a single large array, and returns the length of each sub-array:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.late</span><span class="w"> </span><span class="kn">import</span> <span class="n">flatten_repr</span><span class="p">,</span> <span class="n">unflatten_repr</span>
+
+<span class="n">flat_token_embeddings</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">flatten_repr</span><span class="p">(</span><span class="n">token_embeddings</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">flat_token_embeddings</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> 
+<span class="c1"># (15, 384)</span>
+</code></pre></div>
+<p><strong><code>unflatten_repr</code></strong> will turn a flattened representation array into a ragged array:
+<div class="highlight"><pre><span></span><code><span class="n">token_embeddings</span> <span class="o">=</span> <span class="n">unflatten_repr</span><span class="p">(</span><span class="n">flat_token_embeddings</span><span class="p">,</span> <span class="n">lengths</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong><code>pool_flat</code></strong> will pool a document representations in a flattened array using a given aggregation function:
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.late</span><span class="w"> </span><span class="kn">import</span> <span class="n">pool_flat</span>
+
+<span class="n">pooled</span> <span class="o">=</span> <span class="n">pool_flat</span><span class="p">(</span><span class="n">flat_token_embeddings</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pooled</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="c1"># (2, 384)</span>
+</code></pre></div></p>
+<h2 id="turning-regular-models-into-multi-vector-models">Turning Regular Models into Multi-Vector Models</h2>
+<p>The <code>LateWrapper</code> class can turn your regular topic models into ones that can utilize windowed or token-level embeddings.
+Here's how <code>LateWrapper</code> works:</p>
+<ol>
+<li>It encodes documents at a token or window-level based on its parameters.</li>
+<li>It flattens the embedding array, and feeds the this into the topic model, along with the token/window text.</li>
+<li>It unflattens the output of the topic model (<code>doc_topic_matrix</code>) into a ragged array, where you get topic importance for each token.</li>
+<li><em>[OPTIONAL]</em> It pools token-level topic content on the document level, so that you get one document-topic vector for each document instead of each token.</li>
+</ol>
+<p>Let's see how this works in practice, and create a <a href="../Topeax/">Topeax</a> model that uses windowed embeddings instead of document-level embeddings:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_20newsgroups</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Topeax</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">turftopic.late</span><span class="w"> </span><span class="kn">import</span> <span class="n">LateWrapper</span><span class="p">,</span> <span class="n">LateSentenceTransformer</span>
+
+<span class="n">corpus</span> <span class="o">=</span> <span class="n">fetch_20newsgroups</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;alt.atheism&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">data</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">LateWrapper</span><span class="p">(</span>
+    <span class="n">Topeax</span><span class="p">(</span><span class="n">encoder</span><span class="o">=</span><span class="n">LateSentenceTransformer</span><span class="p">(</span><span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">)),</span>
+    <span class="n">window_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="c1"># If we don&#39;t specify window size, it will use token-level embeddings</span>
+    <span class="n">step_size</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="c1"># Since the step size is smaller than the window, we will get overlapping windows</span>
+<span class="p">)</span>
+<span class="n">doc_topic_matrix</span><span class="p">,</span> <span class="n">offsets</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Highest Ranking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>morality, moral, morals, immoral, objective, behavior, instinctive, species, inherent, animals</td>
+</tr>
+<tr>
+<td>1</td>
+<td>matthew, luke, bible, text, passages, mormon, texts, translations, copy, john</td>
+</tr>
+<tr>
+<td>2</td>
+<td>atheism, agnostics, atheist, beliefs, belief, faith, contradictory, believers, contradictions, theists</td>
+</tr>
+<tr>
+<td>3</td>
+<td>punishment, cruel, abortion, penalty, death, constitution, homosexuality, painless, capital, punish</td>
+</tr>
+<tr>
+<td>4</td>
+<td>war, arms, invaded, gulf, hussein, civilians, military, kuwait, peace, sell</td>
+</tr>
+<tr>
+<td>5</td>
+<td>islam, islamic, muslim, qur, muslims, imams, rushdie, quran, koran, khomeini</td>
+</tr>
+</tbody>
+</table>
+<p>The document-topic matrix, we created, is now a ragged array and contains document-topic proportions for each window in a document.
+Let's see what this means in practice for the first document in our corpus:
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># We select document 0, then collect all information into a dataframe:</span>
+<span class="n">window_topic_matrix</span> <span class="o">=</span> <span class="n">doc_topic_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">window_offs</span> <span class="o">=</span> <span class="n">offsets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">document</span> <span class="o">=</span> <span class="n">corpus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># We extract the text for each window based on the offsets</span>
+<span class="n">window_text</span> <span class="o">=</span> <span class="p">[</span><span class="n">document</span><span class="p">[</span><span class="n">window_start</span><span class="p">:</span> <span class="n">window_end</span><span class="p">]</span> <span class="k">for</span> <span class="n">window_start</span><span class="p">,</span> <span class="n">window_end</span> <span class="ow">in</span> <span class="n">window_offs</span><span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">window_topic_matrix</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">window_text</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">topic_names</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code>                                                    <span class="mi">0</span><span class="n">_morality_moral_morals_immoral</span>  <span class="mi">1</span><span class="n">_matthew_luke_bible_text</span>  <span class="o">...</span>  <span class="mi">4</span><span class="n">_war_arms_invaded_gulf</span>  <span class="mi">5</span><span class="n">_islam_islamic_muslim_qur</span>
+<span class="n">From</span><span class="p">:</span> <span class="n">acooper</span><span class="nd">@mac</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">macalstr</span><span class="o">.</span><span class="n">edu</span> <span class="p">(</span><span class="n">Turin</span> <span class="n">Turamb</span><span class="o">...</span>                         <span class="mf">0.334267</span>               <span class="mf">1.287207e-13</span>  <span class="o">...</span>             <span class="mf">2.626869e-26</span>                <span class="mf">1.459101e-04</span>
+<span class="n">alester</span> <span class="n">College</span>\<span class="n">nLines</span><span class="p">:</span> <span class="mi">55</span>\<span class="n">n</span>\<span class="n">nIn</span> <span class="n">article</span> <span class="o">&lt;</span><span class="n">C5sA2</span><span class="o">...</span>                         <span class="mf">0.360400</span>               <span class="mf">8.898302e-14</span>  <span class="o">...</span>             <span class="mf">3.290858e-26</span>                <span class="mf">1.382718e-04</span>
+<span class="n">u</span> <span class="p">(</span><span class="n">Mike</span> <span class="n">Cobb</span><span class="p">)</span> <span class="n">writes</span><span class="p">:</span>\<span class="n">n</span><span class="o">&gt;</span> <span class="n">I</span> <span class="n">guess</span> <span class="n">I</span><span class="s1">&#39;m delving in...                         0.847002               5.002921e-22  ...             4.852574e-41                3.141366e-07</span>
+<span class="n">this</span> <span class="n">you</span> <span class="n">just</span> <span class="n">have</span> <span class="n">a</span> <span class="n">spiral</span><span class="o">.</span>  <span class="n">What</span>\<span class="n">nwould</span> <span class="n">then</span> <span class="o">...</span>                         <span class="mf">0.848413</span>               <span class="mf">5.819050e-22</span>  <span class="o">...</span>             <span class="mf">8.139559e-41</span>                <span class="mf">3.286224e-07</span>
+<span class="p">,</span> <span class="n">even</span> <span class="n">though</span> <span class="n">this</span> <span class="n">would</span> <span class="n">hardly</span> <span class="n">seem</span> <span class="n">moral</span><span class="o">.</span>  <span class="n">Fo</span><span class="o">...</span>                         <span class="mf">0.863685</span>               <span class="mf">1.272204e-21</span>  <span class="o">...</span>             <span class="mf">2.823941e-41</span>                <span class="mf">2.815930e-07</span>
+<span class="n">whatever</span> <span class="n">helps</span> <span class="n">this</span> <span class="n">goal</span> <span class="ow">is</span>\<span class="n">n</span><span class="s2">&quot;moral&quot;</span><span class="p">,</span> <span class="n">whatever</span> <span class="o">...</span>                         <span class="mf">0.864913</span>               <span class="mf">1.584558e-21</span>  <span class="o">...</span>             <span class="mf">5.780971e-41</span>                <span class="mf">3.003952e-07</span>
+<span class="n">a</span> <span class="s2">&quot;hyper-morality&quot;</span> <span class="n">to</span> <span class="n">apply</span> <span class="n">to</span> <span class="n">just</span> <span class="n">the</span> <span class="n">methods</span><span class="o">...</span>                         <span class="mf">0.865558</span>               <span class="mf">1.919885e-21</span>  <span class="o">...</span>             <span class="mf">1.251694e-40</span>                <span class="mf">3.231265e-07</span>
+<span class="ow">not</span> <span class="n">doing</span> <span class="n">something</span> <span class="n">because</span> <span class="n">it</span> <span class="ow">is</span>\<span class="n">n</span><span class="o">&gt;</span> <span class="n">a</span> <span class="n">personal</span><span class="o">...</span>                         <span class="mf">0.868360</span>               <span class="mf">2.951441e-21</span>  <span class="o">...</span>             <span class="mf">3.085662e-40</span>                <span class="mf">3.494368e-07</span>
+<span class="n">we</span> <span class="n">only</span> <span class="n">consider</span> <span class="n">something</span> <span class="n">moral</span> <span class="ow">or</span> <span class="n">immoral</span> <span class="k">if</span> <span class="o">...</span>                         <span class="mf">0.872827</span>               <span class="mf">5.444738e-21</span>  <span class="o">...</span>             <span class="mf">4.708349e-40</span>                <span class="mf">3.580695e-07</span>
+<span class="n">here</span> <span class="n">we</span> <span class="n">have</span> <span class="n">a</span> <span class="n">way</span> <span class="n">to</span> <span class="n">discriminate</span>\<span class="n">nmorals</span><span class="o">.</span>  <span class="n">I</span> <span class="o">...</span>                         <span class="mf">0.876951</span>               <span class="mf">1.021014e-20</span>  <span class="o">...</span>             <span class="mf">3.486096e-40</span>                <span class="mf">3.411401e-07</span>
+<span class="n">enough</span> <span class="ow">and</span>\<span class="n">nlistened</span> <span class="n">to</span> <span class="n">the</span> <span class="n">arguments</span><span class="p">,</span> <span class="n">I</span> <span class="n">could</span> <span class="o">...</span>                         <span class="mf">0.878680</span>               <span class="mf">2.302363e-20</span>  <span class="o">...</span>             <span class="mf">5.866410e-40</span>                <span class="mf">3.565728e-07</span>
+<span class="o">.</span>  <span class="n">Or</span><span class="p">,</span> <span class="k">as</span> <span class="n">you</span> <span class="n">brought</span> <span class="n">out</span><span class="p">,</span>\<span class="n">n</span><span class="o">&gt;</span> <span class="k">if</span> <span class="n">whatever</span> <span class="ow">is</span> <span class="n">ri</span><span class="o">...</span>                         <span class="mf">0.878953</span>               <span class="mf">3.004052e-20</span>  <span class="o">...</span>             <span class="mf">5.977738e-40</span>                <span class="mf">3.566668e-07</span>
+<span class="o">&gt;</span> <span class="o">*******************************</span>                                          <span class="mf">0.647793</span>               <span class="mf">5.664651e-17</span>  <span class="o">...</span>             <span class="mf">1.805073e-19</span>                <span class="mf">4.612731e-04</span>
+</code></pre></div>
+<h2 id="c-top2vec">C-Top2Vec</h2>
+<p>Contextual Top2Vec <a href="https://aclanthology.org/2024.findings-emnlp.790/">(Angelov and Inkpen, 2024)</a> is a late-interaction topic model, that uses windowed representations.
+The model is essentially the same as wrapping a regular Top2vec model in <code>LateWrapper</code>, but we provide a convenience class in Turftopic, so that it's easy for you to initialize this model.
+It comes pre-loaded with the following features:</p>
+<ul>
+<li>Same hyperparameters as in Angelov and Inkpen (2024)</li>
+<li>Phrase-vectorizer that finds regular phrases based on PMI</li>
+<li><code>LateSentenceTransformer</code> by default, you can specify any model.</li>
+</ul>
+<p>Our implementation is much more flexible than the original top2vec package, and you might be able to use much more powerful or novel embedding models.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">turftopic</span><span class="w"> </span><span class="kn">import</span> <span class="n">CTop2Vec</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">CTop2Vec</span><span class="p">(</span><span class="n">n_reduce_to</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">doc_topic_matrix</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">print_topics</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Topic ID</th>
+<th>Highest Ranking</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-1</td>
+<td>caused atheism organization, genocide caused atheism, atheism organization, atheism, subject political atheists, alt atheism, caused atheism, political atheists organization, subject amusing atheists, amusing atheists</td>
+</tr>
+<tr>
+<td>166</td>
+<td>atheists organization, political atheists organization, christian morality organization, caused atheism organization, morality organization, atheism organization, atheists organization california, subject amusing atheists, cwru edu article, alt atheism</td>
+</tr>
+<tr>
+<td>172</td>
+<td>biblical, read bible, caused atheism, agnostics, caused atheism organization, atheists agnostics, christianity, alt atheism, atheism, christian morality organization</td>
+</tr>
+<tr>
+<td>173</td>
+<td>objective morality, morality, subject christian morality, christian morality, natural morality, say christian morality, morality organization, christian morality organization, behavior moral, moral</td>
+</tr>
+<tr>
+<td>175</td>
+<td>atheism, atheism organization, caused atheism organization, atheists agnostics, caused atheism, subject political atheists, alt atheism, genocide caused atheism, subject amusing atheists, amusing atheists</td>
+</tr>
+<tr>
+<td>176</td>
+<td>rushdie islamic law, subject rushdie islamic, islamic genocide, islamic law, genocide caused atheism, subject islamic, islamic law organization, islamic genocide organization, rushdie islamic, islamic authority</td>
+</tr>
+</tbody>
+</table>
+<p>You might also observe that the output of this model is a regular document-topic matrix, and isn't ragged.
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">doc_topic_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="c1"># (1024, 6)</span>
+</code></pre></div></p>
+<p>This is because this way the model has the same API, as other Turftopic models, and works the same way as the top2vec package, making migration easier.</p>
+<h2 id="api-reference">API Reference</h2>
+<h3 id="encoder">Encoder</h3>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.late.LateSentenceTransformer" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.late.LateSentenceTransformer</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sentence_transformers.SentenceTransformer">SentenceTransformer</span></code></p>
+
+  
+      <p>SentenceTransformer model that can produce token and window-level embeddings.
+Its output can be used by topic models that can use multi-vector document representations.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is not checked yet in the library,
+but we recommend that you use SentenceTransformers that are
+a) <strong>Mean pooled</strong>
+b) <strong>L2 Normalized</strong>
+This will guarrantee that the token/window embeddings are in the same embedding space as the documents.</p>
+</div>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/late.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LateSentenceTransformer</span><span class="p">(</span><span class="n">SentenceTransformer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SentenceTransformer model that can produce token and window-level embeddings.</span>
+<span class="sd">    Its output can be used by topic models that can use multi-vector document representations.</span>
+
+<span class="sd">    !!! warning</span>
+<span class="sd">        This is not checked yet in the library,</span>
+<span class="sd">        but we recommend that you use SentenceTransformers that are</span>
+<span class="sd">        a) **Mean pooled**</span>
+<span class="sd">        b) **L2 Normalized**</span>
+<span class="sd">        This will guarrantee that the token/window embeddings are in the same embedding space as the documents.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">has_used_token_level</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_used_token_level</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Encoder is contextual but topic model is not using contextual embeddings. Perhaps you wanted to use another topic model.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_encode_tokens</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">texts</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+        <span class="n">show_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">Offsets</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        token_embeddings: list[np.ndarray]</span>
+<span class="sd">            Embedding matrix of tokens for each document.</span>
+<span class="sd">        offsets: list[list[tuple[int, int]]]</span>
+<span class="sd">            Start and end character of each token in each document.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_used_token_level</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">token_embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+            <span class="n">texts</span><span class="p">,</span>
+            <span class="n">output_value</span><span class="o">=</span><span class="s2">&quot;token_embeddings&quot;</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">show_progress_bar</span><span class="o">=</span><span class="n">show_progress_bar</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span>
+            <span class="n">texts</span><span class="p">,</span> <span class="n">return_offsets_mapping</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)[</span><span class="s2">&quot;offset_mapping&quot;</span><span class="p">]</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">offs</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">embs</span><span class="p">)]</span> <span class="k">for</span> <span class="n">offs</span><span class="p">,</span> <span class="n">embs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">offsets</span><span class="p">,</span> <span class="n">token_embeddings</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">token_embeddings</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">embs</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">embs</span> <span class="ow">in</span> <span class="n">token_embeddings</span>
+            <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">embs</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">token_embeddings</span><span class="p">,</span> <span class="n">offsets</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode_tokens</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sentences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="n">show_progress_bar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produces contextual token embeddings over all documents.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sentences: list[str]</span>
+<span class="sd">            Documents to encode contextually.</span>
+<span class="sd">        batch_size: int, default 32</span>
+<span class="sd">            Size of the batch of document to encode at once.</span>
+<span class="sd">        show_progress_bar: bool, default True</span>
+<span class="sd">            Indicates whether a progress bar should be displayed when encoding.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        token_embeddings: list[np.ndarray]</span>
+<span class="sd">            Embedding matrix of tokens for each document.</span>
+<span class="sd">        offsets: list[list[tuple[int, int]]]</span>
+<span class="sd">            Start and end character of each token in each document.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># This is needed because the above implementation does not normalize embeddings,</span>
+        <span class="c1"># which normally happens to document embeddings.</span>
+        <span class="n">token_embeddings</span><span class="p">,</span> <span class="n">offsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_tokens</span><span class="p">(</span>
+            <span class="n">sentences</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">show_progress_bar</span><span class="o">=</span><span class="n">show_progress_bar</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">token_embeddings</span> <span class="o">=</span> <span class="p">[</span><span class="n">normalize</span><span class="p">(</span><span class="n">emb</span><span class="p">)</span> <span class="k">for</span> <span class="n">emb</span> <span class="ow">in</span> <span class="n">token_embeddings</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">token_embeddings</span><span class="p">,</span> <span class="n">offsets</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode_windows</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sentences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="n">step_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span>
+        <span class="n">show_progress_bar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produces contextual embeddings for a sliding window of tokens similar to C-Top2Vec.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sentences: list[str]</span>
+<span class="sd">            Documents to encode contextually.</span>
+<span class="sd">        batch_size: int, default 32</span>
+<span class="sd">            Size of the batch of document to encode at once.</span>
+<span class="sd">        window_size: int, default 50</span>
+<span class="sd">            Size of the sliding window.</span>
+<span class="sd">        step_size: int, default 40</span>
+<span class="sd">            Step size of the window.</span>
+<span class="sd">            If step_size &lt; window_size, windows will overlap.</span>
+<span class="sd">            If step_size == window_size, then windows are separate.</span>
+<span class="sd">            If step_size &gt; window_size, there will be gaps between the windows.</span>
+<span class="sd">            In this case, we throw a warning, as this is probably unintended behaviour.</span>
+<span class="sd">        show_progress_bar: bool, default True</span>
+<span class="sd">            Indicates whether a progress bar should be displayed when encoding.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        window_embeddings: list[np.ndarray]</span>
+<span class="sd">            Embedding matrix of windows for each document.</span>
+<span class="sd">        offsets: list[list[tuple[int, int]]]</span>
+<span class="sd">            Start and end character of each token in each document.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">token_embeddings</span><span class="p">,</span> <span class="n">token_offsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_tokens</span><span class="p">(</span>
+            <span class="n">sentences</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">show_progress_bar</span><span class="o">=</span><span class="n">show_progress_bar</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">window_embeddings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">window_offsets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">emb</span><span class="p">,</span> <span class="n">offs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">token_embeddings</span><span class="p">,</span> <span class="n">token_offsets</span><span class="p">):</span>
+            <span class="n">_offsets</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">_embeddings</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">start_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">emb</span><span class="p">),</span> <span class="n">step_size</span><span class="p">):</span>
+                <span class="n">end_index</span> <span class="o">=</span> <span class="n">start_index</span> <span class="o">+</span> <span class="n">window_size</span>
+                <span class="n">window_emb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">emb</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">off</span> <span class="o">=</span> <span class="n">offs</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">]</span>
+                <span class="n">_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">window_emb</span><span class="p">)</span>
+                <span class="n">_offsets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">off</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">off</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">window_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">_embeddings</span><span class="p">)))</span>
+            <span class="n">window_offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_offsets</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">window_embeddings</span><span class="p">,</span> <span class="n">window_offsets</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.late.LateSentenceTransformer.encode_tokens" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">encode_tokens</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">show_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produces contextual token embeddings over all documents.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>sentences</code></td>
+          <td>
+                <code>list[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Documents to encode contextually.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>batch_size</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Size of the batch of document to encode at once.</p>
+            </div>
+          </td>
+          <td>
+                <code>32</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>show_progress_bar</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Indicates whether a progress bar should be displayed when encoding.</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>token_embeddings</code></td>          <td>
+                <code>list[<span title="numpy.ndarray">ndarray</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Embedding matrix of tokens for each document.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+<td><code>offsets</code></td>          <td>
+                <code>list[list[tuple[int, int]]]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Start and end character of each token in each document.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/late.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">encode_tokens</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">sentences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="n">show_progress_bar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produces contextual token embeddings over all documents.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sentences: list[str]</span>
+<span class="sd">        Documents to encode contextually.</span>
+<span class="sd">    batch_size: int, default 32</span>
+<span class="sd">        Size of the batch of document to encode at once.</span>
+<span class="sd">    show_progress_bar: bool, default True</span>
+<span class="sd">        Indicates whether a progress bar should be displayed when encoding.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    token_embeddings: list[np.ndarray]</span>
+<span class="sd">        Embedding matrix of tokens for each document.</span>
+<span class="sd">    offsets: list[list[tuple[int, int]]]</span>
+<span class="sd">        Start and end character of each token in each document.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># This is needed because the above implementation does not normalize embeddings,</span>
+    <span class="c1"># which normally happens to document embeddings.</span>
+    <span class="n">token_embeddings</span><span class="p">,</span> <span class="n">offsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_tokens</span><span class="p">(</span>
+        <span class="n">sentences</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">show_progress_bar</span><span class="o">=</span><span class="n">show_progress_bar</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">token_embeddings</span> <span class="o">=</span> <span class="p">[</span><span class="n">normalize</span><span class="p">(</span><span class="n">emb</span><span class="p">)</span> <span class="k">for</span> <span class="n">emb</span> <span class="ow">in</span> <span class="n">token_embeddings</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">token_embeddings</span><span class="p">,</span> <span class="n">offsets</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h4 id="turftopic.late.LateSentenceTransformer.encode_windows" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>          <code class="highlight language-python"><span class="n">encode_windows</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">show_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+</h4>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Produces contextual embeddings for a sliding window of tokens similar to C-Top2Vec.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>sentences</code></td>
+          <td>
+                <code>list[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Documents to encode contextually.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>batch_size</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Size of the batch of document to encode at once.</p>
+            </div>
+          </td>
+          <td>
+                <code>32</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>window_size</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Size of the sliding window.</p>
+            </div>
+          </td>
+          <td>
+                <code>50</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>step_size</code></td>
+          <td>
+                <code>int</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Step size of the window.
+If step_size &lt; window_size, windows will overlap.
+If step_size == window_size, then windows are separate.
+If step_size &gt; window_size, there will be gaps between the windows.
+In this case, we throw a warning, as this is probably unintended behaviour.</p>
+            </div>
+          </td>
+          <td>
+                <code>40</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>show_progress_bar</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Indicates whether a progress bar should be displayed when encoding.</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>window_embeddings</code></td>          <td>
+                <code>list[<span title="numpy.ndarray">ndarray</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Embedding matrix of windows for each document.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+<td><code>offsets</code></td>          <td>
+                <code>list[list[tuple[int, int]]]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Start and end character of each token in each document.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/late.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">encode_windows</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">sentences</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+    <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="n">step_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span>
+    <span class="n">show_progress_bar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Produces contextual embeddings for a sliding window of tokens similar to C-Top2Vec.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sentences: list[str]</span>
+<span class="sd">        Documents to encode contextually.</span>
+<span class="sd">    batch_size: int, default 32</span>
+<span class="sd">        Size of the batch of document to encode at once.</span>
+<span class="sd">    window_size: int, default 50</span>
+<span class="sd">        Size of the sliding window.</span>
+<span class="sd">    step_size: int, default 40</span>
+<span class="sd">        Step size of the window.</span>
+<span class="sd">        If step_size &lt; window_size, windows will overlap.</span>
+<span class="sd">        If step_size == window_size, then windows are separate.</span>
+<span class="sd">        If step_size &gt; window_size, there will be gaps between the windows.</span>
+<span class="sd">        In this case, we throw a warning, as this is probably unintended behaviour.</span>
+<span class="sd">    show_progress_bar: bool, default True</span>
+<span class="sd">        Indicates whether a progress bar should be displayed when encoding.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    window_embeddings: list[np.ndarray]</span>
+<span class="sd">        Embedding matrix of windows for each document.</span>
+<span class="sd">    offsets: list[list[tuple[int, int]]]</span>
+<span class="sd">        Start and end character of each token in each document.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">token_embeddings</span><span class="p">,</span> <span class="n">token_offsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_tokens</span><span class="p">(</span>
+        <span class="n">sentences</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">show_progress_bar</span><span class="o">=</span><span class="n">show_progress_bar</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">window_embeddings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">window_offsets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">emb</span><span class="p">,</span> <span class="n">offs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">token_embeddings</span><span class="p">,</span> <span class="n">token_offsets</span><span class="p">):</span>
+        <span class="n">_offsets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">_embeddings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">start_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">emb</span><span class="p">),</span> <span class="n">step_size</span><span class="p">):</span>
+            <span class="n">end_index</span> <span class="o">=</span> <span class="n">start_index</span> <span class="o">+</span> <span class="n">window_size</span>
+            <span class="n">window_emb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">emb</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">off</span> <span class="o">=</span> <span class="n">offs</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">end_index</span><span class="p">]</span>
+            <span class="n">_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">window_emb</span><span class="p">)</span>
+            <span class="n">_offsets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">off</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">off</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">window_embeddings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">_embeddings</span><span class="p">)))</span>
+        <span class="n">window_offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_offsets</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">window_embeddings</span><span class="p">,</span> <span class="n">window_offsets</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+
+</div><h3 id="wrapper">Wrapper</h3>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="turftopic.late.LateWrapper" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>turftopic.late.LateWrapper</code>
+
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+          <p class="doc doc-class-bases">
+            Bases: <code><a class="autorefs autorefs-internal" title="turftopic.base.ContextualModel" href="../model_overview/#turftopic.base.ContextualModel">ContextualModel</a></code>, <code><span title="sklearn.base.TransformerMixin">TransformerMixin</span></code></p>
+
+  
+      <p>Wraps existing Turftopic model so that they can accept and create
+multi-vector document representations.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The model HAS TO HAVE a late interaction encoder model
+(e.g. <code>LateSentenceTransformer</code>)</p>
+</div>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>model</code></td>
+          <td>
+                <code><span title="sklearn.base.TransformerMixin">TransformerMixin</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Turftopic model to turn into late-interaction model.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>batch_size</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[int]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Batch size of the transformer.</p>
+            </div>
+          </td>
+          <td>
+                <code>32</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>window_size</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[int]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Size of the sliding window to average tokens over.
+If None, documents will be represented at a token level.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>step_size</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[int]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Step size of the window.
+If (step_size == None) or (step_size == window_size), then windows are separate.
+If step_size &lt; window_size, windows will overlap.
+If step_size &gt; window_size, there will be gaps between the windows.
+In this case, we throw a warning, as this is probably unintended behaviour.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>pooling</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="typing.Callable">Callable</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Indicates whether and how to pool document-topic matrices.
+If None, multi-vector topic proportions are returned in a ragged array.
+If Callable, multiple vectors are averaged with the callable in each document.
+You could for example take the mean by specifying <code>pooling=np.nanmean</code>.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+            <details class="quote">
+              <summary>Source code in <code>turftopic/late.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LateWrapper</span><span class="p">(</span><span class="n">ContextualModel</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wraps existing Turftopic model so that they can accept and create</span>
+<span class="sd">    multi-vector document representations.</span>
+
+<span class="sd">    !!! warning</span>
+<span class="sd">        The model HAS TO HAVE a late interaction encoder model</span>
+<span class="sd">        (e.g. `LateSentenceTransformer`)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model</span>
+<span class="sd">        Turftopic model to turn into late-interaction model.</span>
+<span class="sd">    batch_size: int, default 32</span>
+<span class="sd">        Batch size of the transformer.</span>
+<span class="sd">    window_size: int, default None</span>
+<span class="sd">        Size of the sliding window to average tokens over.</span>
+<span class="sd">        If None, documents will be represented at a token level.</span>
+<span class="sd">    step_size: int, default None</span>
+<span class="sd">        Step size of the window.</span>
+<span class="sd">        If (step_size == None) or (step_size == window_size), then windows are separate.</span>
+<span class="sd">        If step_size &lt; window_size, windows will overlap.</span>
+<span class="sd">        If step_size &gt; window_size, there will be gaps between the windows.</span>
+<span class="sd">        In this case, we throw a warning, as this is probably unintended behaviour.</span>
+<span class="sd">    pooling: Callable, default None</span>
+<span class="sd">        Indicates whether and how to pool document-topic matrices.</span>
+<span class="sd">        If None, multi-vector topic proportions are returned in a ragged array.</span>
+<span class="sd">        If Callable, multiple vectors are averaged with the callable in each document.</span>
+<span class="sd">        You could for example take the mean by specifying `pooling=np.nanmean`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">TransformerMixin</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="n">window_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">step_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">pooling</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="o">=</span> <span class="n">pooling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span> <span class="o">=</span> <span class="n">window_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="n">step_size</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode_late</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Offsets</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">embeddings</span><span class="p">,</span> <span class="n">offsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">encode_tokens</span><span class="p">(</span>
+                <span class="n">raw_documents</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">embeddings</span><span class="p">,</span> <span class="n">offsets</span>
+        <span class="c1"># If the window_size is specified, but not step_size, we set the step size to the window size</span>
+        <span class="c1"># Thereby getting non-overlapping windows</span>
+        <span class="n">step_size</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span>
+        <span class="p">)</span>
+        <span class="n">embeddings</span><span class="p">,</span> <span class="n">offsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">encode_windows</span><span class="p">(</span>
+            <span class="n">raw_documents</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">window_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">,</span>
+            <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">embeddings</span><span class="p">,</span> <span class="n">offsets</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">embeddings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">offsets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Offsets</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">offsets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">embeddings</span><span class="p">,</span> <span class="n">offsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_late</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+        <span class="n">flat_embeddings</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">flatten_repr</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">get_document_chunks</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">offsets</span><span class="p">)</span>
+        <span class="n">out_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">chunks</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">flat_embeddings</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">unflatten_repr</span><span class="p">(</span><span class="n">out_array</span><span class="p">,</span> <span class="n">lengths</span><span class="p">),</span> <span class="n">offsets</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pool_flat</span><span class="p">(</span><span class="n">out_array</span><span class="p">,</span> <span class="n">lengths</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">embeddings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">offsets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Offsets</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">offsets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">embeddings</span><span class="p">,</span> <span class="n">offsets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_late</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">)</span>
+        <span class="n">flat_embeddings</span><span class="p">,</span> <span class="n">lengths</span> <span class="o">=</span> <span class="n">flatten_repr</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="n">get_document_chunks</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">offsets</span><span class="p">)</span>
+        <span class="n">out_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span>
+            <span class="n">chunks</span><span class="p">,</span> <span class="n">embeddings</span><span class="o">=</span><span class="n">flat_embeddings</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">unflatten_repr</span><span class="p">(</span><span class="n">out_array</span><span class="p">,</span> <span class="n">lengths</span><span class="p">),</span> <span class="n">offsets</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pool_flat</span><span class="p">(</span><span class="n">out_array</span><span class="p">,</span> <span class="n">lengths</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">components_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">components_</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hierarchy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">hierarchy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">topic_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">topic_names</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">classes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">classes_</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vectorizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vectorizer</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+
+</div><h3 id="utility-functions">Utility functions</h3>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="turftopic.late.flatten_repr" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">turftopic</span><span class="o">.</span><span class="n">late</span><span class="o">.</span><span class="n">flatten_repr</span><span class="p">(</span><span class="nb">repr</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Flattens ragged array to normal array.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>repr</code></td>
+          <td>
+                <code>list[<span title="numpy.ndarray">ndarray</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Ragged representation array.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>flat_repr</code></td>          <td>
+                <code>ndarray</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Flattened representation array.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+<td><code>lengths</code></td>          <td>
+                <code>list[int]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Length of each document in the corpus.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/late.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">flatten_repr</span><span class="p">(</span>
+    <span class="nb">repr</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Lengths</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flattens ragged array to normal array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    repr: list[ndarray]</span>
+<span class="sd">        Ragged representation array.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    flat_repr: ndarray</span>
+<span class="sd">        Flattened representation array.</span>
+<span class="sd">    lengths: list[int]</span>
+<span class="sd">        Length of each document in the corpus.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">repr</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">lengths</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="turftopic.late.unflatten_repr" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">turftopic</span><span class="o">.</span><span class="n">late</span><span class="o">.</span><span class="n">unflatten_repr</span><span class="p">(</span><span class="n">flat_repr</span><span class="p">,</span> <span class="n">lengths</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Unflattens flat array to ragged array.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>flat_repr</code></td>
+          <td>
+                <code><span title="numpy.ndarray">ndarray</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Flattened representation array.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>lengths</code></td>
+          <td>
+                <code><span title="turftopic.late.Lengths">Lengths</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Length of each document in the corpus.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+<th>Name</th>        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+<td><code>repr</code></td>          <td>
+                <code>list[ndarray]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Ragged representation array.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/late.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">unflatten_repr</span><span class="p">(</span>
+    <span class="n">flat_repr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lengths</span><span class="p">:</span> <span class="n">Lengths</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unflattens flat array to ragged array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    flat_repr: ndarray</span>
+<span class="sd">        Flattened representation array.</span>
+<span class="sd">    lengths: list[int]</span>
+<span class="sd">        Length of each document in the corpus.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    repr: list[ndarray]</span>
+<span class="sd">        Ragged representation array.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">repr</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="n">lengths</span><span class="p">:</span>
+        <span class="nb">repr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flat_repr</span><span class="p">[</span><span class="n">start_index</span> <span class="p">:</span> <span class="n">start_index</span> <span class="o">+</span> <span class="n">length</span><span class="p">])</span>
+        <span class="n">start_index</span> <span class="o">+=</span> <span class="n">length</span>
+    <span class="k">return</span> <span class="nb">repr</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="turftopic.late.pool_flat" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">turftopic</span><span class="o">.</span><span class="n">late</span><span class="o">.</span><span class="n">pool_flat</span><span class="p">(</span><span class="n">flat_repr</span><span class="p">,</span> <span class="n">lengths</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Pools vectors within documents using the agg function.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>flat_repr</code></td>
+          <td>
+                <code><span title="numpy.ndarray">ndarray</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Flattened document representations.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>lengths</code></td>
+          <td>
+                <code><span title="turftopic.late.Lengths">Lengths</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Number of tokens in each document.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>ndarray of shape (n_documents, n_dims)</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Pooled representation for each document.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/late.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pool_flat</span><span class="p">(</span><span class="n">flat_repr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">lengths</span><span class="p">:</span> <span class="n">Lengths</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pools vectors within documents using the agg function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    flat_repr: ndarray of shape (n_total_tokens, n_dims)</span>
+<span class="sd">        Flattened document representations.</span>
+<span class="sd">    lengths: Lengths</span>
+<span class="sd">        Number of tokens in each document.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray of shape (n_documents, n_dims)</span>
+<span class="sd">        Pooled representation for each document.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pooled</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="n">lengths</span><span class="p">:</span>
+        <span class="n">pooled</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">agg</span><span class="p">(</span><span class="n">flat_repr</span><span class="p">[</span><span class="n">start_index</span> <span class="p">:</span> <span class="n">start_index</span> <span class="o">+</span> <span class="n">length</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">start_index</span> <span class="o">+=</span> <span class="n">length</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">pooled</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="turftopic.late.get_document_chunks" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">turftopic</span><span class="o">.</span><span class="n">late</span><span class="o">.</span><span class="n">get_document_chunks</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">offsets</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents first">
+  
+      <p>Extracts text chunks from documents based on token/window offsets.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>raw_documents</code></td>
+          <td>
+                <code>list[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Text documents.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>offsets</code></td>
+          <td>
+                <code>list[<span title="turftopic.late.Offsets">Offsets</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Offsets returned when encoding.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code>list[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Text chunks of tokens/windows in the documents.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+          <details class="quote">
+            <summary>Source code in <code>turftopic/late.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_document_chunks</span><span class="p">(</span>
+    <span class="n">raw_documents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">offsets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Offsets</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts text chunks from documents based on token/window offsets.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_documents: list[str]</span>
+<span class="sd">        Text documents.</span>
+<span class="sd">    offsets: list[Offsets]</span>
+<span class="sd">        Offsets returned when encoding.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list[str]</span>
+<span class="sd">        Text chunks of tokens/windows in the documents.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">doc</span><span class="p">,</span> <span class="n">_offs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">raw_documents</span><span class="p">,</span> <span class="n">offsets</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">start_char</span><span class="p">,</span> <span class="n">end_char</span> <span class="ow">in</span> <span class="n">_offs</span><span class="p">:</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">start_char</span><span class="p">:</span><span class="n">end_char</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">chunks</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["toc.integrate", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.indexes", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.e1c3ead8.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
