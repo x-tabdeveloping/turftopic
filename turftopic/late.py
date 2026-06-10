@@ -1,8 +1,10 @@
 import itertools
 import warnings
+from functools import partial
 from typing import Callable, Iterable, Optional, Union
 
 import numpy as np
+import scipy.sparse as spr
 import torch
 from sentence_transformers import SentenceTransformer
 from sklearn.base import TransformerMixin
@@ -208,29 +210,37 @@ def unflatten_repr(
     return repr
 
 
-def pool_flat(flat_repr: np.ndarray, lengths: Lengths, agg=np.nanmean):
+def pool_flat(
+    flat_repr: np.ndarray | spr.sparray, lengths: Lengths, agg=np.nanmean
+):
     """Pools vectors within documents using the agg function.
 
     Parameters
     ----------
-    flat_repr: ndarray of shape (n_total_tokens, n_dims)
+    flat_repr: ndarray or sparse array of shape (n_total_tokens, n_dims)
         Flattened document representations.
     lengths: Lengths
         Number of tokens in each document.
 
     Returns
     -------
-    ndarray of shape (n_documents, n_dims)
+    ndarray or sparse array of shape (n_documents, n_dims)
         Pooled representation for each document.
     """
+    if spr.issparse(flat_repr):
+        stack = partial(spr.vstack, format="csr")
+        array = spr.csr_matrix
+    else:
+        stack = np.stack
+        array = np.asarray
     pooled = []
     start_index = 0
     for length in lengths:
         pooled.append(
-            agg(flat_repr[start_index : start_index + length], axis=0)
+            array(agg(flat_repr[start_index : start_index + length], axis=0))
         )
         start_index += length
-    return np.stack(pooled)
+    return stack(pooled)
 
 
 def get_document_chunks(
