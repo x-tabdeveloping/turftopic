@@ -81,6 +81,7 @@ def create_readme(model, model_path: str) -> str:
         topics_table = model.export_topics(format="markdown", top_k=10)
     except Exception:
         print("Couldn't produce topic table for readme, moving on...")
+        topics_table = None
     local_versions = get_package_versions()
     lines = ["| Package | Version |", "| - | - |"]
     for package in IMPORTANT_PACKAGES:
