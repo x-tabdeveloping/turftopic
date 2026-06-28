@@ -5,6 +5,7 @@ from typing import Literal, Optional, Union
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
+from sklearn.base import copy
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.manifold import TSNE
@@ -14,7 +15,7 @@ from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.models._snmf import SNMF
+from turftopic.models._snmf import SNMF, rec_err
 from turftopic.multimodal import (
     ImageRepr,
     MultimodalEmbeddings,
@@ -32,6 +33,16 @@ NOT_MATCHING_ERROR = (
 )
 
 
+def bic(X, model: SNMF):
+    rss = np.square(model.rec_err(X))
+    n_docs, n_dims = X.shape
+    # BIC1 from https://pmc.ncbi.nlm.nih.gov/articles/PMC9181460/
+    bic1 = np.log(rss) + model.n_components * (
+        (n_docs + n_dims) / (n_docs * n_dims)
+    ) * np.log((n_docs * n_dims) / (n_docs + n_dims))
+    return bic1
+
+
 def bic_snmf(
     n_components: int, sparsity: float, X, random_state: int = 42
 ) -> float:
@@ -43,13 +54,17 @@ def bic_snmf(
         progress_bar=False,
     )
     doc_topic = decomp.fit_transform(X)
-    rss = np.square(decomp.reconstruction_err_)
-    n_docs, n_dims = X.shape
-    # BIC1 from https://pmc.ncbi.nlm.nih.gov/articles/PMC9181460/
-    bic1 = np.log(rss) + n_components * (
-        (n_docs + n_dims) / (n_docs * n_dims)
-    ) * np.log((n_docs * n_dims) / (n_docs + n_dims))
-    return bic1
+    return bic(X, decomp)
+
+
+def bic_add_components(n_new: int, X_new, decomp):
+    if n_new == 0:
+        return bic(X_new, decomp)
+    m_copy = copy.copy(decomp)
+    m_copy.progress_bar = False
+    m_copy.verbose = False
+    m_copy.fit_new_components(X_new, n_new_components=n_new)
+    return bic(X_new, m_copy)
 
 
 class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
@@ -204,6 +219,84 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             self.document_topic_matrix = doc_topic
             console.log("Model fitting done.")
         return doc_topic
+
+    def update_vocabulary(self, raw_documents):
+        new_vectorizer = copy.copy(self.vectorizer)
+        new_vectorizer.fit(raw_documents)
+        old_vocab = self.get_vocab()
+        new_vocab = list(
+            set(new_vectorizer.get_feature_names_out()) - set(old_vocab)
+        )
+        if len(new_vocab) == 0:
+            return
+        new_vocab_embeddings = self.encode_documents(new_vocab)
+        self.vocab_embeddings = np.concatenate(
+            [self.vocab_embeddings, new_vocab_embeddings], axis=0
+        )
+        self.vectorizer.get_feature_names_out = lambda: np.array(
+            list(old_vocab) + new_vocab
+        )
+
+    def _get_rec_err(self, X):
+        return rec_err(
+            X.T,
+            self.decomposition.components_.T,
+            self.decomposition.transform(X),
+        )
+
+    def partial_fit(
+        self, raw_documents, y=None, embeddings=None, n_new_components="auto"
+    ):
+        if getattr(self, "components_", None) is None:
+            return self.fit(raw_documents, embeddings=embeddings)
+        console = Console()
+        with console.status("Updating model with new data") as status:
+            if embeddings is None:
+                status.update("Encoding documents")
+                embeddings = self.encode_documents(raw_documents)
+                console.log("Documents encoded.")
+            if n_new_components == "auto":
+                status.update("Finding the number of components to add.")
+                n_new_components = optimize_n_components(
+                    partial(
+                        bic_add_components,
+                        X_new=embeddings,
+                        decomp=self.decomposition,
+                    ),
+                    min_n=0,
+                    verbose=True,
+                )
+            self.decomposition.fit_new_components(
+                embeddings, n_new_components=n_new_components
+            )
+            self.n_components_ = self.decomposition.n_components
+            doc_topic = self.decomposition.transform(embeddings)
+            console.log("Updated model")
+            status.update("Updating vocabulary")
+            self.update_vocabulary(raw_documents)
+            console.log("Updated vocabulary")
+            status.update("Estimating term importances")
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
+            console.log("Updated term importances")
+            self.top_documents.extend(
+                self.get_top_documents(
+                    raw_documents,
+                    document_topic_matrix=doc_topic[:, -n_new_components:],
+                )
+            )
+            self.document_topic_matrix = doc_topic
+            console.log("Model update done.")
+        return self
 
     def transform(self, raw_documents, embeddings=None):
         if embeddings is None:

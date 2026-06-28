@@ -82,9 +82,9 @@ def optimize_n_components(
         if n_comp >= 10:
             if verbose:
                 print(
-                    " - Couldn't find lower value than n=1 up to n=10, stopping."
+                    f" - Couldn't find lower value than n={min_n} up to n=10, stopping."
                 )
-            return 1
+            return min_n
     middle = n_comp
     current = _f_ic(middle)
     inc = 5
