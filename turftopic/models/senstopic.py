@@ -33,16 +33,6 @@ NOT_MATCHING_ERROR = (
 )
 
 
-def bic(X, model: SNMF):
-    rss = np.square(model.rec_err(X))
-    n_docs, n_dims = X.shape
-    # BIC1 from https://pmc.ncbi.nlm.nih.gov/articles/PMC9181460/
-    bic1 = np.log(rss) + model.n_components * (
-        (n_docs + n_dims) / (n_docs * n_dims)
-    ) * np.log((n_docs * n_dims) / (n_docs + n_dims))
-    return bic1
-
-
 def bic_snmf(
     n_components: int, sparsity: float, X, random_state: int = 42
 ) -> float:
@@ -52,19 +42,18 @@ def bic_snmf(
         random_state=42,
         verbose=False,
         progress_bar=False,
-    )
-    doc_topic = decomp.fit_transform(X)
-    return bic(X, decomp)
+    ).fit(X)
+    return decomp.bic(X)
 
 
 def bic_add_components(n_new: int, X_new, decomp):
     if n_new == 0:
-        return bic(X_new, decomp)
+        return decomp.bic(X_new)
     m_copy = copy.copy(decomp)
     m_copy.progress_bar = False
     m_copy.verbose = False
     m_copy.fit_new_components(X_new, n_new_components=n_new)
-    return bic(X_new, m_copy)
+    return m_copy.bic(X_new)
 
 
 class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
@@ -235,13 +224,6 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         )
         self.vectorizer.get_feature_names_out = lambda: np.array(
             list(old_vocab) + new_vocab
-        )
-
-    def _get_rec_err(self, X):
-        return rec_err(
-            X.T,
-            self.decomposition.components_.T,
-            self.decomposition.transform(X),
         )
 
     def partial_fit(

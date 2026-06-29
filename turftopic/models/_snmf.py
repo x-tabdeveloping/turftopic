@@ -141,6 +141,19 @@ class SNMF(TransformerMixin, BaseEstimator):
         self.n_iter_ = i
         return np.array(G)
 
+    def fit(self, X, y=None):
+        self.fit_transform(X, y)
+        return self
+
+    def bic(self, X):
+        rss = np.square(self.rec_err(X))
+        n_docs, n_dims = X.shape
+        # BIC1 from https://pmc.ncbi.nlm.nih.gov/articles/PMC9181460/
+        bic1 = np.log(rss) + self.n_components * (
+            (n_docs + n_dims) / (n_docs * n_dims)
+        ) * np.log((n_docs * n_dims) / (n_docs + n_dims))
+        return bic1
+
     def fit_new_components(self, X: np.ndarray, n_new_components: int):
         G_old = self.transform(X)
         old_n_components = self.n_components
