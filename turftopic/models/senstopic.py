@@ -269,6 +269,15 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                     np.square(self.axial_components_)
                     * self.angular_components_
                 )
+            if n_new_components > 0:
+                # Updating topic names:
+                old_topic_names = getattr(self, "topic_names_", None)
+                if old_topic_names is not None:
+                    delattr(self, "topic_names_")
+                    self.topic_names_ = [
+                        *old_topic_names,
+                        *self.topic_names[-n_new_components:],
+                    ]
             console.log("Updated term importances")
             self.top_documents.extend(
                 self.get_top_documents(
