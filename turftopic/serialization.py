@@ -77,7 +77,11 @@ def validate_package_versions(remote_versions: dict[str, str]):
 
 def create_readme(model, model_path: str) -> str:
     model_structure = str(model)
-    topics_table = model.export_topics(format="markdown", top_k=10)
+    try:
+        topics_table = model.export_topics(format="markdown", top_k=10)
+    except Exception:
+        print("Couldn't produce topic table for readme, moving on...")
+        topics_table = None
     local_versions = get_package_versions()
     lines = ["| Package | Version |", "| - | - |"]
     for package in IMPORTANT_PACKAGES:
