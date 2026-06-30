@@ -279,13 +279,11 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                         *self.topic_names[-n_new_components:],
                     ]
             console.log("Updated term importances")
-            self.top_documents.extend(
-                self.get_top_documents(
-                    raw_documents,
-                    document_topic_matrix=doc_topic[:, -n_new_components:],
+            for new_dt in doc_topic[:, -n_new_components:].T:
+                top = np.argsort(-new_dt)
+                self.top_documents.append(
+                    [raw_documents[i_top] for i_top in top]
                 )
-            )
-            self.document_topic_matrix = doc_topic
             console.log("Model update done.")
         return self
 
