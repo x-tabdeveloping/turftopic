@@ -199,13 +199,14 @@ class SNMF(TransformerMixin, BaseEstimator):
         F = update_F(X_t.T, G_t, F=None)
         return F.T
 
-    def transform(self, X: np.ndarray):
+    def transform(self, X: np.ndarray, F=None):
         G = init_G(
             X.T,
             n_components=self.n_components,
             random_state=self.random_state,
         )
-        F = self.components_.T
+        if F is None:
+            F = self.components_.T
         update = jit(lambda G: update_G(X.T, G, F, sparsity=self.sparsity))
         error_at_init = rec_err(X.T, F, G)
         prev_error = error_at_init
