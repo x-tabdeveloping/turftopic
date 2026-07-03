@@ -29,8 +29,8 @@ def bin_timestamps(
         # Have to substract one, else it starts from one
         return np.digitize(unix_timestamps, unix_bins) - 1, bins
     else:
-        # Adding one day, so that the maximum value is still included.
-        max_timestamp = max(timestamps) + timedelta(days=1)
+        # Adding one microsecond, so that the maximum value is still included.
+        max_timestamp = max(timestamps) + timedelta(microseconds=1)
         unix_bins = np.histogram_bin_edges(unix_timestamps, bins=bins)
         unix_bins[-1] = max_timestamp.timestamp()
         bins = [datetime.fromtimestamp(ts) for ts in unix_bins]

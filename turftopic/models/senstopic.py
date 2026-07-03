@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import partial
 from typing import Literal, Optional, Union
 
@@ -217,7 +217,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             set(new_vectorizer.get_feature_names_out()) - set(old_vocab)
         )
         if len(new_vocab) == 0:
-            return
+            return []
         new_vocab_embeddings = self.encode_documents(new_vocab)
         self.vocab_embeddings = np.concatenate(
             [self.vocab_embeddings, new_vocab_embeddings], axis=0
@@ -225,12 +225,38 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         self.vectorizer.get_feature_names_out = lambda: np.array(
             list(old_vocab) + new_vocab
         )
+        return new_vocab
 
     def partial_fit(
-        self, raw_documents, y=None, embeddings=None, n_new_components="auto"
+        self,
+        raw_documents,
+        y=None,
+        embeddings=None,
+        timestamps=None,
+        n_new_components="auto",
     ):
+        if timestamps is not None:
+            if (getattr(self, "components_", None) is None) or (
+                getattr(self, "time_bin_edges", None) is None
+            ):
+                return self.fit_transform_dynamic(
+                    raw_documents,
+                    embeddings=embeddings,
+                    timestamps=timestamps,
+                    bins=1,
+                )
         if getattr(self, "components_", None) is None:
-            return self.fit(raw_documents, embeddings=embeddings)
+            if timestamps is None:
+                return self.fit(raw_documents, embeddings=embeddings)
+        if timestamps is not None:
+            last_edge = self.time_bin_edges[-1]
+            is_before = [(ts <= last_edge) for ts in timestamps]
+            n_before = np.sum(is_before)
+            if n_before:
+                raise ValueError(
+                    "When using partial fitting on a dynamic model, all new documents have to be in a new time slice. "
+                    f"Currently there are {n_before} documents from before {last_edge}. Remove these before fitting."
+                )
         console = Console()
         with console.status("Updating model with new data") as status:
             if embeddings is None:
@@ -253,10 +279,11 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             )
             self.n_components_ = self.decomposition.n_components
             doc_topic = self.decomposition.transform(embeddings)
-            console.log("Updated model")
+            console.log(f"Updated model with {n_new_components} topics.")
             status.update("Updating vocabulary")
-            self.update_vocabulary(raw_documents)
-            console.log("Updated vocabulary")
+            new_vocab = self.update_vocabulary(raw_documents)
+            n_new_vocab = len(new_vocab)
+            console.log(f"Updated vocabulary with {n_new_vocab} items.")
             status.update("Estimating term importances")
             vocab_topic = self.decomposition.transform(self.vocab_embeddings)
             self.axial_components_ = vocab_topic.T
@@ -279,13 +306,41 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                         *self.topic_names[-n_new_components:],
                     ]
             console.log("Updated term importances")
-            self.top_documents.extend(
-                self.get_top_documents(
-                    raw_documents,
-                    document_topic_matrix=doc_topic[:, -n_new_components:],
+            for new_dt in doc_topic[:, -n_new_components:].T:
+                top = np.argsort(-new_dt)
+                self.top_documents.append(
+                    [raw_documents[i_top] for i_top in top]
                 )
-            )
-            self.document_topic_matrix = doc_topic
+            if timestamps is not None:
+                status.update("Updating temporal components.")
+                self.time_bin_edges.append(
+                    max(timestamps) + timedelta(microseconds=1)
+                )
+                t_components = []
+                t_importance = []
+                for t_component, t_imp in zip(
+                    self.axial_temporal_components_, self.temporal_importance_
+                ):
+                    t_component = np.pad(
+                        t_component,
+                        [(0, n_new_components), (0, n_new_vocab)],
+                        mode="constant",
+                        constant_values=0,
+                    )
+                    t_imp = np.pad(
+                        t_imp,
+                        (0, n_new_components),
+                        mode="constant",
+                        constant_values=0,
+                    )
+                    t_components.append(t_component)
+                    t_importance.append(t_imp)
+                new_imp, new_comp = self._fit_timebin(embeddings, doc_topic)
+                t_components.append(new_comp)
+                t_importance.append(new_imp)
+                self.axial_temporal_components_ = np.stack(t_components)
+                self.temporal_importance_ = np.stack(t_importance)
+                self.estimate_components(self.feature_importance)
             console.log("Model update done.")
         return self
 
@@ -373,6 +428,13 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             console.log("Images transformed")
         return doc_topic
 
+    def _fit_timebin(self, t_X, t_dt):
+        t_imp = t_dt.mean(axis=0)
+        t_F = self.decomposition.fit_timeslice(t_X, t_dt).T
+        t_G = self.decomposition.transform(self.vocab_embeddings, F=t_F)
+        t_components_ = t_G.T
+        return t_imp, t_components_
+
     def fit_transform_dynamic(
         self,
         raw_documents,
@@ -380,9 +442,14 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         embeddings: Optional[np.ndarray] = None,
         bins: Union[int, list[datetime]] = 10,
     ) -> np.ndarray:
-        document_topic_matrix = self.fit_transform(
-            raw_documents, embeddings=embeddings
-        )
+        if getattr(self, "components_", None) is None:
+            document_topic_matrix = self.fit_transform(
+                raw_documents, embeddings=embeddings
+            )
+        else:
+            document_topic_matrix = self.transform(
+                raw_documents, embeddings=embeddings
+            )
         time_labels, self.time_bin_edges = self.bin_timestamps(
             timestamps, bins
         )
@@ -394,22 +461,15 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             dtype=self.components_.dtype,
         )
         self.temporal_importance_ = np.zeros((n_bins, n_comp))
-        # doc_topic = np.dot(X, self.components_.T)
         for i_timebin in np.unique(time_labels):
-            topic_importances = document_topic_matrix[
-                time_labels == i_timebin
-            ].mean(axis=0)
-            self.temporal_importance_[i_timebin, :] = topic_importances
-            t_doc_topic = document_topic_matrix[time_labels == i_timebin]
-            t_embeddings = self.embeddings[time_labels == i_timebin]
-            t_components = self.decomposition.fit_timeslice(
-                t_embeddings, t_doc_topic
-            )
-            ax_t = np.maximum(
-                self.vocab_embeddings @ np.linalg.pinv(t_components), 0
-            )
-            self.axial_temporal_components_[i_timebin, :, :] = ax_t.T
-        self.estimate_components(self.feature_importance)
+            t_dt = document_topic_matrix[time_labels == i_timebin]
+            t_X = self.embeddings[time_labels == i_timebin]
+            t_imp, t_comp = self._fit_timebin(t_X, t_dt)
+            self.temporal_importance_[i_timebin, :] = t_imp
+            self.axial_temporal_components_[i_timebin, :, :] = t_comp
+        self.estimate_components(
+            self.feature_importance,
+        )
         return document_topic_matrix
 
     @property
