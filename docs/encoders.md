@@ -1,19 +1,31 @@
 # Encoders
 
+!!! warning
+    We now recommend that you do NOT pre-load `SentenceTransformer` encoder models, but rather pass them by name to the topic models.
+    This allows the model not to store the encoder model on disk, and load it when loading the model.
+    This can lead to extreme reductions in disk space usage.
+    For example, instead of writing:
+    ```python
+    model = SensTopic(
+        encoder=SentenceTransformer("intfloat/multilingual-e5-large-instruct", default_prompt_name="query")
+    )
+    ```
+    Write:
+    ```python
+    model = SensTopic(
+        encoder="intfloat/multilingual-e5-large-instruct",
+        trf_kwargs=dict(default_prompt_name="query")
+    )
+    ```
+
+
 Turftopic by default encodes documents using sentence transformers.
 You can always change the encoder model either by passing the name of a sentence transformer from the Huggingface Hub to a model, or by passing a `SentenceTransformer` instance.
 
 Here's an example of building a multilingual topic model by using multilingual embeddings:
 
 ```python
-from sentence_transformers import SentenceTransformer
 from turftopic import GMM
-
-trf = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-
-model = GMM(10, encoder=trf)
-
-# or
 
 model = GMM(10, encoder="paraphrase-multilingual-MiniLM-L12-v2")
 ```
@@ -35,31 +47,36 @@ In this case, documents will serve as the queries and words as the passages:
 from turftopic import KeyNMF
 from sentence_transformers import SentenceTransformer
 
-encoder = SentenceTransformer(
-    "intfloat/multilingual-e5-large-instruct",
-    prompts={
-        "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
-        "passage": "Passage: "
-    },
-    # Make sure to set default prompt to query!
-    default_prompt_name="query",
+model = KeyNMF(
+    10,
+    encoder="intfloat/multilingual-e5-large-instruct",
+    # These are the arguments that get applied when loading the encoder.
+    trf_kwargs=dict(
+        prompts={
+            "query": "Instruct: Retrieve relevant keywords from the given document. Query: "
+            "passage": "Passage: "
+        },
+        # Make sure to set default prompt to query!
+        default_prompt_name="query",
+    )
 )
-model = KeyNMF(10, encoder=encoder)
 ```
 
 And a regular, asymmetric example:
 
 ```python
-encoder = SentenceTransformer(
-    "intfloat/e5-large-v2",
-    prompts={
-        "query": "query: "
-        "passage": "passage: "
-    },
-    # Make sure to set default prompt to query!
-    default_prompt_name="query",
+model = KeyNMF(
+    10,
+    encoder="intfloat/e5-large-v2",
+    trf_kwargs=dict(
+        prompts={
+            "query": "query: "
+            "passage": "passage: "
+        },
+        # Make sure to set default prompt to query!
+        default_prompt_name="query",
+    )
 )
-model = KeyNMF(10, encoder=encoder)
 ```
 
 ## Performance tips
@@ -75,9 +92,8 @@ pip install sentence-transformers[onnx, onnx-gpu]
 from turftopic import SemanticSignalSeparation
 from sentence_transformers import SentenceTransformer
 
-encoder = SentenceTransformer("all-MiniLM-L6-v2", backend="onnx")
 
-model = SemanticSignalSeparation(10, encoder=encoder)
+model = SemanticSignalSeparation(10, encoder="all-MiniLM-L6-v2", trf_kwargs=dict(backend="onnx"))
 ```
 
 ## External Embeddings

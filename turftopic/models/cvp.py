@@ -34,6 +34,10 @@ class ConceptVectorProjection(ContextualModel):
     encoder: str or SentenceTransformer
         Model to produce document representations, paraphrase-multilingual-mpnet-base-v2 is the default
         per Lyngbæk et al. (2025).
+    trf_kwargs: dict, default None
+        Keyword arguments to apply when loading the Encoder model.
+    encode_kwargs: dict, default None
+        Keyword arguments to apply encoding documents with the encoder.
     """
 
     def __init__(

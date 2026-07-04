@@ -141,6 +141,10 @@ class Topeax(GMM):
         Number of neighbours to take into account when running TSNE.
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
+    trf_kwargs: dict, default None
+        Keyword arguments to apply when loading the Encoder model.
+    encode_kwargs: dict, default None
+        Keyword arguments to apply encoding documents with the encoder.
 
     """
 

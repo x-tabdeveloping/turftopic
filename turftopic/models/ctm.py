@@ -139,6 +139,10 @@ class AutoEncodingTopicModel(ContextualModel, MultimodalModel):
         Number of epochs to run during training.
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
+    trf_kwargs: dict, default None
+        Keyword arguments to apply when loading the Encoder model.
+    encode_kwargs: dict, default None
+        Keyword arguments to apply encoding documents with the encoder.
     """
 
     def __init__(

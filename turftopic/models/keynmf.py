@@ -69,6 +69,10 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         This is useful when you have a corpus containing multiple languages.
     term_match_threshold: float, default 0.9
         Cosine similarity threshold for matching terms across languages.
+    trf_kwargs: dict, default None
+        Keyword arguments to apply when loading the Encoder model.
+    encode_kwargs: dict, default None
+        Keyword arguments to apply encoding documents with the encoder.
     """
 
     def __init__(

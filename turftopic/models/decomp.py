@@ -67,6 +67,10 @@ class SemanticSignalSeparation(
         or their combination ('combined') should determine the word's importance for a topic.
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
+    trf_kwargs: dict, default None
+        Keyword arguments to apply when loading the Encoder model.
+    encode_kwargs: dict, default None
+        Keyword arguments to apply encoding documents with the encoder.
     """
 
     def __init__(

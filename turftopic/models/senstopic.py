@@ -89,6 +89,10 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         L1 penalty applied to document-topic proportions.
         Higher values push the model to assign fewer topics to a single document,
         while lower values will distribute topics across documents.
+    trf_kwargs: dict, default None
+        Keyword arguments to apply when loading the Encoder model.
+    encode_kwargs: dict, default None
+        Keyword arguments to apply encoding documents with the encoder.
     """
 
     def __init__(

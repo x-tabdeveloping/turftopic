@@ -59,6 +59,10 @@ class FASTopic(ContextualModel):
         Learning rate for the ADAM optimizer.
     device: str, default "cpu"
         Device to run the model on. Defaults to CPU.
+    trf_kwargs: dict, default None
+        Keyword arguments to apply when loading the Encoder model.
+    encode_kwargs: dict, default None
+        Keyword arguments to apply encoding documents with the encoder.
     """
 
     def __init__(
