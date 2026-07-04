@@ -152,6 +152,8 @@ class Topeax(GMM):
         vectorizer: Optional[CountVectorizer] = None,
         perplexity: int = 50,
         random_state: Optional[int] = None,
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         dimensionality_reduction = TSNE(
             2,
@@ -166,6 +168,8 @@ class Topeax(GMM):
             vectorizer=vectorizer,
             dimensionality_reduction=dimensionality_reduction,
             random_state=random_state,
+            trf_kwargs=trf_kwargs,
+            encode_kwargs=encode_kwargs,
         )
 
     def estimate_components(

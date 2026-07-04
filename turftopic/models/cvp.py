@@ -10,14 +10,14 @@ from huggingface_hub import HfApi
 from sentence_transformers import SentenceTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from turftopic.base import Encoder
+from turftopic.base import ContextualModel, Encoder
 from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.serialization import create_readme, get_package_versions
 
 Seeds = tuple[list[str], list[str]]
 
 
-class ConceptVectorProjection(BaseEstimator, TransformerMixin):
+class ConceptVectorProjection(ContextualModel):
     """Concept Vector Projection model from [Lyngbæk et al. (2025)](https://doi.org/10.63744/nVu1Zq5gRkuD)
     Can be used to project document embeddings onto a difference projection vector between positive and negative seed phrases.
     The primary use case is sentiment analysis, and continuous sentiment scores,
@@ -42,6 +42,8 @@ class ConceptVectorProjection(BaseEstimator, TransformerMixin):
         encoder: Union[
             Encoder, str, MultimodalEncoder
         ] = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         self.seeds = seeds
         if isinstance(seeds, OrderedDict):
@@ -55,15 +57,14 @@ class ConceptVectorProjection(BaseEstimator, TransformerMixin):
         else:
             self._seeds = OrderedDict(seeds)
         self.encoder = encoder
-        if isinstance(encoder, str):
-            self.encoder_ = SentenceTransformer(encoder)
-        else:
-            self.encoder_ = encoder
+        self.trf_kwargs = trf_kwargs
+        self.encode_kwargs = encode_kwargs
+        self.load_encoder()
         self.classes_ = np.array([name for name in self._seeds])
         self.concept_matrix_ = []
         for _, (positive, negative) in self._seeds.items():
-            positive_emb = self.encoder_.encode(list(positive))
-            negative_emb = self.encoder_.encode(list(negative))
+            positive_emb = self.encode_documents(list(positive))
+            negative_emb = self.encode_documents(list(negative))
             cv = np.mean(positive_emb, axis=0) - np.mean(negative_emb, axis=0)
             self.concept_matrix_.append(cv / np.linalg.norm(cv))
         self.concept_matrix_ = np.stack(self.concept_matrix_)
@@ -92,7 +93,7 @@ class ConceptVectorProjection(BaseEstimator, TransformerMixin):
                 "Either embeddings or raw_documents has to be passed, both are None."
             )
         if embeddings is None:
-            embeddings = self.encoder_.encode(list(raw_documents))
+            embeddings = self.encode_documents(list(raw_documents))
         return embeddings @ self.concept_matrix_.T
 
     def transform(self, raw_documents=None, embeddings=None):
@@ -111,39 +112,3 @@ class ConceptVectorProjection(BaseEstimator, TransformerMixin):
             Prevalance of each concept in each document.
         """
         return self.fit_transform(raw_documents, embeddings=embeddings)
-
-    def to_disk(self, out_dir: Union[Path, str]):
-        """Persists model to directory on your machine.
-
-        Parameters
-        ----------
-        out_dir: Path | str
-            Directory to save the model to.
-        """
-        out_dir = Path(out_dir)
-        out_dir.mkdir(exist_ok=True)
-        package_versions = get_package_versions()
-        with out_dir.joinpath("package_versions.json").open("w") as ver_file:
-            ver_file.write(json.dumps(package_versions))
-        joblib.dump(self, out_dir.joinpath("model.joblib"))
-
-    def push_to_hub(self, repo_id: str):
-        """Uploads model to HuggingFace Hub
-
-        Parameters
-        ----------
-        repo_id: str
-            Repository to upload the model to.
-        """
-        api = HfApi()
-        api.create_repo(repo_id, exist_ok=True)
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            readme_path = Path(tmp_dir).joinpath("README.md")
-            with readme_path.open("w") as readme_file:
-                readme_file.write(create_readme(self, repo_id))
-            self.to_disk(tmp_dir)
-            api.upload_folder(
-                folder_path=tmp_dir,
-                repo_id=repo_id,
-                repo_type="model",
-            )

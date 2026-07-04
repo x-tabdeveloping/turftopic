@@ -155,14 +155,15 @@ class AutoEncodingTopicModel(ContextualModel, MultimodalModel):
         learning_rate: float = 1e-2,
         n_epochs: int = 50,
         random_state: Optional[int] = None,
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         self.n_components = n_components
         self.random_state = random_state
         self.encoder = encoder
-        if isinstance(encoder, str):
-            self.encoder_ = SentenceTransformer(encoder)
-        else:
-            self.encoder_ = encoder
+        self.trf_kwargs = trf_kwargs
+        self.encode_kwargs = encode_kwargs
+        self.load_encoder()
         self.validate_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()

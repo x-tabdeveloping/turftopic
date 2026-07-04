@@ -110,7 +110,12 @@ def load_model(repo_id_or_path: Union[str, Path]):
             remote_versions = json.loads(ver_file.read())
         validate_package_versions(remote_versions)
         model = joblib.load(path.joinpath("model.joblib"))
-        return model
     else:
         in_dir = snapshot_download(repo_id=repo_id_or_path)
-        return load_model(in_dir)
+        model = load_model(in_dir)
+    if getattr(model, "encoder_", None) is None:
+        print(
+            "Model does not come with prepackaged encoder_ attribute, loading it."
+        )
+        model.load_encoder()
+    return model

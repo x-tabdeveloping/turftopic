@@ -196,9 +196,13 @@ class ClusteringTopicModel(
         reduction_distance_metric: DistanceMetric = "cosine",
         reduction_topic_representation: TopicRepresentation = "component",
         random_state: Optional[int] = None,
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         self.encoder = encoder
         self.random_state = random_state
+        self.trf_kwargs = trf_kwargs
+        self.encode_kwargs = encode_kwargs
         if feature_importance not in VALID_WORD_IMPORTANCE:
             raise ValueError(
                 f"feature_importance must be one of {VALID_WORD_IMPORTANCE} got {feature_importance} instead."
@@ -217,10 +221,7 @@ class ClusteringTopicModel(
             )
         if isinstance(encoder, int):
             raise TypeError(integer_message)
-        if isinstance(encoder, str):
-            self.encoder_ = SentenceTransformer(encoder)
-        else:
-            self.encoder_ = encoder
+        self.load_encoder()
         self.validate_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
@@ -766,6 +767,8 @@ class BERTopic(ClusteringTopicModel):
         reduction_distance_metric: DistanceMetric = "cosine",
         reduction_topic_representation: TopicRepresentation = "component",
         random_state: Optional[int] = None,
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         if dimensionality_reduction is None:
             try:
@@ -798,6 +801,8 @@ class BERTopic(ClusteringTopicModel):
             reduction_method=reduction_method,
             reduction_distance_metric=reduction_distance_metric,
             reduction_topic_representation=reduction_topic_representation,
+            trf_kwargs=trf_kwargs,
+            encode_kwargs=encode_kwargs,
         )
 
 
@@ -834,6 +839,8 @@ class Top2Vec(ClusteringTopicModel):
         reduction_distance_metric: DistanceMetric = "cosine",
         reduction_topic_representation: TopicRepresentation = "centroid",
         random_state: Optional[int] = None,
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         if dimensionality_reduction is None:
             try:
@@ -866,6 +873,8 @@ class Top2Vec(ClusteringTopicModel):
             reduction_method=reduction_method,
             reduction_distance_metric=reduction_distance_metric,
             reduction_topic_representation=reduction_topic_representation,
+            trf_kwargs=trf_kwargs,
+            encode_kwargs=encode_kwargs,
         )
 
 
@@ -911,6 +920,8 @@ class CTop2Vec(LateWrapper):
         step_size: Optional[int] = 40,
         pooling: Optional[Callable] = np.nanmean,
         random_state: Optional[int] = None,
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         if dimensionality_reduction is None:
             try:
@@ -956,6 +967,8 @@ class CTop2Vec(LateWrapper):
             reduction_method=reduction_method,
             reduction_distance_metric=reduction_distance_metric,
             reduction_topic_representation=reduction_topic_representation,
+            trf_kwargs=trf_kwargs,
+            encode_kwargs=encode_kwargs,
         )
         super().__init__(
             model,

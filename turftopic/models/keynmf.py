@@ -85,6 +85,8 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         seed_exponent: float = 2.0,
         cross_lingual: bool = False,
         term_match_threshold: float = 0.9,
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         self.random_state = random_state
         self.n_components = n_components
@@ -92,6 +94,8 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         self.seed_exponent = seed_exponent
         self.metric = metric
         self.encoder = encoder
+        self.trf_kwargs = trf_kwargs
+        self.encode_kwargs = encode_kwargs
         self._has_custom_vectorizer = vectorizer is not None
         if isinstance(encoder, str):
             if (
@@ -101,9 +105,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
                     "all-MiniLM is incompatible with cross-lingual transfer, using paraphrase-multilingual-MiniLM-L12-v2."
                 )
                 encoder = "paraphrase-multilingual-MiniLM-L12-v2"
-            self.encoder_ = SentenceTransformer(encoder)
-        else:
-            self.encoder_ = encoder
+        self.load_encoder()
         self.validate_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
@@ -121,7 +123,7 @@ class KeyNMF(ContextualModel, DynamicTopicModel, MultimodalModel):
         self.seed_phrase = seed_phrase
         self.seed_embedding = None
         if self.seed_phrase is not None:
-            self.seed_embedding = self.encoder_.encode([self.seed_phrase])[0]
+            self.seed_embedding = self.encode_documents([self.seed_phrase])[0]
         self.cross_lingual = cross_lingual
         self.term_match_threshold = term_match_threshold
 

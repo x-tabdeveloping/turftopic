@@ -76,14 +76,15 @@ class FASTopic(ContextualModel):
         n_epochs: int = 200,
         learning_rate: float = 0.002,
         device: str = "cpu",
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         self.n_components = n_components
         self.encoder = encoder
+        self.trf_kwargs = trf_kwargs
+        self.encode_kwargs = encode_kwargs
         self.random_state = random_state
-        if isinstance(encoder, str):
-            self.encoder_ = SentenceTransformer(encoder)
-        else:
-            self.encoder_ = encoder
+        self.load_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
         else:
@@ -153,7 +154,7 @@ class FASTopic(ContextualModel):
         with console.status("Fitting model") as status:
             if embeddings is None:
                 status.update("Encoding documents")
-                embeddings = self.encoder_.encode(raw_documents)
+                embeddings = self.encode_documents(raw_documents)
                 console.log("Documents encoded.")
             self.train_doc_embeddings = embeddings
             status.update("Extracting terms.")
@@ -188,7 +189,7 @@ class FASTopic(ContextualModel):
             Document-topic matrix.
         """
         if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
+            embeddings = self.encode_documents(raw_documents)
         with torch.no_grad():
             self.model.eval()
             theta = self.model.get_theta(
