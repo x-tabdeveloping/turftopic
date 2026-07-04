@@ -22,6 +22,18 @@ Encoder = Union[ExternalEncoder, SentenceTransformer]
 class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
     """Base class for contextual topic models in Turftopic."""
 
+    def load_encoder(self):
+        if isinstance(self.encoder, str):
+            if self.trf_kwargs is None:
+                trf_kwargs = dict()
+            else:
+                trf_kwargs = self.trf_kwargs
+            self.encoder_ = SentenceTransformer(self.encoder, **trf_kwargs)
+            self._encoder_preloaded = False
+        else:
+            self.encoder_ = self.encoder
+            self._encoder_preloaded = True
+
     @property
     def has_negative_side(self) -> bool:
         return False
@@ -41,7 +53,11 @@ class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
         """
         if not hasattr(self.encoder_, "encode"):
             return self.encoder.get_text_embeddings(list(raw_documents))
-        return self.encoder_.encode(list(raw_documents))
+        if getattr(self, "encode_kwargs", None) is None:
+            encode_kwargs = dict()
+        else:
+            encode_kwargs = self.encode_kwargs
+        return self.encoder_.encode(list(raw_documents), **encode_kwargs)
 
     @abstractmethod
     def fit_transform(
@@ -173,7 +189,13 @@ class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
         package_versions = get_package_versions()
         with out_dir.joinpath("package_versions.json").open("w") as ver_file:
             ver_file.write(json.dumps(package_versions))
-        joblib.dump(self, out_dir.joinpath("model.joblib"))
+        if getattr(self, "_encoder_preloaded", True):
+            joblib.dump(self, out_dir.joinpath("model.joblib"))
+        else:
+            encoder_ = self.encoder_
+            delattr(self, "encoder_")
+            joblib.dump(self, out_dir.joinpath("model.joblib"))
+            self.encoder_ = encoder_
 
     def push_to_hub(self, repo_id: str):
         """Uploads model to HuggingFace Hub

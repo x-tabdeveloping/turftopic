@@ -3,6 +3,24 @@
 ## Model persistence
 All models in Turftopic can be serialized and saved to disk, or published to the HuggingFace Hub.
 
+!!! warning
+    We now recommend that you do NOT pre-load `SentenceTransformer` encoder models, but rather pass them by name to the topic models.
+    This allows the model not to store the encoder model on disk, and load it when loading the model.
+    This can lead to extreme reductions in disk space usage.
+    For example, instead of writing:
+    ```python
+    model = SensTopic(
+        encoder=SentenceTransformer("intfloat/multilingual-e5-large-instruct", default_prompt_name="query")
+    )
+    ```
+    Write:
+    ```python
+    model = SensTopic(
+        encoder="intfloat/multilingual-e5-large-instruct",
+        trf_kwargs=dict(default_prompt_name="query")
+    )
+    ```
+
 ### Saving locally
 
 Turftopic models can now be saved to disk using the `to_disk()` method of models:

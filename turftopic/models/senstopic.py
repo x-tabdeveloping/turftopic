@@ -89,6 +89,10 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         L1 penalty applied to document-topic proportions.
         Higher values push the model to assign fewer topics to a single document,
         while lower values will distribute topics across documents.
+    trf_kwargs: dict, default None
+        Keyword arguments to apply when loading the Encoder model.
+    encode_kwargs: dict, default None
+        Keyword arguments to apply encoding documents with the encoder.
     """
 
     def __init__(
@@ -104,14 +108,15 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         ] = "combined",
         random_state: Optional[int] = None,
         sparsity: float = 1,
+        trf_kwargs=None,
+        encode_kwargs=None,
     ):
         self.n_components = n_components
         self.encoder = encoder
+        self.trf_kwargs = trf_kwargs
+        self.encode_kwargs = encode_kwargs
         self.feature_importance = feature_importance
-        if isinstance(encoder, str):
-            self.encoder_ = SentenceTransformer(encoder)
-        else:
-            self.encoder_ = encoder
+        self.load_encoder()
         self.validate_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
@@ -346,7 +351,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
 
     def transform(self, raw_documents, embeddings=None):
         if embeddings is None:
-            embeddings = self.encoder_.encode(raw_documents)
+            embeddings = self.encode_documents(raw_documents)
         return self.decomposition.transform(embeddings)
 
     def fit_transform_multimodal(
