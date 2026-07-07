@@ -4,7 +4,7 @@ from typing import Literal, Optional, Union
 
 import numpy as np
 from rich.console import Console
-from sentence_transformers import SentenceTransformer
+from rich.progress import track
 from sklearn.base import copy
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
@@ -455,26 +455,39 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             document_topic_matrix = self.transform(
                 raw_documents, embeddings=embeddings
             )
-        time_labels, self.time_bin_edges = self.bin_timestamps(
-            timestamps, bins
-        )
-        n_comp, n_vocab = self.components_.shape
-        n_bins = len(self.time_bin_edges) - 1
-        self.axial_temporal_components_ = np.full(
-            (n_bins, n_comp, n_vocab),
-            np.nan,
-            dtype=self.components_.dtype,
-        )
-        self.temporal_importance_ = np.zeros((n_bins, n_comp))
-        for i_timebin in np.unique(time_labels):
+        console = Console()
+        with console.status("Fitting temporally conditioned topics") as status:
+            status.update("Labelling documents based on time bins.")
+            time_labels, self.time_bin_edges = self.bin_timestamps(
+                timestamps, bins
+            )
+            console.log("Documents binned.")
+            status.update("Initializing components.")
+            n_comp, n_vocab = self.components_.shape
+            n_bins = len(self.time_bin_edges) - 1
+            self.axial_temporal_components_ = np.full(
+                (n_bins, n_comp, n_vocab),
+                np.nan,
+                dtype=self.components_.dtype,
+            )
+            console.log("Components initialized.")
+            self.temporal_importance_ = np.zeros((n_bins, n_comp))
+        for i_timebin in track(
+            np.unique(time_labels),
+            description="Calculating temporal components for each time slice.",
+            console=console,
+        ):
             t_dt = document_topic_matrix[time_labels == i_timebin]
             t_X = self.embeddings[time_labels == i_timebin]
             t_imp, t_comp = self._fit_timebin(t_X, t_dt)
             self.temporal_importance_[i_timebin, :] = t_imp
             self.axial_temporal_components_[i_timebin, :, :] = t_comp
-        self.estimate_components(
-            self.feature_importance,
-        )
+        console.log("Temporal components computed.")
+        with console.status("Post-processing components."):
+            self.estimate_components(
+                self.feature_importance,
+            )
+        console.log("Temporal fitting done.")
         return document_topic_matrix
 
     @property

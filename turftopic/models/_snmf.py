@@ -172,18 +172,18 @@ class SNMF(TransformerMixin, BaseEstimator):
         ):
             G, F, error = _step(G, F)
             difference = prev_error - error
-            if (error < self.error_at_init) and (
-                (prev_error - error) / self.error_at_init
-            ) < self.tol:
-                if self.verbose:
-                    print(f"Converged after {i} iterations")
-                self.n_iter_ = i
-                break
-            prev_error = error
-            if self.verbose:
-                print(
-                    f"Iteration: {i}, Error: {error}, init_error: {self.error_at_init}, difference from previous: {difference}"
-                )
+            # if (error < self.error_at_init) and (
+            #     (prev_error - error) / self.error_at_init
+            # ) < self.tol:
+            #     if self.verbose:
+            #         print(f"Converged after {i} iterations")
+            #     self.n_iter_ = i
+            #     break
+            # prev_error = error
+            # if self.verbose:
+            #     print(
+            #         f"Iteration: {i}, Error: {error}, init_error: {self.error_at_init}, difference from previous: {difference}"
+            #     )
         self.components_ = np.array(F.T)
         self.n_iter_ = i
         self.n_components = old_n_components + n_new_components
