@@ -214,24 +214,6 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             console.log("Model fitting done.")
         return doc_topic
 
-    def update_vocabulary(self, raw_documents):
-        new_vectorizer = copy.copy(self.vectorizer)
-        new_vectorizer.fit(raw_documents)
-        old_vocab = self.get_vocab()
-        new_vocab = list(
-            set(new_vectorizer.get_feature_names_out()) - set(old_vocab)
-        )
-        if len(new_vocab) == 0:
-            return []
-        new_vocab_embeddings = self.encode_documents(new_vocab)
-        self.vocab_embeddings = np.concatenate(
-            [self.vocab_embeddings, new_vocab_embeddings], axis=0
-        )
-        self.vectorizer.get_feature_names_out = lambda: np.array(
-            list(old_vocab) + new_vocab
-        )
-        return new_vocab
-
     def partial_fit(
         self,
         raw_documents,
@@ -286,9 +268,8 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             doc_topic = self.decomposition.transform(embeddings)
             console.log(f"Updated model with {n_new_components} topics.")
             status.update("Updating vocabulary")
-            new_vocab = self.update_vocabulary(raw_documents)
-            n_new_vocab = len(new_vocab)
-            console.log(f"Updated vocabulary with {n_new_vocab} items.")
+            new_vectorizer = copy.copy(self.vectorizer).fit(raw_documents)
+            self.update_vocabulary(new_vectorizer)
             status.update("Estimating term importances")
             vocab_topic = self.decomposition.transform(self.vocab_embeddings)
             self.axial_components_ = vocab_topic.T
@@ -328,7 +309,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                 ):
                     t_component = np.pad(
                         t_component,
-                        [(0, n_new_components), (0, n_new_vocab)],
+                        [(0, n_new_components), (0, 0)],
                         mode="constant",
                         constant_values=0,
                     )
