@@ -16,6 +16,7 @@ EPSILON = np.finfo(np.float32).eps
 try:
     import jax.numpy as jnp
     from jax import jit
+    from jax.lax import while_loop
 except ModuleNotFoundError:
     warnings.warn("JAX not found, continuing with NumPy implementation.")
     jnp = np
@@ -23,6 +24,13 @@ except ModuleNotFoundError:
     # Dummy JIT as the identity function
     def jit(f):
         return f
+
+    # Naive Python implementation of JAX's while_loop
+    def while_loop(cond_fun, body_fun, init_val):
+        val = init_val
+        while cond_fun(val):
+            val = body_fun(val)
+        return val
 
 
 def init_G(
@@ -87,6 +95,90 @@ def step(G, F, X, sparsity=0, n_freeze=None):
     return G, F, error
 
 
+def inference_loop(
+    X,
+    G,
+    F,
+    sparsity=0,
+    n_freeze=None,
+    tol=1e-5,
+    max_iter=200,
+    track_convergence=True,
+    freeze_F=False,
+):
+    init_error = rec_err(X.T, F, G)
+    init_state = {
+        "G": G,
+        "F": F,
+        "error": init_error,
+        "error_diff": np.inf,
+        "n_iter": 0,
+    }
+
+    def _cond_fn(state):
+        keep_running = state["n_iter"] < max_iter
+        if track_convergence:
+            converged = jnp.logical_and(
+                state["error"] < init_error,
+                (state["error_diff"] / init_error) < tol,
+            )
+            keep_running = jnp.logical_and(
+                keep_running, (jnp.logical_not(converged))
+            )
+        return keep_running
+
+    def _body_fn(state):
+        if not freeze_F:
+            G, F, new_error = step(
+                state["G"],
+                state["F"],
+                X,
+                sparsity=sparsity,
+                n_freeze=n_freeze,
+            )
+        else:
+            G = update_G(
+                X.T,
+                state["G"],
+                state["F"],
+                sparsity=sparsity,
+                n_freeze=n_freeze,
+            )
+            F = state["F"]
+            new_error = rec_err(X.T, F, G)
+        return {
+            "G": G,
+            "F": F,
+            "error": new_error,
+            "error_diff": state["error"] - new_error,
+            "n_iter": state["n_iter"] + 1,
+        }
+
+    return while_loop(_cond_fn, _body_fn, init_state)
+
+
+def infer_bic(G_init, F, X, sparsity, tol, max_iter):
+    last_state = inference_loop(
+        X=X,
+        G=G_init,
+        F=F,
+        sparsity=sparsity,
+        n_freeze=None,
+        tol=tol,
+        max_iter=max_iter,
+        track_convergence=True,
+        freeze_F=True,
+    )
+    rss = rec_err(X.T, F, last_state["G"])
+    n_components = G_init.shape[1]
+    n_docs, n_dims = X.shape
+    # BIC1 from https://pmc.ncbi.nlm.nih.gov/articles/PMC9181460/
+    bic1 = jnp.log(rss) + n_components * (
+        (n_docs + n_dims) / (n_docs * n_dims)
+    ) * jnp.log((n_docs * n_dims) / (n_docs + n_dims))
+    return bic1
+
+
 class SNMF(TransformerMixin, BaseEstimator):
     def __init__(
         self,
@@ -110,84 +202,67 @@ class SNMF(TransformerMixin, BaseEstimator):
         G = init_G(X.T, self.n_components, random_state=self.random_state)
         F = update_F(X.T, G, F=None)
         self.error_at_init = rec_err(X.T, F, G)
-        prev_error = self.error_at_init
-        _step = jit(partial(step, sparsity=self.sparsity, X=X, n_freeze=0))
-        for i in trange(
-            self.max_iter,
-            desc="Iterative updates.",
-            disable=not self.progress_bar,
-        ):
-            G, F, error = _step(G, F)
-            difference = prev_error - error
-            if (error < self.error_at_init) and (
-                (prev_error - error) / self.error_at_init
-            ) < self.tol:
-                if self.verbose:
-                    print(f"Converged after {i} iterations")
-                self.n_iter_ = i
-                break
-            prev_error = error
-            if self.verbose:
-                print(
-                    f"Iteration: {i}, Error: {error}, init_error: {self.error_at_init}, difference from previous: {difference}"
-                )
-        else:
-            warnings.warn(
-                "SNMF did not converge, try specifying a higher max_iter."
-            )
-        self.components_ = np.array(F.T)
-        self.reconstruction_err_ = error
+        last_state = inference_loop(
+            X=X,
+            G=G,
+            F=F,
+            sparsity=self.sparsity,
+            n_freeze=None,
+            tol=self.tol,
+            max_iter=self.max_iter,
+            track_convergence=True,
+            freeze_F=False,
+        )
+        self.components_ = np.array(last_state["F"].T)
+        self.reconstruction_err_ = float(last_state["error"])
         self.n_datapoints_ = X.shape[0]
-        self.n_iter_ = i
-        return np.array(G)
+        self.n_iter_ = int(last_state["n_iter"])
+        return np.array(last_state["G"])
 
     def fit(self, X, y=None):
         self.fit_transform(X, y)
         return self
 
-    def bic(self, X):
-        rss = np.square(self.rec_err(X))
+    def bic(self, X, F=None, G=None):
+        if F is None:
+            F = self.components_.T
+        n_components = F.shape[1]
+        if G is None:
+            G = self.transform(X, F)
+        rss = rec_err(X.T, F, G)
+        n_components = G.shape[1]
         n_docs, n_dims = X.shape
         # BIC1 from https://pmc.ncbi.nlm.nih.gov/articles/PMC9181460/
-        bic1 = np.log(rss) + self.n_components * (
+        bic1 = jnp.log(rss) + n_components * (
             (n_docs + n_dims) / (n_docs * n_dims)
-        ) * np.log((n_docs * n_dims) / (n_docs + n_dims))
-        return bic1
+        ) * jnp.log((n_docs * n_dims) / (n_docs + n_dims))
+        return float(bic1)
 
-    def fit_new_components(self, X: np.ndarray, n_new_components: int):
+    def _fit_new(self, X, n_new: int):
         G_old = self.transform(X)
         old_n_components = self.n_components
-        G = add_G(G_old, n_add=n_new_components)
+        G = add_G(G_old, n_add=n_new)
         F = update_F(X.T, G, self.components_.T, n_freeze=old_n_components)
-        prev_error = rec_err(X.T, F, G)
-        _step = jit(
-            partial(
-                step, sparsity=self.sparsity, X=X, n_freeze=self.n_components
-            )
+        last_state = inference_loop(
+            X=X,
+            G=G,
+            F=F,
+            sparsity=self.sparsity,
+            n_freeze=old_n_components,
+            tol=self.tol,
+            max_iter=self.max_iter,
+            track_convergence=True,
+            freeze_F=False,
         )
-        for i in trange(
-            self.max_iter,
-            desc="Iterative updates.",
-            disable=not self.progress_bar,
-        ):
-            G, F, error = _step(G, F)
-            difference = prev_error - error
-            # if (error < self.error_at_init) and (
-            #     (prev_error - error) / self.error_at_init
-            # ) < self.tol:
-            #     if self.verbose:
-            #         print(f"Converged after {i} iterations")
-            #     self.n_iter_ = i
-            #     break
-            # prev_error = error
-            # if self.verbose:
-            #     print(
-            #         f"Iteration: {i}, Error: {error}, init_error: {self.error_at_init}, difference from previous: {difference}"
-            #     )
-        self.components_ = np.array(F.T)
-        self.n_iter_ = i
+        return last_state
+
+    def fit_new_components(self, X: np.ndarray, n_new_components: int):
+        old_n_components = self.n_components
+        last_state = self._fit_new(X, n_new_components)
+        self.components_ = np.array(last_state["F"].T)
+        self.n_iter_ = int(last_state["n_iter"])
         self.n_components = old_n_components + n_new_components
-        self.reconstruction_err_ = error
+        self.reconstruction_err_ = float(last_state["error"])
         return self
 
     def rec_err(self, X):
@@ -207,19 +282,18 @@ class SNMF(TransformerMixin, BaseEstimator):
         )
         if F is None:
             F = self.components_.T
-        update = jit(lambda G: update_G(X.T, G, F, sparsity=self.sparsity))
-        error_at_init = rec_err(X.T, F, G)
-        prev_error = error_at_init
-        for i in range(self.max_iter):
-            G = update(G)
-            err = rec_err(X.T, F, G)
-            if (err < error_at_init) and (
-                (prev_error - err) / error_at_init
-            ) < self.tol:
-                if self.verbose:
-                    print(f"Converged after {i} iterations")
-                break
-        return np.array(G)
+        last_state = inference_loop(
+            X=X,
+            G=G,
+            F=F,
+            sparsity=self.sparsity,
+            n_freeze=None,
+            tol=self.tol,
+            max_iter=self.max_iter,
+            track_convergence=True,
+            freeze_F=True,
+        )
+        return np.array(last_state["G"])
 
     def inverse_transform(self, X):
         """Transform data back to its original space.

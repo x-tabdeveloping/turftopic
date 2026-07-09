@@ -15,7 +15,7 @@ from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
-from turftopic.models._snmf import SNMF, rec_err
+from turftopic.models._snmf import SNMF
 from turftopic.multimodal import (
     ImageRepr,
     MultimodalEmbeddings,
@@ -42,8 +42,9 @@ def bic_snmf(
         random_state=42,
         verbose=False,
         progress_bar=False,
-    ).fit(X)
-    return decomp.bic(X)
+    )
+    G = decomp.fit_transform(X)
+    return decomp.bic(X, G=G)
 
 
 def bic_add_components(n_new: int, X_new, decomp):
@@ -52,8 +53,8 @@ def bic_add_components(n_new: int, X_new, decomp):
     m_copy = copy.copy(decomp)
     m_copy.progress_bar = False
     m_copy.verbose = False
-    m_copy.fit_new_components(X_new, n_new_components=n_new)
-    return m_copy.bic(X_new)
+    last_state = m_copy._fit_new(X_new, n_new)
+    return m_copy.bic(X_new, F=last_state["F"], G=last_state["G"])
 
 
 class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
@@ -260,6 +261,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                     ),
                     min_n=0,
                     verbose=True,
+                    tolerance=5,
                 )
             self.decomposition.fit_new_components(
                 embeddings, n_new_components=n_new_components

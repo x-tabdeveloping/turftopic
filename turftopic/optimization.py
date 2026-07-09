@@ -43,7 +43,13 @@ def decomposition_gaussian_bic(
 
 
 def optimize_n_components(
-    f_ic: Callable[int, float], min_n: int = 2, max_n: int = 250, verbose=False
+    f_ic: Callable[int, float],
+    min_n=2,
+    max_n=250,
+    tolerance=10,
+    initial_increment=5,
+    increment_multiplier=2,
+    verbose=False,
 ) -> int:
     """Optimizes the nuber of components using the Brent minimum finding
     algorithm given an information criterion.
@@ -79,15 +85,15 @@ def optimize_n_components(
     n_comp = 2
     while not _f_ic(n_comp) < _f_ic(min_n):
         n_comp += 1
-        if n_comp >= 10:
+        if n_comp >= tolerance:
             if verbose:
                 print(
-                    f" - Couldn't find lower value than n={min_n} up to n=10, stopping."
+                    f" - Couldn't find lower value than n={min_n} up to n={tolerance}, stopping."
                 )
             return min_n
     middle = n_comp
     current = _f_ic(middle)
-    inc = 5
+    inc = initial_increment
     while not current > _f_ic(middle):
         n_comp += inc
         if n_comp >= max_n:
@@ -98,7 +104,7 @@ def optimize_n_components(
         if current < _f_ic(middle):
             low = n_comp - inc
             middle = n_comp
-        inc *= 2
+        inc *= increment_multiplier
     bracket = low, middle, n_comp
     if verbose:
         print(f" - Running optimization with bracket: {bracket}")
