@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Literal, Optional, Union
+from typing import Callable, Literal, Optional, Union
 
 import numpy as np
 from rich.console import Console
@@ -36,6 +36,9 @@ NOT_MATCHING_ERROR = (
 def bic_snmf(
     n_components: int, sparsity: float, X, random_state: int = 42
 ) -> float:
+    if n_components == 0:
+        rss = np.square(np.linalg.norm(X))
+        return np.log(rss)
     decomp = SNMF(
         n_components=n_components,
         sparsity=sparsity,
@@ -214,6 +217,51 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             self.document_topic_matrix = doc_topic
             console.log("Model fitting done.")
         return doc_topic
+
+    def partial_fit_merge(
+        self,
+        raw_documents,
+        y=None,
+        embeddings=None,
+        n_new_components: int = "auto",
+        match_threshold=0.7,
+        merge_method: str | Callable = "symmetric_mean",
+        weighted=True,
+    ):
+        if getattr(self, "components_", None) is None:
+            return self.fit(raw_documents, embeddings=embeddings)
+        if embeddings is None:
+            embeddings = self.encode_documents(raw_documents)
+        if n_new_components == "auto":
+            n_new_components = optimize_n_components(
+                partial(
+                    bic_snmf,
+                    X=embeddings,
+                    sparsity=self.sparsity,
+                ),
+                min_n=1,
+                verbose=True,
+                tolerance=10,
+            )
+        new_decomp = SNMF(
+            n_new_components,
+            max_iter=self.max_iter,
+            sparsity=self.sparsity,
+            random_state=self.random_state,
+        ).fit(embeddings)
+        self.decomposition = self.decomposition.merge_with(
+            new_decomp,
+            merge_method=merge_method,
+            match_threshold=match_threshold,
+            weighted=weighted,
+        )
+        self.n_components_ = self.decomposition.n_components
+        new_vectorizer = copy.copy(self.vectorizer).fit(raw_documents)
+        self.update_vocabulary(new_vectorizer)
+        vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+        self.axial_components_ = vocab_topic.T
+        self.estimate_components(self.feature_importance)
+        return self
 
     def partial_fit(
         self,
