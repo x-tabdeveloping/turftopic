@@ -1,3 +1,4 @@
+import warnings
 from datetime import datetime, timedelta
 from functools import partial
 from typing import Callable, Literal, Optional, Union
@@ -228,6 +229,41 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         merge_method: str | Callable = "symmetric_mean",
         weighted=True,
     ):
+        """Updates topic model by merging it with another one trained on the new data.
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        y: None
+            Ignored, exists for sklearn compatibility.
+        embeddings: ndarray of shape (n_documents, n_dimensions), optional
+            Precomputed document encodings.
+        n_new_components: int, default "auto"
+            Determines how many topics will get extracted from the new data.
+            If "auto", the number of topics gets determined by the BIC.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+        Returns
+        -------
+        ndarray of shape (n_documents, n_topics)
+            Document-topic matrix.
+        """
+        if getattr(self, "axial_temporal_components_", None) is not None:
+            warnings.warn(
+                "Merging based partial fit does NOT work with dynamic modelling just yet. Do not use dynamic features with partial_fit for now."
+            )
         if getattr(self, "components_", None) is None:
             return self.fit(raw_documents, embeddings=embeddings)
         if embeddings is None:
