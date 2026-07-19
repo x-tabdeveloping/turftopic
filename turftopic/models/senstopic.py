@@ -5,7 +5,7 @@ from typing import Callable, Literal, Optional, Union
 import numpy as np
 from rich.console import Console
 from rich.progress import track
-from sklearn.base import copy
+from sklearn.base import clone
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.manifold import TSNE
@@ -53,7 +53,7 @@ def bic_snmf(
 def bic_add_components(n_new: int, X_new, decomp):
     if n_new == 0:
         return decomp.bic(X_new)
-    m_copy = copy.copy(decomp)
+    m_copy = clone(decomp)
     m_copy.progress_bar = False
     m_copy.verbose = False
     last_state = m_copy._fit_new(X_new, n_new)
@@ -256,7 +256,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             weighted=weighted,
         )
         self.n_components_ = self.decomposition.n_components
-        new_vectorizer = copy.copy(self.vectorizer).fit(raw_documents)
+        new_vectorizer = clone(self.vectorizer).fit(raw_documents)
         self.update_vocabulary(new_vectorizer)
         vocab_topic = self.decomposition.transform(self.vocab_embeddings)
         self.axial_components_ = vocab_topic.T
@@ -318,7 +318,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             doc_topic = self.decomposition.transform(embeddings)
             console.log(f"Updated model with {n_new_components} topics.")
             status.update("Updating vocabulary")
-            new_vectorizer = copy.copy(self.vectorizer).fit(raw_documents)
+            new_vectorizer = clone(self.vectorizer).fit(raw_documents)
             self.update_vocabulary(new_vectorizer)
             status.update("Estimating term importances")
             vocab_topic = self.decomposition.transform(self.vocab_embeddings)
