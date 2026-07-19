@@ -218,7 +218,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             console.log("Model fitting done.")
         return doc_topic
 
-    def partial_fit_merge(
+    def partial_fit(
         self,
         raw_documents,
         y=None,
@@ -263,7 +263,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         self.estimate_components(self.feature_importance)
         return self
 
-    def partial_fit(
+    def _partial_fit_add_components(
         self,
         raw_documents,
         y=None,
