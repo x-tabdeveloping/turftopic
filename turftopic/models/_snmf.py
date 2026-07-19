@@ -1,14 +1,13 @@
 """This file implements semi-NMF, where doc_topic proportions are not allowed to be negative, but components are unbounded."""
 
 import warnings
-from functools import partial
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
-from sklearn.base import BaseEstimator, TransformerMixin, copy
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import KMeans
-from tqdm import trange
 
+from turftopic.merging import get_merge_fn
 from turftopic.utils import safe_binarize
 
 EPSILON = np.finfo(np.float32).eps
@@ -157,6 +156,48 @@ def inference_loop(
     return while_loop(_cond_fn, _body_fn, init_state)
 
 
+@jit
+def infer_doc_topic(
+    X,
+    G,
+    F,
+    sparsity=0,
+    tol=1e-5,
+    max_iter=200,
+):
+    return inference_loop(
+        X,
+        G,
+        F,
+        sparsity=sparsity,
+        tol=tol,
+        max_iter=max_iter,
+        track_convergence=True,
+        freeze_F=True,
+    )
+
+
+@jit
+def infer_model(
+    X,
+    G,
+    F,
+    sparsity=0,
+    tol=1e-5,
+    max_iter=200,
+):
+    return inference_loop(
+        X,
+        G,
+        F,
+        sparsity=sparsity,
+        tol=tol,
+        max_iter=max_iter,
+        track_convergence=True,
+        freeze_F=False,
+    )
+
+
 def infer_bic(G_init, F, X, sparsity, tol, max_iter):
     last_state = inference_loop(
         X=X,
@@ -169,7 +210,7 @@ def infer_bic(G_init, F, X, sparsity, tol, max_iter):
         track_convergence=True,
         freeze_F=True,
     )
-    rss = rec_err(X.T, F, last_state["G"])
+    rss = jnp.square(rec_err(X.T, F, last_state["G"]))
     n_components = G_init.shape[1]
     n_docs, n_dims = X.shape
     # BIC1 from https://pmc.ncbi.nlm.nih.gov/articles/PMC9181460/
@@ -202,16 +243,13 @@ class SNMF(TransformerMixin, BaseEstimator):
         G = init_G(X.T, self.n_components, random_state=self.random_state)
         F = update_F(X.T, G, F=None)
         self.error_at_init = rec_err(X.T, F, G)
-        last_state = inference_loop(
+        last_state = infer_model(
             X=X,
             G=G,
             F=F,
             sparsity=self.sparsity,
-            n_freeze=None,
             tol=self.tol,
             max_iter=self.max_iter,
-            track_convergence=True,
-            freeze_F=False,
         )
         self.components_ = np.array(last_state["F"].T)
         self.reconstruction_err_ = float(last_state["error"])
@@ -229,7 +267,7 @@ class SNMF(TransformerMixin, BaseEstimator):
         n_components = F.shape[1]
         if G is None:
             G = self.transform(X, F)
-        rss = rec_err(X.T, F, G)
+        rss = jnp.square(rec_err(X.T, F, G))
         n_components = G.shape[1]
         n_docs, n_dims = X.shape
         # BIC1 from https://pmc.ncbi.nlm.nih.gov/articles/PMC9181460/
@@ -263,6 +301,7 @@ class SNMF(TransformerMixin, BaseEstimator):
         self.n_iter_ = int(last_state["n_iter"])
         self.n_components = old_n_components + n_new_components
         self.reconstruction_err_ = float(last_state["error"])
+        self.n_datapoints_ += X.shape[0]
         return self
 
     def rec_err(self, X):
@@ -282,16 +321,13 @@ class SNMF(TransformerMixin, BaseEstimator):
         )
         if F is None:
             F = self.components_.T
-        last_state = inference_loop(
+        last_state = infer_doc_topic(
             X=X,
             G=G,
             F=F,
             sparsity=self.sparsity,
-            n_freeze=None,
             tol=self.tol,
             max_iter=self.max_iter,
-            track_convergence=True,
-            freeze_F=True,
         )
         return np.array(last_state["G"])
 
@@ -309,3 +345,28 @@ class SNMF(TransformerMixin, BaseEstimator):
             Returns a data matrix of the original shape.
         """
         return X @ self.components_
+
+    def merge_with(
+        self,
+        other: "SNMF",
+        match_threshold=0.7,
+        merge_method: str | Callable = "symmetric_mean",
+        weighted=True,
+    ) -> "SNMF":
+        args = self.get_params()
+        merge_fn = get_merge_fn(merge_method)
+        weights = (
+            [self.n_datapoints_, other.n_datapoints_] if weighted else None
+        )
+        new_components = merge_fn(
+            [self.components_, other.components_],
+            weights=weights,
+            match_threshold=match_threshold,
+        )
+        args["n_components"] = new_components.shape[0]
+        new_model = type(self)(**args)
+        new_model.components_ = new_components
+        new_model.reconstruction_err_ = self.reconstruction_err_
+        new_model.n_datapoints_ = self.n_datapoints_ + other.n_datapoints_
+        new_model.n_iter_ = self.n_iter_
+        return new_model
