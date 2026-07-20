@@ -285,7 +285,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             sparsity=self.sparsity,
             random_state=self.random_state,
         ).fit(embeddings)
-        self.decomposition = self.decomposition.merge_with(
+        self.decomposition, merge_history = self.decomposition.merge_with(
             new_decomp,
             merge_method=merge_method,
             match_threshold=match_threshold,

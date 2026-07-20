@@ -1,4 +1,7 @@
+import datetime
+import itertools
 import warnings
+from collections import defaultdict
 from functools import partial
 from typing import Callable
 
@@ -14,6 +17,40 @@ def safe_agg(a, agg, weights, axis=0):
         return agg(a, axis=axis)
 
 
+MergeHistory = list[list[int]]
+
+
+def merge_from_history(
+    component_matrices: list[np.ndarray],
+    merge_history: MergeHistory,
+    weights=None,
+    agg=np.average,
+) -> np.ndarray:
+    stacked_components = np.concatenate(component_matrices, axis=0)
+    flat_merge_hist = list(itertools.chain.from_iterable(merge_history))
+    unique_components = np.unique(flat_merge_hist)
+    assert unique_components[0] == 0
+    new_to_old = defaultdict(list)
+    current = 0
+    for merge_h, comp in zip(merge_history, component_matrices):
+        n_model_components = comp.shape[0]
+        for i_old, to_new in enumerate(merge_h):
+            new_to_old[to_new].append(i_old + current)
+        current += n_model_components
+    n_dims = stacked_components.shape[1]
+    new_components = np.zeros(
+        (len(unique_components), n_dims), dtype=stacked_components.dtype
+    )
+    for i_new, old_ind in new_to_old.items():
+        new_components[i_new] = safe_agg(
+            stacked_components[old_ind],
+            agg=agg,
+            weights=weights,
+            axis=0,
+        )
+    return new_components
+
+
 def symmetric_merge(
     component_matrices: list[np.ndarray],
     weights=None,
@@ -21,7 +58,7 @@ def symmetric_merge(
     agg=np.average,
     sim_fn=cosine_similarity,
     allow_within_model_match=False,
-) -> np.ndarray:
+) -> tuple[np.ndarray, MergeHistory]:
     stacked_components = np.concatenate(component_matrices, axis=0)
     similarity = sim_fn(stacked_components, stacked_components)
     if not allow_within_model_match:
@@ -37,40 +74,48 @@ def symmetric_merge(
     n_graph_components, labels = spr.csgraph.connected_components(
         matches, directed=False
     )
-    n_dims = stacked_components.shape[1]
-    new_components = np.zeros((n_graph_components, n_dims))
-    for i_graph_component in np.arange(n_graph_components):
-        new_components[i_graph_component, :] = safe_agg(
-            stacked_components[labels == i_graph_component],
-            agg=agg,
-            weights=weights,
-            axis=0,
+    merge_history = []
+    current_ind = 0
+    for i_model, comp in enumerate(component_matrices):
+        n_model_components = comp.shape[0]
+        merge_history.append(
+            labels[current_ind : current_ind + n_model_components]
         )
-    return new_components
+        current_ind += n_model_components
+    new_components = merge_from_history(
+        component_matrices, merge_history, weights=weights, agg=agg
+    )
+    return new_components, merge_history
 
 
 def keep_first(a, axis=0):
     return np.take(a, 0, axis=axis)
 
 
-def assymmetric_merge(
+def asymmetric_merge(
     component_matrices: list[np.ndarray],
     weights=None,
     match_threshold: float = 0.7,
     agg=keep_first,
     sim_fn=cosine_similarity,
-):
+) -> tuple[np.ndarray, MergeHistory]:
+    merge_history = []
     components = np.copy(component_matrices[0])
+    # First components will just be kept
+    merge_history.append(list(range(components.shape[0])))
     for incoming_components in component_matrices[1:]:
+        n_current = components.shape[0]
+        _merge_inst = []
         similarity = sim_fn(components, incoming_components)
-        match = similarity > match_threshold
-        for i_comp, old_matches_new in enumerate(match):
-            if np.any(old_matches_new):
-                components[i_comp] = safe_agg(
+        maxsim_ind = np.argmax(similarity.T, axis=1)
+        to_add = []
+        for i_new_comp, ind_most_similar_old in enumerate(maxsim_ind):
+            if similarity[ind_most_similar_old, i_new_comp] > match_threshold:
+                components[ind_most_similar_old] = safe_agg(
                     np.concatenate(
                         [
-                            components[[i_comp], :],
-                            incoming_components[old_matches_new],
+                            components[[ind_most_similar_old], :],
+                            incoming_components[[i_new_comp], :],
                         ],
                         axis=0,
                     ),
@@ -78,19 +123,23 @@ def assymmetric_merge(
                     weights=weights,
                     axis=0,
                 )
-        to_add, *_ = np.nonzero(match.sum(axis=0) <= 0)
+                _merge_inst.append(ind_most_similar_old)
+            else:
+                to_add.append(i_new_comp)
+                _merge_inst.append(n_current + len(to_add))
         components = np.concatenate(
             [components, incoming_components[to_add]], axis=0
         )
-    return components
+        merge_history.append(_merge_inst)
+    return components, merge_history
 
 
 NAMED_METHODS = {
     "keep_first": partial(
-        assymmetric_merge, sim_fn=cosine_similarity, agg=keep_first
+        asymmetric_merge, sim_fn=cosine_similarity, agg=keep_first
     ),
     "asymmetric_mean": partial(
-        assymmetric_merge, sim_fn=cosine_similarity, agg=np.nanmean
+        asymmetric_merge, sim_fn=cosine_similarity, agg=np.nanmean
     ),
     "symmetric_mean": partial(
         symmetric_merge, sim_fn=cosine_similarity, agg=np.nanmean

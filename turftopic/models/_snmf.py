@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import KMeans
 
-from turftopic.merging import get_merge_fn
+from turftopic.merging import MergeHistory, get_merge_fn
 from turftopic.utils import safe_binarize
 
 EPSILON = np.finfo(np.float32).eps
@@ -352,13 +352,13 @@ class SNMF(TransformerMixin, BaseEstimator):
         match_threshold=0.7,
         merge_method: str | Callable = "symmetric_mean",
         weighted=True,
-    ) -> "SNMF":
+    ) -> tuple["SNMF", MergeHistory]:
         args = self.get_params()
         merge_fn = get_merge_fn(merge_method)
         weights = (
             [self.n_datapoints_, other.n_datapoints_] if weighted else None
         )
-        new_components = merge_fn(
+        new_components, merge_history = merge_fn(
             [self.components_, other.components_],
             weights=weights,
             match_threshold=match_threshold,
@@ -369,4 +369,4 @@ class SNMF(TransformerMixin, BaseEstimator):
         new_model.reconstruction_err_ = self.reconstruction_err_
         new_model.n_datapoints_ = self.n_datapoints_ + other.n_datapoints_
         new_model.n_iter_ = self.n_iter_
-        return new_model
+        return new_model, merge_history
