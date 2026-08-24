@@ -6,7 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from turftopic.serialization import get_package_versions
 from rich.progress import track
 
-URL = "https://en.wikipedia.org/w/api.php"
+URL = "https://{language_code}.wikipedia.org/w/api.php"
 VERSIONS = get_package_versions()
 VERSION = VERSIONS["turftopic"]
 
@@ -36,6 +36,8 @@ class WikiAnalyzer(Analyzer):
     ----------
     topic_model: ContextualModel
         Topic model to use for embedding keywords and documents.
+    language_code: str, default "en"
+        Wikipedia language code for the language of the documents.
     n_keywords: int, default 5
         Number of search words to use when searching Wikipedia.
     similarity_threshold: float = 0.7
@@ -52,6 +54,7 @@ class WikiAnalyzer(Analyzer):
     def __init__(
         self,
         topic_model,
+        language_code: str = "en",
         n_keywords: int = 5,
         similarity_threshold: float = 0.5,
         limit: int = 10,
@@ -65,6 +68,7 @@ class WikiAnalyzer(Analyzer):
         self.similarity_threshold = similarity_threshold
         self.limit = limit
         self.prune_summaries = prune_summaries
+        self.language_code = language_code
 
     def summarize_document(self, document: str) -> str:
         raise NotImplementedError
@@ -81,7 +85,11 @@ class WikiAnalyzer(Analyzer):
             "srsearch": query,
             "srlimit": self.limit,
         }
-        results = self.session.get(url=URL, params=params, headers=HEADERS)
+        results = self.session.get(
+            url=URL.format(language_code=self.language_code),
+            params=params,
+            headers=HEADERS,
+        )
         try:
             data = results.json()
             return data["query"]["search"]
@@ -98,7 +106,11 @@ class WikiAnalyzer(Analyzer):
             "exintro": 1,
             "pageids": pageid,
         }
-        results = self.session.get(url=URL, params=params, headers=HEADERS)
+        results = self.session.get(
+            url=URL.format(language_code=self.language_code),
+            params=params,
+            headers=HEADERS,
+        )
         try:
             data = results.json()
             pages = data["query"]["pages"]
