@@ -36,6 +36,8 @@ def init_G(
     X, n_components: int, constant=0.2, random_state=None
 ) -> np.ndarray:
     """Returns W"""
+    if n_components > X.shape[1]:
+        return np.random.default_rng(random_state).normal(0, 1, size=(X.shape[1], n_components))
     kmeans = KMeans(n_components, random_state=random_state).fit(X.T)
     # n_components, n_columns
     G = safe_binarize(kmeans.labels_, classes=np.arange(n_components))
