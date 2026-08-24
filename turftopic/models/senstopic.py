@@ -224,12 +224,17 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         raw_documents,
         y=None,
         embeddings=None,
+        timestamps=None,
         n_new_components: int = "auto",
         match_threshold=0.7,
         merge_method: str | Callable = "symmetric_mean",
         weighted=True,
     ):
         """Updates topic model by merging it with another one trained on the new data.
+        Can also be used in a dynamic setting, in these cases,
+        it is assumed that all new documents belong to one new timeslice.
+
+        IMPORTANT: When using dynamic online fitting, use an asymmetric merging method (asymmetric_mean or keep_first)
 
         Parameters
         ----------
@@ -260,54 +265,13 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         ndarray of shape (n_documents, n_topics)
             Document-topic matrix.
         """
-        if getattr(self, "axial_temporal_components_", None) is not None:
-            warnings.warn(
-                "Merging based partial fit does NOT work with dynamic modelling just yet. Do not use dynamic features with partial_fit for now."
-            )
-        if getattr(self, "components_", None) is None:
-            return self.fit(raw_documents, embeddings=embeddings)
-        if embeddings is None:
-            embeddings = self.encode_documents(raw_documents)
-        if n_new_components == "auto":
-            n_new_components = optimize_n_components(
-                partial(
-                    bic_snmf,
-                    X=embeddings,
-                    sparsity=self.sparsity,
-                ),
-                min_n=1,
-                verbose=True,
-                tolerance=10,
-            )
-        new_decomp = SNMF(
-            n_new_components,
-            max_iter=self.max_iter,
-            sparsity=self.sparsity,
-            random_state=self.random_state,
-        ).fit(embeddings)
-        self.decomposition, merge_history = self.decomposition.merge_with(
-            new_decomp,
-            merge_method=merge_method,
-            match_threshold=match_threshold,
-            weighted=weighted,
-        )
-        self.n_components_ = self.decomposition.n_components
-        new_vectorizer = clone(self.vectorizer).fit(raw_documents)
-        self.update_vocabulary(new_vectorizer)
-        vocab_topic = self.decomposition.transform(self.vocab_embeddings)
-        self.axial_components_ = vocab_topic.T
-        self.estimate_components(self.feature_importance)
-        return self
-
-    def _partial_fit_add_components(
-        self,
-        raw_documents,
-        y=None,
-        embeddings=None,
-        timestamps=None,
-        n_new_components="auto",
-    ):
         if timestamps is not None:
+            if isinstance(merge_method, str) and merge_method.startswith(
+                "symmetric_mean"
+            ):
+                raise ValueError(
+                    "partial_fit with symmetric merging only works in a non-dynamic setting. Use an asymmetric merging function when online fitting a model."
+                )
             if (getattr(self, "components_", None) is None) or (
                 getattr(self, "time_bin_edges", None) is None
             ):
@@ -329,91 +293,101 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                     "When using partial fitting on a dynamic model, all new documents have to be in a new time slice. "
                     f"Currently there are {n_before} documents from before {last_edge}. Remove these before fitting."
                 )
-        console = Console()
-        with console.status("Updating model with new data") as status:
-            if embeddings is None:
-                status.update("Encoding documents")
-                embeddings = self.encode_documents(raw_documents)
-                console.log("Documents encoded.")
-            if n_new_components == "auto":
-                status.update("Finding the number of components to add.")
-                n_new_components = optimize_n_components(
-                    partial(
-                        bic_add_components,
-                        X_new=embeddings,
-                        decomp=self.decomposition,
-                    ),
-                    min_n=0,
-                    verbose=True,
-                    tolerance=5,
-                )
-            self.decomposition.fit_new_components(
-                embeddings, n_new_components=n_new_components
+        if embeddings is None:
+            embeddings = self.encode_documents(raw_documents)
+        if n_new_components == "auto":
+            n_new_components = optimize_n_components(
+                partial(
+                    bic_snmf,
+                    X=embeddings,
+                    sparsity=self.sparsity,
+                ),
+                min_n=1,
+                verbose=True,
+                tolerance=10,
             )
-            self.n_components_ = self.decomposition.n_components
-            doc_topic = self.decomposition.transform(embeddings)
-            console.log(f"Updated model with {n_new_components} topics.")
-            status.update("Updating vocabulary")
-            new_vectorizer = clone(self.vectorizer).fit(raw_documents)
-            self.update_vocabulary(new_vectorizer)
-            status.update("Estimating term importances")
-            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
-            self.axial_components_ = vocab_topic.T
-            if self.feature_importance == "axial":
-                self.components_ = self.axial_components_
-            elif self.feature_importance == "angular":
-                self.components_ = self.angular_components_
-            elif self.feature_importance == "combined":
-                self.components_ = (
-                    np.square(self.axial_components_)
-                    * self.angular_components_
+        new_decomp = SNMF(
+            n_new_components,
+            max_iter=self.max_iter,
+            sparsity=self.sparsity,
+            random_state=self.random_state,
+        )
+        new_doc_topic = new_decomp.fit_transform(embeddings)
+        self.decomposition, merge_history = self.decomposition.merge_with(
+            new_decomp,
+            merge_method=merge_method,
+            match_threshold=match_threshold,
+            weighted=weighted,
+        )
+        if isinstance(merge_method, str) and (merge_method == "keep_first"):
+            n_diff = self.decomposition.n_components - self.n_components_
+            # Updating topic names:
+            old_topic_names = getattr(self, "topic_names_", None)
+            if old_topic_names is not None:
+                delattr(self, "topic_names_")
+                self.topic_names_ = [
+                    *old_topic_names,
+                    *self.topic_names[-n_diff:],
+                ]
+            for new_dt in new_doc_topic[:, -n_diff:].T:
+                top = np.argsort(-new_dt)[:10]
+                for i_top in top:
+                    self.top_documents.append(raw_documents[i_top])
+        else:
+            self.top_documents = self.get_top_documents(
+                raw_documents=raw_documents,
+                document_topic_matrix=new_doc_topic,
+            )
+            try:
+                delattr(self, "topic_names_")
+            except AttributeError:
+                pass
+        if timestamps is not None:
+            n_diff = self.decomposition.n_components - self.n_components_
+            if n_diff < 0:
+                raise ValueError(
+                    "partial_fit with symmetric merging only works in a non-dynamic setting. Use an asymmetric merging function when online fitting a model."
                 )
-            if n_new_components > 0:
-                # Updating topic names:
-                old_topic_names = getattr(self, "topic_names_", None)
-                if old_topic_names is not None:
-                    delattr(self, "topic_names_")
-                    self.topic_names_ = [
-                        *old_topic_names,
-                        *self.topic_names[-n_new_components:],
-                    ]
-            console.log("Updated term importances")
-            for new_dt in doc_topic[:, -n_new_components:].T:
-                top = np.argsort(-new_dt)
-                self.top_documents.append(
-                    [raw_documents[i_top] for i_top in top]
+            if n_diff == 0:
+                return
+            self.time_bin_edges.append(
+                max(timestamps) + timedelta(microseconds=1)
+            )
+            t_components = []
+            t_importance = []
+            for t_component, t_imp in zip(
+                self.axial_temporal_components_, self.temporal_importance_
+            ):
+                t_component = np.pad(
+                    t_component,
+                    [(0, n_diff), (0, 0)],
+                    mode="constant",
+                    constant_values=0,
                 )
-            if timestamps is not None:
-                status.update("Updating temporal components.")
-                self.time_bin_edges.append(
-                    max(timestamps) + timedelta(microseconds=1)
+                t_imp = np.pad(
+                    t_imp,
+                    (0, n_diff),
+                    mode="constant",
+                    constant_values=0,
                 )
-                t_components = []
-                t_importance = []
-                for t_component, t_imp in zip(
-                    self.axial_temporal_components_, self.temporal_importance_
-                ):
-                    t_component = np.pad(
-                        t_component,
-                        [(0, n_new_components), (0, 0)],
-                        mode="constant",
-                        constant_values=0,
-                    )
-                    t_imp = np.pad(
-                        t_imp,
-                        (0, n_new_components),
-                        mode="constant",
-                        constant_values=0,
-                    )
-                    t_components.append(t_component)
-                    t_importance.append(t_imp)
-                new_imp, new_comp = self._fit_timebin(embeddings, doc_topic)
-                t_components.append(new_comp)
-                t_importance.append(new_imp)
-                self.axial_temporal_components_ = np.stack(t_components)
-                self.temporal_importance_ = np.stack(t_importance)
-                self.estimate_components(self.feature_importance)
-            console.log("Model update done.")
+                t_components.append(t_component)
+                t_importance.append(t_imp)
+            t_dt = np.zeros(
+                (new_doc_topic.shape[0], self.decomposition.n_components)
+            )
+            for i_new, joint_index in enumerate(merge_history[1]):
+                t_dt[:, joint_index] = new_doc_topic[:, i_new]
+            new_imp, new_comp = self._fit_timebin(embeddings, t_dt)
+            t_components.append(new_comp)
+            t_importance.append(new_imp)
+            self.axial_temporal_components_ = np.stack(t_components)
+            self.temporal_importance_ = np.stack(t_importance)
+        self.n_components_ = self.decomposition.n_components
+        new_vectorizer = clone(self.vectorizer).fit(raw_documents)
+        self.update_vocabulary(new_vectorizer)
+        vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+        self.axial_components_ = vocab_topic.T
+        self.estimate_components(self.feature_importance)
         return self
 
     def transform(self, raw_documents, embeddings=None):
@@ -664,7 +638,6 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         doc_topic = self.document_topic_matrix
         coords = TSNE(2, metric="cosine").fit_transform(doc_topic)
         labels = np.argmax(doc_topic, axis=1)
-        print(np.unique_counts(labels))
         topics_present = np.sort(np.unique(labels))
         names = [self.topic_names[i] for i in topics_present]
         if getattr(self, "topic_descriptions", None) is not None:
@@ -705,7 +678,6 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         doc_topic = self.document_topic_matrix
         coords = TSNE(2, metric="cosine").fit_transform(doc_topic)
         labels = np.argmax(doc_topic, axis=1)
-        print(np.unique_counts(labels))
         topics_present = np.sort(np.unique(labels))
         names = [self.topic_names[i] for i in topics_present]
         if getattr(self, "topic_descriptions", None) is not None:

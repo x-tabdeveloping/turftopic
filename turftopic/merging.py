@@ -20,13 +20,20 @@ def safe_agg(a, agg, weights, axis=0):
 MergeHistory = list[list[int]]
 
 
+def stack_components(component_matrices) -> tuple[np.ndarray, np.ndarray]:
+    stacked_components = np.concatenate(component_matrices, axis=0)
+    n_comps = [comp.shape[0] for comp in component_matrices]
+    labels = np.repeat(np.arange(len(component_matrices)), n_comps)
+    return stacked_components, labels
+
+
 def merge_from_history(
     component_matrices: list[np.ndarray],
     merge_history: MergeHistory,
     weights=None,
     agg=np.average,
 ) -> np.ndarray:
-    stacked_components = np.concatenate(component_matrices, axis=0)
+    stacked_components, old_labels = stack_components(component_matrices)
     flat_merge_hist = list(itertools.chain.from_iterable(merge_history))
     unique_components = np.unique(flat_merge_hist)
     assert unique_components[0] == 0
@@ -59,7 +66,7 @@ def symmetric_merge(
     sim_fn=cosine_similarity,
     allow_within_model_match=False,
 ) -> tuple[np.ndarray, MergeHistory]:
-    stacked_components = np.concatenate(component_matrices, axis=0)
+    stacked_components, old_labels = stack_components(component_matrices)
     similarity = sim_fn(stacked_components, stacked_components)
     if not allow_within_model_match:
         i_processed = 0
@@ -125,8 +132,8 @@ def asymmetric_merge(
                 )
                 _merge_inst.append(ind_most_similar_old)
             else:
-                to_add.append(i_new_comp)
                 _merge_inst.append(n_current + len(to_add))
+                to_add.append(i_new_comp)
         components = np.concatenate(
             [components, incoming_components[to_add]], axis=0
         )
