@@ -4,7 +4,6 @@ from turftopic.base import ContextualModel
 from turftopic.analyzers.base import Analyzer, AnalysisResults
 from sklearn.metrics.pairwise import cosine_similarity
 from turftopic.serialization import get_package_versions
-from rich.console import Console
 from rich.progress import track
 
 URL = "https://en.wikipedia.org/w/api.php"
@@ -28,6 +27,26 @@ def remove_parens(s):
 
 
 class WikiAnalyzer(Analyzer):
+    """Analyze topic model with a page titles and summaries from Wikipedia's API.
+    The analyzer searches wikipedia with the highest rankning N keywords from a topic
+    and then ranks pages based on their semantic proximity to example keywords and documents
+    from the topic using the topic model's encoder.
+
+    Parameters
+    ----------
+    topic_model: ContextualModel
+        Topic model to use for embedding keywords and documents.
+    n_keywords: int, default 5
+        Number of search words to use when searching Wikipedia.
+    similarity_threshold: float = 0.7
+        Cosine similarity threshold between page titles and topic representations
+        to consider the page a match.
+    limit: int, default 10
+        Maximum number of pages to return in each search.
+    prune_summaries, default True,
+        Indicates whether only the first sentence should be used from the page summaries.
+    """
+
     use_summaries = False
 
     def __init__(
@@ -158,7 +177,7 @@ class WikiAnalyzer(Analyzer):
         ----------
         keywords: list[list[str]]
             Keywords for each topic.
-        documents: list[list[str]]
+        documents: list[list[str]], default None
             Top documents for each topic.
         use_summaries: None
             Ignored.
