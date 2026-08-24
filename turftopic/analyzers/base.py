@@ -1,3 +1,4 @@
+from itertools import zip_longest
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
@@ -147,7 +148,7 @@ class Analyzer(ABC):
         """
         names = []
         if documents is not None:
-            key_doc = list(zip(keywords, documents))
+            key_doc = list(zip_longest(keywords, documents))
             for keys, docs in track(key_doc, description="Naming topics..."):
                 names.append(self.name_topic(keys, documents=docs))
         else:
@@ -160,9 +161,7 @@ class Analyzer(ABC):
         return """
         In addition the topic is characterized by the following documents:
         {documents}
-        """.format(
-            documents=doc_list
-        )
+        """.format(documents=doc_list)
 
     def analyze_topics(
         self,
@@ -207,7 +206,7 @@ class Analyzer(ABC):
                 # Updating parameter so summaries are used down-stream
                 documents = output["document_summaries"]
             # Organizing into a list so we can iterate and know the length at the same time.
-            key_doc_pairs = list(zip(keywords, documents))
+            key_doc_pairs = list(zip_longest(keywords, documents))
             for keys, docs in track(
                 key_doc_pairs, description="Generating topic names"
             ):

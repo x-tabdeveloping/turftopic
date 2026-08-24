@@ -1,5 +1,6 @@
 import numpy as np
 import re
+from itertools import zip_longest
 from turftopic.analyzers.base import Analyzer, AnalysisResults
 from sklearn.metrics.pairwise import cosine_similarity
 from turftopic.serialization import get_package_versions
@@ -52,7 +53,7 @@ class WikiAnalyzer(Analyzer):
         self,
         topic_model,
         n_keywords: int = 5,
-        similarity_threshold: float = 0.7,
+        similarity_threshold: float = 0.5,
         limit: int = 10,
         prune_summaries=True,
     ):
@@ -160,7 +161,7 @@ class WikiAnalyzer(Analyzer):
         documents=None,
     ) -> str:
         """Names one topic based on top descriptive aspects."""
-        best_match = self._get_best_match(keywords)
+        best_match = self._get_best_match(keywords, documents)
         if best_match is None:
             return None
         return best_match["name"]
@@ -199,7 +200,7 @@ class WikiAnalyzer(Analyzer):
                 output["topic_descriptions"].append(summary)
         else:
             for keys, docs in track(
-                zip(keywords, documents),
+                zip_longest(keywords, documents),
                 description="Analyzing topics...",
                 total=len(keywords),
             ):
