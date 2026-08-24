@@ -1,6 +1,5 @@
 import numpy as np
 import re
-from turftopic.base import ContextualModel
 from turftopic.analyzers.base import Analyzer, AnalysisResults
 from sklearn.metrics.pairwise import cosine_similarity
 from turftopic.serialization import get_package_versions
@@ -51,7 +50,7 @@ class WikiAnalyzer(Analyzer):
 
     def __init__(
         self,
-        topic_model: ContextualModel,
+        topic_model,
         n_keywords: int = 5,
         similarity_threshold: float = 0.7,
         limit: int = 10,
