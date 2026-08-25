@@ -219,7 +219,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             console.log("Model fitting done.")
         return doc_topic
 
-    def partial_fit(
+    def partial_fit_transform(
         self,
         raw_documents,
         y=None,
@@ -227,7 +227,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         timestamps=None,
         n_new_components: int = "auto",
         match_threshold=0.7,
-        merge_method: str | Callable = "symmetric_mean",
+        merge_method: str | Callable = "asymmetric_mean",
         weighted=True,
     ):
         """Updates topic model by merging it with another one trained on the new data.
@@ -283,7 +283,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                 )
         if getattr(self, "components_", None) is None:
             if timestamps is None:
-                return self.fit(raw_documents, embeddings=embeddings)
+                return self.fit_transform(raw_documents, embeddings=embeddings)
         if timestamps is not None:
             last_edge = self.time_bin_edges[-1]
             is_before = [(ts <= last_edge) for ts in timestamps]
@@ -348,8 +348,6 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                 raise ValueError(
                     "partial_fit with symmetric merging only works in a non-dynamic setting. Use an asymmetric merging function when online fitting a model."
                 )
-            if n_diff == 0:
-                return
             self.time_bin_edges.append(
                 max(timestamps) + timedelta(microseconds=1)
             )
@@ -388,6 +386,65 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         vocab_topic = self.decomposition.transform(self.vocab_embeddings)
         self.axial_components_ = vocab_topic.T
         self.estimate_components(self.feature_importance)
+        return new_doc_topic
+
+    def partial_fit(
+        self,
+        raw_documents,
+        y=None,
+        embeddings=None,
+        timestamps=None,
+        n_new_components: int = "auto",
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Updates topic model by merging it with another one trained on the new data.
+        Can also be used in a dynamic setting, in these cases,
+        it is assumed that all new documents belong to one new timeslice.
+
+        IMPORTANT: When using dynamic online fitting, use an asymmetric merging method (asymmetric_mean or keep_first)
+
+        Parameters
+        ----------
+        raw_documents: iterable of str
+            Documents to fit the model on.
+        y: None
+            Ignored, exists for sklearn compatibility.
+        embeddings: ndarray of shape (n_documents, n_dimensions), optional
+            Precomputed document encodings.
+        n_new_components: int, default "auto"
+            Determines how many topics will get extracted from the new data.
+            If "auto", the number of topics gets determined by the BIC.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        Self
+            Updated topic model.
+        """
+        self.partial_fit_transform(
+            raw_documents,
+            y=y,
+            embeddings=embeddings,
+            timestamps=timestamps,
+            n_new_components=n_new_components,
+            match_threshold=match_threshold,
+            merge_method=merge_method,
+            weighted=weighted,
+        )
         return self
 
     def transform(self, raw_documents, embeddings=None):
