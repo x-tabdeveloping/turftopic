@@ -59,6 +59,7 @@ class WikiAnalyzer(Analyzer):
         similarity_threshold: float = 0.5,
         limit: int = 10,
         prune_summaries=True,
+        penalize_length=True,
     ):
         import requests
 
@@ -69,6 +70,7 @@ class WikiAnalyzer(Analyzer):
         self.limit = limit
         self.prune_summaries = prune_summaries
         self.language_code = language_code
+        self.penalize_length = penalize_length
 
     def summarize_document(self, document: str) -> str:
         raise NotImplementedError
@@ -147,6 +149,11 @@ class WikiAnalyzer(Analyzer):
         topic_embedding = self._get_topic_embedding(keywords, documents)
         page_embeddings = self.topic_model.encode_documents(repr_str)
         sim = cosine_similarity([topic_embedding], page_embeddings)[0]
+        threshold = self.similarity_threshold
+        if self.penalize_length:
+            lengths = np.array([len(title.split()) for title in titles])
+            sim = sim / lengths
+            threshold = threshold / np.max(lengths)
         i_best_page = np.argmax(sim)
         if sim[i_best_page] < self.similarity_threshold:
             return None
