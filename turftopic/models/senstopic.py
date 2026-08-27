@@ -386,7 +386,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         vocab_topic = self.decomposition.transform(self.vocab_embeddings)
         self.axial_components_ = vocab_topic.T
         self.estimate_components(self.feature_importance)
-        return new_doc_topic
+        return self.decomposition.transform(embeddings)
 
     def partial_fit(
         self,
