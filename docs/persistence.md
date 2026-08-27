@@ -1,9 +1,15 @@
 # Saving and loading
 
+!!! danger
+    Turftopic currently uses `joblib` for model serialization.
+    `joblib` is problematic, as it uses Pickle, which allows for arbitrary code execution.
+    You should only ever load a Turftopic model from a **Trusted Source**!!
+    We are working on a better solution using `safetensors`, but it will probably take a while before all models can be serialized without `joblib`.
+
 ## Model persistence
 All models in Turftopic can be serialized and saved to disk, or published to the HuggingFace Hub.
 
-!!! warning
+!!! tip
     We now recommend that you do NOT pre-load `SentenceTransformer` encoder models, but rather pass them by name to the topic models.
     This allows the model not to store the encoder model on disk, and load it when loading the model.
     This can lead to extreme reductions in disk space usage.

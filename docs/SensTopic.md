@@ -162,6 +162,31 @@ model.print_topics()
 | 4 | tennis, competing, federer, wimbledon, iaaf, olympic, tournament, athlete, rugby, olympics |
 | 5 | gdp, stock, economy, earnings, investments, investment, invest, exports, finance, economies |
 
+## Batch fitting
+
+SensTopic models can be fit in mini-batches. This is done by fitting separate models on all batches, and continuously merging models of the new batches into the current model.
+!!! info
+    To find more information on model merging and its variants, please look at [Model Merging](topic_merging.md).
+
+```python
+from itertools import batched
+
+BATCH_SIZE = 2000
+corpus: Iterable[str] = [...]
+batches = batched(corpus, BATCH_SIZE)
+
+model = SensTopic(
+    sparsity=5.0,
+    random_state=42,
+)
+for batch in batches:
+    batch = list(batch)
+    batch_doc_topic = model.partial_fit_transform(
+        batch, merge_method="asymmetric_mean"
+    )
+model.print_topics()
+```
+
 ## Citation
 
 Please cite Turftopic when using the SensTopic model:

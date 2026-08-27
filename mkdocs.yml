@@ -2,24 +2,28 @@ site_name: Turftopic
 site_description: 'An all-in-one library for topic modeling with sentence embeddings.'
 repo_url: https://github.com/x-tabdeveloping/turftopic
 nav:
-  - User Guide:
+  - Basic Usage:
     - Getting Started: index.md
     - Defining and Fitting Topic Models: model_definition_and_training.md
     - Interpreting and Visualizing Models: model_interpretation.md
+    - Modifying and Finetuning Models: finetuning.md
+    - Saving and Loading: persistence.md
+    - Using TopicData: topic_data.md
+  - Advanced Usage:
     - Seeded Topic Modeling: seeded.md
     - Dynamic Topic Modeling: dynamic.md
     - Online Topic Modeling: online.md
     - Hierarchical Topic Modeling: hierarchical.md
     - Cross-Lingual Topic Modeling: cross_lingual.md
     - Late Interaction (Multi-vector) Topic Models: late_interaction.md
-    - Multimodal Modeling (Experimental): multimodal.md
     - Concept Induction: concept_induction.md
-    - Modifying and Finetuning Models: finetuning.md
-    - Saving and Loading: persistence.md
-    - Using TopicData: topic_data.md
+    - Multimodal Modeling (Experimental): multimodal.md
+    - Model Merging: topic_merging.md
+    - Distribution Learning: distribution_learning.md
     - Implement a Wrapper/Custom Model: custom_model.md
-  - Tutorials:
-     - Tutorial Overview: tutorials/overview.md
+  - Examples:
+     - Turftopic Example Gallery: tutorials/overview.md
+     - Surveying and Filtering Large Training Datasets with SensTopic: tutorials/fineweb_1m.md
      - Analyzing the Landscape of Machine Learning Research: tutorials/arxiv_ml.md
      - Discourse Analysis on Morality and Religion: tutorials/religious.md
      - Discovering a Data-driven Political Compass: tutorials/ideologies.md
@@ -40,7 +44,9 @@ nav:
     - Concept Vector Projection (Continuous Sentiment Scoring): cvp.md
   - <span>Embeddings and Encoders <span><br> <i class="subtext">(Transformer Models)</i>: encoders.md
   - <span>Vectorizers<span> <br> <i class="subtext">(Term extraction)</i>: vectorizers.md
-  - Topic Analysis and Naming with LLMs: analyzers.md
+  - <span> Automated Topic Analysis<span> <br> <i class="subtext">(Topic names and descriptions)</i>: 
+     - Analyzers Overview: analyzers.md
+     - Wiki Analyzer: wiki.md
 theme:
   name: material
   logo: images/logo.svg

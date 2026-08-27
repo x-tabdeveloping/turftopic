@@ -66,6 +66,34 @@ def symmetric_merge(
     sim_fn=cosine_similarity,
     allow_within_model_match=False,
 ) -> tuple[np.ndarray, MergeHistory]:
+    """Performs a symmetric merge on a number of topic models.
+
+    Parameters
+    ----------
+    component_matrices: list[np.ndarray]
+        List of topic representations from all topic models.
+    weights: Sequence, None
+        Weight for each of the models in case of a weighted merge.
+    match_threshold: float, default 0.7
+        Similarity threshold above which two topics will be considered a match.
+    agg: Callable, default np.average
+        Aggregation method to use for matching topics.
+    sim_fn: Callable, default cosine_similarity
+        Function to produce the similarity matrix.
+    allow_within_model_match: bool, default False
+        Determines whether matches can happen within models.
+
+    Returns
+    -------
+    ndarray of shape (n_new_topics, n_dims)
+        New topic representations merged from the old ones.
+    MergeHistory (list[list[int]])
+        Indicates which joint topic the original topics were merged into.
+        The data structure is a list of lists, where each list contains the indices of the joint topics
+        each of the original topics were merged into.
+        e.g. [[0,2,1], [3,2]] would indicate that the topics of the first model were merged into
+        topics 0, 2 and 1 in the joint model, while the second model's topics were merged into 3 and 2.
+    """
     stacked_components, old_labels = stack_components(component_matrices)
     similarity = sim_fn(stacked_components, stacked_components)
     if not allow_within_model_match:
@@ -106,6 +134,34 @@ def asymmetric_merge(
     agg=keep_first,
     sim_fn=cosine_similarity,
 ) -> tuple[np.ndarray, MergeHistory]:
+    """Performs an asymmetric merge on a number of topic models.
+
+    Parameters
+    ----------
+    component_matrices: list[np.ndarray]
+        List of topic representations from all topic models.
+    weights: Sequence, None
+        Weight for each of the models in case of a weighted merge.
+    match_threshold: float, default 0.7
+        Similarity threshold above which two topics will be considered a match.
+    agg: Callable, default np.average
+        Aggregation method to use for matching topics.
+    sim_fn: Callable, default cosine_similarity
+        Function to produce the similarity matrix.
+    allow_within_model_match: bool, default False
+        Determines whether matches can happen within models.
+
+    Returns
+    -------
+    ndarray of shape (n_new_topics, n_dims)
+        New topic representations merged from the old ones.
+    MergeHistory (list[list[int]])
+        Indicates which joint topic the original topics were merged into.
+        The data structure is a list of lists, where each list contains the indices of the joint topics
+        each of the original topics were merged into.
+        e.g. [[0,2,1], [3,2]] would indicate that the topics of the first model were merged into
+        topics 0, 2 and 1 in the joint model, while the second model's topics were merged into 3 and 2.
+    """
     merge_history = []
     components = np.copy(component_matrices[0])
     # First components will just be kept
@@ -155,6 +211,7 @@ NAMED_METHODS = {
 
 
 def get_merge_fn(merge_method: str | Callable) -> Callable:
+    """Finds merge method by name, or returns the input argument if it's a function."""
     if isinstance(merge_method, str):
         if merge_method in NAMED_METHODS:
             return NAMED_METHODS[merge_method]
