@@ -1,6 +1,6 @@
-# Topic Analysis with LLMs
+# Topic Analysis
 
-Topic analyzers are large language models, that are capable of interpreting topics' contents and can give human-readable descriptions of topics.
+Topic analyzers are language-model based solutions, that are capable of interpreting topics' contents and can give human-readable descriptions of topics.
 This can be incredibly useful when it would require excessive manual labour to label and understand topics.
 
 <figure>
@@ -10,12 +10,11 @@ This can be incredibly useful when it would require excessive manual labour to l
 
 Analyzers can do the following tasks:
 
-  - **Summarize documents** to make it easier for your topic model to consume.
+  - **Summarize documents** (*optional*) to make it easier for your topic model to consume.
   - **Name topics** topics in a sensible and human-readable way based on top documents and keywords
   - **Describe topics** in a couple of sentences
 
-While previously, smaller language models were not able to meaningfully accomplish this task,
-advances in in the field now allow you to generate highly accurate topic descriptions on your own laptop using the power of small LLMs.
+This can either be achieved using generative, text2text or extractive language models.
 
 !!! warning
 
@@ -43,6 +42,18 @@ There are multiple types of analyzers in Turftopic that you can utilize for thes
 
         # We enable document summaries for topic analysis
         analyzer = LLMAnalyzer(use_summaries=True)
+        ```
+
+    === "WikiAnalyzer (experimental)"
+        
+        You can use the Wikipedia API to search for candidate topic names and descriptions and retrieve the best one using an encoder-style language model. By default, this uses the `encoder` of a topic model:
+        **NOTE:** The WikiAnalyzer can only name and describe topics and cannot summarize documents.
+
+        ```python
+        from turftopic.analyzers import WikiAnalyzer
+
+        model = SensTopic()
+        analyzer = WikiAnalyzer(model)
         ```
 
     === "OpenAI API"

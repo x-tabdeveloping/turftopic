@@ -1,6 +1,7 @@
 # Online Topic Modeling
 
-Some models in Turftopic can be fitted in an online manner (currently this only includes [KeyNMF](KeyNMF.md)).
+Some models in Turftopic can be fitted in an online manner.
+Currently this can be done with [KeyNMF](KeyNMF.md) and [SensTopic](SensTopic.md).
 These models can be fitted in minibatches instead of the entire corpus at the same time.
 
 #### Use Cases:

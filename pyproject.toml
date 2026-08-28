@@ -9,7 +9,7 @@ profile = "black"
 
 [project]
 name = "turftopic"
-version = "0.27.1"
+version = "0.28.0"
 description = "Topic modeling with contextual representations from sentence transformers."
 authors = [
    { name = "Márton Kardos <power.up1163@gmail.com>", email = "martonkardos@cas.au.dk" }
@@ -24,10 +24,10 @@ dependencies = [
   "torch>=2.1.0,<3.0.0",
   "scipy>=1.10.0,<2.0.0",
   "rich>=13.6.0,<14.0.0",
-  "huggingface-hub>=0.23.2,<1.0.0",
+  "huggingface-hub>=0.23.2",
   "joblib>=1.2.0,<2.0.0",
   "igraph~=0.11.6",
-  "pillow~=10.4.0",
+  "pillow>=10.4.0",
 ]
 
 [project.optional-dependencies]
@@ -39,6 +39,7 @@ spacy = ["spacy>=3.6.0,<4.0.0"]
 snowball = ["snowballstemmer>=2.0.0,<3.0.0"]
 topic-wizard = ["topic-wizard>1.0.0,<2.0.0"]
 umap-learn = ["umap-learn>=0.5.5,<1.0.0"]
+conjugate = ["conjugate-models>=0.14.0"]
 docs = [
   "griffe==0.40.0",
   "mkdocs==1.6.1",
@@ -50,7 +51,7 @@ docs = [
 ]
 dev = [
   "pyro-ppl>=1.8.0,<2.0.0",
-  "openai>=1.40.0,<2.0.0",
+  "openai>=1.40.0",
   "datamapplot>=0.4.2, <1.0.0",
   "jieba>=0.40.0,<1.0.0",
   "snowballstemmer>=2.0.0,<3.0.0",
