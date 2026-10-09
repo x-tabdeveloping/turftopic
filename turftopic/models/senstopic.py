@@ -313,11 +313,13 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             random_state=self.random_state,
         )
         new_doc_topic = new_decomp.fit_transform(embeddings)
-        self.decomposition, merge_history = self.decomposition.merge_with(
-            new_decomp,
-            merge_method=merge_method,
-            match_threshold=match_threshold,
-            weighted=weighted,
+        self.decomposition, self.merge_history_ = (
+            self.decomposition.merge_with(
+                new_decomp,
+                merge_method=merge_method,
+                match_threshold=match_threshold,
+                weighted=weighted,
+            )
         )
         if isinstance(merge_method, str) and (merge_method == "keep_first"):
             n_diff = self.decomposition.n_components - self.n_components_
