@@ -75,7 +75,13 @@ class TopicContainer(ABC):
             if not positive:
                 terms.append(list(vocab[lowest]))
             else:
-                terms.append(list(vocab[highest]))
+                terms.append(
+                    [
+                        vocab[i]
+                        for i in highest
+                        if (np.isfinite(component[i]) and (component[i] > 0))
+                    ]
+                )
         return terms
 
     def get_top_words(
