@@ -58,18 +58,34 @@ class vSLDA(LateModel):
         Can be used to prune or filter the vocabulary.
     random_state: int, default None
         Random state to use so that results are exactly reproducible.
+    n_iter: int, default 25
+        Number of iterations to run with the EM algorithm.
+    window_size: int, default None
+        Size of the sliding window to average tokens over.
+        If None, documents will be represented at a token level.
+    step_size: int, default None
+        Step size of the window.
+        If (step_size == None) or (step_size == window_size), then windows are separate.
+        If step_size < window_size, windows will overlap.
+        If step_size > window_size, there will be gaps between the windows.
+        In this case, we throw a warning, as this is probably unintended behaviour.
+    pooling: Callable, default None
+        Indicates whether and how to pool document-topic matrices.
+        If None, multi-vector topic proportions are returned in a ragged array.
+        If Callable, multiple vectors are averaged with the callable in each document.
+        You could for example take the mean by specifying `pooling=np.nanmean`.
+    feature_importance: FeatureImportance, default 'npmi'
+        Feature importance method to use.
     trf_kwargs: dict, default None
         Keyword arguments to apply when loading the Encoder model.
     encode_kwargs: dict, default None
         Keyword arguments to apply encoding documents with the encoder.
 
-    Attributes
-    ----------
     """
 
     def __init__(
         self,
-        n_components: Union[int, Literal["auto"]],
+        n_components: int,
         encoder: Union[
             Encoder, str
         ] = "sentence-transformers/all-MiniLM-L6-v2",
@@ -91,6 +107,7 @@ class vSLDA(LateModel):
         self.window_size = window_size
         self.n_iter = n_iter
         self.step_size = step_size
+        self.pooling = pooling
         self.load_encoder()
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
@@ -101,6 +118,7 @@ class vSLDA(LateModel):
             raise ValueError(
                 f"{feature_importance} not in list of valid feature importance methods: {valid}"
             )
+        self.feature_importance = feature_importance
 
     @property
     def topic_embeddings(self):

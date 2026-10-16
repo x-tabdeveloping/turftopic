@@ -1,4 +1,6 @@
-"""This is a highly simplified NumPy only implemenation taken from here: https://github.com/izumi-lab/vSLDA/blob/main/src/models/vmf_sentence_lda.py"""
+"""
+This is a highly simplified NumPy only implemenation taken from here: https://github.com/izumi-lab/vSLDA/blob/main/src/models/vmf_sentence_lda.py
+"""
 
 import math
 import warnings
