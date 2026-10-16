@@ -361,10 +361,11 @@ class LateModel(ContextualModel, TransformerMixin):
         return dtm
 
     def encode_tokens(self, raw_documents: list[str]):
+        encode_kwargs = dict(convert_to_numpy=True)
+        if self.encode_kwargs is not None:
+            encode_kwargs = self.encode_kwargs
         if isinstance(self.encoder_, MultiVectorEncoder):
-            embeddings = self.encoder_.encode(
-                raw_documents, convert_to_numpy=True, **self.encode_kwargs
-            )
+            embeddings = self.encoder_.encode(raw_documents, **encode_kwargs)
             offsets = self.encoder_.tokenizer(
                 raw_documents, return_offsets_mapping=True, verbose=False
             )["offset_mapping"]
@@ -374,17 +375,20 @@ class LateModel(ContextualModel, TransformerMixin):
             return embeddings, offsets
         else:
             embeddings, offsets = self.encoder_.encode_tokens(
-                raw_documents, **self.encode_kwargs
+                raw_documents, **encode_kwargs
             )
             return embeddings, offsets
 
     def encode_documents(self, raw_documents: list[str]):
+        encode_kwargs = dict(convert_to_numpy=True)
+        if self.encode_kwargs is not None:
+            encode_kwargs = self.encode_kwargs
         if isinstance(self.encoder_, MultiVectorEncoder):
             embeddings, offsets = self.encode_tokens(raw_documents)
             flat_emb, lengths = flatten_repr(embeddings)
             return pool_flat(flat_emb, lengths)
         else:
-            return self.encoder_.encode(raw_documents, **self.encode_kwargs)
+            return self.encoder_.encode(raw_documents, **encode_kwargs)
 
     def encode_late(
         self, raw_documents: list[str]
