@@ -1,5 +1,3 @@
-import warnings
-from datetime import datetime
 from functools import partial
 from typing import Literal, Optional, Union
 
@@ -7,21 +5,38 @@ import numpy as np
 from rich.console import Console
 from sklearn.feature_extraction.text import CountVectorizer
 
-from turftopic.base import ContextualModel, Encoder
+from turftopic.base import Encoder
 from turftopic.feature_importance import (
+    combined_lexical_semantic,
+    ctf_idf,
+    fighting_words,
     npmi,
+    soft_ctf_idf,
 )
 from turftopic.late import (
-    LateSentenceTransformer,
+    LateModel,
     Offsets,
-    flatten_repr,
-    unflatten_repr,
 )
 from turftopic.models.vslda._trainer import VMFLDATrainer
 from turftopic.vectorizers.default import default_vectorizer
 
+FEATURE_IMPORTANCE_METHODS = {
+    "soft-c-tf-idf": soft_ctf_idf,
+    "c-tf-idf": ctf_idf,
+    "fighting-words": fighting_words,
+    "npmi": partial(npmi, smoothing=2),
+    "lexical-semantic": partial(combined_lexical_semantic, smoothing=2),
+}
+FeatureImportance = Literal[
+    "soft-c-tf-idf",
+    "c-tf-idf",
+    "npmi",
+    "fighting-words",
+    "lexical-semantic",
+]
 
-class vSLDA(ContextualModel):
+
+class vSLDA(LateModel):
     """von-Mises distributed sentence LDA.
 
     ```python
@@ -63,7 +78,8 @@ class vSLDA(ContextualModel):
         n_iter: int = 25,
         window_size: Optional[int] = None,
         step_size: Optional[int] = None,
-        batch_size: int = 32,
+        pooling=None,
+        feature_importance: FeatureImportance = "npmi",
         trf_kwargs=None,
         encode_kwargs=None,
     ):
@@ -73,52 +89,56 @@ class vSLDA(ContextualModel):
         self.trf_kwargs = trf_kwargs
         self.random_state = random_state
         self.window_size = window_size
-        self.batch_size = batch_size
         self.n_iter = n_iter
         self.step_size = step_size
         self.load_encoder()
-        self.encoder_.__class__ = LateSentenceTransformer
         if vectorizer is None:
             self.vectorizer = default_vectorizer()
         else:
             self.vectorizer = vectorizer
-
-    def encode_late(
-        self, raw_documents: list[str]
-    ) -> tuple[np.ndarray, list[Offsets]]:
-        if self.window_size is None:
-            embeddings, offsets = self.encoder_.encode_tokens(
-                raw_documents, batch_size=self.batch_size
+        if feature_importance not in FEATURE_IMPORTANCE_METHODS:
+            valid = list(FEATURE_IMPORTANCE_METHODS.keys())
+            raise ValueError(
+                f"{feature_importance} not in list of valid feature importance methods: {valid}"
             )
-            return embeddings, offsets
-        # If the window_size is specified, but not step_size, we set the step size to the window size
-        # Thereby getting non-overlapping windows
-        step_size = (
-            self.window_size if self.step_size is None else self.step_size
-        )
-        embeddings, offsets = self.encoder_.encode_windows(
-            raw_documents,
-            batch_size=self.batch_size,
-            window_size=self.window_size,
-            step_size=step_size,
-        )
-        return embeddings, offsets
 
-    def ragged_vectorize(
+    @property
+    def topic_embeddings(self):
+        return self.trainer_.topic_means
+
+    def estimate_components(
         self,
-        raw_documents: list[str],
-        offsets: Offsets,
-        train_vectorizer=False,
-    ):
-        if train_vectorizer:
-            self.vectorizer.fit(raw_documents)
-        dtm = []
-        for doc, offs in zip(raw_documents, offsets):
-            _dtm = self.vectorizer.transform(
-                [doc[start_ind:end_ind] for start_ind, end_ind in offs]
-            )
-            dtm.append(_dtm)
-        return dtm
+        feature_importance: Optional[FeatureImportance] = None,
+        doc_topic_matrix=None,
+        doc_term_matrix=None,
+    ) -> np.ndarray:
+        feature_importance = feature_importance or self.feature_importance
+        imp_fn = FEATURE_IMPORTANCE_METHODS[feature_importance]
+        doc_topic_matrix = (
+            doc_topic_matrix
+            if doc_topic_matrix is not None
+            else self.doc_topic_matrix
+        )
+        doc_term_matrix = (
+            doc_term_matrix
+            if doc_term_matrix is not None
+            else self.doc_term_matrix
+        )
+        if feature_importance != "lexical-semantic":
+            self.components_ = imp_fn(doc_topic_matrix, doc_term_matrix)
+            return self.components_
+        vocab = self.get_vocab()
+        if getattr(self, "vocab_embeddings", None) is None or (
+            self.vocab_embeddings.shape[0] != vocab.shape[0]
+        ):
+            self.vocab_embeddings = self.encode_vocabulary_items(vocab)
+        self.components_ = imp_fn(
+            doc_topic_matrix,
+            doc_term_matrix,
+            self.topic_embeddings,
+            self.vocab_embeddings,
+        )
+        return self.components_
 
     def fit_transform(
         self,
@@ -147,11 +167,13 @@ class vSLDA(ContextualModel):
             )
             console.log("Model fitted.")
             status.update("Estimating term importances.")
-            flat_dtm, _ = flatten_repr(ragged_dtm)
-            flat_topics, _ = flatten_repr(self.doc_topic_matrix)
-            self.components_ = npmi(flat_topics, flat_dtm)
+            flat_dtm, _ = self.flatten_repr(ragged_dtm)
+            flat_topics, _ = self.flatten_repr(self.doc_topic_matrix)
+            self.estimate_components(
+                doc_topic_matrix=flat_topics, doc_term_matrix=flat_dtm
+            )
             console.log("Model fitting done.")
-        return self.doc_topic_matrix, offsets
+        return self.pool(self.doc_topic_matrix, offsets)
 
     def transform(
         self, raw_documents, embeddings: Optional[np.ndarray] = None
