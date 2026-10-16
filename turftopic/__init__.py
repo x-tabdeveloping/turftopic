@@ -2,6 +2,8 @@ from turftopic._concept_browser import create_browser
 from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel
 from turftopic.error import NotInstalled
+from turftopic.models.bow.lda import LDA
+from turftopic.models.bow.nmf import NMF
 from turftopic.models.cluster import (
     BERTopic,
     ClusteringTopicModel,
@@ -44,4 +46,6 @@ __all__ = [
     "SensTopic",
     "ConceptVectorProjection",
     "vSLDA",
+    "LDA",
+    "NMF",
 ]
