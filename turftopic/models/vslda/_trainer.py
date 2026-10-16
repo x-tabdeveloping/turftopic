@@ -229,7 +229,8 @@ class VMFLDATrainer:
         saem_burn_in: int | None = 5,
         saem_decay: float = 1.0,
         kappa_solver: str = "newton",
-    ) -> None:
+        random_state: int | None = None,
+    ):
         """
         Args:
         num_topics:
@@ -269,7 +270,8 @@ class VMFLDATrainer:
         self.num_documents = len(embeddings)
         self.embedding_size = embeddings[0].shape[1]
         self.embedding_dtype = embeddings[0].dtype
-
+        self.random_state = random_state
+        self.rng = np.random.default_rng(self.random_state)
         self.alpha = self._init_alpha(alpha)
         self.kappa_default = float(kappa)
         self.max_kappa = float(max_kappa)
@@ -463,7 +465,7 @@ class VMFLDATrainer:
         self._log_mixture_weights = np.log(self.mixture_weights + 1e-12)
 
     def _random_topic_vector(self, n_sentences: int) -> np.ndarray:
-        return np.random.randint(
+        return self.rng.integers(
             self.num_topics,
             size=int(n_sentences),
             dtype=np.int32,
@@ -483,7 +485,7 @@ class VMFLDATrainer:
 
         norm_s = np.linalg.norm(s_k)
         if norm_s == 0.0 or n_k == 0:
-            v = np.random.randn(self.embedding_size)
+            v = self.rng.randn(self.embedding_size)
             v /= np.linalg.norm(v) + 1e-12
             self.topic_means[k] = np.asarray(v, dtype=self.embedding_dtype)
             self.kappa_per_topic[k] = self.kappa_default
@@ -578,10 +580,10 @@ class VMFLDATrainer:
         for k in range(self.num_topics):
             base = self.topic_means[k]
             if np.linalg.norm(base) == 0.0:
-                base = np.random.randn(self.embedding_size)
+                base = self.rng.randn(self.embedding_size)
                 base /= np.linalg.norm(base) + eps
             for c in range(self.num_components):
-                v = base + 0.01 * np.random.randn(self.embedding_size)
+                v = base + 0.01 * self.rng.randn(self.embedding_size)
                 v /= np.linalg.norm(v) + eps
                 self.component_means[k, c] = np.asarray(
                     v,
@@ -597,7 +599,7 @@ class VMFLDATrainer:
         eps = 1e-6
         self.mixture_weights[k] = 1.0 / self.num_components
         for c in range(self.num_components):
-            v = np.random.randn(self.embedding_size)
+            v = self.rng.randn(self.embedding_size)
             v /= np.linalg.norm(v) + eps
             self.component_means[k, c] = np.asarray(
                 v,
@@ -627,7 +629,7 @@ class VMFLDATrainer:
             if c == 0:
                 v = direction
             else:
-                v = direction + 0.01 * np.random.randn(self.embedding_size)
+                v = direction + 0.01 * self.rng.randn(self.embedding_size)
                 v /= np.linalg.norm(v) + 1e-12
             self.component_means[k, c] = np.asarray(
                 v,
@@ -696,7 +698,7 @@ class VMFLDATrainer:
                 sentence_indices = np.where(arr == donor_topic)[0]
                 locations.extend((d, int(i)) for i in sentence_indices)
             if locations:
-                selected = locations[np.random.randint(len(locations))]
+                selected = locations[self.rng.randint(len(locations))]
                 return selected[0], selected[1], donor_topic
 
         return None
@@ -895,7 +897,7 @@ class VMFLDATrainer:
         else:
             post /= post_sum
 
-        new_k = int(np.random.choice(self.num_topics, p=post))
+        new_k = int(self.rng.choice(self.num_topics, p=post))
         self.topic_assignments[doc_index][sentence_index] = new_k
         self.topic_counts_per_doc[new_k, doc_index] += 1
 
@@ -974,7 +976,7 @@ class VMFLDATrainer:
                     dtype=np.int32,
                     copy=True,
                 )
-                uniforms = np.random.random(enc.shape[0]).astype(
+                uniforms = self.rng.random(enc.shape[0]).astype(
                     np.float64, copy=False
                 )
                 sample_doc_topic_assignments(
@@ -1037,7 +1039,7 @@ class VMFLDATrainer:
                 rkc = r[k, c]
                 norm_rkc = np.linalg.norm(rkc)
                 if norm_rkc == 0.0:
-                    v = np.random.randn(d_dim)
+                    v = self.rng.standard_normal(size=(d_dim,))
                     v /= np.linalg.norm(v) + eps
                     self.component_means[k, c] = np.asarray(
                         v,
@@ -1342,3 +1344,30 @@ class VMFLDATrainer:
                 "Make sure you have run `sample(...)` before calling this method."
             )
         return int(self.topic_counts_per_doc.shape[1])
+
+    def infer_topic_proportions(
+        self,
+        embeddings: list[np.ndarray],
+    ) -> list[np.ndarray]:
+        sentence_posteriors = []
+        for d, encoded_doc in enumerate(embeddings):
+            enc = np.asarray(encoded_doc, dtype=np.float64)
+            if enc.size == 0:
+                sentence_posteriors.append(
+                    np.zeros((0, self.num_topics), dtype=np.float64)
+                )
+                continue
+            if enc.ndim == 1:
+                enc = enc.reshape(1, -1)
+            log_lik_doc = self.log_vmf_density_matrix(enc)
+            probs = np.copy(log_lik_doc)
+            probs -= probs.max(axis=1, keepdims=True)
+            probs = np.exp(probs)
+            row_sums = probs.sum(axis=1, keepdims=True)
+            invalid = ~np.isfinite(row_sums) | (row_sums <= 0.0)
+            row_sums[invalid] = 1.0
+            probs /= row_sums
+            if np.any(invalid):
+                probs[invalid.ravel()] = 1.0 / self.num_topics
+            sentence_posteriors.append(probs)
+        return sentence_posteriors
