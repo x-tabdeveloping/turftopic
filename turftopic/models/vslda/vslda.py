@@ -180,9 +180,6 @@ class vSLDA(LateModel):
             status.update("Fitting model using EM.")
             self.trainer_ = VMFLDATrainer(embeddings, self.n_components)
             self.trainer_.sample(embeddings, num_iterations=self.n_iter)
-            self.doc_topic_matrix = self.trainer_.infer_topic_proportions(
-                embeddings
-            )
             console.log("Model fitted.")
             status.update("Estimating term importances.")
             flat_dtm, _ = self.flatten_repr(ragged_dtm)
@@ -191,26 +188,17 @@ class vSLDA(LateModel):
                 doc_topic_matrix=flat_topics, doc_term_matrix=flat_dtm
             )
             console.log("Model fitting done.")
-        return self.pool(self.doc_topic_matrix, offsets)
+        return self.transform(
+            raw_documents, embeddings=embeddings, offsets=offsets
+        )
 
     def transform(
-        self, raw_documents, embeddings: Optional[np.ndarray] = None
+        self,
+        raw_documents,
+        embeddings: Optional[np.ndarray] = None,
+        offsets: Optional[Offsets] = None,
     ) -> np.ndarray:
-        """Infers topic importances for new documents based on a fitted model.
-
-        Parameters
-        ----------
-        raw_documents: iterable of str
-            Documents to fit the model on.
-        embeddings: ndarray of shape (n_documents, n_dimensions), optional
-            Precomputed document encodings.
-
-        Returns
-        -------
-        ndarray of shape (n_dimensions, n_topics)
-            Document-topic matrix.
-        """
         if embeddings is None:
             embeddings, offsets = self.encode_late(raw_documents)
         doc_topic_matrix = self.trainer_.infer_topic_proportions(embeddings)
-        return doc_topic_matrix, offsets
+        return self.pool(doc_topic_matrix, offsets)
