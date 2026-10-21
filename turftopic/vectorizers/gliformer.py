@@ -42,6 +42,7 @@ class ConceptVectorizer(CountVectorizer):
             load_tokenizer=True,
             max_length=max_length,
         )
+        self.max_length = max_length
         super().__init__(
             input=input,
             encoding=encoding,
