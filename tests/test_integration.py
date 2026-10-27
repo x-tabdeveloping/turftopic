@@ -80,8 +80,8 @@ models = [
     FASTopic(3, batch_size=None, encoder=trf),
     SensTopic(encoder=trf),
     Topeax(encoder=trf),
-    LDA(),
-    NMF(),
+    LDA(3),
+    NMF(3),
 ]
 
 dynamic_models = [
@@ -98,7 +98,10 @@ dynamic_models = [
 
 online_models = [KeyNMF(3, encoder=trf)]
 
-late_models = [CTop2Vec(encoder=trf), vSLDA(encoder=trf, pooling=np.nanmean)]
+late_models = [
+    CTop2Vec(encoder=trf),
+    vSLDA(3, encoder=trf, pooling=np.nanmean),
+]
 
 
 @pytest.mark.parametrize("model", dynamic_models)
