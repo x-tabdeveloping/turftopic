@@ -348,7 +348,7 @@ class LateModel(ContextualModel, TransformerMixin):
             return doc_topic_matrix, offsets
         else:
             _m, lengths = self.flatten_repr(doc_topic_matrix)
-            return pool_flat(doc_topic_matrix, lengths, self.pooling)
+            return pool_flat(_m, lengths, self.pooling)
 
     def ragged_vectorize(
         self,
@@ -531,7 +531,7 @@ class LateWrapper(LateModel):
             raw_documents,
             window_size=self.window_size,
             step_size=step_size,
-            **self.encode_kwargs,
+            **encode_kwargs,
         )
         return embeddings, offsets
 
