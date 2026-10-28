@@ -343,10 +343,11 @@ class LateModel(ContextualModel, TransformerMixin):
     def pool_flat(flat_repr, lengths, agg=np.nanmean):
         return pool_flat(flat_repr, lengths, agg)
 
-    def pool(self, doc_topic_matrix: list[np.ndarray], lengths):
+    def pool(self, doc_topic_matrix: list[np.ndarray], offsets):
         if self.pooling is None:
-            return doc_topic_matrix, lengths
+            return doc_topic_matrix, offsets
         else:
+            _m, lengths = self.flatten_repr(doc_topic_matrix)
             return pool_flat(doc_topic_matrix, lengths, self.pooling)
 
     def ragged_vectorize(
@@ -528,7 +529,6 @@ class LateWrapper(LateModel):
         )
         embeddings, offsets = self.model.encoder.encode_windows(
             raw_documents,
-            batch_size=self.batch_size,
             window_size=self.window_size,
             step_size=step_size,
             **self.encode_kwargs,

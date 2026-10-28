@@ -5,7 +5,7 @@ try:
     from gliformer import GLiFormer
     from pydantic import BaseModel
 except ModuleNotFoundError as e:
-    raise ModuleNotFoundError("Install GliFormer.") from e
+    raise ModuleNotFoundError("GliFormer not installed. Install it by running pip install turftopic[gliformer].") from e
 
 
 class Topic(BaseModel):
