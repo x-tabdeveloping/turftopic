@@ -513,7 +513,9 @@ class LateWrapper(LateModel):
     def encode_late(
         self, raw_documents: list[str]
     ) -> tuple[np.ndarray, list[Offsets]]:
-        encode_kwargs = dict() if encode_kwargs is None else encode_kwargs
+        encode_kwargs = (
+            dict() if self.encode_kwargs is None else self.encode_kwargs
+        )
         if self.window_size is None:
             embeddings, offsets = self.model.encoder.encode_tokens(
                 raw_documents, **encode_kwargs
