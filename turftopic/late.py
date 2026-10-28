@@ -39,6 +39,17 @@ def sliding_window(
     return window_embeddings, window_offsets
 
 
+def to_numpy(arr: torch.Tensor | np.ndarray) -> np.ndarray:
+    if isinstance(arr, np.ndarray):
+        return arr
+    if torch.is_tensor(arr):
+        return arr.float().numpy(force=True)
+    warnings.warn(
+        f"Array is neither torch or numpy but {type(arr)}. Returning without conversion. This might cause issues."
+    )
+    return arr
+
+
 class LateSentenceTransformer(SentenceTransformer):
     """SentenceTransformer model that can produce token and window-level embeddings.
     Its output can be used by topic models that can use multi-vector document representations.
@@ -65,8 +76,7 @@ class LateSentenceTransformer(SentenceTransformer):
     def _encode_tokens(
         self,
         texts,
-        batch_size=32,
-        show_progress_bar=True,
+        **kwargs,
     ) -> tuple[list[np.ndarray], list[Offsets]]:
         """
         Returns
@@ -80,8 +90,7 @@ class LateSentenceTransformer(SentenceTransformer):
         token_embeddings = self.encode(
             texts,
             output_value="token_embeddings",
-            batch_size=batch_size,
-            show_progress_bar=show_progress_bar,
+            **kwargs,
         )
         offsets = self.tokenizer(
             texts, return_offsets_mapping=True, verbose=False
@@ -90,7 +99,7 @@ class LateSentenceTransformer(SentenceTransformer):
             offs[: len(embs)] for offs, embs in zip(offsets, token_embeddings)
         ]
         token_embeddings = [
-            embs.float().numpy(force=True)
+            to_numpy(embs)
             for embs in token_embeddings
             if torch.is_tensor(embs)
         ]
@@ -99,8 +108,7 @@ class LateSentenceTransformer(SentenceTransformer):
     def encode_tokens(
         self,
         sentences: list[str],
-        batch_size: int = 32,
-        show_progress_bar: bool = True,
+        **kwargs,
     ):
         """Produces contextual token embeddings over all documents.
 
@@ -124,8 +132,7 @@ class LateSentenceTransformer(SentenceTransformer):
         # which normally happens to document embeddings.
         token_embeddings, offsets = self._encode_tokens(
             sentences,
-            batch_size=batch_size,
-            show_progress_bar=show_progress_bar,
+            **kwargs,
         )
         token_embeddings = [normalize(emb) for emb in token_embeddings]
         return token_embeddings, offsets
@@ -133,10 +140,9 @@ class LateSentenceTransformer(SentenceTransformer):
     def encode_windows(
         self,
         sentences: list[str],
-        batch_size: int = 32,
         window_size: int = 50,
         step_size: int = 40,
-        show_progress_bar: bool = True,
+        **kwargs,
     ):
         """Produces contextual embeddings for a sliding window of tokens similar to C-Top2Vec.
 
@@ -166,8 +172,7 @@ class LateSentenceTransformer(SentenceTransformer):
         """
         token_embeddings, token_offsets = self._encode_tokens(
             sentences,
-            batch_size=batch_size,
-            show_progress_bar=show_progress_bar,
+            **kwargs,
         )
         return sliding_window(
             token_embeddings,
@@ -514,7 +519,7 @@ class LateWrapper(LateModel):
     ) -> tuple[np.ndarray, list[Offsets]]:
         if self.window_size is None:
             embeddings, offsets = self.model.encoder.encode_tokens(
-                raw_documents, batch_size=self.batch_size
+                raw_documents, batch_size=self.batch_size, **self.encode_kwargs
             )
             return embeddings, offsets
         # If the window_size is specified, but not step_size, we set the step size to the window size
@@ -527,6 +532,7 @@ class LateWrapper(LateModel):
             batch_size=self.batch_size,
             window_size=self.window_size,
             step_size=step_size,
+            **self.encode_kwargs,
         )
         return embeddings, offsets
 
