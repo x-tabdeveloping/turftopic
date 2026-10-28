@@ -481,8 +481,6 @@ class LateWrapper(LateModel):
     ----------
     model
         Turftopic model to turn into late-interaction model.
-    batch_size: int, default 32
-        Batch size of the transformer.
     window_size: int, default None
         Size of the sliding window to average tokens over.
         If None, documents will be represented at a token level.
@@ -502,13 +500,11 @@ class LateWrapper(LateModel):
     def __init__(
         self,
         model: TransformerMixin,
-        batch_size: Optional[int] = 32,
         window_size: Optional[int] = None,
         step_size: Optional[int] = None,
         pooling: Optional[Callable] = None,
     ):
         self.model = model
-        self.batch_size = batch_size
         self.pooling = pooling
         self.window_size = window_size
         self.step_size = step_size
@@ -517,9 +513,10 @@ class LateWrapper(LateModel):
     def encode_late(
         self, raw_documents: list[str]
     ) -> tuple[np.ndarray, list[Offsets]]:
+        encode_kwargs = dict() if encode_kwargs is None else encode_kwargs
         if self.window_size is None:
             embeddings, offsets = self.model.encoder.encode_tokens(
-                raw_documents, batch_size=self.batch_size, **self.encode_kwargs
+                raw_documents, **encode_kwargs
             )
             return embeddings, offsets
         # If the window_size is specified, but not step_size, we set the step size to the window size
