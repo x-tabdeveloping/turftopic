@@ -183,6 +183,9 @@ class vSLDA(LateModel):
             console.log("Model fitted.")
             status.update("Estimating term importances.")
             flat_dtm, _ = self.flatten_repr(ragged_dtm)
+            self.doc_topic_matrix = self.trainer_.infer_topic_proportions(
+                embeddings
+            )
             flat_topics, _ = self.flatten_repr(self.doc_topic_matrix)
             self.estimate_components(
                 doc_topic_matrix=flat_topics, doc_term_matrix=flat_dtm
