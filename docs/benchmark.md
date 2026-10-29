@@ -1,5 +1,9 @@
 # Model Leaderboard
 
+!!! note
+    The leaderboard is currently out of date, as multiple models have been implemented since the benchmark was last run, and we are currently working on new evaluation methods.
+    We are doing our best to keep up with the influx of models, and will update the leaderboard as soon as possible.
+
 To aid you in choosing the best model for your use case, we have made a topic model benchmark and leaderboard.
 The benchmark consists of all English P2P clustering tasks from the most recent version of [MTEB](https://huggingface.co/spaces/mteb/leaderboard), plus a tweet and a news dataset, as these are not present in MTEB.
 

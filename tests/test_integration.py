@@ -12,6 +12,8 @@ from sklearn.decomposition import PCA
 
 from turftopic import (
     GMM,
+    LDA,
+    NMF,
     AutoEncodingTopicModel,
     ClusteringTopicModel,
     CTop2Vec,
@@ -21,6 +23,7 @@ from turftopic import (
     SensTopic,
     Topeax,
     load_model,
+    vSLDA,
 )
 from turftopic.late import LateSentenceTransformer
 
@@ -77,6 +80,8 @@ models = [
     FASTopic(3, batch_size=None, encoder=trf),
     SensTopic(encoder=trf),
     Topeax(encoder=trf),
+    LDA(3),
+    NMF(3),
 ]
 
 dynamic_models = [
@@ -93,7 +98,10 @@ dynamic_models = [
 
 online_models = [KeyNMF(3, encoder=trf)]
 
-late_models = [CTop2Vec(encoder=trf)]
+late_models = [
+    CTop2Vec(encoder=trf),
+    vSLDA(3, encoder=trf, pooling=np.nanmean),
+]
 
 
 @pytest.mark.parametrize("model", dynamic_models)

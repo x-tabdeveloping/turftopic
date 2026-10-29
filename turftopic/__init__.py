@@ -2,6 +2,8 @@ from turftopic._concept_browser import create_browser
 from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel
 from turftopic.error import NotInstalled
+from turftopic.models.bow.lda import LDA
+from turftopic.models.bow.nmf import NMF
 from turftopic.models.cluster import (
     BERTopic,
     ClusteringTopicModel,
@@ -15,6 +17,7 @@ from turftopic.models.gmm import GMM
 from turftopic.models.keynmf import KeyNMF
 from turftopic.models.senstopic import SensTopic
 from turftopic.models.topeax import Topeax
+from turftopic.models.vslda import vSLDA
 from turftopic.serialization import load_model
 
 try:
@@ -42,4 +45,7 @@ __all__ = [
     "S3",
     "SensTopic",
     "ConceptVectorProjection",
+    "vSLDA",
+    "LDA",
+    "NMF",
 ]

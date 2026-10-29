@@ -210,7 +210,7 @@ def ctf_idf(
 def npmi(
     doc_topic_matrix: np.ndarray,
     doc_term_matrix: spr.csr_matrix,
-    smoothing: int = 5,
+    smoothing: int = 2,
 ) -> np.ndarray:
     """Uses normalized pointwise mutual information between
     clusters and terms to calculate term importance scores.
@@ -225,7 +225,7 @@ def npmi(
         Document-topic matrix of shape (n_documents, n_topics)
     doc_term_matrix: np.ndarray
         Document-term matrix of shape (n_documents, vocab_size)
-    smoothing: int, default 5
+    smoothing: int, default 2
         Alpha parameter of the symmetric Dirichlet-multinomial.
         Corresponds to assuming that each term and cluster
         occurred this many more times than the observed.
@@ -257,3 +257,44 @@ def npmi(
     denominator = -(log_p_wt.T - np.log2(p_t)).T
     res = numerator / denominator
     return res
+
+
+def combined_lexical_semantic(
+    doc_topic_matrix: np.ndarray,
+    doc_term_matrix: spr.csr_matrix,
+    topic_embeddings: np.ndarray,
+    vocab_embeddings: np.ndarray,
+    smoothing: int = 2,
+):
+    """Uses the combined lexical-semantic term importance from Kardos (2026).
+
+    Parameters
+    ----------
+    doc_topic_matrix: np.ndarray
+        Document-topic matrix of shape (n_documents, n_topics)
+    doc_term_matrix: np.ndarray
+        Document-term matrix of shape (n_documents, vocab_size)
+    smoothing: int, default 2
+        Alpha parameter of the symmetric Dirichlet-multinomial.
+        Corresponds to assuming that each term and cluster
+        occurred this many more times than the observed.
+
+    Returns
+    -------
+    ndarray of shape (n_topics, vocab_size)
+        Term importance matrix.
+
+    References
+    ----------
+    Kardos, M. (2026, January 29). Topeax -- An Improved Clustering Topic Model with Density Peak Detection and Lexical-Semantic Term Importance. Retrieved from https://arxiv.org/abs/2601.21465
+    """
+    lexical_components = npmi(
+        doc_topic_matrix, doc_term_matrix, smoothing=smoothing
+    )
+    semantic_components = cosine_similarity(topic_embeddings, vocab_embeddings)
+    # Transforming to positive values from 0 to 1
+    # Then taking geometric average of the two values
+    components = np.sqrt(
+        ((1 + lexical_components) / 2) * ((1 + semantic_components) / 2)
+    )
+    return components

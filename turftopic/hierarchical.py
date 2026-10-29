@@ -207,10 +207,7 @@ class TopicNode:
         imp = self.word_importance[most_important]
         return list(zip(words, imp))
 
-    @property
-    def description(self) -> str:
-        """Returns a high level description of the topic with its path in the tree
-        and top words."""
+    def _get_description(self, top_k: int = 10):
         if not len(self.path):
             path = "Root"
         else:
@@ -227,6 +224,12 @@ class TopicNode:
         with console.capture() as capture:
             console.print(stylized, end="")
         return capture.get()
+
+    @property
+    def description(self) -> str:
+        """Returns a high level description of the topic with its path in the tree
+        and top words."""
+        return self._get_description()
 
     @property
     def _simple_desc(self) -> str:
@@ -249,9 +252,9 @@ class TopicNode:
         max_depth: Optional[int] = None,
     ) -> Tree:
         if tree is None:
-            tree = Tree(self.description)
+            tree = Tree(self._get_description(top_k=top_k))
         else:
-            tree = tree.add(self.description)
+            tree = tree.add(self._get_description(top_k=top_k))
         out_of_depth = (max_depth is not None) and (self.level >= max_depth)
         if out_of_depth:
             if self.children is not None:
@@ -259,7 +262,7 @@ class TopicNode:
             return tree
         if self.children is not None:
             for child in self.children:
-                child._build_tree(tree, max_depth=max_depth)
+                child._build_tree(tree, max_depth=max_depth, top_k=top_k)
         return tree
 
     def print_tree(
@@ -433,7 +436,7 @@ class DivisibleTopicNode(TopicNode):
         self.children = None
         return self
 
-    def divide(self, n_subtopics: int, **kwargs):
+    def divide(self, n_subtopics: int | None = None, **kwargs):
         """Divides current node into smaller subtopics.
         Only works when the underlying model is a divisive hierarchical model.
 
@@ -452,7 +455,7 @@ class DivisibleTopicNode(TopicNode):
             ) from e
         return self
 
-    def divide_children(self, n_subtopics: int, **kwargs):
+    def divide_children(self, n_subtopics: int | None = None, **kwargs):
         """Divides all children of the current node to smaller topics.
         Only works when the underlying model is a divisive hierarchical model.
 

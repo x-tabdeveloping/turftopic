@@ -37,6 +37,24 @@ doc_topic_matrix = model.fit_transform(corpus)
 model.print_topics()
 ```
 
+
+| Topic ID | Highest Ranking |
+| - | - |
+| -1 | caused atheism organization, genocide caused atheism, atheism organization, atheism, subject political atheists, alt atheism, caused atheism, political atheists organization, subject amusing atheists, amusing atheists |
+| 166 | atheists organization, political atheists organization, christian morality organization, caused atheism organization, morality organization, atheism organization, atheists organization california, subject amusing atheists, cwru edu article, alt atheism |
+| 172 | biblical, read bible, caused atheism, agnostics, caused atheism organization, atheists agnostics, christianity, alt atheism, atheism, christian morality organization |
+| 173 | objective morality, morality, subject christian morality, christian morality, natural morality, say christian morality, morality organization, christian morality organization, behavior moral, moral |
+| 175 | atheism, atheism organization, caused atheism organization, atheists agnostics, caused atheism, subject political atheists, alt atheism, genocide caused atheism, subject amusing atheists, amusing atheists |
+| 176 | rushdie islamic law, subject rushdie islamic, islamic genocide, islamic law, genocide caused atheism, subject islamic, islamic law organization, islamic genocide organization, rushdie islamic, islamic authority |
+
+You might also observe that the output of this model is a regular document-topic matrix, and isn't ragged.
+```python
+print(doc_topic_matrix.shape)
+# (1024, 6)
+```
+
+This is because this way the model has the same API, as other Turftopic models, and works the same way as the top2vec package, making migration easier.
+
 ## Citation
 
 Please cite Angelov and Inkpen (2024) and Turftopic when using C-Top2Vec in publications:

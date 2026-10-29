@@ -4,8 +4,8 @@ Late interaction, or multi-vector models use token representations from a Senten
 This can be particularly useful for clustering models, as they, by default assign one topic to a single document, but when accessing token representations, can assign topics on a per-token basis.
 
 !!! info
-    There are currently no native late-interaction models in Turftopic, meaning models that explicitly model token representations in the context of a document.
-    We are currently working on implementing such models, but for the time being, wrappers are included, that can force regular models to use embeddings of higher granularity.
+    The only model natively supporting multi-vector embedding models right now is [vSLDA](vSLDA.md).
+    We are currently working on implementing multiple such models, but for the time being, wrappers are included, that can force regular models to use embeddings of higher granularity.
     **Visualization utilities** are also on the way.
 
 ## Encoding Tokens, and Ragged Array Manipulation
@@ -163,46 +163,11 @@ enough and\nlistened to the arguments, I could ...                         0.878
 > *******************************                                          0.647793               5.664651e-17  ...             1.805073e-19                4.612731e-04
 ```
 
-## C-Top2Vec
-
-Contextual Top2Vec [(Angelov and Inkpen, 2024)](https://aclanthology.org/2024.findings-emnlp.790/) is a late-interaction topic model, that uses windowed representations.
-The model is essentially the same as wrapping a regular Top2vec model in `LateWrapper`, but we provide a convenience class in Turftopic, so that it's easy for you to initialize this model.
-It comes pre-loaded with the following features:
-
-   - Same hyperparameters as in Angelov and Inkpen (2024)
-   - Phrase-vectorizer that finds regular phrases based on PMI
-   - `LateSentenceTransformer` by default, you can specify any model.
-
-Our implementation is much more flexible than the original top2vec package, and you might be able to use much more powerful or novel embedding models.
-
-```python
-from turftopic import CTop2Vec
-
-model = CTop2Vec(n_reduce_to=5)
-doc_topic_matrix = model.fit_transform(corpus)
-
-model.print_topics()
-```
-
-
-| Topic ID | Highest Ranking |
-| - | - |
-| -1 | caused atheism organization, genocide caused atheism, atheism organization, atheism, subject political atheists, alt atheism, caused atheism, political atheists organization, subject amusing atheists, amusing atheists |
-| 166 | atheists organization, political atheists organization, christian morality organization, caused atheism organization, morality organization, atheism organization, atheists organization california, subject amusing atheists, cwru edu article, alt atheism |
-| 172 | biblical, read bible, caused atheism, agnostics, caused atheism organization, atheists agnostics, christianity, alt atheism, atheism, christian morality organization |
-| 173 | objective morality, morality, subject christian morality, christian morality, natural morality, say christian morality, morality organization, christian morality organization, behavior moral, moral |
-| 175 | atheism, atheism organization, caused atheism organization, atheists agnostics, caused atheism, subject political atheists, alt atheism, genocide caused atheism, subject amusing atheists, amusing atheists |
-| 176 | rushdie islamic law, subject rushdie islamic, islamic genocide, islamic law, genocide caused atheism, subject islamic, islamic law organization, islamic genocide organization, rushdie islamic, islamic authority |
-
-You might also observe that the output of this model is a regular document-topic matrix, and isn't ragged.
-```python
-print(doc_topic_matrix.shape)
-# (1024, 6)
-```
-
-This is because this way the model has the same API, as other Turftopic models, and works the same way as the top2vec package, making migration easier.
-
 ## API Reference 
+
+### Abstract Base Class
+
+::: turftopic.late.LateModel
 
 ### Encoder
 

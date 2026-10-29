@@ -18,20 +18,31 @@ It is quite important that you choose the right topic model for your use case.
 
 | Model | Summary | Strengths | Weaknesses |
 | -  | - | - | - |
-| [Topeax](Topeax.md)  | Density peak detection + Gaussian mixture approximation | Cluster quality, Topic quality, Stability, Automatic n-topics | Underestimates N topics, Slower, No inference for new documents |
+| *Factorization Models* | | | |
 | [KeyNMF](KeyNMF.md)  | Keyword importance estimation + matrix factorization | Reliability, Topic quality, Scalability to large corpora and long documents | Automatic topic number detection, Multilingual performance, Sometimes includes stop words |
 | [SensTopic(BETA)](SensTopic.md)  | Regularized Semi-nonnegative matrix factorization in embedding space | Very fast, High quality topics and clusters, Can assign multiple soft clusters to documents, GPU support | Automatic n-topics is not too good |
-| [GMM](GMM.md)  | Soft clustering with Gaussian Mixtures and soft-cTF-IDF | Reliability, Speed, Cluster quality | Manual n-topics, Lower quality keywords, [Curse of dimensionality](https://en.wikipedia.org/wiki/Curse_of_dimensionality) |
-| [FASTopic](FASTopic.md)  | Neural topic modelling with Dual Semantic-relation Reconstruction | High quality topics and clusters, GPU support | Very slow, Memory hungry, Manual n-topics |
 | [$S^3$](s3.md)  | Semantic axis discovery in embedding space | Fastest, Human-readable topics | Axes can be very unintuitive, Manual n-topics |
-| [BERTopic and Top2Vec](clustering.md)  | Embed -> Reduce -> Cluster | Flexible, Feature rich | Slow, Unreliable and unstable, Wildly overestimates number of clusters, Low topic and cluster quality |
+| *Probabilistic Models* | | | |
+| [Topeax](Topeax.md)  | Density peak detection + Gaussian mixture approximation | Cluster quality, Topic quality, Stability, Automatic n-topics | Underestimates N topics, Slower, No inference for new documents |
+| [GMM](GMM.md)  | Soft clustering with Gaussian Mixtures and soft-cTF-IDF | Reliability, Speed, Cluster quality | Manual n-topics, Lower quality keywords, [Curse of dimensionality](https://en.wikipedia.org/wiki/Curse_of_dimensionality) |
+| [vSLDA](vSLDA.md)  | Reconstruct token/window/sentence representations using von-Mises components. | Contextual understanding, theoretical correctness | Manual n-topics, Can be slow with too granular representations |
+| *Neural Models* | | | |
+| [FASTopic](FASTopic.md)  | Neural topic modelling with Dual Semantic-relation Reconstruction | High quality topics and clusters, GPU support | Very slow, Memory hungry, Manual n-topics |
 | [AutoEncodingTopicModel](ctm.md)  | Discover topics by generating BoW with a variational autoencoder | GPU-support | Slow, Sometimes low quality topics |
+| *Clustering Models* | | | |
+| [ClusteringTopicModel](clustering.md)  | Embed -> Reduce -> Cluster | Flexible, many featuress | *Highly depends on construction* |
+| [BERTopic](clustering.md)  | UMAP+HDBSCAN+c-TF-IDF | Flexible, many features | Slow, Unstable, Wildly overestimates number of clusters, Low topic and cluster quality |
+| [Top2Vec](clustering.md)  | UMAP+HDBSCAN+semantic term importance | Flexible, many features, high quality topics | Slow, Unstable, Wildly overestimates number of clusters, Low cluster quality |
+| [C-Top2Vec](clustering.md)  | Top2Vec on contextual windows | High topic quality, contextual understanding | Slow, Unstable, Wildly overestimates number of clusters |
+| *Bag-of-words models* | | | |
+| [LDA](LDA.md)  | Generative model of bag-of-words representations. | Reliable, well known limitations | Slow, low quality |
+| [NMF](NMF.md)  | Decomposes BoW representations using Non-negative Matrix Factorization. | Reliable, fast, well known limitations | Low quality |
 
 </div>
 
 Different models will naturally be good at different things, because they conceptualize topics differently for instance:
 
-- `BERTopic`, `Top2Vec`, `GMM` and `Topeax` find **clusters** of documents and treats those as topics
+- `BERTopic`, `Top2Vec`, `GMM` and `Topeax` find **clusters/components** of documents and treats those as topics
 - `KeyNMF`, `SensTopic`, `FASTopic` and `AutoEncodingTopicModel` conceptualize topics as latent nonnegative **factors** that generate the documents.
 - `SemanticSignalSeparation`($S^3$) conceptualizes topics as **semantic axes**, along which topics are distributed.
 
@@ -52,6 +63,10 @@ Some models are also capable of being used in a dynamic context, some can be fit
 | **[GMM](GMM.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
 | **[AutoEncodingTopicModel](ctm.md)** | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :heavy_check_mark:  | :x: |
 | **[FASTopic](fastopic.md)** | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
+| [C-Top2Vec](clustering.md)  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: |
+| **[LDA](LDA.md)**  | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :x: | :x: |
+| **[NMF](NMF.md)**  | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :x: | :x: |
+| **[vSLDA](vSLDA.md)**  | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :x: | :x: |
 
 
 ## Model API Reference

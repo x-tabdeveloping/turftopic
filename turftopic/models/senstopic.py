@@ -16,6 +16,7 @@ from turftopic._datamapplot import build_datamapplot
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
+from turftopic.hierarchical import TopicNode
 from turftopic.models._snmf import SNMF
 from turftopic.multimodal import (
     ImageRepr,
@@ -32,6 +33,15 @@ NOT_MATCHING_ERROR = (
     + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
     + "Try to initialize the model with the encoder you used for computing the embeddings."
 )
+
+
+def init_snmf_auto(X, sparsity=1.0, random_state=None):
+    n_components_ = optimize_n_components(
+        partial(bic_snmf, X=X, sparsity=sparsity),
+        min_n=1,
+        verbose=True,
+    )
+    return SNMF(n_components_, sparsity=sparsity, random_state=random_state)
 
 
 def bic_snmf(
@@ -94,6 +104,8 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         L1 penalty applied to document-topic proportions.
         Higher values push the model to assign fewer topics to a single document,
         while lower values will distribute topics across documents.
+    multilevel: bool, default False
+        If True, the model will also contain subtopics for each topic.
     trf_kwargs: dict, default None
         Keyword arguments to apply when loading the Encoder model.
     encode_kwargs: dict, default None
@@ -113,6 +125,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         ] = "combined",
         random_state: Optional[int] = None,
         sparsity: float = 1,
+        multilevel: bool = False,
         trf_kwargs=None,
         encode_kwargs=None,
     ):
@@ -130,6 +143,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         self.max_iter = max_iter
         self.random_state = random_state
         self.sparsity = sparsity
+        self.multilevel = multilevel
 
     def estimate_components(
         self, feature_importance: Literal["axial", "angular", "combined"]
@@ -217,7 +231,55 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             )
             self.document_topic_matrix = doc_topic
             console.log("Model fitting done.")
+            self.hierarchy = TopicNode.create_root(
+                self, self.components_, self.document_topic_matrix
+            )
+            if self.multilevel:
+                status.update("Estimating subtopics.")
+                self.add_subtopics()
+                console.log("Subtopics estimated.")
         return doc_topic
+
+    def add_subtopics(self):
+        node = self.hierarchy
+        doc_topic_matrix = np.stack(
+            [child.document_topic_vector for child in node.children]
+        ).T
+        self.submodels_ = []
+        labels = doc_topic_matrix.argmax(axis=1)
+        for i_child, old_child in enumerate(node.children):
+            _emb = self.embeddings[labels == i_child]
+            if self.n_components == "auto":
+                snmf = init_snmf_auto(
+                    _emb,
+                    sparsity=self.sparsity,
+                    random_state=self.random_state,
+                )
+            else:
+                snmf = SNMF(
+                    n_components=self.n_components,
+                    sparsity=self.sparsity,
+                    random_state=self.random_state,
+                )
+            if snmf.n_components == 1:
+                continue
+            self.submodels_.append(snmf)
+            _dt = snmf.fit_transform(_emb)
+            components = snmf.transform(self.vocab_embeddings).T
+            doc_topic = snmf.transform(self.embeddings)
+            old_child.children = []
+            for topic_id, comp, doc_top in zip(
+                np.arange(components.shape[0]), components, doc_topic.T
+            ):
+                old_child.children.append(
+                    TopicNode(
+                        self,
+                        path=(*old_child.path, topic_id),
+                        word_importance=comp,
+                        document_topic_vector=doc_top,
+                        children=None,
+                    )
+                )
 
     def partial_fit_transform(
         self,
@@ -313,11 +375,13 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             random_state=self.random_state,
         )
         new_doc_topic = new_decomp.fit_transform(embeddings)
-        self.decomposition, merge_history = self.decomposition.merge_with(
-            new_decomp,
-            merge_method=merge_method,
-            match_threshold=match_threshold,
-            weighted=weighted,
+        self.decomposition, self.merge_history_ = (
+            self.decomposition.merge_with(
+                new_decomp,
+                merge_method=merge_method,
+                match_threshold=match_threshold,
+                weighted=weighted,
+            )
         )
         if isinstance(merge_method, str) and (merge_method == "keep_first"):
             n_diff = self.decomposition.n_components - self.n_components_
