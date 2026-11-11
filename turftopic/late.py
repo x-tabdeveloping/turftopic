@@ -574,7 +574,7 @@ class LateWrapper(LateModel):
     ----------
     model
         Turftopic model to turn into late-interaction model.
-    span_extractor: SpanExtractor, default None
+    span_extractor: SpanExtractor or "sentence", default None
         Object that extracts arbitrary spans from a piece of text.
         These spans will then be used to pool token embeddings.
         This could for instance be a SentenceSeparator.

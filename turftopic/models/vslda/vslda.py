@@ -61,7 +61,7 @@ class vSLDA(LateModel):
         Random state to use so that results are exactly reproducible.
     n_iter: int, default 25
         Number of iterations to run with the EM algorithm.
-    span_extractor: SpanExtractor, default None
+    span_extractor: SpanExtractor, default "sentence"
         Object that extracts arbitrary spans from a piece of text.
         These spans will then be used to pool token embeddings.
         This could for instance be a SentenceSeparator.
@@ -101,7 +101,9 @@ class vSLDA(LateModel):
         vectorizer: Optional[CountVectorizer] = None,
         random_state: Optional[int] = None,
         n_iter: int = 25,
-        span_extractor: Optional[SpanExtractor] = None,
+        span_extractor: (
+            SpanExtractor | Literal["sentence"] | None
+        ) = "sentence",
         include_edge_tokens: bool = True,
         window_size: Optional[int] = None,
         step_size: Optional[int] = None,
