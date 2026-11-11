@@ -12,6 +12,7 @@ from sklearn.base import TransformerMixin
 from sklearn.preprocessing import normalize
 
 from turftopic.base import ContextualModel
+from turftopic.spans.base import SpanExtractor
 
 Offsets = list[tuple[int, int]]
 Lengths = list[int]
@@ -37,6 +38,43 @@ def sliding_window(
         window_embeddings.append(normalize(np.stack(_embeddings)))
         window_offsets.append(_offsets)
     return window_embeddings, window_offsets
+
+
+def pool_spans(
+    token_embeddings: list[np.ndarray],
+    token_offsets: Offsets,
+    span_offsets: Offsets,
+    include_edge_tokens: bool = True,
+):
+    span_embeddings = []
+    # The returned offsets might be different than the ones supplied,
+    # as empty spans will be removed.
+    offsets = []
+    for spans, toks, embs in zip(
+        span_offsets, token_offsets, token_embeddings
+    ):
+        offs = []
+        if len(spans) == 0:
+            continue
+        span_emb = []
+        token_start, token_end = np.array(toks).T
+        for span_start, span_end in spans:
+            span_tokens = (token_start >= span_start) & (token_end <= span_end)
+            if include_edge_tokens:
+                span_tokens |= (token_start < span_start) & (
+                    token_end > span_start
+                )
+                span_tokens |= (token_end > span_end) & (
+                    token_start < span_end
+                )
+            if np.sum(span_tokens) == 0:
+                continue
+            else:
+                offs.append((span_start, span_end))
+                span_emb.append(np.nanmean(embs[span_tokens], axis=0))
+        span_embeddings.append(np.stack(span_emb))
+        offsets.append(offs)
+    return span_embeddings, offsets
 
 
 def to_numpy(arr: torch.Tensor | np.ndarray) -> np.ndarray:
@@ -296,17 +334,32 @@ def get_document_chunks(
 
 
 class LateModel(ContextualModel, TransformerMixin):
+    span_extractor = None
+    include_edge_tokens = True
+    window_size = None
+    step_size = None
+    pooling = None
     """Should have the following attributes:
 
+    span_extractor: SpanExtractor, default None
+        Object that extracts arbitrary spans from a piece of text.
+        These spans will then be used to pool token embeddings.
+        This could for instance be a SentenceSeparator.
+    include_edge_tokens: bool, default True
+        Indicates whether the tokens on the edges of spans (ones that go over the span boundary)
+        should be included in the span embedding.
+        Ignored when not using a span extractor.
     window_size: int, default None
         Size of the sliding window to average tokens over.
         If None, documents will be represented at a token level.
+        Ignored when span_extractor is not None.
     step_size: int, default None
         Step size of the window.
         If (step_size == None) or (step_size == window_size), then windows are separate.
         If step_size < window_size, windows will overlap.
         If step_size > window_size, there will be gaps between the windows.
         In this case, we throw a warning, as this is probably unintended behaviour.
+        Ignored when span_extractor is not None.
     pooling: Callable, default None
         Indicates whether and how to pool document-topic matrices.
         If None, multi-vector topic proportions are returned in a ragged array.
@@ -342,6 +395,17 @@ class LateModel(ContextualModel, TransformerMixin):
     @staticmethod
     def pool_flat(flat_repr, lengths, agg=np.nanmean):
         return pool_flat(flat_repr, lengths, agg)
+
+    @staticmethod
+    def pool_spans(
+        token_embeddings: list[np.ndarray],
+        token_offsets: Offsets,
+        span_offsets: Offsets,
+        include_edge_tokens: bool = True,
+    ):
+        return pool_spans(
+            token_embeddings, token_offsets, span_offsets, include_edge_tokens
+        )
 
     def pool(self, doc_topic_matrix: list[np.ndarray], offsets):
         if self.pooling is None:
@@ -400,6 +464,16 @@ class LateModel(ContextualModel, TransformerMixin):
         self, raw_documents: list[str]
     ) -> tuple[np.ndarray, list[Offsets]]:
         token_embeddings, token_offsets = self.encode_tokens(raw_documents)
+        if self.span_extractor is not None:
+            span_offsets = self.span_extractor.batch_extract_spans(
+                raw_documents
+            )
+            return self.pool_spans(
+                token_embeddings,
+                token_offsets,
+                span_offsets,
+                self.include_edge_tokens,
+            )
         if self.window_size is None:
             return token_embeddings, token_offsets
         # If the window_size is specified, but not step_size, we set the step size to the window size
@@ -482,6 +556,14 @@ class LateWrapper(LateModel):
     ----------
     model
         Turftopic model to turn into late-interaction model.
+    span_extractor: SpanExtractor, default None
+        Object that extracts arbitrary spans from a piece of text.
+        These spans will then be used to pool token embeddings.
+        This could for instance be a SentenceSeparator.
+    include_edge_tokens: bool, default True
+        Indicates whether the tokens on the edges of spans (ones that go over the span boundary)
+        should be included in the span embedding.
+        Ignored when not using a span extractor.
     window_size: int, default None
         Size of the sliding window to average tokens over.
         If None, documents will be represented at a token level.
@@ -501,6 +583,8 @@ class LateWrapper(LateModel):
     def __init__(
         self,
         model: TransformerMixin,
+        span_extractor: Optional[SpanExtractor] = None,
+        include_edge_tokens: bool = True,
         window_size: Optional[int] = None,
         step_size: Optional[int] = None,
         pooling: Optional[Callable] = None,
@@ -509,31 +593,10 @@ class LateWrapper(LateModel):
         self.pooling = pooling
         self.window_size = window_size
         self.step_size = step_size
+        self.span_extractor = span_extractor
+        self.include_edge_tokens = include_edge_tokens
         self.encode_kwargs = self.model.encode_kwargs
-
-    def encode_late(
-        self, raw_documents: list[str]
-    ) -> tuple[np.ndarray, list[Offsets]]:
-        encode_kwargs = (
-            dict() if self.encode_kwargs is None else self.encode_kwargs
-        )
-        if self.window_size is None:
-            embeddings, offsets = self.model.encoder.encode_tokens(
-                raw_documents, **encode_kwargs
-            )
-            return embeddings, offsets
-        # If the window_size is specified, but not step_size, we set the step size to the window size
-        # Thereby getting non-overlapping windows
-        step_size = (
-            self.window_size if self.step_size is None else self.step_size
-        )
-        embeddings, offsets = self.model.encoder.encode_windows(
-            raw_documents,
-            window_size=self.window_size,
-            step_size=step_size,
-            **encode_kwargs,
-        )
-        return embeddings, offsets
+        self.encoder_ = self.model.encoder_
 
     def transform(
         self,
