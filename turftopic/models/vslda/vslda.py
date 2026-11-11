@@ -18,6 +18,7 @@ from turftopic.late import (
     Offsets,
 )
 from turftopic.models.vslda._trainer import VMFLDATrainer
+from turftopic.spans.base import SpanExtractor
 from turftopic.vectorizers.default import default_vectorizer
 
 FEATURE_IMPORTANCE_METHODS = {
@@ -60,6 +61,14 @@ class vSLDA(LateModel):
         Random state to use so that results are exactly reproducible.
     n_iter: int, default 25
         Number of iterations to run with the EM algorithm.
+    span_extractor: SpanExtractor, default None
+        Object that extracts arbitrary spans from a piece of text.
+        These spans will then be used to pool token embeddings.
+        This could for instance be a SentenceSeparator.
+    include_edge_tokens: bool, default True
+        Indicates whether the tokens on the edges of spans (ones that go over the span boundary)
+        should be included in the span embedding.
+        Ignored when not using a span extractor.
     window_size: int, default None
         Size of the sliding window to average tokens over.
         If None, documents will be represented at a token level.
@@ -92,6 +101,8 @@ class vSLDA(LateModel):
         vectorizer: Optional[CountVectorizer] = None,
         random_state: Optional[int] = None,
         n_iter: int = 25,
+        span_extractor: Optional[SpanExtractor] = None,
+        include_edge_tokens: bool = True,
         window_size: Optional[int] = None,
         step_size: Optional[int] = None,
         pooling=None,
@@ -105,6 +116,8 @@ class vSLDA(LateModel):
         self.trf_kwargs = trf_kwargs
         self.random_state = random_state
         self.window_size = window_size
+        self.span_extractor = span_extractor
+        self.include_edge_tokens = include_edge_tokens
         self.n_iter = n_iter
         self.step_size = step_size
         self.pooling = pooling
