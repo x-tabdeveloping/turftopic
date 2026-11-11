@@ -39,13 +39,15 @@ class SentenceExtractor(SpanExtractor):
         else:
             self._nlp = nlp
 
-    def extract_spans(self, document: str) -> Offsets:
+    def extract_spans(self, document: str, token_offsets=None) -> Offsets:
         """Extracts sentence offsets in a document.
 
         Parameters
         ----------
         document: str
             Text document.
+        token_offsets: Offsets
+            Ignored.
 
         Returns
         -------

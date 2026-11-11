@@ -13,6 +13,7 @@ from sklearn.preprocessing import normalize
 
 from turftopic.base import ContextualModel
 from turftopic.spans.base import SpanExtractor
+from turftopic.spans.dummy import DummySentenceExtractor
 
 Offsets = list[tuple[int, int]]
 Lengths = list[int]
@@ -341,7 +342,7 @@ class LateModel(ContextualModel, TransformerMixin):
     pooling = None
     """Should have the following attributes:
 
-    span_extractor: SpanExtractor, default None
+    span_extractor: SpanExtractor or "sentence", default None
         Object that extracts arbitrary spans from a piece of text.
         These spans will then be used to pool token embeddings.
         This could for instance be a SentenceSeparator.
@@ -460,14 +461,31 @@ class LateModel(ContextualModel, TransformerMixin):
         else:
             return self.encoder_.encode(raw_documents, **encode_kwargs)
 
+    def extract_spans(self, documents, token_offsets=None):
+        if self.span_extractor is None:
+            warnings.warn(
+                "extract_spans was called on a late model even though span_extractor = None, returning token offsets."
+            )
+            return token_offsets
+        if isinstance(self.span_extractor, str):
+            if self.span_extractor == "sentence":
+                extractor = DummySentenceExtractor()
+                return extractor.batch_extract_spans(documents, token_offsets)
+            else:
+                raise ValueError(
+                    f"span_extractor should be a SpanExtractor or 'sentence', not {self.span_extractor}"
+                )
+        else:
+            return self.span_extractor.batch_extract_spans(
+                documents, token_offsets
+            )
+
     def encode_late(
         self, raw_documents: list[str]
     ) -> tuple[np.ndarray, list[Offsets]]:
         token_embeddings, token_offsets = self.encode_tokens(raw_documents)
         if self.span_extractor is not None:
-            span_offsets = self.span_extractor.batch_extract_spans(
-                raw_documents
-            )
+            span_offsets = self.extract_spans(documents, token_offsets)
             return self.pool_spans(
                 token_embeddings,
                 token_offsets,
