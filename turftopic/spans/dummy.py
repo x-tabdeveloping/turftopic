@@ -163,6 +163,14 @@ class DummySentenceExtractor(SpanExtractor):
         for token_start, token_end in token_offsets:
             token = document[token_start:token_end]
             if token in DEFAULT_PUNCT_CHARS:
+                sentence = document[sentence_start:token_end]
+                # We make sure that no sentences are less than 3 characters, because that is ridiculous
+                if len(sentence) < 3:
+                    continue
+                if all((c in DEFAULT_PUNCT_CHARS) for c in sentence):
+                    # We skip "sentences" that only contain punctuation.
+                    sentence_start = token_end
+                    continue
                 sentence_offsets.append((sentence_start, token_end))
                 sentence_start = token_end
         if sentence_start != token_end:
