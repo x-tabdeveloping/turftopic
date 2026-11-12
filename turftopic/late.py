@@ -266,9 +266,13 @@ def flatten_repr(
         return np.array([])
     if isinstance(repr[0], np.ndarray):
         lengths = [r.shape[0] for r in repr]
+        # Filtering out zero length arrays
+        repr = [r for r, l in zip(repr, lengths) if l > 0]
         return np.concatenate(repr, axis=0), lengths
     if spr.issparse(repr[0]):
         lengths = [r.shape[0] for r in repr]
+        # Filtering out zero length arrays
+        repr = [r for r, l in zip(repr, lengths) if l > 0]
         return spr.vstack(repr), lengths
     else:
         lengths = [len(r) for r in repr]
@@ -296,6 +300,8 @@ def unflatten_repr(
     repr = []
     start_index = 0
     for length in lengths:
+        if length == 0:
+            repr.append(np.array([]))
         repr.append(flat_repr[start_index : start_index + length])
         start_index += length
     return repr
@@ -796,10 +802,6 @@ class LateWrapper(LateModel):
     """Wraps existing Turftopic model so that they can accept and create
     multi-vector document representations.
 
-    !!! warning
-        The model HAS TO HAVE a late interaction encoder model
-        (e.g. `LateSentenceTransformer`)
-
     Parameters
     ----------
     model
@@ -844,7 +846,14 @@ class LateWrapper(LateModel):
         self.span_extractor = span_extractor
         self.include_edge_tokens = include_edge_tokens
         self.encode_kwargs = self.model.encode_kwargs
+        self.trf_kwargs = self.model.trf_kwargs
+        self.encode_kwargs = self.model.encode_kwargs
+        # Reloading encoder to make sure it is late interaction
         self.encoder_ = self.model.encoder_
+        if isinstance(self.encoder_, SentenceTransformer):
+            # This is a nasty trick, and I should probably find something better in the future,
+            # but this casts a sentence transformer directly into a LateSentenceTransformer
+            self.encoder_.__class__ = LateSentenceTransformer
 
     def transform(
         self,
@@ -854,7 +863,7 @@ class LateWrapper(LateModel):
     ):
         if (embeddings is None) or (offsets is None):
             embeddings, offsets = self.encode_late(raw_documents)
-        flat_embeddings, lengths = flatten_repr(embeddings)
+        flat_embeddings, lengths = self.flatten_repr(embeddings)
         chunks = get_document_chunks(raw_documents, offsets)
         out_array = self.model.transform(chunks, embeddings=flat_embeddings)
         if self.pooling is None:
@@ -871,7 +880,7 @@ class LateWrapper(LateModel):
     ):
         if (embeddings is None) or (offsets is None):
             embeddings, offsets = self.encode_late(raw_documents)
-        flat_embeddings, lengths = flatten_repr(embeddings)
+        flat_embeddings, lengths = self.flatten_repr(embeddings)
         chunks = get_document_chunks(raw_documents, offsets)
         out_array = self.model.fit_transform(
             chunks, embeddings=flat_embeddings
