@@ -17,6 +17,7 @@ from turftopic.spans.dummy import DummySentenceExtractor
 
 Offsets = list[tuple[int, int]]
 Lengths = list[int]
+RaggedArray = tuple[list[np.ndarray], list[Offsets]]
 
 
 def sliding_window(
@@ -24,7 +25,7 @@ def sliding_window(
     token_offsets: Offsets,
     step_size: int,
     window_size: int,
-) -> tuple[list[np.ndarray], Offsets]:
+) -> RaggedArray:
     window_embeddings = []
     window_offsets = []
     for emb, offs in zip(token_embeddings, token_offsets):
@@ -126,7 +127,7 @@ class LateSentenceTransformer(SentenceTransformer):
         self,
         texts,
         **kwargs,
-    ) -> tuple[list[np.ndarray], list[Offsets]]:
+    ) -> RaggedArray:
         """
         Returns
         -------
@@ -496,9 +497,7 @@ class LateModel(ContextualModel, TransformerMixin):
                 documents, token_offsets
             )
 
-    def encode_late(
-        self, raw_documents: list[str]
-    ) -> tuple[np.ndarray, list[Offsets]]:
+    def encode_late(self, raw_documents: list[str]) -> RaggedArray:
         token_embeddings, token_offsets = self.encode_tokens(raw_documents)
         if self.span_extractor is not None:
             span_offsets = self.extract_spans(raw_documents, token_offsets)
@@ -530,7 +529,7 @@ class LateModel(ContextualModel, TransformerMixin):
         y=None,
         embeddings: Optional[list[np.ndarray]] = None,
         offsets: Optional[Offsets] = None,
-    ) -> tuple[list[np.ndarray], Offsets] | np.ndarray:
+    ) -> RaggedArray | np.ndarray:
         """Fits model and infers topic importances for each document.
 
         Parameters
@@ -546,7 +545,7 @@ class LateModel(ContextualModel, TransformerMixin):
 
         Returns
         -------
-        (list[np.ndarray], Offsets) or ndarray
+        (list[np.ndarray], list[Offsets]) or ndarray
             Document-topic matrix.
             If pooling = None, this should be a ragged array with offsets,
             otherwise a regular matrix.
