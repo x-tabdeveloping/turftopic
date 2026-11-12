@@ -54,6 +54,7 @@ class TopicContainer(ABC):
         for component, high in zip(self.components_, highest):
             importance = component[high]
             high = high[np.argsort(-importance)]
+            high = high[np.abs(importance[high]) > 0]
             score.append(component[high])
             top.append(vocab[high])
         topics = []
@@ -79,7 +80,10 @@ class TopicContainer(ABC):
                     [
                         vocab[i]
                         for i in highest
-                        if (np.isfinite(component[i]) and (component[i] > 0))
+                        if (
+                            np.isfinite(component[i])
+                            and (np.abs(component[i]) > 0)
+                        )
                     ]
                 )
         return terms
@@ -116,18 +120,19 @@ class TopicContainer(ABC):
             Indicates whether the highest
             or lowest scoring documents should be returned.
         """
-        if (
-            positive
-            and hasattr(self, "top_documents")
-            and len(self.top_documents[0]) >= top_k
-        ):
-            return [docs[:top_k] for docs in self.top_documents]
-        if (
-            not positive
-            and hasattr(self, "negative_documents")
-            and len(self.negative_documents[0]) >= top_k
-        ):
-            return [docs[:top_k] for docs in self.negative_documents]
+        if raw_documents is None:
+            if (
+                positive
+                and hasattr(self, "top_documents")
+                and len(self.top_documents[0]) >= top_k
+            ):
+                return [docs[:top_k] for docs in self.top_documents]
+            if (
+                not positive
+                and hasattr(self, "negative_documents")
+                and len(self.negative_documents[0]) >= top_k
+            ):
+                return [docs[:top_k] for docs in self.negative_documents]
         docs = []
         raw_documents = raw_documents or getattr(self, "corpus", None)
         if raw_documents is None:
@@ -151,6 +156,8 @@ class TopicContainer(ABC):
             if positive:
                 topic_doc_vec = -topic_doc_vec
             highest = np.argsort(topic_doc_vec)[:top_k]
+            # Filtering out zeroes
+            highest = highest[np.abs(topic_doc_vec[highest]) > 0]
             docs.append([raw_documents[i_doc] for i_doc in highest])
         return docs
 
@@ -227,8 +234,16 @@ class TopicContainer(ABC):
         ):
             highest = np.argpartition(-component, top_k)[:top_k]
             highest = highest[np.argsort(-component[highest])]
+            highest = highest[
+                np.isfinite(component[highest])
+                & (np.abs(component[highest]) > 0)
+            ]
             lowest = np.argpartition(component, top_k)[:top_k]
             lowest = lowest[np.argsort(component[lowest])]
+            lowest = lowest[
+                np.isfinite(component[lowest])
+                & (np.abs(component[lowest]) > 0)
+            ]
             if show_scores:
                 concat_positive = ", ".join(
                     [
@@ -368,6 +383,8 @@ class TopicContainer(ABC):
         highest = highest[
             np.argsort(-document_topic_matrix[highest, topic_id])
         ]
+        importance = document_topic_matrix[highest, topic_id]
+        highest = highest[np.isfinite(importance) & (np.abs(importance) > 0)]
         scores = document_topic_matrix[highest, topic_id]
         columns = []
         columns.append("Document")
@@ -387,6 +404,8 @@ class TopicContainer(ABC):
             lowest = lowest[
                 np.argsort(document_topic_matrix[lowest, topic_id])
             ]
+            importance = document_topic_matrix[lowest, topic_id]
+            lowest = lowest[np.isfinite(importance) & (np.abs(importance) > 0)]
             lowest = lowest[::-1]
             scores = document_topic_matrix[lowest, topic_id]
             for document_id, score in zip(lowest, scores):
