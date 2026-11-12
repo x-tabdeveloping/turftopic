@@ -46,20 +46,23 @@ def pool_spans(
     token_offsets: Offsets,
     span_offsets: Offsets,
     include_edge_tokens: bool = True,
+    normalize_spans: bool = True,
 ):
     span_embeddings = []
     # The returned offsets might be different than the ones supplied,
     # as empty spans will be removed.
     offsets = []
-    for spans, toks, embs in zip(
+    for doc_spans, doc_toks, doc_embs in zip(
         span_offsets, token_offsets, token_embeddings
     ):
         offs = []
-        if len(spans) == 0:
+        if len(doc_spans) == 0:
+            span_embeddings.append(np.array([]))
+            offsets.append([])
             continue
         span_emb = []
-        token_start, token_end = np.array(toks).T
-        for span_start, span_end in spans:
+        token_start, token_end = np.array(doc_toks).T
+        for span_start, span_end in doc_spans:
             span_tokens = (token_start >= span_start) & (token_end <= span_end)
             if include_edge_tokens:
                 span_tokens |= (token_start < span_start) & (
@@ -72,7 +75,14 @@ def pool_spans(
                 continue
             else:
                 offs.append((span_start, span_end))
-                span_emb.append(np.nanmean(embs[span_tokens], axis=0))
+                span_emb.append(np.nanmean(doc_embs[span_tokens], axis=0))
+        if len(span_emb) == 0:
+            span_embeddings.append(np.array([]))
+            offsets.append([])
+            continue
+        span_emb = np.stack(span_emb)
+        if normalize_spans:
+            span_emb = normalize(span_emb, axis=1)
         span_embeddings.append(np.stack(span_emb))
         offsets.append(offs)
     return span_embeddings, offsets
@@ -335,6 +345,7 @@ def get_document_chunks(
 
 
 class LateModel(ContextualModel, TransformerMixin):
+    normalize_spans = True
     span_extractor = None
     include_edge_tokens = True
     window_size = None
@@ -403,9 +414,14 @@ class LateModel(ContextualModel, TransformerMixin):
         token_offsets: Offsets,
         span_offsets: Offsets,
         include_edge_tokens: bool = True,
+        normalize_spans: bool = True,
     ):
         return pool_spans(
-            token_embeddings, token_offsets, span_offsets, include_edge_tokens
+            token_embeddings,
+            token_offsets,
+            span_offsets,
+            include_edge_tokens,
+            normalize_spans,
         )
 
     def pool(self, doc_topic_matrix: list[np.ndarray], offsets):
@@ -485,12 +501,13 @@ class LateModel(ContextualModel, TransformerMixin):
     ) -> tuple[np.ndarray, list[Offsets]]:
         token_embeddings, token_offsets = self.encode_tokens(raw_documents)
         if self.span_extractor is not None:
-            span_offsets = self.extract_spans(documents, token_offsets)
+            span_offsets = self.extract_spans(raw_documents, token_offsets)
             return self.pool_spans(
                 token_embeddings,
                 token_offsets,
                 span_offsets,
                 self.include_edge_tokens,
+                self.normalize_spans,
             )
         if self.window_size is None:
             return token_embeddings, token_offsets

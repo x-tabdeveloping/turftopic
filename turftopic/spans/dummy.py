@@ -157,7 +157,7 @@ class DummySentenceExtractor(SpanExtractor):
         """
         if token_offsets is None:
             # If no offsets are provided, we treat each character as a token.
-            token_offsets = [(i, i) for i in range(len(document))]
+            token_offsets = [(i, i + 1) for i in range(len(document))]
         sentence_offsets = []
         sentence_start = 0
         for token_start, token_end in token_offsets:
