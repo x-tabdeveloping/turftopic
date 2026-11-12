@@ -15,7 +15,6 @@ nav:
     - Online Topic Modeling: online.md
     - Hierarchical Topic Modeling: hierarchical.md
     - Cross-Lingual Topic Modeling: cross_lingual.md
-    - Late Interaction (Multi-vector) Topic Models: late_interaction.md
     - Concept Induction: concept_induction.md
     - Multimodal Modeling (Experimental): multimodal.md
     - Model Merging: topic_merging.md
@@ -48,9 +47,14 @@ nav:
     - Bag-of-words Models:
       - LDA: LDA.md
       - NMF: NMF.md
+  - <span>Late Interaction<span><br> <i class="subtext">(Multi-vector Models)</i>:
+      - Basic Usage: late_interaction.md
+      - Ragged Arrays: ragged_arrays.md
+      - Span extraction (e.g. sentences, windows): spans.md
+      - Turning Regular Models into Late Interaction Models: late_wrapper.md
   - <span>Other Models<span> <br> <i class="subtext">(e.g. Sentiment Analysis)</i>:
     - Concept Vector Projection (Continuous Sentiment Scoring): cvp.md
-  - <span>Embeddings and Encoders <span><br> <i class="subtext">(Transformer Models)</i>: encoders.md
+  - <span>Encoder Models <span><br> <i class="subtext">(Transformers)</i>: encoders.md
   - <span>Vectorizers<span> <br> <i class="subtext">(Term extraction)</i>: vectorizers.md
   - <span> Automated Topic Analysis<span> <br> <i class="subtext">(Topic names and descriptions)</i>: 
      - Analyzers Overview: analyzers.md
