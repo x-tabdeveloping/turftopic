@@ -13,10 +13,7 @@ from turftopic.feature_importance import (
     npmi,
     soft_ctf_idf,
 )
-from turftopic.late import (
-    LateModel,
-    Offsets,
-)
+from turftopic.late import LateModel, Offsets, RaggedArray
 from turftopic.models.vslda._trainer import VMFLDATrainer
 from turftopic.spans.base import SpanExtractor
 from turftopic.vectorizers.default import default_vectorizer
@@ -179,7 +176,7 @@ class vSLDA(LateModel):
         y=None,
         embeddings: Optional[list[np.ndarray]] = None,
         offsets: Optional[Offsets] = None,
-    ) -> np.ndarray:
+    ) -> RaggedArray | np.ndarray:
         console = Console()
         with console.status("Fitting model") as status:
             if (embeddings is None) or (offsets is None):
@@ -215,7 +212,7 @@ class vSLDA(LateModel):
         raw_documents,
         embeddings: Optional[np.ndarray] = None,
         offsets: Optional[Offsets] = None,
-    ) -> np.ndarray:
+    ) -> RaggedArray | np.ndarray:
         if embeddings is None:
             embeddings, offsets = self.encode_late(raw_documents)
         doc_topic_matrix = self.trainer_.infer_topic_proportions(embeddings)
