@@ -7,6 +7,8 @@ from typing import Callable, Optional, Union
 import numpy as np
 import scipy.sparse as spr
 import torch
+from rich.console import Console
+from rich.table import Table
 from sentence_transformers import MultiVectorEncoder, SentenceTransformer
 from sklearn.base import TransformerMixin
 from sklearn.preprocessing import normalize
@@ -14,10 +16,21 @@ from sklearn.preprocessing import normalize
 from turftopic.base import ContextualModel
 from turftopic.spans.base import SpanExtractor
 from turftopic.spans.dummy import DummySentenceExtractor
+from turftopic.utils import export_table
 
 Offsets = list[tuple[int, int]]
 Lengths = list[int]
 RaggedArray = tuple[list[np.ndarray], list[Offsets]]
+
+
+def is_ragged(a) -> bool:
+    if isinstance(a, list):
+        if (len(a) > 0) and (
+            isinstance(a[0], np.ndarray) or (spr.issparse(a[0]))
+        ):
+            return True
+    else:
+        return False
 
 
 def sliding_window(
@@ -521,6 +534,207 @@ class LateModel(ContextualModel, TransformerMixin):
             window_size=self.window_size,
             step_size=step_size,
         )
+
+    def _representative_docs(
+        self,
+        topic_id,
+        raw_documents=None,
+        document_topic_matrix=None,
+        top_k=5,
+        show_negative: Optional[bool] = None,
+    ) -> list[list[str]]:
+        if document_topic_matrix is not None:
+            if is_ragged(document_topic_matrix):
+                flat, lengths = self.flatten_repr(document_topic_matrix)
+                document_topic_matrix = self.pool_flat(flat, lengths)
+            return super(LateModel, self)._representative_docs(
+                topic_id,
+                raw_documents,
+                document_topic_matrix,
+                top_k,
+                show_negative,
+            )
+        elif getattr(self, "document_topic_matrix", None) is not None:
+            return self._representative_docs(
+                topic_id,
+                raw_documents,
+                self.document_topic_matrix,
+                top_k,
+                show_negative,
+            )
+        else:
+            return super(LateModel, self)._representative_docs(
+                topic_id,
+                raw_documents,
+                document_topic_matrix,
+                top_k,
+                show_negative,
+            )
+
+    def get_top_documents(
+        self,
+        raw_documents=None,
+        document_topic_matrix=None,
+        top_k: int = 10,
+        positive: bool = True,
+    ) -> list[list[str]]:
+        if document_topic_matrix is not None:
+            if is_ragged(document_topic_matrix):
+                flat, lengths = self.flatten_repr(document_topic_matrix)
+                document_topic_matrix = self.pool_flat(flat, lengths)
+                return super(LateModel, self).get_top_documents(
+                    positive,
+                    raw_documents,
+                    document_topic_matrix,
+                    top_k,
+                )
+        elif getattr(self, "document_topic_matrix", None) is not None:
+            return self.get_top_documents(
+                raw_documents, self.document_topic_matrix, top_k, positive
+            )
+        else:
+            return super(LateModel, self).get_top_documents(
+                raw_documents,
+                document_topic_matrix,
+                top_k,
+                positive,
+            )
+
+    def get_top_spans(
+        self,
+        raw_documents=None,
+        document_topic_matrix=None,
+        embeddings: list[np.ndarray] | None = None,
+        offsets: list[Offsets] | None = None,
+        top_k: int = 10,
+        remove_whitespace: bool = True,
+    ) -> list[list[str]]:
+        raw_documents = getattr(self, "corpus", raw_documents)
+        if raw_documents is None:
+            if (getattr(self, "top_spans", None) is not None) and any(
+                len(spans) >= 0 for spans in self.top_spans
+            ):
+                return [spans[:top_k] for spans in self.top_spans]
+            else:
+                raise ValueError(
+                    "You either have to pass a corpus, or top_spans has to be an attribute of the model."
+                )
+        if (document_topic_matrix is None) or (offsets is None):
+            if self.pooling is not None:
+                raise ValueError(
+                    "Cannot get top spans when the model is pooled. You can only use spans with a model that returns ragged arrays."
+                )
+            document_topic_matrix, offsets = self.transform(
+                raw_documents, embeddings=embeddings
+            )
+        if not is_ragged(document_topic_matrix):
+            raise ValueError(
+                "Cannot get top spans from a pooled document_topic_matrix, it has to be ragged."
+            )
+        span_topic_matrix, _ = self.flatten_repr(document_topic_matrix)
+        spans = []
+        for doc, offs in zip(raw_documents, offsets):
+            for span_start, span_end in offs:
+                spans.append(doc[span_start:span_end])
+        if remove_whitespace:
+            spans = [" ".join(span.split()).strip() for span in spans]
+        return self.get_top_documents(spans, span_topic_matrix, top_k)
+
+    def _representative_spans(
+        self,
+        topic_id,
+        raw_documents=None,
+        document_topic_matrix=None,
+        embeddings: list[np.ndarray] | None = None,
+        offsets: list[Offsets] | None = None,
+        top_k: int = 10,
+        remove_whitespace: bool = True,
+    ) -> list[list[str]]:
+        raw_documents = getattr(self, "corpus", raw_documents)
+        if raw_documents is None:
+            if (getattr(self, "top_spans", None) is not None) and any(
+                len(spans) >= 0 for spans in self.top_spans
+            ):
+                return [spans[:top_k] for spans in self.top_spans]
+            else:
+                raise ValueError(
+                    "You either have to pass a corpus, or top_spans has to be an attribute of the model."
+                )
+        if (document_topic_matrix is None) or (offsets is None):
+            if self.pooling is not None:
+                raise ValueError(
+                    "Cannot get top spans when the model is pooled. You can only use spans with a model that returns ragged arrays."
+                )
+            document_topic_matrix, offsets = self.transform(
+                raw_documents, embeddings=embeddings
+            )
+        if not is_ragged(document_topic_matrix):
+            raise ValueError(
+                "Cannot get top spans from a pooled document_topic_matrix, it has to be ragged."
+            )
+        span_topic_matrix, _ = self.flatten_repr(document_topic_matrix)
+        spans = []
+        for doc, offs in zip(raw_documents, offsets):
+            for span_start, span_end in offs:
+                spans.append(doc[span_start:span_end])
+        if remove_whitespace:
+            spans = [" ".join(span.split()).strip() for span in spans]
+        return super(LateModel, self)._representative_docs(
+            topic_id,
+            raw_documents=spans,
+            document_topic_matrix=span_topic_matrix,
+            top_k=top_k,
+        )
+
+    def print_representative_spans(
+        self,
+        topic_id,
+        raw_documents=None,
+        document_topic_matrix=None,
+        embeddings: list[np.ndarray] | None = None,
+        offsets: list[Offsets] | None = None,
+        top_k: int = 10,
+        remove_whitespace: bool = True,
+    ):
+        columns, *rows = self._representative_spans(
+            topic_id,
+            raw_documents,
+            document_topic_matrix,
+            embeddings,
+            offsets,
+            top_k,
+            remove_whitespace,
+        )
+        table = Table(show_lines=True)
+        table.add_column(
+            "Document", justify="left", style="magenta", max_width=100
+        )
+        table.add_column("Score", style="blue", justify="right")
+        for row in rows:
+            table.add_row(*row)
+        console = Console()
+        console.print(table)
+
+    def export_representative_spans(
+        self,
+        topic_id,
+        raw_documents=None,
+        document_topic_matrix=None,
+        embeddings: list[np.ndarray] | None = None,
+        offsets: list[Offsets] | None = None,
+        top_k: int = 10,
+        remove_whitespace: bool = True,
+    ):
+        table = self._representative_spans(
+            topic_id,
+            raw_documents,
+            document_topic_matrix,
+            embeddings,
+            offsets,
+            top_k,
+            remove_whitespace,
+        )
+        return export_table(table, format=format)
 
     @abstractmethod
     def fit_transform(
