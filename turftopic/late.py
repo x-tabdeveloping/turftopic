@@ -57,8 +57,8 @@ def sliding_window(
 
 def pool_spans(
     token_embeddings: list[np.ndarray],
-    token_offsets: Offsets,
-    span_offsets: Offsets,
+    token_offsets: list[Offsets],
+    span_offsets: list[Offsets],
     include_edge_tokens: bool = True,
     normalize_spans: bool = True,
 ):
@@ -371,8 +371,11 @@ class LateModel(ContextualModel, TransformerMixin):
     window_size = None
     step_size = None
     pooling = None
-    """Should have the following attributes:
 
+    """Base class for late interaction (multi-vector) topic models.
+
+    Attributes
+    ----------
     span_extractor: SpanExtractor or "sentence", default None
         Object that extracts arbitrary spans from a piece of text.
         These spans will then be used to pool token embeddings.
@@ -418,24 +421,91 @@ class LateModel(ContextualModel, TransformerMixin):
 
     @staticmethod
     def flatten_repr(repr):
+        """Flattens ragged array to normal array.
+
+        Parameters
+        ----------
+        repr: list[ndarray]
+            Ragged representation array.
+
+        Returns
+        -------
+        flat_repr: ndarray
+            Flattened representation array.
+        lengths: list[int]
+            Length of each document in the corpus.
+        """
         return flatten_repr(repr)
 
     @staticmethod
     def unflatten_repr(flat_repr, lengths):
+        """Unflattens flat array to ragged array.
+
+        Parameters
+        ----------
+        flat_repr: ndarray
+            Flattened representation array.
+        lengths: list[int]
+            Length of each document in the corpus.
+
+        Returns
+        -------
+        repr: list[ndarray]
+            Ragged representation array.
+
+        """
         return unflatten_repr(flat_repr, lengths)
 
     @staticmethod
     def pool_flat(flat_repr, lengths, agg=np.nanmean):
+        """Pools vectors within documents using the agg function.
+
+        Parameters
+        ----------
+        flat_repr: ndarray or sparse array of shape (n_total_tokens, n_dims)
+            Flattened document representations.
+        lengths: Lengths
+            Number of tokens in each document.
+
+        Returns
+        -------
+        ndarray or sparse array of shape (n_documents, n_dims)
+            Pooled representation for each document.
+        """
         return pool_flat(flat_repr, lengths, agg)
 
     @staticmethod
     def pool_spans(
         token_embeddings: list[np.ndarray],
-        token_offsets: Offsets,
-        span_offsets: Offsets,
+        token_offsets: list[Offsets],
+        span_offsets: list[Offsets],
         include_edge_tokens: bool = True,
         normalize_spans: bool = True,
-    ):
+    ) -> RaggedArray:
+        """Pools vectors within the specified spans using in a bunch of documents.
+
+        Parameters
+        ----------
+        token_embeddings: list[np.ndarray]
+            Ragged array of token embeddings.
+        token_offsets: list[Offsets]
+            End and start character for each token in each document.
+        span_offsets: list[Offsets]
+            End and start character for each span in each document.
+        include_edge_tokens: bool, default True
+            Indicates whether tokens at the edges of spans
+            should be included in the embeddings.
+        normalize_spans: bool, default True
+            Indicates whether span embeddings should be L2 normalized.
+
+        Returns
+        -------
+        span_embeddings: list[np.ndarray]
+            Ragged array of each span embedding in each document.
+        span_offsets: list[Offsets]
+            Offsets for the extracted spans.
+            This can differ from the input as empty spans are removed in order to avoid NaNs.
+        """
         return pool_spans(
             token_embeddings,
             token_offsets,
@@ -445,6 +515,22 @@ class LateModel(ContextualModel, TransformerMixin):
         )
 
     def pool(self, doc_topic_matrix: list[np.ndarray], offsets):
+        """Pools the document topic matrix with the pooling method of the model.
+        If pooling is None, nothing will be done
+
+        Parameters
+        ----------
+        doc_topic_matrix: list[np.ndarray]
+            Ragged doc-topic matrix.
+        offsets: list[Offsets]
+            Span offsets.
+
+        Returns
+        -------
+        np.ndarray or RaggedArray
+            If pooling is None, return array and offsets as is,
+            otherwise the pooled document-topic-matrix.
+        """
         if self.pooling is None:
             return doc_topic_matrix, offsets
         else:
@@ -457,6 +543,20 @@ class LateModel(ContextualModel, TransformerMixin):
         offsets: Offsets,
         train_vectorizer=False,
     ):
+        """Vectorizes spans in a document.
+
+        Parameters
+        ----------
+        doc_topic_matrix: list[np.ndarray]
+            Ragged doc-topic matrix.
+        offsets: list[Offsets]
+            Span offsets.
+
+        Returns
+        -------
+        list[np.ndarray]
+            Ragged document-term-matrix.
+        """
         if train_vectorizer:
             self.vectorizer.fit(raw_documents)
         dtm = []
@@ -468,6 +568,20 @@ class LateModel(ContextualModel, TransformerMixin):
         return dtm
 
     def encode_tokens(self, raw_documents: list[str]):
+        """Encodes tokens in all documents.
+
+        Parameters
+        ----------
+        raw_documents: list[str]
+            List of documents.
+
+        Returns
+        -------
+        token_embeddings: list[np.ndarray]
+            Embeddings for all tokens.
+        token_offsetes: list[Offsets]
+            Start and end character indices for each token.
+        """
         encode_kwargs = dict(convert_to_numpy=True)
         if self.encode_kwargs is not None:
             encode_kwargs = self.encode_kwargs
@@ -487,6 +601,18 @@ class LateModel(ContextualModel, TransformerMixin):
             return embeddings, offsets
 
     def encode_documents(self, raw_documents: list[str]):
+        """Encodes documents into a flat embedding.
+
+        Parameters
+        ----------
+        raw_documents: list[str]
+            List of documents.
+
+        Returns
+        -------
+        np.ndarray
+            Document embeddings.
+        """
         encode_kwargs = dict(convert_to_numpy=True)
         if self.encode_kwargs is not None:
             encode_kwargs = self.encode_kwargs
@@ -498,6 +624,9 @@ class LateModel(ContextualModel, TransformerMixin):
             return self.encoder_.encode(raw_documents, **encode_kwargs)
 
     def extract_spans(self, documents, token_offsets=None):
+        """Extracts spans using the model's span_extractor.
+        If span_extractor is None, tokens are returned as the default spans.
+        """
         if self.span_extractor is None:
             warnings.warn(
                 "extract_spans was called on a late model even though span_extractor = None, returning token offsets."
@@ -517,6 +646,20 @@ class LateModel(ContextualModel, TransformerMixin):
             )
 
     def encode_late(self, raw_documents: list[str]) -> RaggedArray:
+        """Encodes spans in all documents.
+
+        Parameters
+        ----------
+        raw_documents: list[str]
+            List of documents.
+
+        Returns
+        -------
+        span_embeddings: list[np.ndarray]
+            Embeddings for all spans.
+        span_offsets: list[Offsets]
+            Start and end character indices for each span.
+        """
         token_embeddings, token_offsets = self.encode_tokens(raw_documents)
         if self.span_extractor is not None:
             span_offsets = self.extract_spans(raw_documents, token_offsets)
@@ -615,6 +758,31 @@ class LateModel(ContextualModel, TransformerMixin):
         top_k: int = 10,
         remove_whitespace: bool = True,
     ) -> list[list[str]]:
+        """Returns the top K spans for each topic.
+        If no documents are passed, the function will try
+        to return the top spans saved during training.
+
+        Parameters
+        ----------
+        raw_documents: list[str], default None
+            List of documents.
+        document_topic_matrix: list[np.ndarray], default None
+            Ragged document topic matrix.
+        embeddings: list[np.ndarray], default None
+            Ragged embeddings.
+        offsets: list[Offsets] = None
+            Span offsets.
+        top_k: int, default 10,
+            Number of spans to return for each topic.
+        remove_whitespace: bool, default rue,
+            Indicates whether unnecessary remove_whitespace
+            should be removed from the returned spans.
+
+        Returns
+        -------
+        list[list[str]]
+            List of top K spans for each topic.
+        """
         raw_documents = getattr(self, "corpus", raw_documents)
         if raw_documents is None:
             if (getattr(self, "top_spans", None) is not None) and any(
@@ -692,6 +860,77 @@ class LateModel(ContextualModel, TransformerMixin):
             top_k=top_k,
         )
 
+    def representative_spans_df(
+        self,
+        topic_id,
+        raw_documents=None,
+        document_topic_matrix=None,
+        embeddings: list[np.ndarray] | None = None,
+        offsets: list[Offsets] | None = None,
+        top_k: int = 10,
+        remove_whitespace: bool = True,
+    ):
+        """Produces a DataFrame of representative spans for a given topic.
+
+        Parameters
+        ----------
+        topic_id
+            ID of the topic to show spans for.
+        raw_documents: list[str], default None
+            List of documents.
+        document_topic_matrix: list[np.ndarray], default None
+            Ragged document topic matrix.
+        embeddings: list[np.ndarray], default None
+            Ragged embeddings.
+        offsets: list[Offsets] = None
+            Span offsets.
+        top_k: int, default 10,
+            Number of spans to return for each topic.
+        remove_whitespace: bool, default rue,
+            Indicates whether unnecessary remove_whitespace
+            should be removed from the returned spans.
+        """
+        raw_documents = getattr(self, "corpus", raw_documents)
+        if raw_documents is None:
+            if (getattr(self, "top_spans", None) is not None) and any(
+                len(spans) >= 0 for spans in self.top_spans
+            ):
+                return [spans[:top_k] for spans in self.top_spans]
+            else:
+                raise ValueError(
+                    "You either have to pass a corpus, or top_spans has to be an attribute of the model."
+                )
+        if (document_topic_matrix is None) or (offsets is None):
+            if self.pooling is not None:
+                raise ValueError(
+                    "Cannot get top spans when the model is pooled. You can only use spans with a model that returns ragged arrays."
+                )
+            document_topic_matrix, offsets = self.transform(
+                raw_documents, embeddings=embeddings
+            )
+        if not is_ragged(document_topic_matrix):
+            raise ValueError(
+                "Cannot get top spans from a pooled document_topic_matrix, it has to be ragged."
+            )
+        span_topic_matrix, _ = self.flatten_repr(document_topic_matrix)
+        spans = []
+        for doc, offs in zip(raw_documents, offsets):
+            for span_start, span_end in offs:
+                spans.append(doc[span_start:span_end])
+        if remove_whitespace:
+            spans = [" ".join(span.split()).strip() for span in spans]
+        df = (
+            super(LateModel, self)
+            .representative_documents_df(
+                topic_id,
+                raw_documents=spans,
+                document_topic_matrix=span_topic_matrix,
+                top_k=top_k,
+            )
+            .rename(columns={"Document": "Span"})
+        )
+        return df
+
     def print_representative_spans(
         self,
         topic_id,
@@ -702,6 +941,26 @@ class LateModel(ContextualModel, TransformerMixin):
         top_k: int = 10,
         remove_whitespace: bool = True,
     ):
+        """Prints representative spans for a given topic.
+
+        Parameters
+        ----------
+        topic_id
+            ID of the topic to show spans for.
+        raw_documents: list[str], default None
+            List of documents.
+        document_topic_matrix: list[np.ndarray], default None
+            Ragged document topic matrix.
+        embeddings: list[np.ndarray], default None
+            Ragged embeddings.
+        offsets: list[Offsets] = None
+            Span offsets.
+        top_k: int, default 10,
+            Number of spans to return for each topic.
+        remove_whitespace: bool, default rue,
+            Indicates whether unnecessary remove_whitespace
+            should be removed from the returned spans.
+        """
         columns, *rows = self._representative_spans(
             topic_id,
             raw_documents,
@@ -730,7 +989,31 @@ class LateModel(ContextualModel, TransformerMixin):
         offsets: list[Offsets] | None = None,
         top_k: int = 10,
         remove_whitespace: bool = True,
+        format: str = "csv",
     ):
+        """Exports representative spans for a given topic in a given format
+
+        Parameters
+        ----------
+        topic_id
+            ID of the topic to show spans for.
+        raw_documents: list[str], default None
+            List of documents.
+        document_topic_matrix: list[np.ndarray], default None
+            Ragged document topic matrix.
+        embeddings: list[np.ndarray], default None
+            Ragged embeddings.
+        offsets: list[Offsets] = None
+            Span offsets.
+        top_k: int, default 10,
+            Number of spans to return for each topic.
+        remove_whitespace: bool, default rue,
+            Indicates whether unnecessary remove_whitespace
+            should be removed from the returned spans.
+        format: 'csv', 'latex' or 'markdown'
+            Specifies which format should be used.
+            'csv', 'latex' and 'markdown' are supported.
+        """
         table = self._representative_spans(
             topic_id,
             raw_documents,
