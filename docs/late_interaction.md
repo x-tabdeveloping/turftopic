@@ -6,6 +6,10 @@ Late interaction or multi-vector topic models are different, as they can make us
 We term these units ***Spans***.
 
 Spans can take many forms, and we let the user define, what unit they wish to do their analyses on e.g.:
+<figure style="text-align: left; float: right;">
+  <img src="../images/doc_w_spans.png" width="500px" style="padding: 0; margin: 0">
+  <figcaption>Document with topic-annotated spans using a late interaction topic model.</figcaption>
+</figure>
 
  1. The default unit is a **token**, tokens are determined by the language model that you use to produce embeddings for the topic model (aka the [Encoder](encoders.md)).
  2. You can use sliding **windows of tokens**, these are somewhat larger units, capturing more meaning at once, reducing the number of vectors to be processed.

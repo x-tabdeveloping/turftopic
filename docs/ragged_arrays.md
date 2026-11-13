@@ -3,6 +3,11 @@
 As mentioned before, late interaction models in Turftopic use ragged arrays to represent spans either with embeddings or document-topic matrices.
 While some third-party tools are available for this, we opted for a very simple model for ragged arrays with standard Python objects.
 
+<figure style="text-align: center; float: center; width=100%">
+  <img src="../images/ragged.png" width="100%" style="padding: 0; margin: 0">
+  <figcaption>Embeddings and document-topic matrices are arranged into ragged arrays in late interaction models.</figcaption>
+</figure>
+
 ## Data Model
 
 Ragged arrays in Turftopic are made up of two very important parts, a list of 2D arrays, that include the vectors for each span in each document, and an offsets object, that contains the start and end index of each span in each document.
