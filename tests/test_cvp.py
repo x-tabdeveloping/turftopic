@@ -1,5 +1,5 @@
 def test_cvp():
-    from turftopic import ConceptVectorProjection
+    from turftopic import ConceptVectorProjection, LateCVP
 
     cuteness_seeds = (
         ["Absolutely adorable", "I love how he dances with his little feet"],
@@ -23,3 +23,8 @@ def test_cvp():
     test_documents = ["What an awesome investment", "Tiny beautiful kitty-cat"]
     doc_concept_matrix = cvp.transform(test_documents)
     assert doc_concept_matrix.shape == (2, 2)
+    late_cvp = LateCVP(seeds=seeds)
+    doc_concept_matrix, offsets = late_cvp.transform(test_documents)
+    assert isinstance(doc_concept_matrix, list)
+    assert len(doc_concept_matrix) == 2
+    assert all(dc.shape[-1] == 2 for dc in doc_concept_matrix)
