@@ -10,7 +10,7 @@ from turftopic.models.cluster import (
     CTop2Vec,
     Top2Vec,
 )
-from turftopic.models.cvp import ConceptVectorProjection
+from turftopic.models.cvp import ConceptVectorProjection, LateCVP
 from turftopic.models.decomp import S3, SemanticSignalSeparation
 from turftopic.models.fastopic import FASTopic
 from turftopic.models.gmm import GMM
@@ -48,4 +48,5 @@ __all__ = [
     "vSLDA",
     "LDA",
     "NMF",
+    "LateCVP",
 ]
