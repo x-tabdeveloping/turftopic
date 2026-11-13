@@ -52,7 +52,7 @@ class TopicContainer(ABC):
         top = []
         score = []
         for component, high in zip(self.components_, highest):
-            high = high[np.argsort(-component)]
+            high = high[np.argsort(-component[high])]
             high = high[np.abs(component[high]) > 0]
             score.append(component[high])
             top.append(vocab[high])
