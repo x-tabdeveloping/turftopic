@@ -25,7 +25,7 @@ from turftopic import (
     load_model,
     vSLDA,
 )
-from turftopic.late import LateSentenceTransformer
+from turftopic.late import LateSentenceTransformer, LateWrapper
 
 ENCODER = "sentence-transformers/paraphrase-MiniLM-L3-v2"
 
@@ -101,6 +101,10 @@ online_models = [KeyNMF(3, encoder=trf)]
 late_models = [
     CTop2Vec(encoder=trf),
     vSLDA(3, encoder=trf, pooling=np.nanmean),
+    LateWrapper(
+        SensTopic(encoder=trf), span_extractor="sentence", pooling=np.nanmean
+    ),
+    LateWrapper(Topeax(encoder=trf), pooling=np.nanmean),
 ]
 
 

@@ -14,9 +14,25 @@ The model is based on Latent Dirichlet Allocation, except its outcome distributi
 vSDLA is natively a multi-vector/late-interaction topic model. 
 If you intend to use the model effectively you should make yourself familiar with [Turftopic's ragged array API](late_interaction.md).
 
-The authors originally intend the model to be used on sentence level, but in Turftopic, one can use vSLDA on contextual windows or tokens.
+The authors originally intend the model to be used on sentence level, which is the default in  Turftopic.
+One can use vSLDA with token embeddings or contextual windows.
 
 !!! quote "Choose granularity and pooling"
+    === "Sentence level (default)"
+        ```python
+        from turftopic import vSLDA
+
+        documents = [...]
+
+        model = vSLDA(10, span_extractor="sentence")
+
+        # The doc-topic matrix is a list of token-topic matrixes: (n_windows, n_topics)
+        # offsets contains the character offsets of each sentence in (start, end) tuples,
+        doc_topic_matrix, offsets = model.fit_transform(documents)
+
+        model.print_topics()
+        ```
+
     === "Token-level w/o Pooling"
 
         ```python
@@ -26,7 +42,7 @@ The authors originally intend the model to be used on sentence level, but in Tur
 
         # pooling and window_size are default parameters,
         # you don't have to specify that they are None
-        model = vSLDA(10, window_size=None, pooling=None)
+        model = vSLDA(10, window_size=None, pooling=None, span_extractor=None)
 
         # The doc-topic matrix is a list of token-topic matrixes: (n_windows, n_topics)
         # offsets contains the character offsets of each token in (start, end) tuples,
@@ -42,7 +58,7 @@ The authors originally intend the model to be used on sentence level, but in Tur
 
         documents = [...]
 
-        model = vSLDA(10, window_size=20, pooling=None)
+        model = vSLDA(10, window_size=20, pooling=None, span_extractor=None)
 
         # The doc-topic matrix is a list of window-topic matrixes shape: (n_windows, n_topics)
         # offsets contains the character offsets of each window in (start, end) tuples,
@@ -62,7 +78,7 @@ The authors originally intend the model to be used on sentence level, but in Tur
         # We will use np.nanmean to pool token-level topic probabilities
         # One can also use other pooling techniques that respect the nature of probabilities
         # better
-        model = vSLDA(10, pooling=np.nanmean)
+        model = vSLDA(10, pooling=np.nanmean, span_extractor=None)
 
         # The doc-topic matrix is a regular matrix, shape: (n_docs, n_topics)
         # No offsets are returned when pooling is specify
