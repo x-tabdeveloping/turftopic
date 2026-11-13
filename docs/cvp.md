@@ -80,16 +80,14 @@ Sometimes you might want to get a more granular understanding of how concepts ev
     To get a more in-depth understanding of late-interaction/multi-vector models, read our [User Guide](late_interaction.md).
 
 ```python
-from turftopic.late import LateWrapper, LateSentenceTransformer
+from turftopic import LateCVP
 # For plotting:
 import plotly.express as px
 import plotly.graph_objects as go
 
 seeds = [("cuteness", cuteness_seeds), ("bullish", bullish_seeds)]
 
-cvp = LateWrapper(
-    ConceptVectorProjection(seeds=seeds, encoder=LateSentenceTransformer("all-MiniLM-L6-v2"))
-)
+cvp = LateCVP(seeds=seeds)
 test_documents = ["What an awesome investment", "Tiny beautiful kitty-cat"]
 doc_concept_matrix, offsets = cvp.transform(test_documents)
 
@@ -148,5 +146,7 @@ Contexts},
 
 
 ::: turftopic.models.cvp.ConceptVectorProjection
+
+::: turftopic.models.cvp.LateCVP
 
 
