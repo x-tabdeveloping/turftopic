@@ -174,5 +174,5 @@ class DummySentenceExtractor(SpanExtractor):
                 sentence_offsets.append((sentence_start, token_end))
                 sentence_start = token_end
         if sentence_start != token_end:
-            sentence_offsets.append((sentence_start, token_end))
+            sentence_offsets.append((sentence_start, token_end + 1))
         return sentence_offsets
