@@ -169,6 +169,71 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                 )
         return self.components_
 
+    def fit_supervised(
+        self,
+        raw_documents,
+        y: np.ndarray,
+        embeddings: Optional[np.ndarray] = None,
+    ):
+        console = Console()
+        self.embeddings = embeddings
+        with console.status("Fitting model") as status:
+            if self.embeddings is None:
+                status.update("Encoding documents")
+                self.embeddings = self.encode_documents(raw_documents)
+                console.log("Documents encoded.")
+            doc_topic = y
+            self.n_components_ = y.shape[1]
+            self.decomposition = SNMF(
+                self.n_components_,
+                max_iter=self.max_iter,
+                sparsity=self.sparsity,
+                random_state=self.random_state,
+                G=y,
+            )
+            status.update("Calculating components")
+            self.decomposition.fit(embeddings)
+            console.log("Components calculated.")
+            status.update("Extracting terms.")
+            vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
+            console.log("Term extraction done.")
+            if getattr(self, "vocab_embeddings", None) is None:
+                status.update("Encoding vocabulary")
+                self.vocab_embeddings = self.encode_vocabulary_items(vocab)
+            if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=self.embeddings.shape[1],
+                        n_word_dims=self.vocab_embeddings.shape[1],
+                    )
+                )
+            console.log("Vocabulary encoded.")
+            status.update("Estimating term importances")
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.document_topic_matrix = doc_topic
+            console.log("Model fitting done.")
+            self.hierarchy = TopicNode.create_root(
+                self, self.components_, self.document_topic_matrix
+            )
+            if self.multilevel:
+                status.update("Estimating subtopics.")
+                self.add_subtopics()
+                console.log("Subtopics estimated.")
+        return self
+
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
@@ -205,7 +270,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             console.log("Term extraction done.")
             if getattr(self, "vocab_embeddings", None) is None:
                 status.update("Encoding vocabulary")
-                self.vocab_embeddings = self.encode_documents(vocab)
+                self.vocab_embeddings = self.encode_vocabulary_items(vocab)
             if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
                 raise ValueError(
                     NOT_MATCHING_ERROR.format(
