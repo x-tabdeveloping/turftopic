@@ -37,7 +37,9 @@ def init_G(
 ) -> np.ndarray:
     """Returns W"""
     if n_components > X.shape[1]:
-        return np.random.default_rng(random_state).normal(0, 1, size=(X.shape[1], n_components))
+        return np.random.default_rng(random_state).normal(
+            0, 1, size=(X.shape[1], n_components)
+        )
     kmeans = KMeans(n_components, random_state=random_state).fit(X.T)
     # n_components, n_columns
     G = safe_binarize(kmeans.labels_, classes=np.arange(n_components))
@@ -60,7 +62,8 @@ def separate(A):
 
 
 def update_F(X, G, F, n_freeze=None):
-    F_new = X @ G @ jnp.linalg.pinv(G.T @ G)
+    inv = jnp.linalg.pinv(G.T @ G)
+    F_new = jnp.linalg.multi_dot([X, G, inv])
     if n_freeze is None:
         return F_new
     else:
@@ -70,7 +73,7 @@ def update_F(X, G, F, n_freeze=None):
 def update_G(X, G, F, sparsity=0, n_freeze=None):
     G_new = G
     pos_xtf, neg_xtf = separate(X.T @ F)
-    pos_gftf, neg_gftf = separate(G_new @ (F.T @ F))
+    pos_gftf, neg_gftf = separate(jnp.linalg.multi_dot([G_new, F.T, F]))
     numerator = pos_xtf + neg_gftf
     denominator = neg_xtf + pos_gftf
     denominator += sparsity
@@ -106,6 +109,7 @@ def inference_loop(
     max_iter=200,
     track_convergence=True,
     freeze_F=False,
+    freeze_G=False,
 ):
     init_error = rec_err(X.T, F, G)
     init_state = {
@@ -155,6 +159,16 @@ def inference_loop(
             "n_iter": state["n_iter"] + 1,
         }
 
+    if freeze_G:
+        F = update_F(X, G, F, n_freeze=n_freeze)
+        new_error = rec_err(X.T, F, G)
+        return {
+            "G": G,
+            "F": F,
+            "error": new_error,
+            "error_diff": init_state["error"] - new_error,
+            "n_iter": 1,
+        }
     return while_loop(_cond_fn, _body_fn, init_state)
 
 
@@ -176,6 +190,28 @@ def infer_doc_topic(
         max_iter=max_iter,
         track_convergence=True,
         freeze_F=True,
+    )
+
+
+@jit
+def infer_components(
+    X,
+    G,
+    F,
+    sparsity=0,
+    tol=1e-5,
+    max_iter=200,
+):
+    return inference_loop(
+        X,
+        G,
+        F,
+        sparsity=sparsity,
+        tol=tol,
+        max_iter=max_iter,
+        track_convergence=True,
+        freeze_F=False,
+        freeze_G=True,
     )
 
 
@@ -231,6 +267,8 @@ class SNMF(TransformerMixin, BaseEstimator):
         progress_bar: bool = True,
         random_state: Optional[int] = None,
         sparsity: float = 0.0,
+        F=None,
+        G=None,
         verbose: bool = False,
     ):
         self.n_components = n_components
@@ -240,15 +278,36 @@ class SNMF(TransformerMixin, BaseEstimator):
         self.random_state = random_state
         self.sparsity = sparsity
         self.verbose = verbose
+        self.F = F
+        self.G = G
+        self.freeze_G = False
+        self.freeze_F = False
+        if self.F is not None:
+            self.components_ = np.array(F).T
+            self.freeze_F = True
+        if self.G is not None:
+            self.freeze_G = True
 
     def fit_transform(self, X: np.ndarray, y=None):
-        G = init_G(X.T, self.n_components, random_state=self.random_state)
-        F = update_F(X.T, G, F=None)
+        if self.G is None:
+            G = init_G(X.T, self.n_components, random_state=self.random_state)
+        else:
+            G = jnp.array(self.G)
+        if self.F is None:
+            F = update_F(X.T, G, F=None)
+        else:
+            F = self.F
         self.error_at_init = rec_err(X.T, F, G)
-        last_state = infer_model(
-            X=X,
-            G=G,
-            F=F,
+        if not (self.freeze_F or self.freeze_G):
+            inference_fn = infer_model
+        elif self.freeze_F:
+            inference_fn = infer_doc_topic
+        else:
+            inference_fn = infer_components
+        last_state = inference_fn(
+            X,
+            G,
+            F,
             sparsity=self.sparsity,
             tol=self.tol,
             max_iter=self.max_iter,
