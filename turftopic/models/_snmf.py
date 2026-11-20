@@ -80,7 +80,8 @@ def update_G(X, G, F, sparsity=0, n_freeze=None):
     denominator = jnp.maximum(denominator, EPSILON)
     delta_G_new = jnp.sqrt(numerator / denominator)
     G_new *= delta_G_new
-    G_new = G_new / jnp.maximum(jnp.linalg.norm(G_new), EPSILON)
+    row_norms = jnp.maximum(jnp.linalg.norm(G_new, axis=1), EPSILON)
+    G_new = (G_new.T / row_norms).T
     if n_freeze is None:
         return G_new
     else:
@@ -160,7 +161,7 @@ def inference_loop(
         }
 
     if freeze_G:
-        F = update_F(X, G, F, n_freeze=n_freeze)
+        F = update_F(X.T, G, F, n_freeze=n_freeze)
         new_error = rec_err(X.T, F, G)
         return {
             "G": G,
