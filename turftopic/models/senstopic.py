@@ -502,7 +502,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             t_dt = np.zeros(
                 (new_doc_topic.shape[0], self.decomposition.n_components)
             )
-            for i_new, joint_index in enumerate(merge_history[1]):
+            for i_new, joint_index in enumerate(self.merge_history_[1]):
                 t_dt[:, joint_index] = new_doc_topic[:, i_new]
             new_imp, new_comp = self._fit_timebin(embeddings, t_dt)
             t_components.append(new_comp)
