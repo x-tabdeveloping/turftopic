@@ -16,7 +16,7 @@ from turftopic.container import TopicContainer
 from turftopic.data import TopicData
 from turftopic.encoders import ExternalEncoder
 from turftopic.serialization import create_readme, get_package_versions
-from turftopic.vectorizers.merging import merge_vectorizers
+from turftopic.vectorizers.merging import UnionVectorizer
 
 Encoder = Union[ExternalEncoder, SentenceTransformer]
 
@@ -161,7 +161,7 @@ class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
         else:
             other_vectorizer = other_vectorizer_or_model
         # Joining vectorizers
-        joint_vectorizer = merge_vectorizers(self.vectorizer, other_vectorizer)
+        joint_vectorizer = UnionVectorizer(self.vectorizer, other_vectorizer)
         # Finding term difference
         old_vectorizer = self.vectorizer
         old_terms = old_vectorizer.get_feature_names_out()

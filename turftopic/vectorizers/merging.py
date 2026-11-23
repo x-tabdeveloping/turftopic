@@ -1,6 +1,7 @@
 import warnings
 
 import numpy as np
+import scipy.sparse as spr
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -74,3 +75,93 @@ def merge_vectorizers(
             "At least one vectorizer is not a CountVectorizer, returning a VocabStore object."
         )
         return VocabStore.from_merge(left_vectorizer, right_vectorizer)
+
+
+class UnionVectorizer(BaseEstimator, TransformerMixin):
+    def __init__(self, left: TransformerMixin, right: TransformerMixin):
+        self.left = left
+        self.right = right
+        if (getattr(self.left, "vocabulary_", None) is not None) and (
+            (getattr(self.right, "vocabulary_", None) is not None)
+        ):
+            self.merge_vocab(self.left, self.right)
+
+    def merge_vocab(self, left: TransformerMixin, right: TransformerMixin):
+        left_terms = left.get_feature_names_out()
+        right_terms = right.get_feature_names_out()
+        # Extracting terms present in right but not in left
+        self.diff_terms_ = list(set(right_terms) - set(left_terms))
+        self.joint_terms_ = list(left_terms) + self.diff_terms_
+        left_terms_to_idx = {term: i for i, term in enumerate(left_terms)}
+        right_terms_to_idx = {term: i for i, term in enumerate(right_terms)}
+        self.joint_to_left_ = [
+            left_terms_to_idx.get(term, None) for term in self.joint_terms_
+        ]
+        self.joint_to_right_ = [
+            right_terms_to_idx.get(term, None) for term in self.joint_terms_
+        ]
+        joint_to_idx = self.vocabulary_
+        self.left_to_joint_ = {
+            left_idx: joint_to_idx[left_term]
+            for left_term, left_idx in left_terms_to_idx.items()
+        }
+        self.right_to_joint_ = {
+            right_idx: joint_to_idx[right_term]
+            for right_term, right_idx in right_terms_to_idx.items()
+        }
+        self.diff_indices_ = np.array(
+            [right_terms_to_idx[term] for term in self.diff_terms_]
+        )
+
+    def fit_transform(self, raw_documents, y=None):
+        left_X = self.left.fit_transform(raw_documents)
+        right_X = self.right.fit_transform(raw_documents)
+        self.merge_vocab(left_X, right_X)
+        hstack = spr.hstack if spr.is_sparse(left_X) else np.hstack
+        return hstack([left_X, right_X[:, self.diff_indices_]])
+
+    def transform(self, raw_documents, y=None):
+        left_X = self.left.transform(raw_documents)
+        right_X = self.right.transform(raw_documents)
+        hstack = spr.hstack if spr.is_sparse(left_X) else np.hstack
+        return hstack([left_X, right_X[:, self.diff_indices_]])
+
+    def pad_left(self, left_X, pad_value=0):
+        if spr.is_sparse(left_X):
+            joint_X = spr.lil_array(
+                (left_X.shape[0], self.n_vocab), dtype=left_X.dtype
+            )
+        else:
+            joint_X = np.full((left_X.shape[0], self.n_vocab), pad_value)
+        joint_X[:, : left_X.shape[1]] = left_X
+        if spr.is_sparse(joint_X):
+            joint_X = spr.csr_array(joint_X)
+        return joint_X
+
+    def pad_right(self, right_X, pad_value=0):
+        if spr.is_sparse(right_X):
+            joint_X = spr.lil_array(
+                (right_X.shape[0], self.n_vocab), dtype=right_X.dtype
+            )
+        else:
+            joint_X = np.full(
+                (right_X.shape[0], self.n_vocab),
+                pad_value,
+                dtype=right_X.dtype,
+            )
+        for joint_idx, right_idx in enumerate(self.joint_to_right_):
+            if right_idx is not None:
+                joint_X[:, joint_idx] = right_X[:, right_idx]
+        if spr.is_sparse(joint_X):
+            joint_X = spr.csr_array(joint_X)
+        return joint_X
+
+    def get_feature_names_out(self):
+        return np.array(self.joint_terms_)
+
+    def n_vocab(self):
+        return len(self.joint_terms_)
+
+    @property
+    def vocabulary_(self):
+        return dict(zip(self.joint_terms_, range(len(self.joint_terms_))))
