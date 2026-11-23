@@ -116,30 +116,30 @@ class UnionVectorizer(BaseEstimator, TransformerMixin):
     def fit_transform(self, raw_documents, y=None):
         left_X = self.left.fit_transform(raw_documents)
         right_X = self.right.fit_transform(raw_documents)
-        self.merge_vocab(left_X, right_X)
-        hstack = spr.hstack if spr.is_sparse(left_X) else np.hstack
+        self.merge_vocab(self.left, self.right)
+        hstack = spr.hstack if spr.issparse(left_X) else np.hstack
         return hstack([left_X, right_X[:, self.diff_indices_]])
 
     def transform(self, raw_documents, y=None):
         left_X = self.left.transform(raw_documents)
         right_X = self.right.transform(raw_documents)
-        hstack = spr.hstack if spr.is_sparse(left_X) else np.hstack
+        hstack = spr.hstack if spr.issparse(left_X) else np.hstack
         return hstack([left_X, right_X[:, self.diff_indices_]])
 
     def pad_left(self, left_X, pad_value=0):
-        if spr.is_sparse(left_X):
+        if spr.issparse(left_X):
             joint_X = spr.lil_array(
                 (left_X.shape[0], self.n_vocab), dtype=left_X.dtype
             )
         else:
             joint_X = np.full((left_X.shape[0], self.n_vocab), pad_value)
         joint_X[:, : left_X.shape[1]] = left_X
-        if spr.is_sparse(joint_X):
+        if spr.issparse(joint_X):
             joint_X = spr.csr_array(joint_X)
         return joint_X
 
     def pad_right(self, right_X, pad_value=0):
-        if spr.is_sparse(right_X):
+        if spr.issparse(right_X):
             joint_X = spr.lil_array(
                 (right_X.shape[0], self.n_vocab), dtype=right_X.dtype
             )
@@ -152,13 +152,14 @@ class UnionVectorizer(BaseEstimator, TransformerMixin):
         for joint_idx, right_idx in enumerate(self.joint_to_right_):
             if right_idx is not None:
                 joint_X[:, joint_idx] = right_X[:, right_idx]
-        if spr.is_sparse(joint_X):
+        if spr.issparse(joint_X):
             joint_X = spr.csr_array(joint_X)
         return joint_X
 
     def get_feature_names_out(self):
         return np.array(self.joint_terms_)
 
+    @property
     def n_vocab(self):
         return len(self.joint_terms_)
 
