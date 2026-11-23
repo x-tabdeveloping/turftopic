@@ -3,7 +3,7 @@ import tempfile
 from abc import ABC, abstractmethod
 from functools import partial
 from pathlib import Path
-from typing import Iterable, List, Optional, Union
+from typing import Callable, Iterable, List, Optional, Union
 
 import joblib
 import numpy as np
@@ -125,11 +125,16 @@ class ContextualModel(BaseEstimator, TransformerMixin, TopicContainer):
     def _pad_components(self, n_diff_terms: int):
         NO_PADDING = (0, 0)
         if getattr(self, "components_", None) is not None:
-            self.components_ = np.pad(
-                self.components_,
-                # (n_timebins, n_components, n_terms)
-                [NO_PADDING, (0, n_diff_terms)],
-            )
+            # In some cases, components_ is a property
+            # in those cases we will not update.
+            try:
+                self.components_ = np.pad(
+                    self.components_,
+                    # (n_timebins, n_components, n_terms)
+                    [NO_PADDING, (0, n_diff_terms)],
+                )
+            except AttributeError:
+                pass
         if getattr(self, "temporal_components_", None) is not None:
             self.temporal_components_ = np.pad(
                 self.temporal_components_,
