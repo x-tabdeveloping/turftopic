@@ -508,6 +508,7 @@ class ClusteringTopicModel(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
         console.log("Model fitting done.")
+        self.topic_vectors_ = self._calculate_topic_vectors()
         self.top_documents = self.get_top_documents(
             raw_documents=raw_documents,
             document_topic_matrix=self.transform(
@@ -799,24 +800,18 @@ class ClusteringTopicModel(
         right_components = self.vectorizer.pad_right(
             other.components_, pad_value=np.nan
         )
-        # Filtering out zeros, as the cosine similarity would be zero
-        left_components = left_components[
-            ~np.all(
-                (left_components == 0) | (~np.isfinite(left_components)),
-                axis=1,
-            )
-        ]
-        right_components = right_components[
-            ~np.all(
-                (right_components == 0) | (~np.isfinite(right_components)),
-                axis=1,
-            )
-        ]
-        new_components, self.merge_history_ = merge_fn(
+        new_components, self.merge_history_, new_topic_embeddings = merge_fn(
             [left_components, right_components],
             match_threshold=match_threshold,
             weights=weights,
+            topic_embeddings=[self.topic_vectors_, other.topic_vectors_],
         )
+        self.topic_vectors_ = new_topic_embeddings
+        if self.feature_importance == "centroid":
+            new_components = cluster_centroid_distance(
+                self.topic_vectors_,
+                self.vocab_embeddings,
+            )
         if hasattr(self, "top_documents"):
             delattr(self, "top_documents")
         if hasattr(self, "top_images"):
