@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Literal, Optional, Sequence, Union
 
 import numpy as np
+import scipy.sparse as spr
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
 from sklearn.base import ClusterMixin, TransformerMixin
@@ -31,6 +32,7 @@ from turftopic.feature_importance import (
     soft_ctf_idf,
 )
 from turftopic.late import LateSentenceTransformer, LateWrapper
+from turftopic.merging import get_merge_fn, merge_hierarchies
 from turftopic.models._hierarchical_clusters import (
     VALID_LINKAGE_METHODS,
     ClusterNode,
@@ -478,6 +480,7 @@ class ClusteringTopicModel(
             doc_topic_matrix = safe_binarize(
                 self.labels_, classes=self.classes_
             )
+            self.n_documents_ = doc_topic_matrix.shape[0]
             if self.feature_importance == "c-tf-idf":
                 _, self._idf_diag = ctf_idf(
                     doc_topic_matrix,
@@ -736,6 +739,117 @@ class ClusteringTopicModel(
                 self.labels_, classes=self.classes_
             )
         return doc_topic_matrix
+
+    def merge_with(
+        self,
+        other: ClusteringTopicModel,
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Updates topic model by merging it with another one trained on the new data.
+
+        !!! warning:
+            Only static properties of a model will be taken into account when merging.
+            Attributes associated with top exemplars and temporal data will be **DELETED** from the model.
+            The model will be modified in-place.
+            We recommend that you save the original model to disk to avoid losing data.
+
+        Parameters
+        ----------
+        other: ClusteringTopicModel
+            Other clustering topic model to merge this one with.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        ndarray of shape (n_documents, n_topics)
+            Document-topic matrix.
+        """
+        self.update_vocabulary(other)
+        if weighted:
+            try:
+                weights = np.array(
+                    [
+                        self.n_documents_,
+                        other.n_documents_,
+                    ]
+                )
+                self.n_documents_ = self.n_documents_ + other.n_documents_
+            except Exception:
+                weights = None
+        else:
+            weights = None
+        merge_fn = get_merge_fn(merge_method)
+        left_components = self.vectorizer.pad_left(
+            self.components_, pad_value=np.nan
+        )
+        right_components = self.vectorizer.pad_right(
+            other.components_, pad_value=np.nan
+        )
+        # Filtering out zeros, as the cosine similarity would be zero
+        left_components = left_components[
+            ~np.all(
+                (left_components == 0) | (~np.isfinite(left_components)),
+                axis=1,
+            )
+        ]
+        right_components = right_components[
+            ~np.all(
+                (right_components == 0) | (~np.isfinite(right_components)),
+                axis=1,
+            )
+        ]
+        new_components, self.merge_history_ = merge_fn(
+            [left_components, right_components],
+            match_threshold=match_threshold,
+            weights=weights,
+        )
+        if hasattr(self, "top_documents"):
+            delattr(self, "top_documents")
+        if hasattr(self, "top_images"):
+            delattr(self, "top_images")
+        if hasattr(self, "temporal_components_"):
+            delattr(self, "temporal_components_")
+        if hasattr(self, "temporal_importance_"):
+            delattr(self, "temporal_importance_")
+        self.hierarchy = merge_hierarchies(
+            self.hierarchy,
+            other.hierarchy,
+            new_components,
+            self.merge_history_,
+            self.vectorizer,
+            self,
+        )
+        if hasattr(self, "_idf_diag") and hasattr(other, "_idf_diag"):
+            self_idf = np.atleast_2d(self._idf_diag.diagonal())
+            other_idf = np.atleast_2d(other._idf_diag.diagonal())
+            self_idf = self.vectorizer.pad_left(self_idf)
+            other_idf = self.vectorizer.pad_right(other_idf)
+            new_idf, _ = merge_fn(
+                [self_idf, other_idf], match_threshold=-np.inf, weights=weights
+            )
+            new_idf = np.ravel(new_idf)
+            n_vocab = len(self.get_vocab())
+            self._idf_diag = spr.diags_array(
+                new_idf,
+                offsets=0,
+                shape=(n_vocab, n_vocab),
+                format="csr",
+                dtype=self._idf_diag.dtype,
+            )
 
 
 class BERTopic(ClusteringTopicModel):
