@@ -120,6 +120,10 @@ class UnionVectorizer(BaseEstimator, TransformerMixin):
         hstack = spr.hstack if spr.issparse(left_X) else np.hstack
         return hstack([left_X, right_X[:, self.diff_indices_]])
 
+    def fit(self, raw_documents, y=None):
+        self.fit_transform(raw_documents)
+        return self
+
     def transform(self, raw_documents, y=None):
         left_X = self.left.transform(raw_documents)
         right_X = self.right.transform(raw_documents)
