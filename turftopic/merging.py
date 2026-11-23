@@ -82,6 +82,7 @@ def symmetric_merge(
     agg=nanaverage,
     sim_fn=safe_cosine,
     allow_within_model_match=False,
+    topic_embeddings=None,
 ) -> tuple[np.ndarray, MergeHistory]:
     """Performs a symmetric merge on a number of topic models.
 
@@ -99,6 +100,10 @@ def symmetric_merge(
         Function to produce the similarity matrix.
     allow_within_model_match: bool, default False
         Determines whether matches can happen within models.
+    topic_embeddings: list[np.ndarray]
+        Topic representations for calculating similarity.
+        This can be useful when you want to merge components in vocab space,
+        but want to calculate similarities based on embedding space.
 
     Returns
     -------
@@ -110,9 +115,17 @@ def symmetric_merge(
         each of the original topics were merged into.
         e.g. [[0,2,1], [3,2]] would indicate that the topics of the first model were merged into
         topics 0, 2 and 1 in the joint model, while the second model's topics were merged into 3 and 2.
+    OPTIONAL: ndarray of shape (n_new_topics, n_dims)
+        New topic embeddings.
     """
     stacked_components, old_labels = stack_components(component_matrices)
-    similarity = sim_fn(stacked_components, stacked_components)
+    if topic_embeddings is None:
+        similarity = sim_fn(stacked_components, stacked_components)
+    else:
+        stacked_embeddings, old_embedding_labels = stack_components(
+            topic_embeddings
+        )
+        similarity = sim_fn(stacked_components, stacked_components)
     if not allow_within_model_match:
         i_processed = 0
         for comp in component_matrices:
@@ -137,7 +150,12 @@ def symmetric_merge(
     new_components = merge_from_history(
         component_matrices, merge_history, weights=weights, agg=agg
     )
-    return new_components, merge_history
+    if topic_embeddings is None:
+        return new_components, merge_history
+    new_embeddings = merge_from_history(
+        topic_embeddings, merge_history, weights=weights, agg=agg
+    )
+    return new_components, merge_history, new_embeddings
 
 
 def keep_first(a, axis=0):
@@ -150,6 +168,7 @@ def asymmetric_merge(
     match_threshold: float = 0.7,
     agg=keep_first,
     sim_fn=safe_cosine,
+    topic_embeddings=None,
 ) -> tuple[np.ndarray, MergeHistory]:
     """Performs an asymmetric merge on a number of topic models.
 
@@ -167,6 +186,10 @@ def asymmetric_merge(
         Function to produce the similarity matrix.
     allow_within_model_match: bool, default False
         Determines whether matches can happen within models.
+    topic_embeddings: list[np.ndarray]
+        Topic representations for calculating similarity.
+        This can be useful when you want to merge components in vocab space,
+        but want to calculate similarities based on embedding space.
 
     Returns
     -------
@@ -178,15 +201,23 @@ def asymmetric_merge(
         each of the original topics were merged into.
         e.g. [[0,2,1], [3,2]] would indicate that the topics of the first model were merged into
         topics 0, 2 and 1 in the joint model, while the second model's topics were merged into 3 and 2.
+    OPTIONAL: ndarray of shape (n_new_topics, n_dims)
+        New topic embeddings.
     """
     merge_history = []
     components = np.copy(component_matrices[0])
+    if topic_embeddings is not None:
+        embeddings = np.copy(topic_embeddings[0])
     # First components will just be kept
     merge_history.append(list(range(components.shape[0])))
-    for incoming_components in component_matrices[1:]:
+    for i_model, incoming_components in enumerate(component_matrices[1:]):
         n_current = components.shape[0]
         _merge_inst = []
-        similarity = sim_fn(components, incoming_components)
+        if topic_embeddings is None:
+            similarity = sim_fn(components, incoming_components)
+        else:
+            incoming_embeddings = topic_embeddings[i_model]
+            similarity = sim_fn(embeddings, incoming_embeddings)
         maxsim_ind = np.argmax(similarity.T, axis=1)
         to_add = []
         for i_new_comp, ind_most_similar_old in enumerate(maxsim_ind):
@@ -204,14 +235,34 @@ def asymmetric_merge(
                     axis=0,
                 )
                 _merge_inst.append(ind_most_similar_old)
+                if topic_embeddings is not None:
+                    embeddings[ind_most_similar_old] = safe_agg(
+                        np.concatenate(
+                            [
+                                embeddings[[ind_most_similar_old], :],
+                                incoming_embeddings[[i_new_comp], :],
+                            ],
+                            axis=0,
+                        ),
+                        agg=agg,
+                        weights=weights,
+                        axis=0,
+                    )
             else:
                 _merge_inst.append(n_current + len(to_add))
                 to_add.append(i_new_comp)
         components = np.concatenate(
             [components, incoming_components[to_add]], axis=0
         )
+        if topic_embeddings is not None:
+            embeddings = np.concatenate(
+                [embeddings, incoming_embeddings[to_add]], axis=0
+            )
         merge_history.append(_merge_inst)
-    return components, merge_history
+    if topic_embeddings is None:
+        return components, merge_history
+    else:
+        return components, merge_history, embeddings
 
 
 NAMED_METHODS = {
