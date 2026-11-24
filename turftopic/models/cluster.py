@@ -431,6 +431,53 @@ class ClusteringTopicModel(
         """
         self.hierarchy.join_topics(to_join, joint_id=joint_id)
 
+    def fit_supervised(
+        self,
+        raw_documents,
+        y: np.ndarray,
+        embeddings: Optional[np.ndarray] = None,
+    ):
+        console = Console()
+        with console.status("Fitting model") as status:
+            if embeddings is None:
+                status.update("Encoding documents")
+                embeddings = self.encode_documents(raw_documents)
+                console.log("Encoding done.")
+            self.embeddings = embeddings
+            status.update("Extracting terms")
+            self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
+            console.log("Term extraction done.")
+            status.update("Estimating parameters.")
+            labels = np.argmax(y, axis=1)
+            # Initializing hierarchy
+            self.hierarchy = ClusterNode.create_root(self, labels=labels)
+            doc_topic_matrix = safe_binarize(
+                self.labels_, classes=self.classes_
+            )
+            self.n_documents_ = doc_topic_matrix.shape[0]
+            if self.feature_importance == "c-tf-idf":
+                _, self._idf_diag = ctf_idf(
+                    doc_topic_matrix,
+                    self.doc_term_matrix,
+                    return_idf=True,
+                )
+            if self.feature_importance == "soft-c-tf-idf":
+                _, self._idf_diag = soft_ctf_idf(
+                    doc_topic_matrix,
+                    self.doc_term_matrix,
+                    return_idf=True,
+                )
+            console.log("Parameter estimation done.")
+        console.log("Model fitting done.")
+        self.topic_vectors_ = self._calculate_topic_vectors()
+        self.top_documents = self.get_top_documents(
+            raw_documents=raw_documents,
+            document_topic_matrix=self.transform(
+                raw_documents, embeddings=self.embeddings
+            ),
+        )
+        return self
+
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
