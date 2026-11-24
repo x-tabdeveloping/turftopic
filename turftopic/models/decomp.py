@@ -30,6 +30,16 @@ NOT_MATCHING_ERROR = (
 )
 
 
+class DecompLinearRegression(LinearRegression):
+    """Linear regression, but has a transform method."""
+
+    def transform(self, X):
+        return self.predict(X)
+
+    def fit_transform(self, X, y):
+        return self.fit(X, y).transform(X)
+
+
 class SemanticSignalSeparation(
     ContextualModel, DynamicTopicModel, MultimodalModel
 ):
@@ -188,6 +198,59 @@ class SemanticSignalSeparation(
             self.document_topic_matrix = doc_topic
             console.log("Model fitting done.")
         return doc_topic
+
+    def fit_supervised(
+        self,
+        raw_documents,
+        y: np.ndarray,
+        embeddings: Optional[np.ndarray] = None,
+    ):
+        console = Console()
+        self.embeddings = embeddings
+        self.n_components = y.shape[1]
+        with console.status("Fitting model") as status:
+            if self.embeddings is None:
+                status.update("Encoding documents")
+                self.embeddings = self.encode_documents(raw_documents)
+                console.log("Documents encoded.")
+            status.update("Solving OLS")
+            self.decomposition = DecompLinearRegression(fit_intercept=False)
+            doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
+            console.log("OLS done.")
+            status.update("Extracting terms.")
+            vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
+            console.log("Term extraction done.")
+            status.update("Encoding vocabulary")
+            self.vocab_embeddings = self.encode_documents(vocab)
+            if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=self.embeddings.shape[1],
+                        n_word_dims=self.vocab_embeddings.shape[1],
+                    )
+                )
+            console.log("Vocabulary encoded.")
+            status.update("Estimating term importances")
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.negative_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic, positive=False
+            )
+            self.document_topic_matrix = doc_topic
+            console.log("Model fitting done.")
+        return self
 
     def fit_transform_multimodal(
         self,
