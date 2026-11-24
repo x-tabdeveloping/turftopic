@@ -1,6 +1,7 @@
 from turftopic.encoders.base import ExternalEncoder
 from turftopic.encoders.cohere import CohereEmbeddings
 from turftopic.encoders.openai import OpenAIEmbeddings
+from turftopic.encoders.soft_labels import SoftLabelEncoder
 from turftopic.encoders.voyage import VoyageEmbeddings
 
 __all__ = [
@@ -8,4 +9,5 @@ __all__ = [
     "OpenAIEmbeddings",
     "VoyageEmbeddings",
     "ExternalEncoder",
+    "SoftLabelEncoder",
 ]

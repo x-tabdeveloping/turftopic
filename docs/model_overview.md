@@ -28,6 +28,7 @@ It is quite important that you choose the right topic model for your use case.
 | [vSLDA](vSLDA.md)  | Reconstruct token/window/sentence representations using von-Mises components. | Contextual understanding, theoretical correctness | Manual n-topics, Can be slow with too granular representations |
 | *Neural Models* | | | |
 | [FASTopic](FASTopic.md)  | Neural topic modelling with Dual Semantic-relation Reconstruction | High quality topics and clusters, GPU support | Very slow, Memory hungry, Manual n-topics |
+| [DSL](DSL.md)  | Autoencoding topic model that reconstructs soft labels from a small language model instead of bag-of-words | Topic-label agreement on short texts, GPU support, Inference over new documents | Needs one language model pass over the corpus, Manual n-topics, Unigram vocabulary |
 | [AutoEncodingTopicModel](ctm.md)  | Discover topics by generating BoW with a variational autoencoder | GPU-support | Slow, Sometimes low quality topics |
 | *Clustering Models* | | | |
 | [ClusteringTopicModel](clustering.md)  | Embed -> Reduce -> Cluster | Flexible, many featuress | *Highly depends on construction* |
@@ -63,6 +64,7 @@ Some models are also capable of being used in a dynamic context, some can be fit
 | **[GMM](GMM.md)** | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
 | **[AutoEncodingTopicModel](ctm.md)** | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :heavy_check_mark:  | :x: |
 | **[FASTopic](fastopic.md)** | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :heavy_check_mark: | :x: |
+| **[DSL](DSL.md)** | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :x: | :x: |
 | [C-Top2Vec](clustering.md)  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :x: | :heavy_check_mark: | :x: |
 | **[LDA](LDA.md)**  | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :x: | :x: |
 | **[NMF](NMF.md)**  | :heavy_check_mark: | :x: | :x: | :x: | :heavy_check_mark: | :x: | :x: |
