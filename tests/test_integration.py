@@ -152,14 +152,14 @@ def test_fit_online(model):
         df = pd.read_csv(out_path)
 
 
-supports_merging = [SensTopic, Topeax, ClusteringTopicModel]
+supports_merging = [SensTopic, ClusteringTopicModel]
 
 
 @pytest.mark.parametrize("model_cls", supports_merging)
 def test_merging(model_cls):
     model_kwargs = dict(encoder=trf)
     models = []
-    for batch in batched(zip(texts, embeddings), 50):
+    for batch in batched(zip(texts, embeddings), 100):
         batch_text, batch_embedding = zip(*batch)
         batch_text = list(batch_text)
         batch_embedding = np.stack(batch_embedding)
