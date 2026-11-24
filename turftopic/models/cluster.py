@@ -824,8 +824,7 @@ class ClusteringTopicModel(
 
         Returns
         -------
-        ndarray of shape (n_documents, n_topics)
-            Document-topic matrix.
+        Self
         """
         self.update_vocabulary(other)
         if weighted:
