@@ -3,6 +3,7 @@ import time
 import typing
 import warnings
 import webbrowser
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Iterable, Literal, Optional, Sequence, Union
@@ -11,7 +12,7 @@ import numpy as np
 import scipy.sparse as spr
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
-from sklearn.base import ClusterMixin, TransformerMixin
+from sklearn.base import ClusterMixin, TransformerMixin, clone
 from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
@@ -892,6 +893,26 @@ class ClusteringTopicModel(
                 format="csr",
                 dtype=self._idf_diag.dtype,
             )
+
+    @classmethod
+    def merge_models(
+        cls,
+        models: list[ClusteringTopicModel],
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        if len(models) == 0:
+            raise ValueError("List is empty, cannot merge zero topic models.")
+        model = deepcopy(models[0])
+        for new_model in models[1:]:
+            model.merge_with(
+                new_model,
+                match_threshold=match_threshold,
+                merge_method=merge_method,
+                weighted=weighted,
+            )
+        return model
 
 
 class BERTopic(ClusteringTopicModel):
