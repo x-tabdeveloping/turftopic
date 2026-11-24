@@ -902,6 +902,32 @@ class ClusteringTopicModel(
         merge_method: str | Callable = "asymmetric_mean",
         weighted=True,
     ):
+        """Merges multiple ClusteringTopicModel models together.
+        The original models will not be modified.
+
+        Parameters
+        ----------
+        models: list[ClusteringTopicModel]
+            ClusteringTopicModel models to merge together.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        ClusteringTopicModel
+            Merged model.
+        """
         if len(models) == 0:
             raise ValueError("List is empty, cannot merge zero topic models.")
         model = deepcopy(models[0])
