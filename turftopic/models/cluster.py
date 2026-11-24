@@ -893,6 +893,7 @@ class ClusteringTopicModel(
                 format="csr",
                 dtype=self._idf_diag.dtype,
             )
+        return self
 
     @classmethod
     def merge_models(
