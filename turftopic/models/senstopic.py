@@ -1,4 +1,5 @@
 import warnings
+from copy import deepcopy
 from datetime import datetime, timedelta
 from functools import partial
 from typing import Callable, Literal, Optional, Union
@@ -17,6 +18,7 @@ from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.hierarchical import TopicNode
+from turftopic.merging import merge_hierarchies
 from turftopic.models._snmf import SNMF
 from turftopic.multimodal import (
     ImageRepr,
@@ -575,6 +577,100 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             weighted=weighted,
         )
         return self
+
+    def merge_with(
+        self,
+        other: SensTopic,
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Updates topic model by merging it with another one trained on the new data.
+
+        !!! warning:
+            Only static properties of a model will be taken into account when merging.
+            Attributes associated with top exemplars and temporal data will be **DELETED** from the model.
+            The model will be modified in-place.
+            We recommend that you save the original model to disk to avoid losing data.
+
+        Parameters
+        ----------
+        other: SensTopic
+            Other topic model to merge this one with.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        Self
+        """
+        self.update_vocabulary(other)
+        self.decomposition, self.merge_history_ = (
+            self.decomposition.merge_with(
+                other.decomposition,
+                match_threshold=match_threshold,
+                merge_method=merge_method,
+                weighted=weighted,
+            )
+        )
+        vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+        self.axial_components_ = vocab_topic.T
+        if self.feature_importance == "axial":
+            self.components_ = self.axial_components_
+        elif self.feature_importance == "angular":
+            self.components_ = self.angular_components_
+        elif self.feature_importance == "combined":
+            self.components_ = (
+                np.square(self.axial_components_) * self.angular_components_
+            )
+        if hasattr(self, "top_documents"):
+            delattr(self, "top_documents")
+        if hasattr(self, "top_images"):
+            delattr(self, "top_images")
+        if hasattr(self, "temporal_components_"):
+            delattr(self, "temporal_components_")
+        if hasattr(self, "temporal_importance_"):
+            delattr(self, "temporal_importance_")
+        self.hierarchy = merge_hierarchies(
+            self.hierarchy,
+            other.hierarchy,
+            self.components_,
+            self.merge_history_,
+            self.vectorizer,
+            self,
+        )
+        return self
+
+    @classmethod
+    def merge_models(
+        cls,
+        models: list[SensTopic],
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        if len(models) == 0:
+            raise ValueError("List is empty, cannot merge zero topic models.")
+        model = deepcopy(models[0])
+        for new_model in models[1:]:
+            model.merge_with(
+                new_model,
+                match_threshold=match_threshold,
+                merge_method=merge_method,
+                weighted=weighted,
+            )
+        return model
 
     def transform(self, raw_documents, embeddings=None):
         if embeddings is None:
