@@ -240,6 +240,7 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
             self.top_documents = self.get_top_documents(
                 raw_documents, document_topic_matrix=self.doc_topic_matrix
             )
+            self.n_documents_ = self.embeddings.shape[0]
         return self.doc_topic_matrix
 
     def fit_transform_multimodal(
@@ -297,6 +298,7 @@ class GMM(ContextualModel, DynamicTopicModel, MultimodalModel):
             self.top_documents = self.get_top_documents(
                 raw_documents, document_topic_matrix=self.doc_topic_matrix
             )
+            self.n_documents_ = self.embeddings.shape[0]
             console.log("Transformation done.")
         return self.doc_topic_matrix
 
