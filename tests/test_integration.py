@@ -155,7 +155,7 @@ def test_fit_online(model):
 supports_merging = [SensTopic, Topeax, ClusteringTopicModel]
 
 
-@pytest.mark.parametrize("model", supports_merging)
+@pytest.mark.parametrize("model_cls", supports_merging)
 def test_merging(model_cls):
     model_kwargs = dict(encoder=trf)
     models = []
