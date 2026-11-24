@@ -96,7 +96,7 @@ dynamic_models = [
     KeyNMF(3, encoder=trf),
 ]
 
-online_models = [KeyNMF(3, encoder=trf)]
+online_models = [KeyNMF(3, encoder=trf), SensTopic(3, encoder=trf)]
 
 late_models = [
     CTop2Vec(encoder=trf),
@@ -150,6 +150,24 @@ def test_fit_online(model):
         with out_path.open("w") as out_file:
             out_file.write(table)
         df = pd.read_csv(out_path)
+
+
+supports_merging = [SensTopic, Topeax, ClusteringTopicModel]
+
+
+@pytest.mark.parametrize("model", supports_merging)
+def test_merging(model_cls):
+    model_kwargs = dict(encoder=trf)
+    models = []
+    for batch in batched(zip(texts, embeddings), 50):
+        batch_text, batch_embedding = zip(*batch)
+        batch_text = list(batch_text)
+        batch_embedding = np.stack(batch_embedding)
+        new_model = model_cls(**model_kwargs)
+        new_model.fit(batch_text, embeddings=batch_embedding)
+        models.append(new_model)
+    model = model_cls.merge_models(models)
+    model.print_topics()
 
 
 OPTIONAL_FIELDS = [
