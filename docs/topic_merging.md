@@ -29,7 +29,7 @@ Currently a limited number of models are supported but we are working on extendi
             embeddings=embeddings[batch_start:batch_end],
         )
         models.append(batch_model)
-    model = SensTopic.merge_models(models, merge_method="symmetric_mean", match_threshold=0.7)
+    model = SensTopic.merge_models(models, merge_method="symmetric_mean", match_threshold=0.8)
     model.print_topics()
     ```
 
@@ -110,6 +110,14 @@ Currently a limited number of models are supported but we are working on extendi
     model.print_topics()
     ```
 
+| Topic ID | Highest Ranking |
+| - | - |
+| 0 | stream, broadcast, fm, interference, stations, mono, soc, wire, tv, clock |
+| 1 | preferably, speculation, wondered, suggests, rumors, interesting, mentioned, btw, ask, rumor |
+| | ... |
+| 19 | mph, mileage, speeds, specs, steering, motorcycle, symptoms, vehicles, driving, tires |
+| 20 | bigotry, immoral, morality, morals, abortion, skepticism, homosexuality, homosexuals, philosophy, judgment |
+| 21 | cite, cited, writer, records, literature, fields, saves, writes, reports, references |
 
 Topic merging consists of the following steps:
 

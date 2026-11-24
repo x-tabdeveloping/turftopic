@@ -18,6 +18,7 @@ nav:
     - Concept Induction: concept_induction.md
     - Multimodal Modeling (Experimental): multimodal.md
     - Model Merging: topic_merging.md
+    - Supervised Topic Modeling: supervised.md
     - Distribution Learning: distribution_learning.md
     - Implement a Wrapper/Custom Model: custom_model.md
   - Examples:
