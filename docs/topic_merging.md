@@ -1,10 +1,115 @@
 # Model/Topic Merging
 
 In Turftopic, some models allow you to merge information from multiple topic models into one.
-Currently, this can be done with SensTopic's `partial_fit` method, which updates a topic model by merging it with an identically initialized model
-on a new batch of data.
-More models will be implemented in the future.
 This guide teaches you about the different methods for merging topics and explanations on why they are useful, and how you should use them.
+
+This can be done with the models' classes' `merge_models()` method or a given model's `merge_with(other)` method.
+Currently a limited number of models are supported but we are working on extending model merging to as many models as possible.
+
+=== "SensTopic"
+
+    ```python
+    from turftopic import SensTopic
+    from sentence_transformers import SentenceTransformer
+
+    encoder = SentenceTransformer("all-MiniLM-L6-v2")
+    batch_size = 2500
+    model_kwargs = dict(
+        n_components="auto",
+        random_state=42,
+        encoder=encoder,
+    )
+    models = []
+    for batch_start in range(0, len(corpus), batch_size):
+        batch_end = batch_start + batch_size
+        batch_model = SemanticSignalSeparation(**model_kwargs)
+        # Calculating doc_topic_matrix for current batch
+        batch_model.fit(
+            corpus[batch_start:batch_end],
+            embeddings=embeddings[batch_start:batch_end],
+        )
+        models.append(batch_model)
+    model = SensTopic.merge_models(models, merge_method="symmetric_mean", match_threshold=0.7)
+    model.print_topics()
+    ```
+
+=== "ClusteringTopicModel (by extension BERTopic and Top2Vec too)"
+
+    ```python
+    from turftopic import ClusteringTopicModel
+    from sentence_transformers import SentenceTransformer
+
+    encoder = SentenceTransformer("all-MiniLM-L6-v2")
+    batch_size = 2500
+    model_kwargs = dict(
+        random_state=42,
+        encoder=encoder,
+    )
+    models = []
+    for batch_start in range(0, len(corpus), batch_size):
+        batch_end = batch_start + batch_size
+        batch_model = ClusteringTopicModel(**model_kwargs)
+        batch_model.fit(
+            corpus[batch_start:batch_end],
+            embeddings=embeddings[batch_start:batch_end],
+        )
+        models.append(batch_model)
+    model = ClusteringTopicModel.merge_models(models, merge_method="symmetric_mean", match_threshold=0.7)
+    model.print_topics()
+    ```
+
+=== "SemanticSignalSeparation"
+
+    ```python
+    from turftopic import SemanticSignalSeparation
+    from sentence_transformers import SentenceTransformer
+
+    encoder = SentenceTransformer("all-MiniLM-L6-v2")
+    batch_size = 2500
+    model_kwargs = dict(
+        n_components=10,
+        random_state=42,
+        encoder=encoder,
+    )
+    models = []
+    for batch_start in range(0, len(corpus), batch_size):
+        batch_end = batch_start + batch_size
+        batch_model = SemanticSignalSeparation(**model_kwargs)
+        batch_model.fit(
+            corpus[batch_start:batch_end],
+            embeddings=embeddings[batch_start:batch_end],
+        )
+        models.append(batch_model)
+    model = SemanticSignalSeparation.merge_models(models, merge_method="symmetric_mean", match_threshold=0.7)
+    model.print_topics()
+    ```
+
+=== "Topeax"
+
+    ```python
+    from turftopic import Topeax
+    from sentence_transformers import SentenceTransformer
+
+    encoder = SentenceTransformer("all-MiniLM-L6-v2")
+    batch_size = 2500
+    model_kwargs = dict(
+        n_components=10,
+        random_state=42,
+        encoder=encoder,
+    )
+    models = []
+    for batch_start in range(0, len(corpus), batch_size):
+        batch_end = batch_start + batch_size
+        batch_model = Topeax(**model_kwargs)
+        batch_model.fit(
+            corpus[batch_start:batch_end],
+            embeddings=embeddings[batch_start:batch_end],
+        )
+        models.append(batch_model)
+    model = Topeax.merge_models(models, merge_method="symmetric_mean", match_threshold=0.7)
+    model.print_topics()
+    ```
+
 
 Topic merging consists of the following steps:
 
