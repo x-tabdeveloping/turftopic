@@ -149,7 +149,7 @@ def soft_ctf_idf(
     tf = (term_importance.T / (overall_in_topic + eps)).T
     idf = np.log(n_docs / (np.abs(term_importance).sum(axis=0) + eps))
     ctf_idf = tf * idf
-    idf_diag = spr.diags(
+    idf_diag = spr.diags_array(
         idf,
         offsets=0,
         shape=(doc_term_matrix.shape[1], doc_term_matrix.shape[1]),
@@ -194,7 +194,7 @@ def ctf_idf(
         component = freq * np.log(1 + average / overall_freq)
         components.append(component)
     idf = np.log((average / overall_freq) + 1)
-    idf_diag = spr.diags(
+    idf_diag = spr.diags_array(
         idf,
         offsets=0,
         shape=(doc_term_matrix.shape[1], doc_term_matrix.shape[1]),

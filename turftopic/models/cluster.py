@@ -1,16 +1,20 @@
+from __future__ import annotations
+
 import tempfile
 import time
 import typing
 import warnings
 import webbrowser
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Iterable, Literal, Optional, Sequence, Union
 
 import numpy as np
+import scipy.sparse as spr
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
-from sklearn.base import ClusterMixin, TransformerMixin
+from sklearn.base import ClusterMixin, TransformerMixin, clone
 from sklearn.cluster import HDBSCAN
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
@@ -31,6 +35,7 @@ from turftopic.feature_importance import (
     soft_ctf_idf,
 )
 from turftopic.late import LateSentenceTransformer, LateWrapper
+from turftopic.merging import get_merge_fn, merge_hierarchies
 from turftopic.models._hierarchical_clusters import (
     VALID_LINKAGE_METHODS,
     ClusterNode,
@@ -429,6 +434,53 @@ class ClusteringTopicModel(
         """
         self.hierarchy.join_topics(to_join, joint_id=joint_id)
 
+    def fit_supervised(
+        self,
+        raw_documents,
+        y: np.ndarray,
+        embeddings: Optional[np.ndarray] = None,
+    ):
+        console = Console()
+        with console.status("Fitting model") as status:
+            if embeddings is None:
+                status.update("Encoding documents")
+                embeddings = self.encode_documents(raw_documents)
+                console.log("Encoding done.")
+            self.embeddings = embeddings
+            status.update("Extracting terms")
+            self.doc_term_matrix = self.vectorizer.fit_transform(raw_documents)
+            console.log("Term extraction done.")
+            status.update("Estimating parameters.")
+            labels = np.argmax(y, axis=1)
+            # Initializing hierarchy
+            self.hierarchy = ClusterNode.create_root(self, labels=labels)
+            doc_topic_matrix = safe_binarize(
+                self.labels_, classes=self.classes_
+            )
+            self.n_documents_ = doc_topic_matrix.shape[0]
+            if self.feature_importance == "c-tf-idf":
+                _, self._idf_diag = ctf_idf(
+                    doc_topic_matrix,
+                    self.doc_term_matrix,
+                    return_idf=True,
+                )
+            if self.feature_importance == "soft-c-tf-idf":
+                _, self._idf_diag = soft_ctf_idf(
+                    doc_topic_matrix,
+                    self.doc_term_matrix,
+                    return_idf=True,
+                )
+            console.log("Parameter estimation done.")
+        console.log("Model fitting done.")
+        self.topic_vectors_ = self._calculate_topic_vectors()
+        self.top_documents = self.get_top_documents(
+            raw_documents=raw_documents,
+            document_topic_matrix=self.transform(
+                raw_documents, embeddings=self.embeddings
+            ),
+        )
+        return self
+
     def fit_predict(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
@@ -478,6 +530,7 @@ class ClusteringTopicModel(
             doc_topic_matrix = safe_binarize(
                 self.labels_, classes=self.classes_
             )
+            self.n_documents_ = doc_topic_matrix.shape[0]
             if self.feature_importance == "c-tf-idf":
                 _, self._idf_diag = ctf_idf(
                     doc_topic_matrix,
@@ -505,6 +558,7 @@ class ClusteringTopicModel(
                     f"Topic reduction done from {n_topics} to {self.n_reduce_to}."
                 )
         console.log("Model fitting done.")
+        self.topic_vectors_ = self._calculate_topic_vectors()
         self.top_documents = self.get_top_documents(
             raw_documents=raw_documents,
             document_topic_matrix=self.transform(
@@ -736,6 +790,157 @@ class ClusteringTopicModel(
                 self.labels_, classes=self.classes_
             )
         return doc_topic_matrix
+
+    def merge_with(
+        self,
+        other: ClusteringTopicModel,
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Updates topic model by merging it with another one trained on the new data.
+
+        !!! warning:
+            Only static properties of a model will be taken into account when merging.
+            Attributes associated with top exemplars and temporal data will be **DELETED** from the model.
+            The model will be modified in-place.
+            We recommend that you save the original model to disk to avoid losing data.
+
+        Parameters
+        ----------
+        other: ClusteringTopicModel
+            Other clustering topic model to merge this one with.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        Self
+        """
+        self.update_vocabulary(other)
+        if weighted:
+            try:
+                weights = np.array(
+                    [
+                        self.n_documents_,
+                        other.n_documents_,
+                    ]
+                )
+                self.n_documents_ = self.n_documents_ + other.n_documents_
+            except Exception:
+                weights = None
+        else:
+            weights = None
+        merge_fn = get_merge_fn(merge_method)
+        left_components = self.vectorizer.pad_left(
+            self.components_, pad_value=np.nan
+        )
+        right_components = self.vectorizer.pad_right(
+            other.components_, pad_value=np.nan
+        )
+        new_components, self.merge_history_, new_topic_embeddings = merge_fn(
+            [left_components, right_components],
+            match_threshold=match_threshold,
+            weights=weights,
+            topic_embeddings=[self.topic_vectors_, other.topic_vectors_],
+        )
+        self.topic_vectors_ = new_topic_embeddings
+        if self.feature_importance == "centroid":
+            new_components = cluster_centroid_distance(
+                self.topic_vectors_,
+                self.vocab_embeddings,
+            )
+        if hasattr(self, "top_documents"):
+            delattr(self, "top_documents")
+        if hasattr(self, "top_images"):
+            delattr(self, "top_images")
+        if hasattr(self, "temporal_components_"):
+            delattr(self, "temporal_components_")
+        if hasattr(self, "temporal_importance_"):
+            delattr(self, "temporal_importance_")
+        self.hierarchy = merge_hierarchies(
+            self.hierarchy,
+            other.hierarchy,
+            new_components,
+            self.merge_history_,
+            self.vectorizer,
+            self,
+        )
+        if hasattr(self, "_idf_diag") and hasattr(other, "_idf_diag"):
+            self_idf = np.atleast_2d(self._idf_diag.diagonal())
+            other_idf = np.atleast_2d(other._idf_diag.diagonal())
+            self_idf = self.vectorizer.pad_left(self_idf)
+            other_idf = self.vectorizer.pad_right(other_idf)
+            new_idf, _ = merge_fn(
+                [self_idf, other_idf], match_threshold=-np.inf, weights=weights
+            )
+            new_idf = np.ravel(new_idf)
+            n_vocab = len(self.get_vocab())
+            self._idf_diag = spr.diags_array(
+                new_idf,
+                offsets=0,
+                shape=(n_vocab, n_vocab),
+                format="csr",
+                dtype=self._idf_diag.dtype,
+            )
+        return self
+
+    @classmethod
+    def merge_models(
+        cls,
+        models: list[ClusteringTopicModel],
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Merges multiple ClusteringTopicModel models together.
+        The original models will not be modified.
+
+        Parameters
+        ----------
+        models: list[ClusteringTopicModel]
+            ClusteringTopicModel models to merge together.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        ClusteringTopicModel
+            Merged model.
+        """
+        if len(models) == 0:
+            raise ValueError("List is empty, cannot merge zero topic models.")
+        model = deepcopy(models[0])
+        for new_model in models[1:]:
+            model.merge_with(
+                new_model,
+                match_threshold=match_threshold,
+                merge_method=merge_method,
+                weighted=weighted,
+            )
+        return model
 
 
 class BERTopic(ClusteringTopicModel):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 from rich.console import Console
@@ -317,6 +317,18 @@ class TopicNode:
         if self.children is not None:
             for child in self.children:
                 child._append_path(path_prefix)
+
+    def map(self, f: Callable[TopicNode, TopicNode]) -> TopicNode:
+        """Maps a function to each node of the hierarchy.
+        This function could be in-place or not, the original hierarchy will not be modified.
+        """
+        res = self.copy(deep=False)
+        if res.children is None:
+            return f(res)
+        else:
+            children = [child.map(f) for child in res.children]
+            res.children = children
+            return res
 
     def copy(self, deep: bool = True) -> TopicNode:
         """Creates a copy of the given node.

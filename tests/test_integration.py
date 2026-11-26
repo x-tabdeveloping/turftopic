@@ -1,6 +1,7 @@
 import itertools
 import tempfile
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 
 import numpy as np
@@ -9,6 +10,7 @@ import pytest
 from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.decomposition import PCA
+from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic import (
     GMM,
@@ -150,6 +152,35 @@ def test_fit_online(model):
         with out_path.open("w") as out_file:
             out_file.write(table)
         df = pd.read_csv(out_path)
+
+
+supports_merging = [
+    (SensTopic, dict()),
+    (
+        ClusteringTopicModel,
+        dict(clustering=KMeans(5), dimensionality_reduction=PCA(2)),
+    ),
+]
+
+
+@pytest.mark.parametrize("model_data", supports_merging)
+def test_merging(model_data):
+    model_cls, model_kwargs = model_data
+    model_kwargs = {
+        **model_kwargs,
+        "encoder": trf,
+        "vectorizer": CountVectorizer(min_df=1),
+    }
+    models = [
+        model_cls(**model_kwargs).fit(
+            list(texts[:200]), embeddings=embeddings[:200]
+        ),
+        model_cls(**model_kwargs).fit(
+            list(texts[200:]), embeddings=embeddings[200:]
+        ),
+    ]
+    model = model_cls.merge_models(models)
+    model.print_topics()
 
 
 OPTIONAL_FIELDS = [

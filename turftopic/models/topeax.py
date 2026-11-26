@@ -1,4 +1,7 @@
-from typing import Optional, Union
+from __future__ import annotations
+
+from copy import deepcopy
+from typing import Callable, Optional, Union
 
 import numpy as np
 from scipy.ndimage import (
@@ -19,6 +22,7 @@ from sklearn.mixture._gaussian_mixture import (
 
 from turftopic.base import Encoder
 from turftopic.encoders.multimodal import MultimodalEncoder
+from turftopic.merging import get_merge_fn
 from turftopic.models.gmm import GMM, LexicalWordImportance
 
 
@@ -200,14 +204,14 @@ class Topeax(GMM):
             self.vocab_embeddings.shape[0] != vocab.shape[0]
         ):
             self.vocab_embeddings = self.encode_documents(vocab)
-        topic_embeddings = []
+        topic_vectors = []
         for weight in doc_topic_matrix.T:
-            topic_embeddings.append(
+            topic_vectors.append(
                 np.average(self.embeddings, axis=0, weights=weight)
             )
-        self.topic_embeddings = np.stack(topic_embeddings)
+        self.topic_vectors_ = np.stack(topic_vectors)
         semantic_components = cosine_similarity(
-            self.topic_embeddings, self.vocab_embeddings
+            self.topic_vectors_, self.vocab_embeddings
         )
         # Transforming to positive values from 0 to 1
         # Then taking geometric average of the two values
@@ -215,6 +219,127 @@ class Topeax(GMM):
             ((1 + lexical_components) / 2) * ((1 + semantic_components) / 2)
         )
         return self.components_
+
+    def merge_with(
+        self,
+        other: Topeax,
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Updates topic model by merging it with another one trained on the new data.
+
+        !!! warning:
+            Only static properties of a model will be taken into account when merging.
+            Attributes associated with top exemplars and temporal data will be **DELETED** from the model.
+            The model will be modified in-place.
+            We recommend that you save the original model to disk to avoid losing data.
+
+        Parameters
+        ----------
+        other: Topeax
+            Other Topeax model to merge this one with.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        Self
+        """
+        self.update_vocabulary(other)
+        if weighted:
+            try:
+                weights = np.array(
+                    [
+                        self.n_documents_,
+                        other.n_documents_,
+                    ]
+                )
+                self.n_documents_ = self.n_documents_ + other.n_documents_
+            except Exception:
+                weights = None
+        else:
+            weights = None
+        merge_fn = get_merge_fn(merge_method)
+        left_components = self.vectorizer.pad_left(
+            self.components_, pad_value=np.nan
+        )
+        right_components = self.vectorizer.pad_right(
+            other.components_, pad_value=np.nan
+        )
+        new_components, self.merge_history_, new_topic_embeddings = merge_fn(
+            [left_components, right_components],
+            match_threshold=match_threshold,
+            weights=weights,
+            topic_embeddings=[self.topic_vectors_, other.topic_vectors_],
+        )
+        self.topic_vectors_ = new_topic_embeddings
+        if hasattr(self, "top_documents"):
+            delattr(self, "top_documents")
+        if hasattr(self, "top_images"):
+            delattr(self, "top_images")
+        if hasattr(self, "temporal_components_"):
+            delattr(self, "temporal_components_")
+        if hasattr(self, "temporal_importance_"):
+            delattr(self, "temporal_importance_")
+        return self
+
+    @classmethod
+    def merge_models(
+        cls,
+        models: list[Topeax],
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Merges multiple ClusteringTopicModel models together.
+        The original models will not be modified.
+
+        Parameters
+        ----------
+        models: list[ClusteringTopicModel]
+            ClusteringTopicModel models to merge together.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        ClusteringTopicModel
+            Merged model.
+        """
+        if len(models) == 0:
+            raise ValueError("List is empty, cannot merge zero topic models.")
+        model = deepcopy(models[0])
+        for new_model in models[1:]:
+            model.merge_with(
+                new_model,
+                match_threshold=match_threshold,
+                merge_method=merge_method,
+                weighted=weighted,
+            )
+        return model
 
     def _init_model(self, n_components: int):
         mixture = Peax()

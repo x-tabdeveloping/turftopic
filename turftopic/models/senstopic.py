@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import warnings
+from copy import deepcopy
 from datetime import datetime, timedelta
 from functools import partial
 from typing import Callable, Literal, Optional, Union
@@ -17,6 +20,7 @@ from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.hierarchical import TopicNode
+from turftopic.merging import merge_hierarchies
 from turftopic.models._snmf import SNMF
 from turftopic.multimodal import (
     ImageRepr,
@@ -169,6 +173,71 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                 )
         return self.components_
 
+    def fit_supervised(
+        self,
+        raw_documents,
+        y: np.ndarray,
+        embeddings: Optional[np.ndarray] = None,
+    ):
+        console = Console()
+        self.embeddings = embeddings
+        with console.status("Fitting model") as status:
+            if self.embeddings is None:
+                status.update("Encoding documents")
+                self.embeddings = self.encode_documents(raw_documents)
+                console.log("Documents encoded.")
+            doc_topic = y
+            self.n_components_ = y.shape[1]
+            self.decomposition = SNMF(
+                self.n_components_,
+                max_iter=self.max_iter,
+                sparsity=self.sparsity,
+                random_state=self.random_state,
+                G=y,
+            )
+            status.update("Calculating components")
+            self.decomposition.fit(embeddings)
+            console.log("Components calculated.")
+            status.update("Extracting terms.")
+            vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
+            console.log("Term extraction done.")
+            if getattr(self, "vocab_embeddings", None) is None:
+                status.update("Encoding vocabulary")
+                self.vocab_embeddings = self.encode_vocabulary_items(vocab)
+            if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=self.embeddings.shape[1],
+                        n_word_dims=self.vocab_embeddings.shape[1],
+                    )
+                )
+            console.log("Vocabulary encoded.")
+            status.update("Estimating term importances")
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.document_topic_matrix = doc_topic
+            console.log("Model fitting done.")
+            self.hierarchy = TopicNode.create_root(
+                self, self.components_, self.document_topic_matrix
+            )
+            if self.multilevel:
+                status.update("Estimating subtopics.")
+                self.add_subtopics()
+                console.log("Subtopics estimated.")
+        return self
+
     def fit_transform(
         self, raw_documents, y=None, embeddings: Optional[np.ndarray] = None
     ) -> np.ndarray:
@@ -205,7 +274,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             console.log("Term extraction done.")
             if getattr(self, "vocab_embeddings", None) is None:
                 status.update("Encoding vocabulary")
-                self.vocab_embeddings = self.encode_documents(vocab)
+                self.vocab_embeddings = self.encode_vocabulary_items(vocab)
             if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
                 raise ValueError(
                     NOT_MATCHING_ERROR.format(
@@ -437,7 +506,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             t_dt = np.zeros(
                 (new_doc_topic.shape[0], self.decomposition.n_components)
             )
-            for i_new, joint_index in enumerate(merge_history[1]):
+            for i_new, joint_index in enumerate(self.merge_history_[1]):
                 t_dt[:, joint_index] = new_doc_topic[:, i_new]
             new_imp, new_comp = self._fit_timebin(embeddings, t_dt)
             t_components.append(new_comp)
@@ -510,6 +579,126 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             weighted=weighted,
         )
         return self
+
+    def merge_with(
+        self,
+        other: SensTopic,
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Updates topic model by merging it with another one trained on the new data.
+
+        !!! warning:
+            Only static properties of a model will be taken into account when merging.
+            Attributes associated with top exemplars and temporal data will be **DELETED** from the model.
+            The model will be modified in-place.
+            We recommend that you save the original model to disk to avoid losing data.
+
+        Parameters
+        ----------
+        other: SensTopic
+            Other topic model to merge this one with.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        Self
+        """
+        self.update_vocabulary(other)
+        self.decomposition, self.merge_history_ = (
+            self.decomposition.merge_with(
+                other.decomposition,
+                match_threshold=match_threshold,
+                merge_method=merge_method,
+                weighted=weighted,
+            )
+        )
+        vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+        self.axial_components_ = vocab_topic.T
+        if self.feature_importance == "axial":
+            self.components_ = self.axial_components_
+        elif self.feature_importance == "angular":
+            self.components_ = self.angular_components_
+        elif self.feature_importance == "combined":
+            self.components_ = (
+                np.square(self.axial_components_) * self.angular_components_
+            )
+        if hasattr(self, "top_documents"):
+            delattr(self, "top_documents")
+        if hasattr(self, "top_images"):
+            delattr(self, "top_images")
+        if hasattr(self, "temporal_components_"):
+            delattr(self, "temporal_components_")
+        if hasattr(self, "temporal_importance_"):
+            delattr(self, "temporal_importance_")
+        self.hierarchy = merge_hierarchies(
+            self.hierarchy,
+            other.hierarchy,
+            self.components_,
+            self.merge_history_,
+            self.vectorizer,
+            self,
+        )
+        return self
+
+    @classmethod
+    def merge_models(
+        cls,
+        models: list[SensTopic],
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Merges multiple SensTopic models together.
+        The original models will not be modified.
+
+        Parameters
+        ----------
+        models: list[SensTopic]
+            SensTopic models to merge together.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        SensTopic
+            Merged model.
+        """
+        if len(models) == 0:
+            raise ValueError("List is empty, cannot merge zero topic models.")
+        model = deepcopy(models[0])
+        for new_model in models[1:]:
+            model.merge_with(
+                new_model,
+                match_threshold=match_threshold,
+                merge_method=merge_method,
+                weighted=weighted,
+            )
+        return model
 
     def transform(self, raw_documents, embeddings=None):
         if embeddings is None:

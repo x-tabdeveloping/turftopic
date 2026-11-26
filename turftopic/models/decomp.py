@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 import warnings
+from copy import deepcopy
 from datetime import datetime
-from typing import Literal, Optional, Union
+from typing import Callable, Literal, Optional, Union
 
 import numpy as np
 from rich.console import Console
 from sentence_transformers import SentenceTransformer
-from sklearn.base import TransformerMixin
+from sklearn.base import TransformerMixin, clone
 from sklearn.decomposition import FastICA
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_extraction.text import CountVectorizer
@@ -16,6 +19,7 @@ from turftopic.analyzers.base import Analyzer
 from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
+from turftopic.merging import get_merge_fn
 from turftopic.multimodal import (
     ImageRepr,
     MultimodalEmbeddings,
@@ -28,6 +32,58 @@ NOT_MATCHING_ERROR = (
     + "Perhaps you are using precomputed embeddings but forgot to pass an encoder to your model. "
     + "Try to initialize the model with the encoder you used for computing the embeddings."
 )
+
+
+class DecompLinearRegression(LinearRegression):
+    """Linear regression, but has a transform method."""
+
+    def transform(self, X):
+        return self.predict(X)
+
+    def fit_transform(self, X, y):
+        return self.fit(X, y).transform(X)
+
+
+def merge_fastica(
+    left: FastICA, right: FastICA, merge_method, match_threshold, weights
+):
+    if not (isinstance(left, FastICA) and isinstance(right, FastICA)):
+        raise TypeError("Can only merge S3 models that use FastICA.")
+    if left.whiten != right.whiten:
+        raise ValueError(
+            "Cannot merge FastICA instances because one of them uses whitening while the other doesn't."
+        )
+    use_whitening = left.whiten and right.whiten
+    new_decomp = clone(left)
+    merge_fn = get_merge_fn(merge_method)
+    if use_whitening:
+        whitening_means = np.stack([left.mean_, right.mean_])
+        if weights is not None:
+            new_mean = np.average(whitening_means, weights=weights, axis=0)
+        else:
+            new_mean = np.mean(whitening_means, axis=0)
+        new_whitening, merge_history, new_components = merge_fn(
+            [left.whitening_, right.whitening_],
+            match_threshold=match_threshold,
+            weights=weights,
+            topic_embeddings=[left.components_, right.components_],
+        )
+        new_decomp.components_ = new_components
+        new_decomp.n_components = new_components.shape[0]
+        new_decomp.mean_ = new_mean
+        new_decomp.whitening_ = new_whitening
+    else:
+        new_whitening, merge_history = merge_fn(
+            [left.components_, right.components_],
+            match_threshold=match_threshold,
+            weights=weights,
+        )
+        new_decomp.components_ = new_components
+        new_decomp.n_components = new_components.shape[0]
+    new_decomp.mixing_ = np.linalg.pinv(new_decomp.components_)
+    new_decomp.n_iter_ = left.n_iter_ + right.n_iter_
+    new_decomp.n_features_in_ = left.n_features_in_
+    return new_decomp, merge_history
 
 
 class SemanticSignalSeparation(
@@ -186,8 +242,62 @@ class SemanticSignalSeparation(
                 raw_documents, document_topic_matrix=doc_topic, positive=False
             )
             self.document_topic_matrix = doc_topic
+            self.n_documents_ = doc_topic.shape[0]
             console.log("Model fitting done.")
         return doc_topic
+
+    def fit_supervised(
+        self,
+        raw_documents,
+        y: np.ndarray,
+        embeddings: Optional[np.ndarray] = None,
+    ):
+        console = Console()
+        self.embeddings = embeddings
+        self.n_components = y.shape[1]
+        with console.status("Fitting model") as status:
+            if self.embeddings is None:
+                status.update("Encoding documents")
+                self.embeddings = self.encode_documents(raw_documents)
+                console.log("Documents encoded.")
+            status.update("Solving OLS")
+            self.decomposition = DecompLinearRegression(fit_intercept=False)
+            doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
+            console.log("OLS done.")
+            status.update("Extracting terms.")
+            vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
+            console.log("Term extraction done.")
+            status.update("Encoding vocabulary")
+            self.vocab_embeddings = self.encode_documents(vocab)
+            if self.vocab_embeddings.shape[1] != self.embeddings.shape[1]:
+                raise ValueError(
+                    NOT_MATCHING_ERROR.format(
+                        n_dims=self.embeddings.shape[1],
+                        n_word_dims=self.vocab_embeddings.shape[1],
+                    )
+                )
+            console.log("Vocabulary encoded.")
+            status.update("Estimating term importances")
+            vocab_topic = self.decomposition.transform(self.vocab_embeddings)
+            self.axial_components_ = vocab_topic.T
+            if self.feature_importance == "axial":
+                self.components_ = self.axial_components_
+            elif self.feature_importance == "angular":
+                self.components_ = self.angular_components_
+            elif self.feature_importance == "combined":
+                self.components_ = (
+                    np.square(self.axial_components_)
+                    * self.angular_components_
+                )
+            self.top_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic
+            )
+            self.negative_documents = self.get_top_documents(
+                raw_documents, document_topic_matrix=doc_topic, positive=False
+            )
+            self.document_topic_matrix = doc_topic
+            console.log("Model fitting done.")
+        return self
 
     def fit_transform_multimodal(
         self,
@@ -258,6 +368,7 @@ class SemanticSignalSeparation(
                 raw_documents, document_topic_matrix=doc_topic, positive=False
             )
             console.log("Images transformed")
+            self.n_documents_ = doc_topic.shape[0]
         return doc_topic
 
     def plot_topics_with_images(self, n_columns: int = 3, grid_size: int = 4):
@@ -643,6 +754,120 @@ class SemanticSignalSeparation(
         if embeddings is None:
             embeddings = self.encode_documents(raw_documents)
         return self.decomposition.transform(embeddings)
+
+    def merge_with(
+        self,
+        other: SemanticSignalSeparation,
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Updates topic model by merging it with another one trained on the new data.
+
+        !!! warning:
+            Only static properties of a model will be taken into account when merging.
+            Attributes associated with top exemplars and temporal data will be **DELETED** from the model.
+            The model will be modified in-place.
+            We recommend that you save the original model to disk to avoid losing data.
+
+        Parameters
+        ----------
+        other: SemanticSignalSeparation
+            Other SemanticSignalSeparation model to merge this one with.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        Self
+        """
+        self.update_vocabulary(other)
+        if weighted:
+            try:
+                weights = np.array(
+                    [
+                        self.n_documents_,
+                        other.n_documents_,
+                    ]
+                )
+                self.n_documents_ = self.n_documents_ + other.n_documents_
+            except Exception:
+                weights = None
+        else:
+            weights = None
+        self.decomposition, self.merge_history_ = merge_fastica(
+            self.decomposition,
+            other.decomposition,
+            merge_method,
+            match_threshold,
+            weights,
+        )
+        if hasattr(self, "top_documents"):
+            delattr(self, "top_documents")
+        if hasattr(self, "top_images"):
+            delattr(self, "top_images")
+        if hasattr(self, "temporal_components_"):
+            delattr(self, "temporal_components_")
+        if hasattr(self, "temporal_importance_"):
+            delattr(self, "temporal_importance_")
+        return self
+
+    @classmethod
+    def merge_models(
+        cls,
+        models: list[SemanticSignalSeparation],
+        match_threshold=0.7,
+        merge_method: str | Callable = "asymmetric_mean",
+        weighted=True,
+    ):
+        """Merges multiple SemanticSignalSeparation models together.
+        The original models will not be modified.
+
+        Parameters
+        ----------
+        models: list[SemanticSignalSeparation]
+            SemanticSignalSeparation models to merge together.
+        match_threshold: float, default 0.7
+            Cosine similarity threshold, above which topics are to be considered the same.
+        merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
+            Method for merging the two topic models.
+             - `'symmetric_mean'` Treats the two models as equal, and takes the mean of matching topics.
+               Matches are found by building a graph of topic connections based on the similarity threshold.
+               Each new topic will be one graph component.
+             - `'asymmetric_mean'` Merges new topics into the old topics and takes their mean.
+             - `'keep_first'` Keeps all components untouched in the current model,
+               and only adds new components from the new model that do not match.
+        weighted: bool, default True
+            Indicates whether the merge aggregation should be weighted by the number of documents the
+            two models have seen.
+
+        Returns
+        -------
+        SemanticSignalSeparation
+            Merged model.
+        """
+        if len(models) == 0:
+            raise ValueError("List is empty, cannot merge zero topic models.")
+        model = deepcopy(models[0])
+        for new_model in models[1:]:
+            model.merge_with(
+                new_model,
+                match_threshold=match_threshold,
+                merge_method=merge_method,
+                weighted=weighted,
+            )
+        return model
 
     def print_topics(
         self,
