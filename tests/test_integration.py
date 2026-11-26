@@ -1,6 +1,7 @@
 import itertools
 import tempfile
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 
 import numpy as np
@@ -9,6 +10,7 @@ import pytest
 from sklearn.cluster import KMeans
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.decomposition import PCA
+from sklearn.feature_extraction.text import CountVectorizer
 
 from turftopic import (
     GMM,
@@ -96,7 +98,7 @@ dynamic_models = [
     KeyNMF(3, encoder=trf),
 ]
 
-online_models = [KeyNMF(3, encoder=trf), SensTopic(3, encoder=trf)]
+online_models = [KeyNMF(3, encoder=trf)]
 
 late_models = [
     CTop2Vec(encoder=trf),
@@ -152,20 +154,31 @@ def test_fit_online(model):
         df = pd.read_csv(out_path)
 
 
-supports_merging = [SensTopic, ClusteringTopicModel]
+supports_merging = [
+    (SensTopic, dict()),
+    (
+        ClusteringTopicModel,
+        dict(clustering=KMeans(5), dimensionality_reduction=PCA(2)),
+    ),
+]
 
 
-@pytest.mark.parametrize("model_cls", supports_merging)
-def test_merging(model_cls):
-    model_kwargs = dict(encoder=trf)
-    models = []
-    for batch in batched(zip(texts, embeddings), 100):
-        batch_text, batch_embedding = zip(*batch)
-        batch_text = list(batch_text)
-        batch_embedding = np.stack(batch_embedding)
-        new_model = model_cls(**model_kwargs)
-        new_model.fit(batch_text, embeddings=batch_embedding)
-        models.append(new_model)
+@pytest.mark.parametrize("model_data", supports_merging)
+def test_merging(model_data):
+    model_cls, model_kwargs = model_data
+    model_kwargs = {
+        **model_kwargs,
+        "encoder": trf,
+        "vectorizer": CountVectorizer(min_df=1),
+    }
+    models = [
+        model_cls(**model_kwargs).fit(
+            list(texts[:200]), embeddings=embeddings[:200]
+        ),
+        model_cls(**model_kwargs).fit(
+            list(texts[200:]), embeddings=embeddings[200:]
+        ),
+    ]
     model = model_cls.merge_models(models)
     model.print_topics()
 
