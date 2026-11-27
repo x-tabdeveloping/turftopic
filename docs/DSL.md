@@ -12,7 +12,6 @@ Bag-of-words targets can only give weight to words that occur in a document.
 A soft label also gives weight to theme words that the document never uses, such as "hockey" for a post about a trade rumour, which matters most for short texts.
 
 The topic model in Turftopic's implementation is a ProdLDA-style variational autoencoder, and its loss is the KL divergence between the soft label and the reconstruction, plus the usual prior term.
-The paper applies the same target to ECRTM and FASTopic as well.
 
 ## Usage
 
