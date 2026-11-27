@@ -2,6 +2,7 @@ import datetime
 import itertools
 import warnings
 from collections import defaultdict
+from copy import deepcopy
 from functools import partial
 from typing import Callable
 
@@ -9,6 +10,7 @@ import numpy as np
 import scipy.sparse as spr
 from sklearn.metrics.pairwise import cosine_similarity
 
+from turftopic.base import ContextualModel
 from turftopic.hierarchical import TopicNode
 from turftopic.vectorizers.merging import UnionVectorizer
 
@@ -73,6 +75,72 @@ def merge_from_history(
             axis=0,
         )
     return new_components
+
+
+def merge_models(
+    models: ContextualModel,
+    match_threshold=0.7,
+    merge_method: str | Callable = "asymmetric_mean",
+    weighted=True,
+    return_merge_graph: bool = False,
+):
+    import igraph as ig
+
+    if len(models) == 0:
+        raise ValueError("List is empty, cannot merge zero topic models.")
+    if not all([hasattr(model, "merge_with") for model in models]):
+        raise ValueError(
+            "Models do not all have a merge_with method, cannot merge"
+        )
+    model = deepcopy(models[0])
+    node_labels = list(model.topic_names)
+    vertex_components = model.components_.tolist()
+    vocabs = [model.get_vocab()] * len(model.components_)
+    stage = [0] * len(node_labels)
+    pointer = 0
+    edges = []
+    for i_model, new_model in enumerate(models[1:]):
+        model.merge_with(
+            new_model,
+            match_threshold=match_threshold,
+            merge_method=merge_method,
+            weighted=weighted,
+        )
+        orig_to, new_to = model.merge_history_
+        for orig_index, joint_index in enumerate(orig_to):
+            edges.append(
+                (
+                    orig_index + pointer,
+                    joint_index + pointer + len(orig_to) + len(new_to),
+                )
+            )
+        pointer += len(orig_to)
+        for new_index, joint_index in enumerate(new_to):
+            edges.append(
+                (
+                    new_index + pointer,
+                    joint_index + pointer + len(new_to),
+                )
+            )
+        pointer += len(new_to)
+        node_labels += new_model.topic_names
+        vertex_components.extend(new_model.components_.tolist())
+        vocabs.extend([new_model.get_vocab()] * len(new_model.components_))
+        node_labels += model.topic_names
+        vocabs.extend([model.get_vocab()] * len(model.components_))
+        vertex_components.extend(model.components_.tolist())
+        stage.extend([(i_model + 1) * 2 - 1] * len(new_to))
+        stage.extend([(i_model + 1) * 2] * (len(model.topic_names)))
+    n_vertices = len(node_labels)
+    g = ig.Graph(n_vertices, edges, directed=True)
+    g.vs["name"] = node_labels
+    g.vs["stage"] = stage
+    g.vs["vocab"] = vocabs
+    g.vs["components"] = vertex_components
+    if return_merge_graph:
+        return model, g
+    else:
+        return model
 
 
 def symmetric_merge(
