@@ -198,6 +198,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             )
             status.update("Calculating components")
             self.decomposition.fit(embeddings)
+            self.topic_vectors_ = self.decomposition.components_
             console.log("Components calculated.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
@@ -269,6 +270,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             )
             status.update("Decomposing embeddings")
             doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
+            self.topic_vectors_ = self.decomposition.components_
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
@@ -454,6 +456,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                 weighted=weighted,
             )
         )
+        self.topic_vectors_ = self.decomposition.components_
         if isinstance(merge_method, str) and (merge_method == "keep_first"):
             n_diff = self.decomposition.n_components - self.n_components_
             # Updating topic names:
@@ -628,6 +631,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
                 weighted=weighted,
             )
         )
+        self.topic_vectors_ = self.decomposition.components_
         vocab_topic = self.decomposition.transform(self.vocab_embeddings)
         self.axial_components_ = vocab_topic.T
         if self.feature_importance == "axial":
@@ -747,6 +751,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
             )
             status.update("Decomposing embeddings")
             doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
+            self.topic_vectors_ = self.decomposition.components_
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()

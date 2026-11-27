@@ -210,6 +210,7 @@ class SemanticSignalSeparation(
                     "y is specified but decomposition method is FastICA, which can't use labels. y will be ignored. Use a metric learning method for semi-supervised S^3."
                 )
             doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
+            self.topic_vectors_ = self.decomposition.components_
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
@@ -264,6 +265,7 @@ class SemanticSignalSeparation(
             status.update("Solving OLS")
             self.decomposition = DecompLinearRegression(fit_intercept=False)
             doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
+            self.topic_vectors_ = self.decomposition.components_
             console.log("OLS done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
@@ -325,6 +327,7 @@ class SemanticSignalSeparation(
                     "Supervisory signal is specified but decomposition method is FastICA. y will be ignored. Use a metric learning method for supervised S^3."
                 )
             doc_topic = self.decomposition.fit_transform(self.embeddings, y=y)
+            self.topic_vectors_ = self.decomposition.components_
             console.log("Decomposition done.")
             status.update("Extracting terms.")
             vocab = self.vectorizer.fit(raw_documents).get_feature_names_out()
@@ -557,6 +560,7 @@ class SemanticSignalSeparation(
         with console.status("Refitting model") as status:
             status.update("Decomposing embeddings")
             doc_topic = self.decomposition.fit_transform(self.embeddings)
+            self.topic_vectors_ = self.decomposition.components_
             console.log("Decomposition done.")
             status.update("Estimating term importances")
             vocab_topic = self.decomposition.transform(self.vocab_embeddings)
