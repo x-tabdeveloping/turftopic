@@ -45,6 +45,7 @@ nav:
     - Neural Models:
       - Autoencoding Models (ZeroShotTM & CombinedTM): ctm.md
       - FASTopic: FASTopic.md
+      - DSL: DSL.md
     - Bag-of-words Models:
       - LDA: LDA.md
       - NMF: NMF.md
