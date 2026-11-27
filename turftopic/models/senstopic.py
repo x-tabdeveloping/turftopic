@@ -391,6 +391,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         weighted: bool, default True
             Indicates whether the merge aggregation should be weighted by the number of documents the
             two models have seen.
+
         Returns
         -------
         ndarray of shape (n_documents, n_topics)
@@ -661,6 +662,7 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         match_threshold=0.7,
         merge_method: str | Callable = "asymmetric_mean",
         weighted=True,
+        return_merge_graph: bool = False,
     ):
         """Merges multiple SensTopic models together.
         The original models will not be modified.
@@ -682,23 +684,61 @@ class SensTopic(ContextualModel, DynamicTopicModel, MultimodalModel):
         weighted: bool, default True
             Indicates whether the merge aggregation should be weighted by the number of documents the
             two models have seen.
+        return_merge_graph: bool, default = False
+            Indicates whether the merge graph should be returned.
 
         Returns
         -------
         SensTopic
             Merged model.
+        Graph (OPTIONAL)
+            igraph directed Graph over merges.
         """
+        import igraph as ig
+
         if len(models) == 0:
             raise ValueError("List is empty, cannot merge zero topic models.")
         model = deepcopy(models[0])
-        for new_model in models[1:]:
+        node_labels = list(model.topic_names)
+        stage = [0] * len(node_labels)
+        pointer = 0
+        edges = []
+        for i_model, new_model in enumerate(models[1:]):
             model.merge_with(
                 new_model,
                 match_threshold=match_threshold,
                 merge_method=merge_method,
                 weighted=weighted,
             )
-        return model
+            orig_to, new_to = model.merge_history_
+            for orig_index, joint_index in enumerate(orig_to):
+                edges.append(
+                    (
+                        orig_index + pointer,
+                        joint_index + pointer + len(orig_to) + len(new_to),
+                    )
+                )
+            pointer += len(orig_to)
+            for new_index, joint_index in enumerate(new_to):
+                edges.append(
+                    (
+                        new_index + pointer,
+                        joint_index + pointer + len(new_to),
+                    )
+                )
+            pointer += len(new_to)
+            node_labels += new_model.topic_names
+            node_labels += model.topic_names
+            stage.extend([(i_model + 1) * 2 - 1] * len(new_to))
+            stage.extend([(i_model + 1) * 2] * (len(model.topic_names)))
+        n_vertices = len(node_labels)
+        g = ig.Graph(n_vertices, edges, directed=True)
+        g.vs["name"] = node_labels
+        g.vs["stage"] = stage
+        if return_merge_graph:
+            return model, g
+        else:
+            return model
 
     def transform(self, raw_documents, embeddings=None):
         if embeddings is None:
