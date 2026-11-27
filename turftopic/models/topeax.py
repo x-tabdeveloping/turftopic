@@ -23,6 +23,7 @@ from sklearn.mixture._gaussian_mixture import (
 from turftopic.base import Encoder
 from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.merging import get_merge_fn
+from turftopic.merging import merge_models as _merge_models
 from turftopic.models.gmm import GMM, LexicalWordImportance
 
 
@@ -302,14 +303,15 @@ class Topeax(GMM):
         match_threshold=0.7,
         merge_method: str | Callable = "asymmetric_mean",
         weighted=True,
+        return_merge_graph: bool = False,
     ):
-        """Merges multiple ClusteringTopicModel models together.
+        """Merges multiple Topeax models together.
         The original models will not be modified.
 
         Parameters
         ----------
-        models: list[ClusteringTopicModel]
-            ClusteringTopicModel models to merge together.
+        models: list[Topeax]
+            Topeax models to merge together.
         match_threshold: float, default 0.7
             Cosine similarity threshold, above which topics are to be considered the same.
         merge_method: {'symmetric_mean', 'asymmetric_mean', 'keep_first'} or Callable, default 'symmetric_mean'
@@ -326,20 +328,16 @@ class Topeax(GMM):
 
         Returns
         -------
-        ClusteringTopicModel
+        Topeax
             Merged model.
         """
-        if len(models) == 0:
-            raise ValueError("List is empty, cannot merge zero topic models.")
-        model = deepcopy(models[0])
-        for new_model in models[1:]:
-            model.merge_with(
-                new_model,
-                match_threshold=match_threshold,
-                merge_method=merge_method,
-                weighted=weighted,
-            )
-        return model
+        return _merge_models(
+            models,
+            match_threshold,
+            merge_method,
+            weighted,
+            return_merge_graph,
+        )
 
     def _init_model(self, n_components: int):
         mixture = Peax()

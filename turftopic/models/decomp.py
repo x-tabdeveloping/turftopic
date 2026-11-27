@@ -20,6 +20,7 @@ from turftopic.base import ContextualModel, Encoder
 from turftopic.dynamic import DynamicTopicModel
 from turftopic.encoders.multimodal import MultimodalEncoder
 from turftopic.merging import get_merge_fn
+from turftopic.merging import merge_models as _merge_models
 from turftopic.multimodal import (
     ImageRepr,
     MultimodalEmbeddings,
@@ -830,6 +831,7 @@ class SemanticSignalSeparation(
         match_threshold=0.7,
         merge_method: str | Callable = "asymmetric_mean",
         weighted=True,
+        return_merge_graph: bool = False,
     ):
         """Merges multiple SemanticSignalSeparation models together.
         The original models will not be modified.
@@ -851,23 +853,23 @@ class SemanticSignalSeparation(
         weighted: bool, default True
             Indicates whether the merge aggregation should be weighted by the number of documents the
             two models have seen.
+        return_merge_graph: bool, default = False
+            Indicates whether the merge graph should be returned.
 
         Returns
         -------
         SemanticSignalSeparation
             Merged model.
+        Graph (OPTIONAL)
+            igraph directed Graph over merges.
         """
-        if len(models) == 0:
-            raise ValueError("List is empty, cannot merge zero topic models.")
-        model = deepcopy(models[0])
-        for new_model in models[1:]:
-            model.merge_with(
-                new_model,
-                match_threshold=match_threshold,
-                merge_method=merge_method,
-                weighted=weighted,
-            )
-        return model
+        return _merge_models(
+            models,
+            match_threshold,
+            merge_method,
+            weighted,
+            return_merge_graph,
+        )
 
     def print_topics(
         self,
